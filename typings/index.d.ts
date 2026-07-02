@@ -71,6 +71,8 @@ export interface ISentence {
   difficulty: SentenceDifficulty
   distractors: string[]
   fullText?: string
+  /** 句子所属名篇 id，有则可在学习页点击跳转到名篇阅读页 */
+  articleId?: string
 }
 
 export interface IWord {

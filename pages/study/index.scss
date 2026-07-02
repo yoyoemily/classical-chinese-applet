@@ -18,7 +18,12 @@
   &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-xl; }
   &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-lg; }
   &__sentence-target { color: var(--color-accent); border-bottom: 6rpx solid var(--color-accent); padding-bottom: 4rpx; }
-  &__sentence-source { margin-top: $spacing-sm; font-size: $font-size-sm; color: var(--color-text-hint); font-style: italic; }
+  &__sentence-source { margin-top: $spacing-sm; font-size: $font-size-sm; color: var(--color-text-hint); font-style: italic;
+    &--link { color: var(--color-accent); font-style: normal; font-weight: 500; text-decoration: underline; text-underline-offset: 4rpx;
+      &:active { color: darken($color-accent, 10%); }
+    }
+  }
+  &__sentence-source-arrow { margin-left: $spacing-xs; font-size: $font-size-sm; }
   &__question { font-size: $font-size-md; color: var(--color-text-secondary); text-align: center; margin-bottom: $spacing-lg; }
   &__target-word { color: var(--color-accent); font-weight: 600; font-size: 40rpx; font-family: 'STKaiti','KaiTi','楷体',serif; }
 
@@ -30,8 +35,55 @@
   }
   &__option-label { @include flex-center; width: 48rpx; height: 48rpx; border-radius: 50%; background: var(--color-bg-card); font-size: $font-size-base; font-weight: 600; color: var(--color-text-hint); flex-shrink: 0; transition: all 0.2s ease; }
   &__option-text { flex: 1; font-size: $font-size-md; color: var(--color-text-primary); line-height: 1.5; transition: color 0.2s ease; }
-  &__dont-know { @include flex-center; padding: $spacing-sm $spacing-lg; color: var(--color-text-hint); font-size: $font-size-sm;
-    &--hover { color: var(--color-text-secondary); }
+  // "不知道"卡片 —— 虚线边框 + 暖色背景，与选项卡片明显区分
+  &__dont-know-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    margin-top: $spacing-sm;
+    background: linear-gradient(135deg, rgba(#faad14, 0.06), rgba(#faad14, 0.02));
+    border: 2rpx dashed #d4a84b;
+    border-radius: $radius-lg;
+    box-sizing: border-box;
+    position: relative;
+
+    &--hover {
+      background: linear-gradient(135deg, rgba(#faad14, 0.12), rgba(#faad14, 0.06));
+      border-color: #c99a3b;
+    }
+  }
+  &__dont-know-icon {
+    font-size: 44rpx;
+    flex-shrink: 0;
+  }
+  &__dont-know-body {
+    flex: 1;
+    @include flex-column;
+    gap: 4rpx;
+  }
+  &__dont-know-title {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: #8b6914;
+  }
+  &__dont-know-hint {
+    font-size: $font-size-xs;
+    color: #b8954a;
+    line-height: 1.4;
+  }
+  &__dont-know-badge {
+    position: absolute;
+    top: -2rpx;
+    right: $spacing-md;
+    padding: 4rpx 16rpx;
+    background: linear-gradient(135deg, #faad14, #f0a000);
+    color: #fff;
+    font-size: 18rpx;
+    font-weight: 600;
+    border-radius: 0 0 6rpx 6rpx;
+    letter-spacing: 2rpx;
   }
 
   &__flash-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; @include flex-center; z-index: 100; animation: flashPulse 0.5s ease-out; background: rgba(82,196,26,0.12); }

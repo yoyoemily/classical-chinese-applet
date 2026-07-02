@@ -26,8 +26,8 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '连词', definition: '表示修饰关系，连接状语和中心语，可译为"地""着"或不译', example: '河曲智叟笑而止之曰。——《愚公移山》' },
         ],
         sentences: [
-          { id: 's_001_01_1', text: '学而不思则罔，思而不学则殆。', source: '《论语·为政》', translation: '只学习而不思考就会迷惑，只思考而不学习就会疑惑。', targetWord: '而', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['和，又，并且', '地，着', '就，然后'], fullText: '子曰："学而不思则罔，思而不学则殆。"' },
-          { id: 's_001_01_2', text: '温故而知新，可以为师矣。', source: '《论语·为政》', translation: '温习旧的知识，进而能有新的体会，就可以做老师了。', targetWord: '而', correctMeaningIndex: 2, difficulty: 'basic', distractors: ['却，但是', '和，又', '地，着'], fullText: '子曰："温故而知新，可以为师矣。"' },
+          { id: 's_001_01_1', text: '学而不思则罔，思而不学则殆。', source: '《论语·为政》', translation: '只学习而不思考就会迷惑，只思考而不学习就会疑惑。', targetWord: '而', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['和，又，并且', '地，着', '就，然后'], fullText: '子曰："学而不思则罔，思而不学则殆。"', articleId: 'art_002' },
+          { id: 's_001_01_2', text: '温故而知新，可以为师矣。', source: '《论语·为政》', translation: '温习旧的知识，进而能有新的体会，就可以做老师了。', targetWord: '而', correctMeaningIndex: 2, difficulty: 'basic', distractors: ['却，但是', '和，又', '地，着'], fullText: '子曰："温故而知新，可以为师矣。"', articleId: 'art_002' },
           { id: 's_001_01_3', text: '河曲智叟笑而止之曰："甚矣，汝之不惠！"', source: '《愚公移山》', translation: '河曲智叟笑着阻止他说："你也太不聪明了！"', targetWord: '而', correctMeaningIndex: 3, difficulty: 'medium', distractors: ['却，但是', '就，然后', '和，又'], fullText: '河曲智叟笑而止之曰："甚矣，汝之不惠！以残年余力，曾不能毁山之一毛，其如土石何？"' },
         ],
         similarHomophones: ['尔', '耳', '儿'],
@@ -48,7 +48,7 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '动词', definition: '到，往，去', example: '辍耕之垄上。——《陈涉世家》' },
         ],
         sentences: [
-          { id: 's_001_02_1', text: '学而时习之，不亦说乎？', source: '《论语·学而》', translation: '学习了然后按时温习它，不也很愉快吗？', targetWord: '之', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['的', '去，往', '无实义，取消句子独立性'], fullText: '子曰："学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？"' },
+          { id: 's_001_02_1', text: '学而时习之，不亦说乎？', source: '《论语·学而》', translation: '学习了然后按时温习它，不也很愉快吗？', targetWord: '之', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['的', '去，往', '无实义，取消句子独立性'], fullText: '子曰："学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？"', articleId: 'art_002' },
           { id: 's_001_02_2', text: '予独爱莲之出淤泥而不染。', source: '《爱莲说》', translation: '我唯独喜爱莲花从淤泥中长出却不被污染。', targetWord: '之', correctMeaningIndex: 2, difficulty: 'medium', distractors: ['他/她/它', '的', '去，往'], fullText: '予独爱莲之出淤泥而不染，濯清涟而不妖，中通外直，不蔓不枝，香远益清，亭亭净植，可远观而不可亵玩焉。' },
           { id: 's_001_02_3', text: '辍耕之垄上。', source: '《陈涉世家》', translation: '停止耕作走到田垄上。', targetWord: '之', correctMeaningIndex: 3, difficulty: 'medium', distractors: ['他/她/它', '的', '无实义，取消句子独立性'], fullText: '陈涉少时，尝与人佣耕，辍耕之垄上，怅恨久之，曰："苟富贵，无相忘。"' },
         ],
@@ -71,7 +71,7 @@ export const mockWordBooks: IWordBook[] = [
         ],
         sentences: [
           { id: 's_001_03_1', text: '以刀劈狼首。', source: '《狼》', translation: '用刀劈砍狼的头。', targetWord: '以', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['因为', '来，用来', '认为'], fullText: '屠暴起，以刀劈狼首，又数刀毙之。方欲行，转视积薪后，一狼洞其中，意将隧入以攻其后也。' },
-          { id: 's_001_03_2', text: '不以物喜，不以己悲。', source: '《岳阳楼记》', translation: '不因为外物的好坏而高兴，不因为自己的得失而悲伤。', targetWord: '以', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['用，凭借', '来，用来', '认为'], fullText: '嗟夫！予尝求古仁人之心，或异二者之为，何哉？不以物喜，不以己悲，居庙堂之高则忧其民，处江湖之远则忧其君。' },
+          { id: 's_001_03_2', text: '不以物喜，不以己悲。', source: '《岳阳楼记》', translation: '不因为外物的好坏而高兴，不因为自己的得失而悲伤。', targetWord: '以', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['用，凭借', '来，用来', '认为'], fullText: '嗟夫！予尝求古仁人之心，或异二者之为，何哉？不以物喜，不以己悲，居庙堂之高则忧其民，处江湖之远则忧其君。', articleId: 'art_001' },
           { id: 's_001_03_3', text: '皆以美于徐公。', source: '《邹忌讽齐王纳谏》', translation: '都认为比徐公美。', targetWord: '以', correctMeaningIndex: 3, difficulty: 'medium', distractors: ['用，凭借', '因为', '来，用来'], fullText: '明日，徐公来，孰视之，自以为不如；窥镜而自视，又弗如远甚。暮寝而思之，曰："吾妻之美我者，私我也；妾之美我者，畏我也；客之美我者，欲有求于我也。"' },
         ],
         similarHomophones: ['已', '矣', '乙'],
@@ -109,8 +109,8 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '介词', definition: '被（读wéi）', example: '茅屋为秋风所破歌。——杜甫' },
         ],
         sentences: [
-          { id: 's_001_05_1', text: '温故而知新，可以为师矣。', source: '《论语·为政》', translation: '温习旧知识进而能有新体会，就可以做老师了。', targetWord: '为', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['替，给，为了', '被', '是'], fullText: '子曰："温故而知新，可以为师矣。"' },
-          { id: 's_001_05_2', text: '为人谋而不忠乎？', source: '《论语·学而》', translation: '替别人办事是不是尽心竭力了呢？', targetWord: '为', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['做，成为', '被', '是'], fullText: '曾子曰："吾日三省吾身：为人谋而不忠乎？与朋友交而不信乎？传不习乎？"' },
+          { id: 's_001_05_1', text: '温故而知新，可以为师矣。', source: '《论语·为政》', translation: '温习旧知识进而能有新体会，就可以做老师了。', targetWord: '为', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['替，给，为了', '被', '是'], fullText: '子曰："温故而知新，可以为师矣。"', articleId: 'art_002' },
+          { id: 's_001_05_2', text: '为人谋而不忠乎？', source: '《论语·学而》', translation: '替别人办事是不是尽心竭力了呢？', targetWord: '为', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['做，成为', '被', '是'], fullText: '曾子曰："吾日三省吾身：为人谋而不忠乎？与朋友交而不信乎？传不习乎？"', articleId: 'art_002' },
         ],
         similarHomophones: ['唯', '维', '围'],
         similarShapes: ['办', '力', '加'],
@@ -136,7 +136,7 @@ export const mockWordBooks: IWordBook[] = [
         ],
         sentences: [
           { id: 's_001_07_1', text: '故天将降大任于是人也，必先苦其心志。', source: '《生于忧患，死于安乐》', translation: '所以上天将要下达重大使命给这个人。', targetWord: '故', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['原因，缘故', '旧的，原来的', '故意'], fullText: '故天将降大任于是人也，必先苦其心志，劳其筋骨，饿其体肤，空乏其身，行拂乱其所为，所以动心忍性，曾益其所不能。' },
-          { id: 's_001_07_2', text: '温故而知新。', source: '《论语·为政》', translation: '温习旧的知识，进而能有新的体会。', targetWord: '故', correctMeaningIndex: 2, difficulty: 'basic', distractors: ['所以，因此', '原因，缘故', '故意'], fullText: '子曰："温故而知新，可以为师矣。"' },
+          { id: 's_001_07_2', text: '温故而知新。', source: '《论语·为政》', translation: '温习旧的知识，进而能有新的体会。', targetWord: '故', correctMeaningIndex: 2, difficulty: 'basic', distractors: ['所以，因此', '原因，缘故', '故意'], fullText: '子曰："温故而知新，可以为师矣。"', articleId: 'art_002' },
         ],
         similarHomophones: ['顾', '固'], similarShapes: ['做', '敌'],
       },
@@ -159,7 +159,7 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '连词', definition: '如果（表示假设）', example: '入则无法家拂士，出则无敌国外患者，国恒亡。——《生于忧患，死于安乐》' },
         ],
         sentences: [
-          { id: 's_001_09_1', text: '学而不思则罔，思而不学则殆。', source: '《论语·为政》', translation: '只学习而不思考就会迷惑，只思考而不学习就会疑惑。', targetWord: '则', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['如果', '却', '就是'], fullText: '子曰："学而不思则罔，思而不学则殆。"' },
+          { id: 's_001_09_1', text: '学而不思则罔，思而不学则殆。', source: '《论语·为政》', translation: '只学习而不思考就会迷惑，只思考而不学习就会疑惑。', targetWord: '则', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['如果', '却', '就是'], fullText: '子曰："学而不思则罔，思而不学则殆。"', articleId: 'art_002' },
           { id: 's_001_09_2', text: '入则无法家拂士，出则无敌国外患者，国恒亡。', source: '《生于忧患，死于安乐》', translation: '如果在国内没有守法度的大臣，在国外没有敌对的国家，国家常常会灭亡。', targetWord: '则', correctMeaningIndex: 1, difficulty: 'medium', distractors: ['就，便', '却', '准则，法则'], fullText: '入则无法家拂士，出则无敌国外患者，国恒亡。然后知生于忧患，而死于安乐也。' },
         ],
         similarHomophones: ['责', '泽', '择'], similarShapes: ['侧', '测', '厕'],
@@ -193,7 +193,7 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '通假字', definition: '通"悦"，高兴，愉快（读yuè）', example: '学而时习之，不亦说乎？——《论语·学而》' },
         ],
         sentences: [
-          { id: 's_002_01_1', text: '学而时习之，不亦说乎？', source: '《论语·学而》', translation: '学习了然后按时温习它，不也很愉快吗？', targetWord: '说', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['说话，讲述', '说服，劝说', '高兴地说话'], fullText: '子曰："学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？"' },
+          { id: 's_002_01_1', text: '学而时习之，不亦说乎？', source: '《论语·学而》', translation: '学习了然后按时温习它，不也很愉快吗？', targetWord: '说', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['说话，讲述', '说服，劝说', '高兴地说话'], fullText: '子曰："学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？"', articleId: 'art_002' },
           { id: 's_002_01_2', text: '秦王不说。', source: '《唐雎不辱使命》', translation: '秦王不高兴。', targetWord: '说', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['说话', '怒骂', '说服'], fullText: '秦王不说。安陵君因使唐雎使于秦。秦王谓唐雎曰："寡人以五百里之地易安陵，安陵君不听寡人，何也？"' },
         ],
         similarHomophones: ['悦', '阅', '越'], similarShapes: ['悦', '脱', '税'],
@@ -243,7 +243,7 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '通假字', definition: '通"嘱"，嘱托，托付（读zhǔ）', example: '属予作文以记之。——《岳阳楼记》' },
         ],
         sentences: [
-          { id: 's_002_05_1', text: '属予作文以记之。', source: '《岳阳楼记》', translation: '嘱托我写一篇文章来记述这件事。', targetWord: '属', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['隶属，属于', '亲属', '属于我的'], fullText: '庆历四年春，滕子京谪守巴陵郡。越明年，政通人和，百废具兴，乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上，属予作文以记之。' },
+          { id: 's_002_05_1', text: '属予作文以记之。', source: '《岳阳楼记》', translation: '嘱托我写一篇文章来记述这件事。', targetWord: '属', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['隶属，属于', '亲属', '属于我的'], fullText: '庆历四年春，滕子京谪守巴陵郡。越明年，政通人和，百废具兴，乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上，属予作文以记之。', articleId: 'art_001' },
           { id: 's_002_05_2', text: '有良田美池桑竹之属。', source: '《桃花源记》', translation: '有肥沃的田地、美丽的池塘以及桑树竹子之类。', targetWord: '属', correctMeaningIndex: 0, difficulty: 'medium', distractors: ['通"嘱"，嘱托', '委托', '嘱托之类'], fullText: '土地平旷，屋舍俨然，有良田美池桑竹之属。阡陌交通，鸡犬相闻。其中往来种作，男女衣着，悉如外人。黄发垂髫，并怡然自乐。' },
         ],
         similarHomophones: ['嘱', '主'], similarShapes: ['嘱', '屡', '屠'],
@@ -255,7 +255,7 @@ export const mockWordBooks: IWordBook[] = [
           { partOfSpeech: '通假字', definition: '通"层"，重叠', example: '荡胸生曾云。——杜甫《望岳》' },
         ],
         sentences: [
-          { id: 's_002_06_1', text: '荡胸生曾云，决眦入归鸟。', source: '杜甫《望岳》', translation: '层层云气在胸中激荡，睁大眼睛目送归鸟入山。', targetWord: '曾', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['曾经', '姓曾', '曾经有云'], fullText: '岱宗夫如何？齐鲁青未了。造化钟神秀，阴阳割昏晓。荡胸生曾云，决眦入归鸟。会当凌绝顶，一览众山小。' },
+          { id: 's_002_06_1', text: '荡胸生曾云，决眦入归鸟。', source: '杜甫《望岳》', translation: '层层云气在胸中激荡，睁大眼睛目送归鸟入山。', targetWord: '曾', correctMeaningIndex: 1, difficulty: 'basic', distractors: ['曾经', '姓曾', '曾经有云'], fullText: '岱宗夫如何？齐鲁青未了。造化钟神秀，阴阳割昏晓。荡胸生曾云，决眦入归鸟。会当凌绝顶，一览众山小。', articleId: 'art_003' },
           { id: 's_002_06_2', text: '曾益其所不能。', source: '《生于忧患，死于安乐》', translation: '增加他所不具备的能力。', targetWord: '曾', correctMeaningIndex: 1, difficulty: 'medium', distractors: ['曾经', '姓曾', '不曾'], fullText: '故天将降大任于是人也，必先苦其心志，劳其筋骨，饿其体肤，空乏其身，行拂乱其所为，所以动心忍性，曾益其所不能。' },
         ],
         similarHomophones: ['层'], similarShapes: ['增', '憎', '赠'],

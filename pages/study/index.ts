@@ -7,7 +7,7 @@ import type { IStudySession, IWord } from '../../typings/index.d';
 interface IStudyData {
   screen: 'question' | 'correction';
   currentWord: string;
-  currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string } | null;
+  currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string; articleId?: string } | null;
   options: string[];
   selectedIndex: number;
   correctIndex: number;
@@ -76,6 +76,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       const allWords = [...task.reviewWords, ...task.newWords];
       const book = loadWordBookData(bookId);
       if (book) {
+        wx.setNavigationBarTitle({ title: book.name });
         for (const w of book.words) {
           this._wordsMap[w.id] = w;
         }
@@ -122,7 +123,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const suffix = idx >= 0 ? sent.text.slice(idx + word.character.length) : '';
     this.setData({
       screen: 'question', currentWord: word.character,
-      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string },
+      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined },
       options: opts, selectedIndex: -1, correctIndex: ci,
       sentencePrefix: prefix, sentenceTarget: target, sentenceSuffix: suffix,
       showCorrect: false, showWrong: false,
@@ -232,8 +233,13 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onTapFullText(): void {
-    const id = this.data.currentSentence?.id || '';
-    wx.navigateTo({ url: `/pages/full-text/index?sentenceId=${id}` });
+    const { currentSentence } = this.data;
+    if (!currentSentence) return;
+    if (currentSentence.articleId) {
+      wx.navigateTo({ url: `/pages/article-reader/index?id=${currentSentence.articleId}` });
+    } else {
+      wx.navigateTo({ url: `/pages/full-text/index?sentenceId=${currentSentence.id}` });
+    }
   },
 
   onTapAudio(): void {
