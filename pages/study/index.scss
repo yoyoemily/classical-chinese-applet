@@ -13,7 +13,11 @@
   &__counter { font-size: $font-size-sm; color: var(--color-text-secondary); }
 
   &__body { flex: 1; @include flex-column; align-items: center; padding: $spacing-xl $spacing-lg; padding-bottom: calc(#{$spacing-xxl} + var(--safe-area-bottom)); overflow-y: auto; }
-  &__audio-btn { align-self: flex-end; @include flex-center; width: 64rpx; height: 64rpx; border-radius: 50%; background: var(--color-bg-card); margin-bottom: $spacing-lg; }
+	&__audio-btn { align-self: flex-end; @include flex-center; width: 64rpx; height: 64rpx; border-radius: 50%; background: var(--color-bg-card); margin-bottom: $spacing-lg; transition: all 0.2s ease;
+	    &--loading { background: rgba(74,106,94,0.1); }
+	    &--playing { background: var(--color-primary); animation: audioPulse 0.8s ease-in-out infinite; }
+	    &--hover { background: var(--color-bg-hover); }
+	  }
 
   &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-xl; }
   &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-lg; }
@@ -117,3 +121,4 @@
 }
 
 @keyframes flashPulse { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes audioPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }

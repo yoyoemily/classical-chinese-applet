@@ -1,13 +1,15 @@
 import { generateTodayTask, updateWordProgress } from '../../utils/ebbinghaus';
 import { getCurrentBookId, saveSession, getProgress, setWordProgress, loadWordBookData } from '../../utils/storage';
 import { submitAnswer } from '../../api/index';
-import { shuffle, formatDate } from '../../utils/util';
+import { shuffle, formatDate, safeJSONParse } from '../../utils/util';
+import { getTTSPlayer } from '../../utils/tts';
+import { STORAGE_KEYS } from '../../constants/config';
 import type { IStudySession, IWord } from '../../typings/index.d';
 
 interface IStudyData {
   screen: 'question' | 'correction';
   currentWord: string;
-  currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string; articleId?: string } | null;
+  currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string; articleId?: string; audioUrl?: string } | null;
   options: string[];
   selectedIndex: number;
   correctIndex: number;
@@ -26,6 +28,8 @@ interface IStudyData {
   showWrong: boolean;
   loading: boolean;
   dotsArray: number[];
+  audioPlaying: boolean;
+  audioLoading: boolean;
 }
 
 Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
@@ -37,6 +41,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     totalWords: 0, completedWords: 0, modeLabel: '复习',
     correctCount: 0, wrongCount: 0, showCorrect: false, showWrong: false,
     loading: true, dotsArray: [],
+    audioPlaying: false, audioLoading: false,
   },
 
   _session: null as IStudySession | null,
@@ -44,6 +49,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   _answering: false,
   _needResume: false,
   _bookId: '',
+  _tts: null as ReturnType<typeof getTTSPlayer> | null,
+  _autoPlayAudio: true,
 
   onLoad(): void {
     this.init();
@@ -65,6 +72,15 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
   async init(): Promise<void> {
     try {
+      // 加载设置
+      const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
+      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean }>(raw, {}) : {};
+      this._autoPlayAudio = settings.autoPlayAudio ?? true;
+
+      // 初始化 TTS 播放器
+      this._tts = getTTSPlayer();
+      this._tts.stop();
+
       const bookId = getCurrentBookId();
       this._bookId = bookId;
       const task = generateTodayTask(bookId);
@@ -123,11 +139,16 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const suffix = idx >= 0 ? sent.text.slice(idx + word.character.length) : '';
     this.setData({
       screen: 'question', currentWord: word.character,
-      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined },
+      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       options: opts, selectedIndex: -1, correctIndex: ci,
       sentencePrefix: prefix, sentenceTarget: target, sentenceSuffix: suffix,
       showCorrect: false, showWrong: false,
     });
+
+    // 自动播放语音
+    if (this._autoPlayAudio) {
+      this._playSentenceAudio(sent.text, (sent as Record<string, unknown>).audioUrl as string | undefined);
+    }
   },
 
   onSelectOption(e: WechatMiniprogram.BaseEvent): void {
@@ -243,10 +264,39 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onTapAudio(): void {
-    wx.showToast({ title: '语音播放功能开发中', icon: 'none' });
+    const { currentSentence } = this.data;
+    if (!currentSentence) return;
+
+    // 如果正在播放，点击停止；否则开始播放
+    if (this._tts?.status === 'loading' || this._tts?.status === 'playing') {
+      this._tts.stop();
+      return;
+    }
+    this._playSentenceAudio(currentSentence.text, currentSentence.audioUrl);
+  },
+
+  _playSentenceAudio(text: string, audioUrl?: string): void {
+    if (!this._tts) return;
+    this._tts.play(text, audioUrl, {
+      onStatusChange: (status) => {
+        this.setData({
+          audioLoading: status === 'loading',
+          audioPlaying: status === 'playing',
+        });
+      },
+    });
   },
 
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
     return { title: '古文打卡 — 每日10分钟，吃透文言文', path: '/pages/index/index' };
+  },
+
+  onHide(): void {
+    this._tts?.stop();
+  },
+
+  onUnload(): void {
+    this._tts?.destroy();
+    this._tts = null;
   },
 });

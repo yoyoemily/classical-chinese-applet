@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-经典文言文打卡（Classical Chinese Check-in）——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。14 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
+经典文言文打卡（Classical Chinese Check-in）——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。15 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
 
 ## 开发环境
 
@@ -51,6 +51,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   ├── request.ts       # wx.request 封装（Promise 化、拦截、错误处理）
 │   ├── util.ts          # 通用工具（formatDate、throttle、debounce 等）
 │   ├── ebbinghaus.ts    # 艾宾浩斯引擎（生成今日任务、计算下次复习日、更新进度）
+│   ├── tts.ts           # TTS 语音播报工具（双引擎：HTTP API + WechatSI 插件，单例管理）
 │   └── storage.ts       # 本地存储封装（进度、勋章、打卡、会话、设置）
 ├── styles/
 │   ├── variables.scss  # SCSS 变量 + CSS 自定义属性（定义在 page 上）
@@ -130,7 +131,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **个人信息编辑**：头像（微信头像/相册/拍照）、昵称（微信昵称自动填充/自定义）、年级选择（初一～高三），数据通过 `utils/storage.ts` 的 `getUserProfile()`/`saveUserProfile()` 持久化
 - **"我的"页**：头像和昵称展示（点击跳转个人信息编辑），新增"个人信息"菜单项
 - **学习顺序**：支持顺序/乱序两种模式，在 `utils/ebbinghaus.ts` 的 `generateTodayTask()` 中根据设置决定是否 shuffle（复习和新学各自独立乱序，复习仍优先）
-- **学习页**：标题动态显示当前词书书名，答题选项随机排列，"不知道"按钮有卡片化视觉引导
+- **学习页**：标题动态显示当前词书书名，答题选项随机排列，"不知道"按钮有卡片化视觉引导，语音播报按钮（🔊）支持自动/手动播放句子音频
+- **语音播报**：`utils/tts.ts` 双引擎架构（HTTP API + WechatSI 插件），通过 `TTS_ENGINE` 常量切换。优先使用句子 `audioUrl` 预录音频，无则走 TTS 合成。学习页 `showNextQuestion` 自动播报，喇叭按钮可手动控制。当前默认 `api` 引擎，`TTS_API_URL` 为占位值。
 
 ### 待开发（辅助学习工具）
 1. **红黑字标注** — 文言文逐字标注（实词红色+释义，虚词黑色）

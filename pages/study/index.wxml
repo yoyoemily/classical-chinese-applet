@@ -17,8 +17,10 @@
 
     <!-- 主体 -->
     <view class="page-study__body">
-      <view class="page-study__audio-btn" bindtap="onTapAudio" hover-class="page-study__audio-btn--hover">
-        <text>🔊</text>
+      <view class="page-study__audio-btn {{audioPlaying ? 'page-study__audio-btn--playing' : ''}} {{audioLoading ? 'page-study__audio-btn--loading' : ''}}" bindtap="onTapAudio" hover-class="page-study__audio-btn--hover">
+        <text wx:if="{{audioLoading}}">⏳</text>
+        <text wx:elif="{{audioPlaying}}">🔉</text>
+        <text wx:else>🔊</text>
       </view>
 
       <!-- 句子展示 -->
@@ -42,10 +44,7 @@
       <view class="page-study__options">
         <view
           wx:for="{{options}}" wx:key="*this"
-          class="page-study__option
-            {{showCorrect && index === correctIndex ? 'page-study__option--correct' : ''}}
-            {{showWrong && index === selectedIndex ? 'page-study__option--wrong' : ''}}
-            {{showWrong && index === correctIndex ? 'page-study__option--correct' : ''}}"
+          class="page-study__option {{showCorrect && index === correctIndex ? 'page-study__option--correct' : ''}} {{showWrong && index === selectedIndex ? 'page-study__option--wrong' : ''}} {{showWrong && index === correctIndex ? 'page-study__option--correct' : ''}}"
           data-index="{{index}}"
           bindtap="onSelectOption"
           hover-class="page-study__option--hover"

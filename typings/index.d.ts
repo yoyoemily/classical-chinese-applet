@@ -77,6 +77,8 @@ export interface ISentence {
   fullText?: string
   /** 句子所属名篇 id，有则可在学习页点击跳转到名篇阅读页 */
   articleId?: string
+  /** 句子预录音频 URL，有则优先使用，无则走 TTS 合成 */
+  audioUrl?: string
 }
 
 export interface IWord {
