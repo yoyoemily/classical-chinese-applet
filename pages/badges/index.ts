@@ -1,16 +1,16 @@
 import type { IBadge, IUserBadge } from '../../typings/index.d';
 import { fetchBadges } from '../../api/index';
 
-// 精选 8 枚勋章，覆盖连续打卡、学习成就、积累里程碑三个维度
+// 精选 8 枚勋章，按累计学习天数递进
 const SELECTED_BADGE_IDS = [
   'badge_streak_3',
   'badge_streak_7',
   'badge_streak_21',
+  'badge_streak_30',
   'badge_streak_60',
+  'badge_streak_100',
   'badge_streak_180',
-  'badge_book_1',
-  'badge_accuracy_90',
-  'badge_total_1000',
+  'badge_streak_365',
 ];
 
 // 8 种配色主题，对应 8 枚勋章的独立视觉风格
@@ -18,11 +18,11 @@ const THEME_MAP: Record<string, string> = {
   badge_streak_3: 'bronze',
   badge_streak_7: 'silver',
   badge_streak_21: 'gold',
+  badge_streak_30: 'indigo',
   badge_streak_60: 'diamond',
+  badge_streak_100: 'crimson',
   badge_streak_180: 'royal',
-  badge_book_1: 'indigo',
-  badge_accuracy_90: 'crimson',
-  badge_total_1000: 'emerald',
+  badge_streak_365: 'emerald',
 };
 
 interface IDisplayBadge {

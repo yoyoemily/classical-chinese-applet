@@ -15,6 +15,19 @@
       <view class="page-index__header-top">
         <text class="page-index__greeting">你好，学友</text>
         <view
+          wx:if="{{nextBadge}}"
+          class="page-index__next-badge"
+          hover-class="page-index__next-badge--active"
+          bindtap="onTapBadges"
+        >
+          <text class="page-index__next-badge-icon">{{nextBadge.icon}}</text>
+          <view class="page-index__next-badge-info">
+            <text class="page-index__next-badge-name">{{nextBadge.name}}</text>
+            <text class="page-index__next-badge-gap">还差{{nextBadge.gap}}{{nextBadge.gapUnit}}</text>
+          </view>
+        </view>
+        <view
+          wx:else
           class="page-index__badges-btn"
           hover-class="page-index__badges-btn--active"
           bindtap="onTapBadges"
@@ -117,23 +130,45 @@
       >开 始 学 习</button>
     </view>
 
-    <!-- -------- 底部入口 -------- -->
-    <view class="page-index__footer">
-      <view
-        class="page-index__footer-item"
-        hover-class="page-index__footer-item--active"
-        bindtap="onTapVocabulary"
-      >
-        <text class="page-index__footer-icon">📚</text>
-        <text class="page-index__footer-label">生词本</text>
+    <!-- -------- 打卡日历区 -------- -->
+    <view class="page-index__calendar">
+      <!-- 月份导航 -->
+      <view class="page-index__calendar-nav">
+        <view
+          class="page-index__calendar-nav-btn"
+          hover-class="page-index__calendar-nav-btn--active"
+          bindtap="onPrevMonth"
+        >‹</view>
+        <text class="page-index__calendar-nav-label">{{monthLabel}}</text>
+        <view
+          class="page-index__calendar-nav-btn"
+          hover-class="page-index__calendar-nav-btn--active"
+          bindtap="onNextMonth"
+        >›</view>
       </view>
-      <view
-        class="page-index__footer-item"
-        hover-class="page-index__footer-item--active"
-        bindtap="onTapCalendar"
-      >
-        <text class="page-index__footer-icon">📅</text>
-        <text class="page-index__footer-label">打卡日历</text>
+
+      <!-- 星期表头 -->
+      <view class="page-index__calendar-weekdays">
+        <text
+          wx:for="{{weekdays}}"
+          wx:key="*this"
+          class="page-index__calendar-weekday {{index === 0 || index === 6 ? 'page-index__calendar-weekday--weekend' : ''}}"
+        >{{item}}</text>
+      </view>
+
+      <!-- 日期网格 -->
+      <view class="page-index__calendar-grid">
+        <view
+          wx:for="{{calendarGrid}}"
+          wx:key="fullDate"
+          class="page-index__calendar-cell {{!item.isCurrentMonth ? 'page-index__calendar-cell--other' : ''}} {{item.isToday ? 'page-index__calendar-cell--today' : ''}}"
+        >
+          <text>{{item.day}}</text>
+          <view
+            wx:if="{{item.isCheckedIn && item.isCurrentMonth}}"
+            class="page-index__calendar-cell-dot"
+          ></view>
+        </view>
       </view>
     </view>
 

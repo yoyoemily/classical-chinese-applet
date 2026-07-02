@@ -93,22 +93,8 @@ export async function completeStudy(data: { wordBookId: string; correctCount: nu
     // 打卡
     _applyCheckin(progress);
 
-    // 统计
-    const allProgresses = Object.values(progress.wordProgresses);
-    const totalAnswers = allProgresses.reduce((sum, wp) => sum + (wp.correctCount || 0) + (wp.wrongCount || 0), 0);
-    const accuracy = allProgresses.length > 0
-      ? Math.round(allProgresses.reduce((sum, wp) => sum + (wp.correctCount || 0), 0) / Math.max(1, totalAnswers) * 100)
-      : 0;
-    const completedBooks = allProgresses.filter(wp => wp.stage === 'done').length >= 10 ? 1 : 0;
-
-    // 检查新勋章
-    const newBadges = checkNewBadges(existingBadgeIds, {
-      streak: progress.currentStreak,
-      completedBooks,
-      accuracy,
-      streakCorrect: 0,
-      totalAnswers,
-    });
+    // 检查新勋章（全部为累计学习天数维度）
+    const newBadges = checkNewBadges(existingBadgeIds, progress.currentStreak);
 
     // 经验
     const xpGained = data.correctCount * 10;

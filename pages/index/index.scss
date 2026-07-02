@@ -61,6 +61,43 @@
       opacity: 0.7;
     }
   }
+
+  // 下一个勋章卡片
+  &__next-badge {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: linear-gradient(135deg, #fff7e6, #fff1cc);
+    border-radius: $radius-lg;
+    box-shadow: 0 2rpx 12rpx rgba(212, 136, 6, 0.15);
+    border: 1rpx solid rgba(212, 136, 6, 0.2);
+
+    &--active {
+      opacity: 0.7;
+      transform: scale(0.96);
+    }
+  }
+  &__next-badge-icon {
+    font-size: 40rpx;
+    line-height: 1;
+  }
+  &__next-badge-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rpx;
+  }
+  &__next-badge-name {
+    font-size: $font-size-xs;
+    font-weight: 600;
+    color: #8b6914;
+    line-height: 1.4;
+  }
+  &__next-badge-gap {
+    font-size: 20rpx;
+    color: #b8860b;
+    line-height: 1.4;
+  }
   &__slogan {
     margin-top: $spacing-base;
     font-size: $font-size-base;
@@ -295,36 +332,92 @@
   }
 
   // ==========================================
-  // 底部入口
+  // 打卡日历区
   // ==========================================
-  &__footer {
-    display: flex;
-    gap: $spacing-base;
+  &__calendar {
+    @include card;
+    padding: $spacing-md;
+    margin-bottom: $spacing-md;
 
-    // 安全区适配
+    // 页面底部安全区适配
     @include safe-area-bottom($spacing-xl);
   }
-  &__footer-item {
-    flex: 1;
+
+  &__calendar-nav {
+    @include flex-between;
+    margin-bottom: $spacing-base;
+    padding: 0 $spacing-xs;
+  }
+  &__calendar-nav-btn {
+    width: 56rpx;
+    height: 56rpx;
     @include flex-center;
-    @include flex-column;
-    @include card;
-    padding: $spacing-md $spacing-base;
-    background-color: $color-bg-card;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    font-size: 36rpx;
+    font-weight: 300;
+    color: var(--color-text-secondary);
 
     &--active {
+      opacity: 0.5;
+    }
+  }
+  &__calendar-nav-label {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  // 星期表头
+  &__calendar-weekdays {
+    display: flex;
+    padding: $spacing-sm 0;
+  }
+  &__calendar-weekday {
+    flex: 1;
+    text-align: center;
+    font-size: $font-size-xs;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+
+    &--weekend {
+      color: var(--color-error);
       opacity: 0.7;
     }
   }
-  &__footer-icon {
-    font-size: 40rpx;
-    margin-bottom: $spacing-xs;
+
+  // 日期网格
+  &__calendar-grid {
+    display: flex;
+    flex-wrap: wrap;
   }
-  &__footer-label {
+  &__calendar-cell {
+    width: calc(100% / 7);
+    aspect-ratio: 1;
+    @include flex-column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
     font-size: $font-size-sm;
-    color: var(--color-text-primary);
-    font-weight: 500;
+    border-radius: $radius-base;
+
+    &--other {
+      opacity: 0.3;
+    }
+    &--today {
+      background: rgba($color-primary, 0.08);
+      border: 2rpx solid var(--color-primary);
+    }
   }
+  &__calendar-cell-dot {
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: var(--color-accent);
+    position: absolute;
+    bottom: 8rpx;
+  }
+
 }
 
 // ============================================
