@@ -1,0 +1,33 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-word-summary {
+  min-height: 100vh; background: var(--color-bg-card); position: relative;
+  &__scroll { flex: 1; height: calc(100vh - 260rpx); }
+  &__loading { @include flex-center; padding: 300rpx 0; }
+  &__char-section { @include flex-column; align-items: center; padding: $spacing-xxl $spacing-md $spacing-lg; background: linear-gradient(180deg, var(--color-bg-card) 0%, #fff 100%); }
+  &__pinyin { font-size: $font-size-md; color: var(--color-text-secondary); margin-bottom: $spacing-base; }
+  &__character { font-size: 160rpx; font-weight: 700; color: var(--color-text-primary); line-height: 1.2; font-family: 'STKaiti','KaiTi','楷体',serif; text-shadow: 2rpx 2rpx 8rpx rgba(0,0,0,0.08); }
+  &__info-row { @include flex-center; margin-bottom: $spacing-xs; }
+  &__info-item { font-size: $font-size-sm; color: var(--color-text-hint); margin: 0 $spacing-base; }
+  &__section { padding: $spacing-md; }
+  &__section-title { font-size: $font-size-md; font-weight: 600; color: var(--color-primary); display: block; padding-left: $spacing-sm; border-left: 6rpx solid var(--color-accent); margin-bottom: $spacing-md; }
+  &__meaning-list { @include flex-column; }
+  &__meaning-item { display: flex; padding: $spacing-base 0; border-bottom: 1rpx solid var(--color-border-light); &:last-child { border: none; } }
+  &__meaning-number { width: 48rpx; height: 48rpx; @include flex-center; font-size: $font-size-sm; font-weight: 600; color: var(--color-accent); background: var(--color-accent-light); border-radius: 50%; flex-shrink: 0; margin-right: $spacing-base; }
+  &__meaning-content { flex: 1; @include flex-column; }
+  &__meaning-def { font-size: $font-size-base; color: var(--color-text-primary); line-height: 1.6; }
+  &__meaning-example { font-size: $font-size-sm; color: var(--color-text-secondary); line-height: 1.6; margin-top: $spacing-xs; padding: $spacing-xs $spacing-base; background: rgba(201,169,110,0.08); border-radius: $radius-sm; font-style: italic; }
+  &__tag-text { font-size: $font-size-lg; color: var(--color-text-primary); letter-spacing: 4rpx; display: block; padding: $spacing-xs 0; }
+  &__bottom-placeholder { height: 260rpx; }
+  &__action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: $spacing-base $spacing-md; padding-bottom: calc(#{$spacing-md} + var(--safe-area-bottom)); box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.06); z-index: 10; }
+  &__mastery { @include flex-center; margin-bottom: $spacing-base; font-size: $font-size-sm; gap: $spacing-sm; }
+  &__mastery-dots { display: flex; gap: 8rpx; }
+  &__mastery-dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: var(--color-border); &--filled { background: var(--color-accent); } }
+  &__buttons { display: flex; gap: $spacing-base; }
+  &__btn { flex: 1; height: 80rpx; @include flex-center; border-radius: $radius-lg; font-size: $font-size-base;
+    &::after { border: none; }
+    &--primary { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); color: #fff; }
+    &--secondary { background: var(--color-bg-page); color: var(--color-text-primary); border: 1rpx solid var(--color-border); }
+  }
+}

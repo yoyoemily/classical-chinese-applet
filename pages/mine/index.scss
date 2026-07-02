@@ -1,0 +1,181 @@
+// ============================================
+// 我的 / 个人中心页面样式
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-mine {
+  min-height: 100vh;
+  @include flex-column;
+  background-color: var(--color-bg-page);
+  padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom));
+
+  // -------- 用户头部卡片 --------
+  &__header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    padding: $spacing-lg $spacing-md $spacing-lg;
+    margin-bottom: $spacing-md;
+  }
+
+  &__header-card {
+    display: flex;
+    align-items: center;
+    padding-bottom: $spacing-lg;
+  }
+
+  &__avatar {
+    width: 96rpx;
+    height: 96rpx;
+    border-radius: $radius-round;
+    background-color: rgba(255, 255, 255, 0.2);
+    @include flex-center;
+    margin-right: $spacing-md;
+    border: 4rpx solid rgba(255, 255, 255, 0.3);
+  }
+
+  &__avatar-icon {
+    font-size: 48rpx;
+    line-height: 1;
+  }
+
+  &__user-info {
+    @include flex-column;
+    flex: 1;
+  }
+
+  &__username {
+    font-size: $font-size-xl;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: $spacing-xs;
+  }
+
+  &__level-badge {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__level-title {
+    font-size: $font-size-sm;
+    color: var(--color-accent-light);
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 4rpx 16rpx;
+    border-radius: 20rpx;
+  }
+
+  &__level-text {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  // -------- XP 进度条 --------
+  &__xp-section {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: $radius-base;
+    padding: $spacing-base $spacing-md;
+  }
+
+  &__xp-header {
+    @include flex-between;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__xp-label {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  &__xp-value {
+    font-size: $font-size-xs;
+    color: var(--color-accent-light);
+    font-weight: 500;
+  }
+
+  &__xp-bar {
+    width: 100%;
+    height: 12rpx;
+    border-radius: 6rpx;
+    background-color: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+  }
+
+  &__xp-fill {
+    height: 100%;
+    border-radius: 6rpx;
+    background: linear-gradient(90deg, var(--color-accent-light), var(--color-accent));
+    transition: width 0.4s ease;
+  }
+
+  // -------- 菜单列表 --------
+  &__menu {
+    @include card;
+    margin: 0 $spacing-base;
+  }
+
+  &__menu-item {
+    @include flex-between;
+    padding: $spacing-lg $spacing-md;
+    @include active;
+
+    & + & {
+      @include hairline('top', var(--color-border-light));
+    }
+
+    &--hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  &__menu-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__menu-icon {
+    font-size: 36rpx;
+    line-height: 1;
+  }
+
+  &__menu-label {
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+  }
+
+  &__menu-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__menu-suffix {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+
+  &__menu-arrow {
+    font-size: $font-size-md;
+    color: var(--color-text-hint);
+    font-family: serif;
+  }
+
+  // -------- 底部信息 --------
+  &__footer {
+    @include flex-column;
+    @include flex-center;
+    padding: $spacing-xl 0 $spacing-lg;
+    gap: $spacing-sm;
+  }
+
+  &__footer-text {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    letter-spacing: 2rpx;
+  }
+
+  &__footer-book {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+  }
+}

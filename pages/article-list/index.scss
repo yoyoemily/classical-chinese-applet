@@ -1,0 +1,149 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-article-list {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom));
+
+  // -------- 筛选栏容器（吸顶） --------
+  &__filters {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--color-bg-white);
+  }
+
+  // -------- 分类标签栏 --------
+  &__tabs {
+    padding: $spacing-sm 0;
+    @include hairline('bottom', var(--color-border-light));
+  }
+
+  &__tabs-inner {
+    display: flex;
+    padding: 0 $spacing-base;
+    white-space: nowrap;
+  }
+
+  // 教材年级行（第二行，去掉顶部边距和底部线）
+  &__tabs--grade {
+    border-bottom: none;
+    padding-top: 0;
+  }
+
+  &__tab {
+    position: relative;
+    flex-shrink: 0;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    transition: color 0.2s ease;
+
+    &--active {
+      color: var(--color-primary);
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2rpx;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48rpx;
+        height: 6rpx;
+        background-color: var(--color-primary);
+        border-radius: 3rpx;
+      }
+    }
+  }
+
+  // -------- 加载中 --------
+  &__loading {
+    @include flex-center;
+    padding: $spacing-xxl 0;
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+
+  // -------- 空状态 --------
+  &__empty {
+    @include flex-column;
+    align-items: center;
+    justify-content: center;
+    padding: 120rpx $spacing-lg;
+  }
+
+  &__empty-icon {
+    font-size: 72rpx;
+    margin-bottom: $spacing-md;
+  }
+
+  &__empty-text {
+    font-size: $font-size-lg;
+    color: var(--color-text-secondary);
+    margin-bottom: $spacing-sm;
+  }
+
+  &__empty-hint {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+
+  // -------- 文章卡片列表 --------
+  &__grid {
+    padding: $spacing-md $spacing-base;
+  }
+
+  // -------- 卡片 --------
+  &__card {
+    @include card;
+    display: flex;
+    padding: $spacing-md;
+    margin-bottom: $spacing-base;
+    border-left: 6rpx solid var(--color-accent);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: $shadow-md;
+    }
+  }
+
+  &__card-icon {
+    font-size: 48rpx;
+    margin-right: $spacing-md;
+    flex-shrink: 0;
+  }
+
+  &__card-body {
+    flex: 1;
+    @include flex-column;
+    min-width: 0;
+  }
+
+  &__card-title {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: $spacing-xs;
+    @include text-ellipsis;
+  }
+
+  &__card-meta {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    margin-bottom: $spacing-xs;
+  }
+
+  // -------- 卡片底部信息 --------
+  &__card-footer {
+    font-size: $font-size-xs;
+    color: var(--color-accent);
+  }
+
+  // -------- 底部安全区 --------
+  &__safe-bottom {
+    height: var(--safe-area-bottom);
+  }
+}

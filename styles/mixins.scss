@@ -1,0 +1,106 @@
+// ============================================
+// 全局 SCSS Mixins
+// ============================================
+
+// ---------- Flex 布局 ----------
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+// ---------- 文字样式 ----------
+@mixin text-ellipsis($line: 1) {
+  @if $line == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $line;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ---------- 1px 边框 ----------
+@mixin hairline($direction: 'all', $color: $color-border) {
+  position: relative;
+
+  @if $direction == 'all' {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      border: 1rpx solid $color;
+      transform: scale(0.5);
+      transform-origin: 0 0;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+  } @else if $direction == 'top' {
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1rpx;
+      background-color: $color;
+      transform: scaleY(0.5);
+      transform-origin: 0 0;
+    }
+  } @else if $direction == 'bottom' {
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1rpx;
+      background-color: $color;
+      transform: scaleY(0.5);
+      transform-origin: 0 0;
+    }
+  }
+}
+
+// ---------- 安全区域 ----------
+@mixin safe-area-bottom($min-height: 0) {
+  padding-bottom: calc(#{$min-height} + #{$safe-area-bottom});
+}
+
+// ---------- 点击态 ----------
+@mixin active($bg: rgba(0, 0, 0, 0.05)) {
+  &:active {
+    background-color: $bg;
+  }
+}
+
+// ---------- 卡片容器 ----------
+@mixin card {
+  background-color: $color-bg-white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}

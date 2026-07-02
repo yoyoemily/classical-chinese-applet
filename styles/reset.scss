@@ -1,0 +1,80 @@
+// ============================================
+// 样式重置
+// ============================================
+
+// 清除默认样式
+view,
+text,
+image,
+scroll-view,
+swiper,
+swiper-item,
+button,
+input,
+textarea,
+navigator,
+icon,
+rich-text,
+picker,
+picker-view,
+slider,
+switch,
+radio,
+checkbox,
+form,
+label,
+progress,
+canvas,
+video,
+audio,
+map,
+open-data,
+web-view,
+ad,
+official-account,
+functional-page-navigator,
+block {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// 图片默认样式
+image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+// 按钮重置
+button {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: inherit;
+  line-height: inherit;
+
+  &::after {
+    border: none;
+  }
+}
+
+// 输入框重置
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+// 链接重置
+navigator {
+  color: inherit;
+  text-decoration: none;
+}
+
+// 滚动区域优化
+scroll-view {
+  -webkit-overflow-scrolling: touch;
+}

@@ -1,0 +1,14 @@
+<view class="page-book-detail">
+  <view wx:if="{{loading}}" class="page-book-detail__loading"><text>加载中...</text></view>
+  <block wx:elif="{{book}}">
+    <view class="page-book-detail__header" style="background-color: {{book.coverColor}}">
+      <text class="page-book-detail__title">{{book.name}}</text>
+      <text class="page-book-detail__desc">{{book.description}}</text>
+    </view>
+    <view class="page-book-detail__stats">
+      <view class="page-book-detail__stat"><text class="page-book-detail__stat-num">{{learned}}</text><text>已学</text></view>
+      <view class="page-book-detail__stat"><text class="page-book-detail__stat-num">{{mastered}}</text><text>掌握</text></view>
+      <view class="page-book-detail__stat"><text class="page-book-detail__stat-num">{{total}}</text><text>总计</text></view>
+    </view>
+  </block>
+</view>

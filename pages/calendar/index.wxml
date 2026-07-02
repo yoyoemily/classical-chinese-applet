@@ -1,0 +1,22 @@
+<view class="page-calendar">
+  <view class="page-calendar__streak"><text class="page-calendar__streak-icon">🔥</text><text>连续打卡 </text><text class="page-calendar__streak-num">{{currentStreak}}</text><text> 天</text></view>
+  <view class="page-calendar__nav">
+    <view class="page-calendar__nav-btn" bindtap="onPrevMonth"><text>⬅</text></view>
+    <text class="page-calendar__nav-label">{{monthLabel}}</text>
+    <view class="page-calendar__nav-btn" bindtap="onNextMonth"><text>➡</text></view>
+  </view>
+  <view class="page-calendar__weekdays"><text wx:for="{{weekdays}}" wx:key="*this" class="page-calendar__weekday {{index === 0 || index === 6 ? 'page-calendar__weekday--weekend' : ''}}">{{item}}</text></view>
+  <view class="page-calendar__grid">
+    <view wx:for="{{calendarGrid}}" wx:key="fullDate" class="page-calendar__cell {{!item.isCurrentMonth ? 'page-calendar__cell--other' : ''}} {{item.isToday ? 'page-calendar__cell--today' : ''}}" data-date="{{item.fullDate}}" data-checked="{{item.isCheckedIn}}" bindtap="onTapDay">
+      <text>{{item.day}}</text>
+      <view wx:if="{{item.isCheckedIn && item.isCurrentMonth}}" class="page-calendar__cell-dot"></view>
+    </view>
+  </view>
+  <view class="page-calendar__sheet {{showSheet ? 'page-calendar__sheet--visible' : ''}}" wx:if="{{showSheet}}">
+    <view class="page-calendar__sheet-mask" bindtap="onCloseSheet"></view>
+    <view class="page-calendar__sheet-body">
+      <view class="page-calendar__sheet-handle"></view>
+      <text class="page-calendar__sheet-content">{{selectedSummary}}</text>
+    </view>
+  </view>
+</view>

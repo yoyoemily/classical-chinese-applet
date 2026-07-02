@@ -1,0 +1,12 @@
+@import '../../styles/variables.scss'; @import '../../styles/mixins.scss';
+.page-settings { min-height: 100vh; background: var(--color-bg-page); padding: $spacing-md $spacing-base; padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); }
+.page-settings__section { margin-bottom: $spacing-lg; }
+.page-settings__section-title { font-size: $font-size-sm; color: var(--color-text-hint); padding: 0 $spacing-sm; margin-bottom: $spacing-sm; }
+.page-settings__card { @include card; }
+.page-settings__row { @include flex-between; padding: $spacing-lg $spacing-md; min-height: 96rpx; & + & { border-top: 1rpx solid var(--color-border-light); } }
+.page-settings__label { font-size: $font-size-md; color: var(--color-text-primary); }
+.page-settings__value { font-size: $font-size-base; color: var(--color-text-hint); }
+.page-settings__picker-value { display: flex; align-items: center; gap: $spacing-sm; font-size: $font-size-base; color: var(--color-text-secondary); }
+.page-settings__picker-arrow { font-size: $font-size-md; color: var(--color-text-hint); }
+.page-settings__danger { padding: $spacing-xl 0; }
+.page-settings__danger-btn { width: 100%; height: 88rpx; @include flex-center; background: var(--color-bg-white); border-radius: $radius-md; color: var(--color-error); font-size: $font-size-md; font-weight: 500; box-shadow: $shadow-sm; &::after { border: none; } }

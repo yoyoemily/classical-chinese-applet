@@ -1,0 +1,8 @@
+@import '../../styles/variables.scss'; @import '../../styles/mixins.scss';
+.page-full-text { min-height: 100vh; background: var(--color-bg-page); padding: $spacing-lg $spacing-md; padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); }
+.page-full-text__loading, .page-full-text__empty { @include flex-center; padding: 300rpx 0; font-size: $font-size-base; color: var(--color-text-hint); }
+.page-full-text__header { @include flex-column; align-items: center; padding: $spacing-lg 0 $spacing-xl; margin-bottom: $spacing-lg; border-bottom: 1rpx solid var(--color-border-light); }
+.page-full-text__title { font-size: $font-size-xxl; font-weight: 700; color: var(--color-text-primary); font-family: 'STKaiti','KaiTi','楷体',serif; text-align: center; }
+.page-full-text__author { font-size: $font-size-sm; color: var(--color-text-hint); margin-top: $spacing-sm; }
+.page-full-text__content { @include card; padding: $spacing-lg; }
+.page-full-text__text { font-size: $font-size-md; color: var(--color-text-primary); font-family: 'STKaiti','KaiTi','楷体',serif; white-space: pre-wrap; line-height: 2.2; }

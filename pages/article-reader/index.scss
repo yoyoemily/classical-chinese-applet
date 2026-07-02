@@ -1,0 +1,218 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-article-reader {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+
+  // ---------- 加载态 ----------
+  &__loading { @include flex-center; padding-top: 300rpx; }
+
+  // ---------- 顶部 ----------
+  &__header {
+    @include flex-column;
+    align-items: center;
+    padding: $spacing-xl $spacing-md $spacing-lg;
+    background: linear-gradient(180deg, var(--color-primary), var(--color-primary-dark));
+  }
+  &__title {
+    font-size: 44rpx;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 4rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+  }
+  &__meta {
+    display: flex;
+    gap: 2rpx;
+    margin-top: $spacing-sm;
+    font-size: $font-size-base;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  // ---------- 三模式切换栏 ----------
+  &__mode-bar {
+    display: flex;
+    background: #fff;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  &__mode-tab {
+    flex: 1;
+    @include flex-center;
+    padding: $spacing-md 0;
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+    position: relative;
+    transition: color 0.2s;
+    &--active {
+      color: var(--color-primary);
+      font-weight: 600;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20%;
+        right: 20%;
+        height: 4rpx;
+        background: var(--color-primary);
+        border-radius: 2rpx;
+      }
+    }
+  }
+
+  // ---------- 正文容器 ----------
+  &__body {
+    flex: 1;
+    padding: $spacing-xl $spacing-lg 0;
+  }
+  &__body-spacer { height: $spacing-md; }
+
+  // ==========================================
+  // 模式一：通篇阅读 — 原文，按段落自然分布
+  // ==========================================
+  &__plain-list {
+    padding: $spacing-base 0;
+  }
+  &__plain-para {
+    margin-bottom: $spacing-lg;
+    font-size: 38rpx;
+    line-height: 2.2;
+    color: var(--color-text-primary);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    text-align: justify;
+    text-indent: 2em;
+  }
+
+  // ==========================================
+  // 模式二：通篇释义 — 按段落，点击展开/收起译文
+  // ==========================================
+  &__sentence {
+    padding: $spacing-md $spacing-base;
+    margin-bottom: $spacing-xs;
+    border-radius: $radius-base;
+    transition: background 0.2s;
+    &--expanded { background: rgba(74, 106, 94, 0.04); }
+    &--hover { background: rgba(0, 0, 0, 0.04); }
+  }
+  &__sentence-head {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+  &__sentence-num {
+    flex-shrink: 0;
+    width: 36rpx;
+    height: 36rpx;
+    @include flex-center;
+    margin-top: 14rpx;
+    background: var(--color-primary-light);
+    color: #fff;
+    font-size: 20rpx;
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+  &__sentence-text {
+    flex: 1;
+    font-size: 38rpx;
+    line-height: 2;
+    color: var(--color-text-primary);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    text-align: justify;
+  }
+  &__sentence-arrow {
+    flex-shrink: 0;
+    margin-top: 14rpx;
+    font-size: 24rpx;
+    color: var(--color-text-hint);
+    transition: transform 0.2s;
+  }
+  &__expand-card {
+    @include card;
+    margin: 0 $spacing-base $spacing-md;
+    padding: $spacing-lg;
+    background: var(--color-bg-card);
+    border-left: 6rpx solid var(--color-primary);
+    border-radius: 0 $radius-md $radius-md 0;
+    animation: fadeIn 0.25s ease;
+  }
+  &__translation {
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    padding-bottom: $spacing-md;
+    margin-bottom: $spacing-md;
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+  &__keywords-title {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    margin-bottom: $spacing-xs;
+    display: block;
+  }
+  &__keyword {
+    padding: $spacing-sm $spacing-base;
+    border-radius: $radius-sm;
+    font-size: $font-size-base;
+    color: var(--color-text-primary);
+    &--hover { background: rgba(74, 106, 94, 0.06); }
+  }
+  &__keyword-link {
+    color: var(--color-primary);
+    font-size: $font-size-sm;
+  }
+
+  // ==========================================
+  // 模式三：逐句释义 — 按子句拆分，点击展开/收起译文
+  // ==========================================
+  &__clause {
+    padding: $spacing-sm $spacing-base;
+    margin-bottom: 0;
+    border-radius: $radius-base;
+    transition: background 0.2s;
+    &--expanded { background: rgba(74, 106, 94, 0.04); }
+    &--hover { background: rgba(0, 0, 0, 0.03); }
+  }
+  &__clause-head {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-xs;
+  }
+  &__clause-text {
+    flex: 1;
+    font-size: 36rpx;
+    line-height: 2;
+    color: var(--color-text-primary);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    text-align: justify;
+  }
+  &__clause-arrow {
+    flex-shrink: 0;
+    margin-top: 12rpx;
+    font-size: 22rpx;
+    color: var(--color-text-hint);
+  }
+  &__clause-trans {
+    margin: 0 $spacing-base $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    border-left: 4rpx solid var(--color-primary-light);
+    background: rgba(74, 106, 94, 0.03);
+    border-radius: 0 $radius-sm $radius-sm 0;
+    animation: fadeIn 0.2s ease;
+  }
+
+  // ---------- 底部安全区 ----------
+  &__safe-bottom {
+    height: calc(#{$spacing-lg} + var(--safe-area-bottom));
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}

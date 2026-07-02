@@ -1,0 +1,33 @@
+<view class="page-study-complete">
+  <scroll-view class="page-study-complete__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="page-study-complete__header">
+      <text class="page-study-complete__emoji">🎉</text>
+      <text class="page-study-complete__title">今日学习完成！</text>
+    </view>
+
+    <view class="page-study-complete__card">
+      <view class="page-study-complete__stat-row"><text class="page-study-complete__stat-icon">✅</text><text class="page-study-complete__stat-label">答对</text><text class="page-study-complete__stat-value page-study-complete__stat-value--correct">{{correctCount}} 题</text></view>
+      <view class="page-study-complete__stat-row"><text class="page-study-complete__stat-icon">❌</text><text class="page-study-complete__stat-label">答错</text><text class="page-study-complete__stat-value page-study-complete__stat-value--wrong">{{wrongCount}} 题</text></view>
+      <view class="page-study-complete__stat-row"><text class="page-study-complete__stat-icon">📊</text><text class="page-study-complete__stat-label">正确率</text><text class="page-study-complete__stat-value">{{accuracy}}%</text></view>
+      <view class="page-study-complete__stat-row"><text class="page-study-complete__stat-icon">🔥</text><text class="page-study-complete__stat-label">连续打卡</text><text class="page-study-complete__stat-value">{{streak}} 天</text></view>
+      <view class="page-study-complete__stat-row"><text class="page-study-complete__stat-icon">⭐</text><text class="page-study-complete__stat-label">获得经验</text><text class="page-study-complete__stat-value page-study-complete__stat-value--xp">+{{xpGained}} XP</text></view>
+    </view>
+
+    <view class="page-study-complete__card page-study-complete__card--badges" wx:if="{{newBadges.length > 0}}">
+      <text class="page-study-complete__badge-title">🏅 获得新勋章！</text>
+      <view wx:for="{{newBadges}}" wx:key="id" class="page-study-complete__badge-item">
+        <text class="page-study-complete__badge-icon">{{item.icon}}</text>
+        <view><text class="page-study-complete__badge-name">{{item.name}}</text><text class="page-study-complete__badge-desc">{{item.description}}</text></view>
+      </view>
+    </view>
+
+    <view class="page-study-complete__poem"><text>"{{poem}}"</text></view>
+    <view class="page-study-complete__level-hint"><text>⭐ 距下一等级还差 {{xpToNext}} 经验</text></view>
+    <view class="page-study-complete__bottom-placeholder"></view>
+  </scroll-view>
+
+  <view class="page-study-complete__action-bar">
+    <button class="page-study-complete__btn page-study-complete__btn--secondary" bindtap="onTapHome">↺ 返回首页</button>
+    <button class="page-study-complete__btn page-study-complete__btn--primary" bindtap="onTapVocab">📚 查看生词本</button>
+  </view>
+</view>

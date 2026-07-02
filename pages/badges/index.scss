@@ -1,0 +1,13 @@
+@import '../../styles/variables.scss'; @import '../../styles/mixins.scss';
+.page-badges { min-height: 100vh; background: var(--color-bg-page); padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); }
+.page-badges__filters { display: flex; background: var(--color-bg-white); padding: 0 $spacing-base; box-shadow: $shadow-sm; position: sticky; top: 0; z-index: 10; }
+.page-badges__filter { flex: 1; @include flex-center; height: 88rpx; font-size: $font-size-base; color: var(--color-text-secondary); position: relative; &--active { color: var(--color-primary); font-weight: 600; &::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 48rpx; height: 4rpx; background: var(--color-primary); border-radius: 2rpx; } } }
+.page-badges__list { padding: $spacing-md $spacing-base; }
+.page-badges__card { @include card; display: flex; align-items: center; padding: $spacing-md $spacing-lg; margin-bottom: $spacing-base; gap: $spacing-md; &--locked { opacity: 0.5; background: var(--color-bg-card); } }
+.page-badges__icon { font-size: 40rpx; flex-shrink: 0; }
+.page-badges__info { @include flex-column; flex: 1; gap: $spacing-xs; }
+.page-badges__name { font-size: $font-size-md; font-weight: 600; &--locked { color: var(--color-text-hint); } }
+.page-badges__desc { font-size: $font-size-sm; color: var(--color-text-secondary); }
+.page-badges__date { font-size: $font-size-xs; color: var(--color-text-hint); }
+.page-badges__status { font-size: $font-size-xs; color: var(--color-text-hint); flex-shrink: 0; &--earned { color: var(--color-primary); font-weight: 500; } }
+.page-badges__empty { @include flex-column; align-items: center; padding-top: 200rpx; font-size: 96rpx; gap: $spacing-lg; text { font-size: $font-size-md; color: var(--color-text-secondary); } }

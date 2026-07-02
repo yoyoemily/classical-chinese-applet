@@ -1,0 +1,129 @@
+<!-- 学习核心页面 -->
+<view class="page-study">
+
+  <!-- 问答视图 -->
+  <block wx:if="{{screen === 'question'}}">
+    <!-- 顶部进度 -->
+    <view class="page-study__header">
+      <view class="page-study__dots">
+        <view wx:for="{{dotsArray}}" wx:key="*this" class="page-study__dot {{index < completedWords ? 'page-study__dot--filled' : ''}}"></view>
+        <text wx:if="{{totalWords > 10}}" class="page-study__dots-extra">+{{totalWords - 10}}</text>
+      </view>
+      <view class="page-study__meta">
+        <text class="page-study__mode">{{modeLabel}}</text>
+        <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
+      </view>
+    </view>
+
+    <!-- 主体 -->
+    <view class="page-study__body">
+      <view class="page-study__audio-btn" bindtap="onTapAudio" hover-class="page-study__audio-btn--hover">
+        <text>🔊</text>
+      </view>
+
+      <!-- 句子展示 -->
+      <view class="page-study__sentence-area">
+        <text class="page-study__sentence-text">
+          <text>{{sentencePrefix}}</text>
+          <text class="page-study__sentence-target">{{sentenceTarget}}</text>
+          <text>{{sentenceSuffix}}</text>
+        </text>
+        <view class="page-study__sentence-source" wx:if="{{currentSentence.source}}" bindtap="onTapFullText">
+          <text>—— {{currentSentence.source}}</text>
+        </view>
+      </view>
+
+      <!-- 题干 -->
+      <view class="page-study__question">
+        <text>句中"<text class="page-study__target-word">{{currentWord}}</text>"的意思是？</text>
+      </view>
+
+      <!-- 选项 -->
+      <view class="page-study__options">
+        <view
+          wx:for="{{options}}" wx:key="*this"
+          class="page-study__option
+            {{showCorrect && index === correctIndex ? 'page-study__option--correct' : ''}}
+            {{showWrong && index === selectedIndex ? 'page-study__option--wrong' : ''}}
+            {{showWrong && index === correctIndex ? 'page-study__option--correct' : ''}}"
+          data-index="{{index}}"
+          bindtap="onSelectOption"
+          hover-class="page-study__option--hover"
+        >
+          <view class="page-study__option-label">{{index === 0 ? 'A' : (index === 1 ? 'B' : (index === 2 ? 'C' : 'D'))}}</view>
+          <view class="page-study__option-text">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="page-study__dont-know" bindtap="onTapDontKnow" hover-class="page-study__dont-know--hover">
+        <text>不知道</text>
+      </view>
+    </view>
+
+    <!-- 正确闪动 -->
+    <view class="page-study__flash-overlay" wx:if="{{showCorrect}}">
+      <view class="page-study__flash-icon-wrap">
+        <text class="page-study__flash-icon">✓</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 纠错视图 -->
+  <block wx:if="{{screen === 'correction'}}">
+    <view class="page-study__header">
+      <view class="page-study__dots">
+        <view wx:for="{{dotsArray}}" wx:key="*this" class="page-study__dot {{index < completedWords ? 'page-study__dot--filled' : ''}}"></view>
+      </view>
+      <view class="page-study__meta">
+        <text class="page-study__mode">{{modeLabel}}</text>
+        <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
+      </view>
+    </view>
+
+    <view class="page-study__body page-study__body--correction">
+      <view class="page-study__corr-sentence">
+        <text class="page-study__corr-sentence-text">{{sentenceText}}</text>
+      </view>
+
+      <view class="page-study__corr-translation">
+        <text class="page-study__corr-translation-label">译文</text>
+        <text class="page-study__corr-translation-text">{{sentenceTranslation}}</text>
+      </view>
+
+      <view class="page-study__corr-cards">
+        <view class="page-study__corr-card page-study__corr-card--wrong">
+          <view class="page-study__corr-card-header">
+            <text class="page-study__corr-card-icon">✗</text>
+            <text class="page-study__corr-card-label">你的回答</text>
+          </view>
+          <text class="page-study__corr-card-value">{{userAnswer}}</text>
+        </view>
+        <view class="page-study__corr-card page-study__corr-card--right">
+          <view class="page-study__corr-card-header">
+            <text class="page-study__corr-card-icon page-study__corr-card-icon--success">✓</text>
+            <text class="page-study__corr-card-label">正确答案</text>
+          </view>
+          <text class="page-study__corr-card-value">{{correctAnswer}}</text>
+        </view>
+      </view>
+
+      <view class="page-study__corr-mnemonic" wx:if="{{mnemonic}}">
+        <view class="page-study__corr-mnemonic-header">
+          <text>💡</text>
+          <text>记忆提示</text>
+        </view>
+        <text class="page-study__corr-mnemonic-text">{{mnemonic}}</text>
+      </view>
+
+      <view class="page-study__corr-actions">
+        <view class="page-study__corr-link" bindtap="onTapFullText" hover-class="page-study__corr-link--hover">
+          <text>查看全文 →</text>
+        </view>
+        <view class="page-study__corr-btn" bindtap="onCorrectionContinue" hover-class="page-study__corr-btn--hover">
+          <text>继续</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+</view>

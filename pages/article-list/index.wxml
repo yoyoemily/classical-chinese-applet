@@ -1,0 +1,82 @@
+<!-- 名篇列表页 -->
+<view class="page-article-list">
+  <!-- 筛选栏容器（分类 + 教材，吸顶） -->
+  <view class="page-article-list__filters">
+    <!-- 分类标签栏（横向滚动） -->
+    <scroll-view
+      class="page-article-list__tabs"
+      scroll-x
+      enhanced
+      show-scrollbar="{{false}}"
+    >
+      <view class="page-article-list__tabs-inner">
+        <view
+          wx:for="{{categories}}"
+          wx:key="key"
+          class="page-article-list__tab {{activeCategory === item.key ? 'page-article-list__tab--active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onTapCategory"
+        >
+          {{item.label}}
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 教材年级标签栏（横向滚动） -->
+    <scroll-view
+      class="page-article-list__tabs page-article-list__tabs--grade"
+      scroll-x
+      enhanced
+      show-scrollbar="{{false}}"
+    >
+      <view class="page-article-list__tabs-inner">
+        <view
+          wx:for="{{textbooks}}"
+          wx:key="key"
+          class="page-article-list__tab {{activeTextbook === item.key ? 'page-article-list__tab--active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onTapTextbook"
+        >
+          {{item.label}}
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="page-article-list__loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <block wx:elif="{{articles.length === 0}}">
+    <view class="page-article-list__empty">
+      <text class="page-article-list__empty-icon">📖</text>
+      <text class="page-article-list__empty-text">暂无文章</text>
+      <text class="page-article-list__empty-hint">该分类下还没有收录名篇，敬请期待</text>
+    </view>
+  </block>
+
+  <!-- 文章卡片列表 -->
+  <view wx:else class="page-article-list__grid">
+    <view
+      wx:for="{{articles}}"
+      wx:key="id"
+      class="page-article-list__card"
+      data-id="{{item.id}}"
+      bindtap="onTapArticle"
+    >
+      <view class="page-article-list__card-icon">📜</view>
+      <view class="page-article-list__card-body">
+        <view class="page-article-list__card-title">{{item.title}}</view>
+        <view class="page-article-list__card-meta">{{item.author}} · {{item.dynasty}}</view>
+        <view class="page-article-list__card-footer">
+          <text>含 {{item.keywordCount}} 个词书重点字</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全区占位 -->
+  <view class="page-article-list__safe-bottom"></view>
+</view>

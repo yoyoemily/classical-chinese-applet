@@ -1,0 +1,142 @@
+<!-- 首页 · 学习 Tab -->
+<view class="page-index">
+
+  <!-- ===== 加载态 ===== -->
+  <view wx:if="{{loading}}" class="page-index__loading">
+    <view class="page-index__loading-spinner"></view>
+    <text class="page-index__loading-text">加载中...</text>
+  </view>
+
+  <!-- ===== 主体内容 ===== -->
+  <block wx:else>
+
+    <!-- -------- 顶部问候区域 -------- -->
+    <view class="page-index__header">
+      <view class="page-index__header-top">
+        <text class="page-index__greeting">你好，学友</text>
+        <view
+          class="page-index__badges-btn"
+          hover-class="page-index__badges-btn--active"
+          bindtap="onTapBadges"
+        >勋章墙</view>
+      </view>
+      <view class="page-index__slogan">
+        <block wx:if="{{checkedIn}}">
+          <text class="page-index__slogan-icon">✅</text>
+          <text>已打卡 · 连续打卡 {{streak}} 天</text>
+        </block>
+        <block wx:else>
+          <text class="page-index__slogan-icon">🔥</text>
+          <text>连续打卡 {{streak}} 天</text>
+        </block>
+      </view>
+    </view>
+
+    <!-- -------- 词书切换卡片 -------- -->
+    <view wx:if="{{currentBook}}" class="page-index__book-card">
+      <!-- 标题行（可点击切换词书） -->
+      <view
+        class="page-index__book-header"
+        hover-class="page-index__book-header--active"
+        bindtap="onTapBookSelector"
+      >
+        <text class="page-index__book-name">{{currentBook.name}}</text>
+        <text class="page-index__book-arrow">▼</text>
+      </view>
+
+      <!-- 掌握进度 -->
+      <view class="page-index__book-stats">
+        <text class="page-index__book-stats-label">已掌握</text>
+        <text class="page-index__book-stats-value">{{progress.mastered}} / {{progress.total}}</text>
+        <text class="page-index__book-stats-percent">{{progress.percent}}%</text>
+      </view>
+
+      <!-- 进度条 -->
+      <view class="page-index__progress-bar">
+        <view
+          class="page-index__progress-fill"
+          style="width: {{progress.percent}}%;"
+        ></view>
+      </view>
+
+      <!-- 掌握分布标签 -->
+      <view class="page-index__book-distribution">
+        <view
+          wx:for="{{progress.distribution}}"
+          wx:key="key"
+          class="page-index__dist-tag page-index__dist-tag--{{item.key}}"
+          data-tab="{{item.key}}"
+          catch:tap="onTapDistribution"
+          hover-class="page-index__dist-tag--active"
+        >{{item.label}} {{item.count}}</view>
+      </view>
+    </view>
+
+    <!-- 词书空状态 -->
+    <view wx:else class="page-index__book-card page-index__book-card--empty">
+      <text class="page-index__empty-icon">📖</text>
+      <text class="page-index__empty-text">暂未选择词书</text>
+      <view
+        class="page-index__empty-link"
+        hover-class="page-index__empty-link--active"
+        bindtap="onTapBookSelector"
+      >去选择</view>
+    </view>
+
+    <!-- -------- 今日任务区 -------- -->
+    <view class="page-index__task-section">
+      <text class="page-index__task-title">今日任务</text>
+
+      <!-- 任务统计 -->
+      <view class="page-index__task-row">
+        <view class="page-index__task-stat">
+          <text class="page-index__task-stat-icon">📖</text>
+          <text class="page-index__task-stat-text">新学</text>
+          <text class="page-index__task-stat-num">{{todayTask.newWords}}</text>
+          <text class="page-index__task-stat-unit">个</text>
+        </view>
+        <view class="page-index__task-stat">
+          <text class="page-index__task-stat-icon">🔄</text>
+          <text class="page-index__task-stat-text">复习</text>
+          <text class="page-index__task-stat-num">{{todayTask.reviewWords}}</text>
+          <text class="page-index__task-stat-unit">个</text>
+        </view>
+      </view>
+
+      <!-- 预估时间 -->
+      <view class="page-index__task-time">
+        <text class="page-index__task-time-icon">⏱</text>
+        <text>预计 {{todayTask.estimatedMinutes}} 分钟</text>
+      </view>
+
+      <!-- 开始学习 CTA -->
+      <button
+        class="page-index__task-btn"
+        hover-class="page-index__task-btn--hover"
+        bindtap="onTapStartLearning"
+      >开 始 学 习</button>
+    </view>
+
+    <!-- -------- 底部入口 -------- -->
+    <view class="page-index__footer">
+      <view
+        class="page-index__footer-item"
+        hover-class="page-index__footer-item--active"
+        bindtap="onTapVocabulary"
+      >
+        <text class="page-index__footer-icon">📚</text>
+        <text class="page-index__footer-label">生词本</text>
+      </view>
+      <view
+        class="page-index__footer-item"
+        hover-class="page-index__footer-item--active"
+        bindtap="onTapCalendar"
+      >
+        <text class="page-index__footer-icon">📅</text>
+        <text class="page-index__footer-label">打卡日历</text>
+      </view>
+    </view>
+
+  </block>
+
+</view>

@@ -1,0 +1,10 @@
+@import '../../styles/variables.scss'; @import '../../styles/mixins.scss';
+.page-book-detail { min-height: 100vh; background: var(--color-bg-page); }
+.page-book-detail__loading { @include flex-center; padding: 300rpx 0; }
+.page-book-detail__header { padding: $spacing-xl $spacing-lg; color: #fff; }
+.page-book-detail__title { font-size: $font-size-xxl; font-weight: 700; display: block; margin-bottom: $spacing-sm; }
+.page-book-detail__desc { font-size: $font-size-sm; opacity: 0.8; display: block; }
+.page-book-detail__stats { display: flex; @include card; margin: $spacing-md; padding: $spacing-lg;
+  .page-book-detail__stat { flex: 1; @include flex-column; align-items: center; gap: $spacing-xs; font-size: $font-size-sm; color: var(--color-text-secondary); }
+  .page-book-detail__stat-num { font-size: 56rpx; font-weight: 700; color: var(--color-primary); }
+}

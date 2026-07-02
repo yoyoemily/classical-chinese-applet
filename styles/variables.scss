@@ -1,0 +1,82 @@
+// ============================================
+// 全局 SCSS 变量
+// ============================================
+
+// ---------- 颜色 ----------
+$color-primary: #4a6a5e; // 古风墨绿主色
+$color-primary-light: #7a9a8e;
+$color-primary-dark: #2e4a3e;
+
+$color-accent: #c9a96e; // 金色点缀
+$color-accent-light: #e8d5b0;
+
+$color-text-primary: #333333;
+$color-text-secondary: #666666;
+$color-text-hint: #999999;
+
+$color-bg-page: #f5f5f5;
+$color-bg-white: #ffffff;
+$color-bg-card: #fafaf8; // 略偏黄的白，仿古纸色
+
+$color-border: #e8e8e8;
+$color-border-light: #f0f0f0;
+
+$color-success: #52c41a;
+$color-warning: #faad14;
+$color-error: #ff4d4f;
+$color-info: #1890ff;
+
+// ---------- 字号 ----------
+$font-size-xs: 20rpx;
+$font-size-sm: 24rpx;
+$font-size-base: 28rpx;
+$font-size-md: 32rpx;
+$font-size-lg: 36rpx;
+$font-size-xl: 40rpx;
+$font-size-xxl: 48rpx;
+
+// ---------- 间距 ----------
+$spacing-xs: 8rpx;
+$spacing-sm: 12rpx;
+$spacing-base: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+$spacing-xxl: 64rpx;
+
+// ---------- 圆角 ----------
+$radius-sm: 4rpx;
+$radius-base: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 16rpx;
+$radius-round: 50%;
+
+// ---------- 阴影 ----------
+$shadow-sm: 0 2rpx 4rpx rgba(0, 0, 0, 0.06);
+$shadow-base: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+$shadow-md: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+
+// ---------- 页面安全区 ----------
+$safe-area-bottom: env(safe-area-inset-bottom);
+
+// ---------- CSS 变量（供 WXSS 直接使用） ----------
+page {
+  --color-primary: #{$color-primary};
+  --color-primary-light: #{$color-primary-light};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-accent: #{$color-accent};
+  --color-accent-light: #{$color-accent-light};
+  --color-text-primary: #{$color-text-primary};
+  --color-text-secondary: #{$color-text-secondary};
+  --color-text-hint: #{$color-text-hint};
+  --color-bg-page: #{$color-bg-page};
+  --color-bg-white: #{$color-bg-white};
+  --color-bg-card: #{$color-bg-card};
+  --color-border: #{$color-border};
+  --color-border-light: #{$color-border-light};
+  --color-success: #{$color-success};
+  --color-warning: #{$color-warning};
+  --color-error: #{$color-error};
+  --color-info: #{$color-info};
+  --safe-area-bottom: #{$safe-area-bottom};
+}

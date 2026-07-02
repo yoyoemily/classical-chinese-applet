@@ -1,0 +1,130 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 项目概述
+
+经典文言文打卡（Classical Chinese Check-in）——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。14 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
+
+## 开发环境
+
+- **IDE**：微信开发者工具（WeChat DevTools），直接用该工具打开项目根目录即可
+- **编译**：开发者工具自动完成 TypeScript → JavaScript、SCSS → WXSS 的编译，无需手动执行任何构建命令
+- **基础库版本**：`2.25.0`（`project.config.json` → `libVersion`）
+- **AppID**：`wxc50759cc61eda134`（`project.config.json` → `appid`）
+- **编译插件**：`["typescript", "sass"]`（`project.config.json` → `setting.useCompilerPlugins`）
+
+没有 Lint/Test 等 CLI 命令，一切编译和预览都在微信开发者工具内完成。
+
+## 技术栈与约定
+
+| 项 | 选型 |
+|----|------|
+| 框架 | 微信原生小程序（WXML + SCSS + TS） |
+| 语言 | TypeScript，`strict: true`，所有 TS 严格检查全开 |
+| 样式 | SCSS（变量 + mixin），BEM 命名（`block__element--modifier`） |
+| 尺寸单位 | `rpx`（1rpx = 屏幕宽度 / 750） |
+| UI 组件库 | 无，全部手写 |
+| 后端 | 传统 HTTP API（非云开发），基础地址 `https://api.example.com` |
+| 状态管理 | 轻量：`app.globalData` + 事件总线 |
+| Mock 模式 | `api/index.ts` 中 `USE_MOCK = true`，设为 `false` 切换到真实 API；所有依赖静态顶级导入（禁止 `await import()`） |
+| 路径别名 | `@/*` → `./*`（`tsconfig.json` → `paths`），但在小程序中 import 需使用相对路径 |
+
+## 目录结构
+
+```
+├── app.ts              # 入口：全局错误监听、系统信息初始化
+├── app.json            # 全局配置：pages 注册、window、tabBar 等
+├── app.scss            # 全局样式：引用 reset + variables
+├── sitemap.json        # SEO 站点地图
+├── project.config.json # 微信开发者工具配置
+├── tsconfig.json       # TS strict 配置
+├── pages/              # 页面（每页面 4 文件：ts/wxml/scss/json）
+├── components/         # 公共组件
+├── api/
+│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 fetchWordBooks / fetchTodayTask / submitAnswer / fetchArticles / fetchVocabulary 等
+├── mock/
+│   ├── wordBooks.ts     # 词书 Mock（2 本，16 词）
+│   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）
+│   └── badges.ts        # 勋章 Mock（12 枚）
+├── utils/
+│   ├── request.ts       # wx.request 封装（Promise 化、拦截、错误处理）
+│   ├── util.ts          # 通用工具（formatDate、throttle、debounce 等）
+│   ├── ebbinghaus.ts    # 艾宾浩斯引擎（生成今日任务、计算下次复习日、更新进度）
+│   └── storage.ts       # 本地存储封装（进度、勋章、打卡、会话、设置）
+├── styles/
+│   ├── variables.scss  # SCSS 变量 + CSS 自定义属性（定义在 page 上）
+│   ├── mixins.scss     # mixin（flex、hairline、card、text-ellipsis 等）
+│   └── reset.scss      # 样式重置
+├── typings/
+│   ├── index.d.ts      # 全局类型（IAppOption、IApiResponse、分页）
+│   └── wx.d.ts         # 微信基础类型补充声明
+├── constants/          # 全局常量
+└── assets/             # 静态资源（图标、图片）
+```
+
+## 核心架构模式
+
+### 请求链路
+
+```
+页面/组件 → api/（接口定义） → utils/request.ts（封装层） → wx.request → 后端
+                                       ↓
+                              统一错误 toast + loading
+```
+
+`request.ts` 假定后端响应格式为 `{ code: 0, message: "ok", data: ... }`。`code === 0` 表示成功，其他为业务异常。当前 BASE_URL 是占位值 `https://api.example.com`，开发时替换。
+
+### 样式体系
+
+**两层变量系统**：
+1. SCSS 变量（`$color-primary` 等）→ 在 `.scss` 文件中通过 `@import '../../styles/variables.scss'` 使用
+2. CSS 自定义属性（`--color-primary` 等）→ 定义在 `page` 选择器上，可在 `.scss` 和 `.wxss` 中直接使用，也支持 WXML 内联 style
+
+**BEM 命名**：页面级类名以 `page-xxx` 为 Block，例如首页 `.page-index__header`、`.page-index__btn--hover`。
+
+**安全区**：底部用 `var(--safe-area-bottom)` 或 `@include safe-area-bottom($min-height)`。
+
+### 页面开发规范
+
+1. **新增页面**：在 `pages/` 下建目录，创建 4 个文件（`index.ts`、`index.wxml`、`index.scss`、`index.json`），然后在 `app.json` → `pages` 数组中注册路径
+2. **页面 TS 结构**：data 类型单独定义 interface → `Page<IXxxData>({ ... })` → 生命周期按 `onLoad → onShow → onReady → onHide → onUnload` 顺序排列 → 自定义方法放最后
+3. **组件 TS 结构**：`Component({ properties: { ... }, data: { ... }, lifetimes: { ... }, methods: { ... } })`
+4. **`setData`**：使用增量更新（data-path 写法），只传变化字段
+5. **WXML**：`wx:if` 和 `wx:for` 不共存于同一标签，用 `<block>` 包裹；`wx:key` 必须指定唯一字段
+
+### 类型约定
+
+- 页面 data 类型以 `I` 前缀 + 页面名 + `Data` 命名，如 `IIndexData`
+- API 响应类型统一使用 `IApiResponse<T>` 包裹
+- 分页查询使用 `IPaginationParams` 和 `IPaginationResult<T>`
+- 纯类型导入使用 `import type`
+- 全局 App 类型通过 `IAppOption` 接口扩展
+
+### 全局状态
+
+当前只有 `app.globalData`，包含：
+- `systemInfo`：设备信息（`wx.getSystemInfoSync()` 获取）
+- `statusBarHeight`：顶部状态栏高度
+- `userInfo`：用户信息（预留，当前 `undefined`）
+
+后续引入事件总线时挂到 `app` 实例的 `$emit`/`$on`/`$off` 方法上（类型已在 `IAppOption` 中预留）。
+
+## 当前完成度
+
+### 已完成
+- **14 页面**全部搭建，含 4 TabBar（学习/名篇/生词本/我的）
+- **核心学习回路**：句子卡片答题 → 纠错页（正确/错误/不知道）→ 字总结 → 学习完成（含艾宾浩斯引擎 `utils/ebbinghaus.ts`）
+- **名篇阅读器**：通篇阅读 / 通篇释义 / 逐句释义 三种模式
+- **名篇列表**：双行筛选（分类 + 人教版教材年级），交叉过滤
+- **勋章系统**：12 枚勋章，学习完成时自动检测新勋章
+- **打卡日历**：月视图打卡展示
+- **生词本**：5 级标签（困难/模糊/熟悉/掌握/全部）
+- **词书选择**：多词书切换，词书详情
+- **全文阅读**：从纠错页或名篇阅读器跳转
+- **设置页**：基础设置
+
+### 待开发（辅助学习工具）
+1. **红黑字标注** — 文言文逐字标注（实词红色+释义，虚词黑色）
+2. **名篇阅读增强** — 音频播放、深层字词标注、内联生词链接
+3. **记忆工具** — 古文背诵辅助（填空测试、渐进揭示等）

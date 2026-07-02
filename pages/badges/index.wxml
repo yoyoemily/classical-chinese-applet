@@ -1,0 +1,19 @@
+<view class="page-badges">
+  <view class="page-badges__filters">
+    <view wx:for="{{filters}}" wx:key="key" class="page-badges__filter {{activeFilter === item.key ? 'page-badges__filter--active' : ''}}" data-filter="{{item.key}}" bindtap="onTapFilter">{{item.label}}</view>
+  </view>
+  <view class="page-badges__list">
+    <view wx:for="{{badges}}" wx:key="id"
+      class="page-badges__card {{!item.earned ? 'page-badges__card--locked' : ''}}"
+      wx:if="{{activeFilter === 'all' || (activeFilter === 'earned' && item.earned) || (activeFilter === 'unearned' && !item.earned)}}">
+      <text class="page-badges__icon">{{item.icon}}</text>
+      <view class="page-badges__info">
+        <text class="page-badges__name {{!item.earned ? 'page-badges__name--locked' : ''}}">{{item.name}}</text>
+        <text class="page-badges__desc">{{item.description}}</text>
+        <text wx:if="{{item.earned && item.earnedDate}}" class="page-badges__date">获得于 {{item.earnedDate}}</text>
+      </view>
+      <text class="page-badges__status {{item.earned ? 'page-badges__status--earned' : ''}}">{{item.earned ? '已获得' : '未获得'}}</text>
+    </view>
+  </view>
+  <view class="page-badges__empty" wx:if="{{badges.length === 0 && !loading}}"><text>🏅</text><text>暂无勋章数据</text></view>
+</view>

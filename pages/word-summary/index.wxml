@@ -1,0 +1,52 @@
+<!-- 字词总结页 -->
+<view class="page-word-summary">
+  <scroll-view class="page-word-summary__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{loading}}" class="page-word-summary__loading"><text>加载中...</text></view>
+    <block wx:else>
+      <view class="page-word-summary__char-section">
+        <text class="page-word-summary__pinyin">{{pinyin}}</text>
+        <text class="page-word-summary__character">{{word.character}}</text>
+        <view class="page-word-summary__info-row">
+          <text class="page-word-summary__info-item">部首：{{radical}}</text>
+          <text class="page-word-summary__info-item">笔画：{{strokes}}</text>
+        </view>
+        <view class="page-word-summary__info-row"><text class="page-word-summary__info-item">结构：{{structure}}</text></view>
+      </view>
+      <view class="page-word-summary__section">
+        <text class="page-word-summary__section-title">义项</text>
+        <view class="page-word-summary__meaning-list">
+          <view wx:for="{{meanings}}" wx:key="*this" class="page-word-summary__meaning-item">
+            <text class="page-word-summary__meaning-number">{{index + 1}}</text>
+            <view class="page-word-summary__meaning-content">
+              <text class="page-word-summary__meaning-def">{{item.partOfSpeech}} · {{item.definition}}</text>
+              <text class="page-word-summary__meaning-example" wx:if="{{item.example}}">{{item.example}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="page-word-summary__section" wx:if="{{homophones.length}}">
+        <text class="page-word-summary__section-title">🎵 同音字</text>
+        <text class="page-word-summary__tag-text">{{homophones.join('  ')}}</text>
+      </view>
+      <view class="page-word-summary__section" wx:if="{{similarShapes.length}}">
+        <text class="page-word-summary__section-title">🔤 形近字</text>
+        <text class="page-word-summary__tag-text">{{similarShapes.join('  ')}}</text>
+      </view>
+      <view class="page-word-summary__bottom-placeholder"></view>
+    </block>
+  </scroll-view>
+
+  <view class="page-word-summary__action-bar">
+    <view class="page-word-summary__mastery">
+      <text>📊 掌握度：</text>
+      <view class="page-word-summary__mastery-dots">
+        <view wx:for="{{[1,2,3,4,5]}}" wx:key="*this" wx:for-item="dot" class="page-word-summary__mastery-dot {{masteryProgress >= dot * 20 ? 'page-word-summary__mastery-dot--filled' : ''}}"></view>
+      </view>
+      <text>{{masteryLabel}}</text>
+    </view>
+    <view class="page-word-summary__buttons">
+      <button class="page-word-summary__btn page-word-summary__btn--secondary" bindtap="onTapFavorite">收藏到生词本</button>
+      <button class="page-word-summary__btn page-word-summary__btn--primary" bindtap="onTapContinue">继续学习</button>
+    </view>
+  </view>
+</view>

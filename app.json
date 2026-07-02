@@ -1,0 +1,60 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/article-list/index",
+    "pages/vocabulary/index",
+    "pages/mine/index",
+    "pages/book-select/index",
+    "pages/book-detail/index",
+    "pages/study/index",
+    "pages/word-summary/index",
+    "pages/study-complete/index",
+    "pages/full-text/index",
+    "pages/article-reader/index",
+    "pages/badges/index",
+    "pages/calendar/index",
+    "pages/settings/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#4a6a5e",
+    "navigationBarTitleText": "古文打卡",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4a6a5e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "学习",
+        "iconPath": "assets/tab/study.png",
+        "selectedIconPath": "assets/tab/study-active.png"
+      },
+      {
+        "pagePath": "pages/article-list/index",
+        "text": "名篇",
+        "iconPath": "assets/tab/article.png",
+        "selectedIconPath": "assets/tab/article-active.png"
+      },
+      {
+        "pagePath": "pages/vocabulary/index",
+        "text": "生词本",
+        "iconPath": "assets/tab/vocab.png",
+        "selectedIconPath": "assets/tab/vocab-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "assets/tab/mine.png",
+        "selectedIconPath": "assets/tab/mine-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

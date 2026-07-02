@@ -1,0 +1,135 @@
+<!-- 名篇阅读页 -->
+<view class="page-article-reader">
+  <block wx:if="{{loading}}">
+    <view class="page-article-reader__loading"><text>加载中...</text></view>
+  </block>
+  <block wx:elif="{{article}}">
+    <!-- 顶部头图 -->
+    <view class="page-article-reader__header">
+      <view class="page-article-reader__title">《{{article.title}}》</view>
+      <view class="page-article-reader__meta">
+        <text>{{article.author}}</text>
+        <text> · {{article.dynasty}}</text>
+      </view>
+    </view>
+
+    <!-- 三模式切换栏 -->
+    <view class="page-article-reader__mode-bar">
+      <view
+        class="page-article-reader__mode-tab {{readingMode === 'plain' ? 'page-article-reader__mode-tab--active' : ''}}"
+        data-mode="plain"
+        bindtap="onSwitchMode"
+      >
+        <text>通篇阅读</text>
+      </view>
+      <view
+        class="page-article-reader__mode-tab {{readingMode === 'paragraph' ? 'page-article-reader__mode-tab--active' : ''}}"
+        data-mode="paragraph"
+        bindtap="onSwitchMode"
+      >
+        <text>通篇释义</text>
+      </view>
+      <view
+        class="page-article-reader__mode-tab {{readingMode === 'sentence' ? 'page-article-reader__mode-tab--active' : ''}}"
+        data-mode="sentence"
+        bindtap="onSwitchMode"
+      >
+        <text>逐句释义</text>
+      </view>
+    </view>
+
+    <!-- ============================================= -->
+    <!-- 模式一：通篇阅读（原文，段落化排版）                 -->
+    <!-- ============================================= -->
+    <scroll-view
+      wx:if="{{readingMode === 'plain'}}"
+      class="page-article-reader__body"
+      scroll-y enhanced show-scrollbar="{{false}}"
+    >
+      <view class="page-article-reader__plain-list">
+        <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="s" wx:for-index="idx">
+          <view class="page-article-reader__plain-para">
+            <text>{{s.text}}</text>
+          </view>
+        </block>
+      </view>
+      <view class="page-article-reader__body-spacer"></view>
+    </scroll-view>
+
+    <!-- ============================================= -->
+    <!-- 模式二：通篇释义（按段落，点击展开/收起译文）           -->
+    <!-- ============================================= -->
+    <scroll-view
+      wx:elif="{{readingMode === 'paragraph'}}"
+      class="page-article-reader__body"
+      scroll-y enhanced show-scrollbar="{{false}}"
+    >
+      <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="s" wx:for-index="idx">
+        <view
+          class="page-article-reader__sentence {{expandedStates[idx] ? 'page-article-reader__sentence--expanded' : ''}}"
+          data-index="{{idx}}"
+          bindtap="onTapSentence"
+          hover-class="page-article-reader__sentence--hover"
+        >
+          <view class="page-article-reader__sentence-head">
+            <text class="page-article-reader__sentence-num">{{idx + 1}}</text>
+            <text class="page-article-reader__sentence-text">{{s.text}}</text>
+            <text class="page-article-reader__sentence-arrow">{{expandedStates[idx] ? '▾' : '▸'}}</text>
+          </view>
+        </view>
+        <view class="page-article-reader__expand-card" wx:if="{{expandedStates[idx]}}">
+          <view class="page-article-reader__translation">
+            <text>{{s.translation}}</text>
+          </view>
+          <view class="page-article-reader__keywords" wx:if="{{s.keyWords.length > 0}}">
+            <text class="page-article-reader__keywords-title">📖 重点字词：</text>
+            <view
+              wx:for="{{s.keyWords}}"
+              wx:key="word"
+              wx:for-item="kw"
+              class="page-article-reader__keyword"
+              data-word="{{kw.word}}"
+              data-word-book-id="{{kw.wordBookId}}"
+              catchtap="onTapKeyword"
+              hover-class="page-article-reader__keyword--hover"
+            >
+              <text>· {{kw.word}}：{{kw.definition}}</text>
+              <text wx:if="{{kw.wordBookId}}" class="page-article-reader__keyword-link"> [查看详情 →]</text>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="page-article-reader__body-spacer"></view>
+    </scroll-view>
+
+    <!-- ============================================= -->
+    <!-- 模式三：逐句释义（按子句拆分，点击展开/收起译文）         -->
+    <!-- ============================================= -->
+    <scroll-view
+      wx:else
+      class="page-article-reader__body"
+      scroll-y enhanced show-scrollbar="{{false}}"
+    >
+      <block wx:for="{{clauses}}" wx:key="*this" wx:for-item="cl" wx:for-index="ci">
+        <view
+          class="page-article-reader__clause {{clauseExpandedStates[ci] ? 'page-article-reader__clause--expanded' : ''}}"
+          data-clause-index="{{ci}}"
+          bindtap="onTapClause"
+          hover-class="page-article-reader__clause--hover"
+        >
+          <view class="page-article-reader__clause-head">
+            <text class="page-article-reader__clause-text">{{cl.text}}。</text>
+            <text class="page-article-reader__clause-arrow">{{clauseExpandedStates[ci] ? '▾' : '▸'}}</text>
+          </view>
+        </view>
+        <view class="page-article-reader__clause-trans" wx:if="{{clauseExpandedStates[ci]}}">
+          <text>{{cl.translation}}</text>
+        </view>
+      </block>
+      <view class="page-article-reader__body-spacer"></view>
+    </scroll-view>
+
+    <!-- 底部安全区占位 -->
+    <view class="page-article-reader__safe-bottom"></view>
+  </block>
+</view>

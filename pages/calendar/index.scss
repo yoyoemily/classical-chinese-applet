@@ -1,0 +1,18 @@
+@import '../../styles/variables.scss'; @import '../../styles/mixins.scss';
+.page-calendar { min-height: 100vh; background: var(--color-bg-page); padding: $spacing-md; padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); }
+.page-calendar__streak { @include flex-center; padding: $spacing-xl 0 $spacing-lg; gap: $spacing-xs; font-size: $font-size-lg; }
+.page-calendar__streak-icon { font-size: 40rpx; }
+.page-calendar__streak-num { font-size: 56rpx; font-weight: 700; color: var(--color-primary); }
+.page-calendar__nav { @include flex-between; padding: $spacing-base 0; margin-bottom: $spacing-base; }
+.page-calendar__nav-btn { width: 72rpx; height: 72rpx; @include flex-center; border-radius: 50%; background: var(--color-bg-white); box-shadow: $shadow-sm; font-size: $font-size-md; }
+.page-calendar__nav-label { font-size: $font-size-xl; font-weight: 600; }
+.page-calendar__weekdays { display: flex; padding: $spacing-base 0; }
+.page-calendar__weekday { flex: 1; text-align: center; font-size: $font-size-sm; color: var(--color-text-secondary); font-weight: 500; &--weekend { color: var(--color-error); opacity: 0.7; } }
+.page-calendar__grid { display: flex; flex-wrap: wrap; background: var(--color-bg-white); border-radius: $radius-md; overflow: hidden; box-shadow: $shadow-sm; }
+.page-calendar__cell { width: calc(100% / 7); aspect-ratio: 1; @include flex-column; align-items: center; justify-content: center; position: relative; font-size: $font-size-md; &--other { opacity: 0.3; } &--today { background: rgba(74,106,94,0.08); border: 2rpx solid var(--color-primary); border-radius: $radius-base; } }
+.page-calendar__cell-dot { width: 10rpx; height: 10rpx; border-radius: 50%; background: var(--color-accent); position: absolute; bottom: 10rpx; }
+.page-calendar__sheet { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; visibility: hidden; &--visible { visibility: visible; .page-calendar__sheet-mask { opacity: 1; } .page-calendar__sheet-body { transform: translateY(0); } } }
+.page-calendar__sheet-mask { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.3s; }
+.page-calendar__sheet-body { position: absolute; bottom: 0; left: 0; right: 0; background: var(--color-bg-white); border-radius: $radius-lg $radius-lg 0 0; padding: $spacing-lg $spacing-md; padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); transform: translateY(100%); transition: transform 0.3s; }
+.page-calendar__sheet-handle { width: 60rpx; height: 6rpx; background: var(--color-border); border-radius: 3rpx; margin: 0 auto $spacing-lg; }
+.page-calendar__sheet-content { font-size: $font-size-md; color: var(--color-text-primary); text-align: center; display: block; }

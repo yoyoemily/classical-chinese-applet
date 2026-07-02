@@ -1,0 +1,30 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-study-complete {
+  min-height: 100vh; background: linear-gradient(180deg, #fdf8f0, var(--color-bg-card) 30%, var(--color-bg-page) 100%); position: relative;
+  &__scroll { flex: 1; height: calc(100vh - 180rpx); }
+  &__header { @include flex-column; align-items: center; padding: $spacing-xxl $spacing-md $spacing-lg; }
+  &__emoji { font-size: 96rpx; margin-bottom: $spacing-base; animation: bounce 0.8s ease-in-out infinite alternate; }
+  &__title { font-size: $font-size-xl; font-weight: 700; color: var(--color-primary-dark); letter-spacing: 2rpx; }
+  &__card { @include card; margin: 0 $spacing-md $spacing-lg; padding: $spacing-md; background: linear-gradient(135deg, #fffdf8, #fff); border: 1rpx solid var(--color-accent-light); }
+  &__card--badges { background: linear-gradient(135deg, #fffef5, #fffdf0); border-color: var(--color-accent); }
+  &__stat-row { @include flex-between; padding: $spacing-sm 0; border-bottom: 1rpx solid var(--color-border-light); &:last-child { border: none; } }
+  &__stat-icon { font-size: $font-size-md; width: 48rpx; text-align: center; }
+  &__stat-label { flex: 1; font-size: $font-size-base; color: var(--color-text-secondary); padding-left: $spacing-xs; }
+  &__stat-value { font-size: $font-size-md; font-weight: 600; color: var(--color-text-primary); &--correct { color: var(--color-success); } &--wrong { color: var(--color-error); } &--xp { color: var(--color-accent); } }
+  &__badge-title { font-size: $font-size-md; font-weight: 600; color: var(--color-accent); margin-bottom: $spacing-base; display: block; }
+  &__badge-item { display: flex; align-items: center; padding: $spacing-sm 0; gap: $spacing-base; }
+  &__badge-icon { font-size: 48rpx; }
+  &__badge-name { font-size: $font-size-base; font-weight: 600; display: block; }
+  &__badge-desc { font-size: $font-size-sm; color: var(--color-text-hint); display: block; }
+  &__poem { @include flex-center; padding: $spacing-lg $spacing-xl; margin: 0 $spacing-md; font-size: $font-size-base; color: var(--color-text-secondary); text-align: center; line-height: 2; font-style: italic; font-family: 'STKaiti','KaiTi','楷体',serif; }
+  &__level-hint { @include flex-center; padding: $spacing-base $spacing-md; font-size: $font-size-sm; color: var(--color-text-hint); }
+  &__bottom-placeholder { height: 180rpx; }
+  &__action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: $spacing-md; padding-bottom: calc(#{$spacing-md} + var(--safe-area-bottom)); display: flex; gap: $spacing-base; box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.06); z-index: 10; }
+  &__btn { flex: 1; height: 88rpx; @include flex-center; border-radius: $radius-lg; font-size: $font-size-base; font-weight: 500; &::after { border: none; }
+    &--primary { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); color: #fff; box-shadow: 0 4rpx 16rpx rgba(74,106,94,0.3); }
+    &--secondary { background: var(--color-bg-page); color: var(--color-text-primary); border: 1rpx solid var(--color-border); }
+  }
+}
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12rpx); } }

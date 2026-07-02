@@ -1,0 +1,68 @@
+<!-- 我的 / 个人中心页面 -->
+<view class="page-mine">
+  <!-- 用户头部卡片 -->
+  <view class="page-mine__header">
+    <view class="page-mine__header-card">
+      <!-- 头像占位 -->
+      <view class="page-mine__avatar">
+        <text class="page-mine__avatar-icon">👤</text>
+      </view>
+
+      <!-- 用户信息 -->
+      <view class="page-mine__user-info">
+        <text class="page-mine__username">{{userName}}</text>
+        <view class="page-mine__level-badge">
+          <text class="page-mine__level-title">{{levelTitle}}</text>
+          <text class="page-mine__level-text">Lv.{{level}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- XP 进度条 -->
+    <view class="page-mine__xp-section">
+      <view class="page-mine__xp-header">
+        <text class="page-mine__xp-label">经验值</text>
+        <text class="page-mine__xp-value">{{totalXP}} / {{xpForNextLevel}}</text>
+      </view>
+      <view class="page-mine__xp-bar">
+        <view
+          class="page-mine__xp-fill"
+          style="width: {{xpProgress}}%"
+        ></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="page-mine__menu">
+    <block wx:for="{{menuItems}}" wx:key="key">
+      <view
+        class="page-mine__menu-item"
+        data-url="{{item.url}}"
+        bindtap="onTapMenuItem"
+        hover-class="page-mine__menu-item--hover"
+      >
+        <view class="page-mine__menu-left">
+          <text class="page-mine__menu-icon">{{item.icon}}</text>
+          <text class="page-mine__menu-label">{{item.label}}</text>
+        </view>
+        <view class="page-mine__menu-right">
+          <text
+            wx:if="{{item.suffix}}"
+            class="page-mine__menu-suffix"
+          >{{item.suffix}}</text>
+          <text class="page-mine__menu-arrow">></text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="page-mine__footer">
+    <text class="page-mine__footer-text">古文学习</text>
+    <text
+      class="page-mine__footer-book"
+      wx:if="{{currentBookName}}"
+    >当前词书：{{currentBookName}}</text>
+  </view>
+</view>
