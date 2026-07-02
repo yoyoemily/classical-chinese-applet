@@ -3,49 +3,66 @@
   <scroll-view class="page-word-summary__scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view wx:if="{{loading}}" class="page-word-summary__loading"><text>加载中...</text></view>
     <block wx:else>
-      <view class="page-word-summary__char-section">
-        <text class="page-word-summary__pinyin">{{pinyin}}</text>
-        <text class="page-word-summary__character">{{word.character}}</text>
-        <view class="page-word-summary__info-row">
-          <text class="page-word-summary__info-item">部首：{{radical}}</text>
-          <text class="page-word-summary__info-item">笔画：{{strokes}}</text>
+      <!-- 顶部：字型标签 + 大字 + 频次 + 解释 + 古写法 -->
+      <view class="page-word-summary__char-card">
+        <view class="page-word-summary__char-badge" wx:if="{{characterType}}">
+          <text>{{characterType}}</text>
         </view>
-        <view class="page-word-summary__info-row"><text class="page-word-summary__info-item">结构：{{structure}}</text></view>
+        <text class="page-word-summary__character">{{character}}</text>
+        <text class="page-word-summary__freq" wx:if="{{examFrequency}}">{{examFrequency}}</text>
+        <view class="page-word-summary__explanation" wx:if="{{explanation}}">
+          <text>{{explanation}}</text>
+        </view>
+        <image class="page-word-summary__ancient" wx:if="{{oracleForm}}" src="{{oracleForm}}" mode="widthFix" />
+        <image class="page-word-summary__ancient" wx:if="{{ancientForm}}" src="{{ancientForm}}" mode="widthFix" />
       </view>
+
+      <!-- 义项列表（折叠展开） -->
       <view class="page-word-summary__section">
         <text class="page-word-summary__section-title">义项</text>
         <view class="page-word-summary__meaning-list">
-          <view wx:for="{{meanings}}" wx:key="*this" class="page-word-summary__meaning-item">
-            <text class="page-word-summary__meaning-number">{{index + 1}}</text>
-            <view class="page-word-summary__meaning-content">
-              <text class="page-word-summary__meaning-def">{{item.partOfSpeech}} · {{item.definition}}</text>
-              <text class="page-word-summary__meaning-example" wx:if="{{item.example}}">{{item.example}}</text>
+          <view
+            wx:for="{{meaningItems}}"
+            wx:key="index"
+            class="page-word-summary__meaning-item"
+            data-index="{{index}}"
+            bindtap="onTapMeaning"
+          >
+            <!-- 折叠态信息行 -->
+            <view class="page-word-summary__meaning-row">
+              <text class="page-word-summary__meaning-number">{{index + 1}}</text>
+              <view class="page-word-summary__meaning-summary">
+                <text class="page-word-summary__meaning-pos">{{item.partOfSpeech}}</text>
+                <text class="page-word-summary__meaning-pinyin-line" wx:if="{{item.pinyin}}">· {{item.pinyin}}</text>
+                <text> · </text>
+                <text class="page-word-summary__meaning-def-text">{{item.definition}}</text>
+              </view>
+              <text class="page-word-summary__meaning-arrow {{item.expanded ? 'page-word-summary__meaning-arrow--up' : ''}}">▶</text>
+            </view>
+            <!-- 展开详情 -->
+            <view class="page-word-summary__meaning-detail" wx:if="{{item.expanded}}">
+              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.example}}">
+                <text class="page-word-summary__meaning-detail-label">📖 例：</text>
+                <text class="page-word-summary__meaning-detail-text">{{item.example}}</text>
+              </view>
+              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.translation}}">
+                <text class="page-word-summary__meaning-detail-label">📝 译：</text>
+                <text class="page-word-summary__meaning-detail-text">{{item.translation}}</text>
+              </view>
+              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.source}}">
+                <text class="page-word-summary__meaning-detail-label">📚 出处：</text>
+                <text class="page-word-summary__meaning-detail-text">{{item.source}}</text>
+              </view>
             </view>
           </view>
         </view>
-      </view>
-      <view class="page-word-summary__section" wx:if="{{homophones.length}}">
-        <text class="page-word-summary__section-title">🎵 同音字</text>
-        <text class="page-word-summary__tag-text">{{homophones.join('  ')}}</text>
-      </view>
-      <view class="page-word-summary__section" wx:if="{{similarShapes.length}}">
-        <text class="page-word-summary__section-title">🔤 形近字</text>
-        <text class="page-word-summary__tag-text">{{similarShapes.join('  ')}}</text>
       </view>
       <view class="page-word-summary__bottom-placeholder"></view>
     </block>
   </scroll-view>
 
+  <!-- 底部操作栏 -->
   <view class="page-word-summary__action-bar">
-    <view class="page-word-summary__mastery">
-      <text>📊 掌握度：</text>
-      <view class="page-word-summary__mastery-dots">
-        <view wx:for="{{[1,2,3,4,5]}}" wx:key="*this" wx:for-item="dot" class="page-word-summary__mastery-dot {{masteryProgress >= dot * 20 ? 'page-word-summary__mastery-dot--filled' : ''}}"></view>
-      </view>
-      <text>{{masteryLabel}}</text>
-    </view>
-    <view class="page-word-summary__buttons">
-      <button class="page-word-summary__btn page-word-summary__btn--primary" bindtap="onTapContinue">继续学习</button>
-    </view>
+    <button class="page-word-summary__btn page-word-summary__btn--primary" bindtap="onTapContinue">继续学习</button>
   </view>
 </view>

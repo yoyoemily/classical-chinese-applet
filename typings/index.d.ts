@@ -56,7 +56,14 @@ export type PartOfSpeech = '副词' | '介词' | '连词' | '助词' | '代词' 
 export interface IMeaning {
   partOfSpeech: PartOfSpeech
   definition: string
+  /** 本义项的读音（多音字时区分），如 "zhì" */
+  pinyin?: string
+  /** 例句原文 */
   example: string
+  /** 例句翻译 */
+  translation?: string
+  /** 例句出处，如 "《出师表》" */
+  source?: string
 }
 
 export type SentenceDifficulty = 'basic' | 'medium' | 'hard'
@@ -79,13 +86,24 @@ export interface IWord {
   id: string
   character: string
   pinyin: string
-  radical: string
-  strokes: number
-  structure: string
   meanings: IMeaning[]
   sentences: ISentence[]
   similarHomophones: string[]
   similarShapes: string[]
+
+  // ---- 字总结页展示字段 ----
+  /** 字型：象形字 / 指事字 / 会意字 / 形声字 */
+  characterType?: string
+  /** 字形解释 */
+  explanation?: string
+  /** 甲骨文图片 URL */
+  oracleForm?: string
+  /** 古写法图片 URL */
+  ancientForm?: string
+  /** 考试频次，如 "5年3考" */
+  examFrequency?: string
+
+  /** 记忆口诀 */
   mnemonic?: string
 }
 
