@@ -13,7 +13,8 @@
     "pages/article-reader/index",
     "pages/badges/index",
     "pages/calendar/index",
-    "pages/settings/index"
+    "pages/settings/index",
+    "pages/profile-edit/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4a6a5e",

@@ -31,6 +31,13 @@
     @include flex-center;
     margin-right: $spacing-md;
     border: 4rpx solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
   &__avatar-icon {

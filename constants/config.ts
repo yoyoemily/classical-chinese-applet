@@ -62,6 +62,7 @@ export const STORAGE_KEYS = {
   SESSION: 'studySession',
   SETTINGS: 'userSettings',
   CACHED_ANSWERS: 'cachedAnswers',
+  USER_PROFILE: 'userProfile',
 } as const;
 
 // ============================================

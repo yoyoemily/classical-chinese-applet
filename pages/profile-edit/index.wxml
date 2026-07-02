@@ -1,0 +1,68 @@
+<!-- 个人信息编辑页面 -->
+<view class="page-profile-edit">
+  <!-- 头像区域 -->
+  <view class="page-profile-edit__section">
+    <view class="page-profile-edit__section-title">头像</view>
+    <view class="page-profile-edit__card">
+      <view class="page-profile-edit__avatar-row">
+        <button
+          class="page-profile-edit__avatar-btn"
+          open-type="chooseAvatar"
+          bindchooseavatar="onChooseAvatar"
+        >
+          <image
+            wx:if="{{avatarUrl}}"
+            class="page-profile-edit__avatar-img"
+            src="{{avatarUrl}}"
+            mode="aspectFill"
+          />
+          <text wx:else class="page-profile-edit__avatar-placeholder">👤</text>
+        </button>
+        <view class="page-profile-edit__avatar-actions">
+          <text class="page-profile-edit__avatar-hint">点击头像使用微信头像</text>
+          <view class="page-profile-edit__photo-btn" bindtap="onChoosePhoto">
+            <text>从相册选择 / 拍照</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 昵称区域 -->
+  <view class="page-profile-edit__section">
+    <view class="page-profile-edit__section-title">昵称</view>
+    <view class="page-profile-edit__card">
+      <view class="page-profile-edit__row">
+        <input
+          class="page-profile-edit__input"
+          type="nickname"
+          value="{{nickName}}"
+          placeholder="请输入昵称（可自动填充微信昵称）"
+          maxlength="20"
+          bindinput="onNickNameInput"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 年级区域 -->
+  <view class="page-profile-edit__section">
+    <view class="page-profile-edit__section-title">年级</view>
+    <view class="page-profile-edit__card">
+      <view class="page-profile-edit__row">
+        <text class="page-profile-edit__label">当前年级</text>
+        <picker
+          mode="selector"
+          range="{{gradeOptions}}"
+          value="{{gradeIndex}}"
+          bindchange="onGradeChange"
+        >
+          <view class="page-profile-edit__picker-value">
+            <text>{{gradeOptions[gradeIndex]}}</text>
+            <text class="page-profile-edit__picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+  </view>
+</view>

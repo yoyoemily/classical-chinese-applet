@@ -3,13 +3,23 @@
   <!-- 用户头部卡片 -->
   <view class="page-mine__header">
     <view class="page-mine__header-card">
-      <!-- 头像占位 -->
-      <view class="page-mine__avatar">
-        <text class="page-mine__avatar-icon">👤</text>
+      <!-- 头像 -->
+      <view
+        class="page-mine__avatar"
+        data-url="/pages/profile-edit/index"
+        bindtap="onTapMenuItem"
+      >
+        <image
+          wx:if="{{avatarUrl}}"
+          class="page-mine__avatar-img"
+          src="{{avatarUrl}}"
+          mode="aspectFill"
+        />
+        <text wx:else class="page-mine__avatar-icon">👤</text>
       </view>
 
       <!-- 用户信息 -->
-      <view class="page-mine__user-info">
+      <view class="page-mine__user-info" data-url="/pages/profile-edit/index" bindtap="onTapMenuItem">
         <text class="page-mine__username">{{userName}}</text>
         <view class="page-mine__level-badge">
           <text class="page-mine__level-title">{{levelTitle}}</text>

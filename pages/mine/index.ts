@@ -2,7 +2,7 @@
 // 我的 / 个人中心页面
 // ============================================
 import { fetchUserProfile, fetchWordBooks } from '../../api/index';
-import { getCurrentBookId } from '../../utils/storage';
+import { getCurrentBookId, getUserProfile } from '../../utils/storage';
 import { getLevelXP, RANK_TITLES, calcLevel } from '../../constants/config';
 
 interface IMenuItem {
@@ -14,6 +14,7 @@ interface IMenuItem {
 }
 
 interface IMineData {
+  avatarUrl: string;
   userName: string;
   level: number;
   levelTitle: string;
@@ -31,6 +32,7 @@ interface IMineData {
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   data: {
+    avatarUrl: '',
     userName: '学友',
     level: 1,
     levelTitle: '童生',
@@ -45,6 +47,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     menuItems: [
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
       { key: 'badges', icon: '🏅', label: '勋章墙', url: '/pages/badges/index' },
+      { key: 'profile', icon: '👤', label: '个人信息', url: '/pages/profile-edit/index' },
       { key: 'settings', icon: '⚙️', label: '设置', url: '/pages/settings/index' },
     ],
     loading: false,
@@ -64,6 +67,10 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ loading: true });
 
     try {
+      // 加载本地个人信息
+      const userProfile = getUserProfile();
+      const displayName = userProfile.nickName || '学友';
+
       const [profileResult, bookResult] = await Promise.all([
         fetchUserProfile(),
         this.getCurrentBookName(),
@@ -78,6 +85,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       const xpProgress = Math.min(Math.round((xpIntoLevel / xpForNextLevel) * 100), 100);
 
       this.setData({
+        avatarUrl: userProfile.avatarUrl,
+        userName: displayName,
         level: levelInfo.level,
         levelTitle: levelInfo.title,
         totalXP: profileResult.totalXP,

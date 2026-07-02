@@ -116,7 +116,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 当前完成度
 
 ### 已完成
-- **14 页面**全部搭建，含 4 TabBar（学习/名篇/生词本/我的）
+- **15 页面**全部搭建，含 4 TabBar（学习/名篇/生词本/我的）
 - **核心学习回路**：句子卡片答题 → 纠错页（正确/错误/不知道）→ 字总结 → 学习完成（含艾宾浩斯引擎 `utils/ebbinghaus.ts`）
 - **名篇阅读器**：通篇阅读 / 通篇释义 / 逐句释义 三种模式
 - **名篇列表**：双行筛选（分类 + 人教版教材年级），交叉过滤
@@ -126,6 +126,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **词书选择**：多词书切换，词书详情
 - **全文阅读**：从纠错页或名篇阅读器跳转
 - **设置页**：每日新学/复习词数、学习顺序（顺序/乱序）、自动播放语音、答题音效、震动反馈、清除数据
+- **个人信息编辑**：头像（微信头像/相册/拍照）、昵称（微信昵称自动填充/自定义）、年级选择（初一～高三），数据通过 `utils/storage.ts` 的 `getUserProfile()`/`saveUserProfile()` 持久化
+- **"我的"页**：头像和昵称展示（点击跳转个人信息编辑），新增"个人信息"菜单项
 - **学习顺序**：支持顺序/乱序两种模式，在 `utils/ebbinghaus.ts` 的 `generateTodayTask()` 中根据设置决定是否 shuffle（复习和新学各自独立乱序，复习仍优先）
 - **学习页**：标题动态显示当前词书书名，答题选项随机排列，"不知道"按钮有卡片化视觉引导
 

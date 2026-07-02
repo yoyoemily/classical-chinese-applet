@@ -3,7 +3,7 @@
 // ============================================
 import type {
   IUserProgress, IWordProgress, IUserBadge,
-  ITodayTask, IArticleProgress
+  ITodayTask, IArticleProgress, IUserProfile
 } from '../typings/index.d';
 import { STORAGE_KEYS } from '../constants/config';
 import { safeJSONParse } from './util';
@@ -226,4 +226,32 @@ export function loadSession<T>(): T | null {
 
 export function clearSession(): void {
   wx.removeStorageSync(STORAGE_KEYS.SESSION);
+}
+
+// ============================================
+// 用户个人信息
+// ============================================
+const DEFAULT_USER_PROFILE: IUserProfile = {
+  avatarUrl: '',
+  nickName: '',
+  grade: '',
+};
+
+export function getUserProfile(): IUserProfile {
+  const raw = wx.getStorageSync(STORAGE_KEYS.USER_PROFILE);
+  if (!raw) return { ...DEFAULT_USER_PROFILE };
+  try {
+    const saved = JSON.parse(raw) as Partial<IUserProfile>;
+    return {
+      avatarUrl: saved.avatarUrl || '',
+      nickName: saved.nickName || '',
+      grade: saved.grade || '',
+    };
+  } catch {
+    return { ...DEFAULT_USER_PROFILE };
+  }
+}
+
+export function saveUserProfile(profile: IUserProfile): void {
+  wx.setStorageSync(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
 }

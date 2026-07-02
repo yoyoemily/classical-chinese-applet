@@ -248,6 +248,15 @@ export interface IVocabularyItem {
 }
 
 // ============================================
+// 用户个人信息
+// ============================================
+export interface IUserProfile {
+  avatarUrl: string
+  nickName: string
+  grade: string
+}
+
+// ============================================
 // 学习会话状态
 // ============================================
 export type SessionMode = 'review' | 'new'

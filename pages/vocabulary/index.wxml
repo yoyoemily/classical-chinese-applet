@@ -25,7 +25,6 @@
         <!-- 左侧：大字 + 拼音 -->
         <view class="page-vocabulary__word-main">
           <text class="page-vocabulary__character">{{item.character}}</text>
-          <text class="page-vocabulary__pinyin">{{item.pinyin}}</text>
         </view>
 
         <!-- 右侧：进度指示 + 箭头 -->
