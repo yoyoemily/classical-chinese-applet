@@ -45,7 +45,6 @@
       <text>{{masteryLabel}}</text>
     </view>
     <view class="page-word-summary__buttons">
-      <button class="page-word-summary__btn page-word-summary__btn--secondary" bindtap="onTapFavorite">收藏到生词本</button>
       <button class="page-word-summary__btn page-word-summary__btn--primary" bindtap="onTapContinue">继续学习</button>
     </view>
   </view>

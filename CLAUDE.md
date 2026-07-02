@@ -60,7 +60,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   ├── index.d.ts      # 全局类型（IAppOption、IApiResponse、分页）
 │   └── wx.d.ts         # 微信基础类型补充声明
 ├── constants/          # 全局常量
-└── assets/             # 静态资源（图标、图片）
+├── assets/             # 静态资源（图标、图片）
+├── temp/               # 临时文件（截图等）
+├── .claude/            # Claude Code 配置
+│   └── memory/         # 项目记忆（架构/流程/数据模型/页面结构等，CLI 对话上下文）
 ```
 
 ## 核心架构模式
@@ -122,9 +125,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **生词本**：5 级标签（困难/模糊/熟悉/掌握/全部）
 - **词书选择**：多词书切换，词书详情
 - **全文阅读**：从纠错页或名篇阅读器跳转
-- **设置页**：基础设置
+- **设置页**：每日新学/复习词数、学习顺序（顺序/乱序）、自动播放语音、答题音效、震动反馈、清除数据
+- **学习顺序**：支持顺序/乱序两种模式，在 `utils/ebbinghaus.ts` 的 `generateTodayTask()` 中根据设置决定是否 shuffle（复习和新学各自独立乱序，复习仍优先）
+- **学习页**：标题动态显示当前词书书名，答题选项随机排列，"不知道"按钮有卡片化视觉引导
 
 ### 待开发（辅助学习工具）
 1. **红黑字标注** — 文言文逐字标注（实词红色+释义，虚词黑色）
 2. **名篇阅读增强** — 音频播放、深层字词标注、内联生词链接
 3. **记忆工具** — 古文背诵辅助（填空测试、渐进揭示等）
+
+## 项目记忆
+
+`.claude/memory/` 目录存放项目记忆文件，由 CLI 维护。`MEMORY.md` 为索引入口。会话上下文通过读取 `CLAUDE.md` + `.claude/memory/MEMORY.md` 及其中引用的记忆文件来建立。新增记忆时写到 `.claude/memory/` 下，并更新 `MEMORY.md` 索引。

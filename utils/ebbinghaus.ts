@@ -1,10 +1,10 @@
 // ============================================
 // 艾宾浩斯复习调度引擎
 // ============================================
-import { EBBINGHAUS_INTERVALS } from '../constants/config';
+import { EBBINGHAUS_INTERVALS, STORAGE_KEYS } from '../constants/config';
 import type { IWordProgress, ReviewStage, ITodayWord, ITodayTask, ISentence } from '../typings/index.d';
 import { getProgress, loadWordBookData } from './storage';
-import { formatDate } from './util';
+import { formatDate, shuffle } from './util';
 
 /**
  * 计算下次复习日期
@@ -82,8 +82,8 @@ export function generateTodayTask(wordBookId: string): ITodayTask | null {
   const today = formatDate(new Date(), 'yyyy-MM-dd');
 
   // 找出到期复习的词
-  const reviewWords: ITodayWord[] = [];
-  const newWords: ITodayWord[] = [];
+  let reviewWords: ITodayWord[] = [];
+  let newWords: ITodayWord[] = [];
 
   // 已学的字中，到期需要复习的
   for (const word of book.words) {
@@ -117,6 +117,18 @@ export function generateTodayTask(wordBookId: string): ITodayTask | null {
   // 优先复习，再新学
   const allWords = [...reviewWords, ...newWords];
   const total = allWords.length;
+
+  // 根据设置决定是否乱序（复习和新学各自独立 shuffle，复习仍优先）
+  try {
+    const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
+    if (raw) {
+      const settings = JSON.parse(raw);
+      if (settings.studyOrder === 1) {
+        reviewWords = shuffle(reviewWords);
+        newWords = shuffle(newWords);
+      }
+    }
+  } catch { /* ignore */ }
 
   return {
     date: today,

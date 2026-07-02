@@ -44,6 +44,5 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
     } catch { this.setData({ loading: false }); }
   },
   onTapContinue(): void { wx.navigateBack(); },
-  onTapFavorite(): void { wx.showToast({ title: '已收藏到生词本', icon: 'success' }); },
   onShareAppMessage() { return { title: `学习「${this.data.word?.character || ''}」`, path: '/pages/index/index' }; },
 });

@@ -2,7 +2,7 @@
   <view wx:if="{{loading}}" class="page-full-text__loading"><text>加载中...</text></view>
   <block wx:elif="{{!isEmpty}}">
     <view class="page-full-text__header">
-      <text class="page-full-text__title">《{{title}}》</text>
+      <text class="page-full-text__title">{{title}}</text>
       <text wx:if="{{author}}" class="page-full-text__author">{{author}}</text>
     </view>
     <view class="page-full-text__content"><text class="page-full-text__text">{{content}}</text></view>
