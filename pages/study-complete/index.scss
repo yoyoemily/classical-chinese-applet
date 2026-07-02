@@ -3,6 +3,11 @@
 
 .page-study-complete {
   min-height: 100vh; background: linear-gradient(180deg, #fdf8f0, var(--color-bg-card) 30%, var(--color-bg-page) 100%); position: relative;
+  &__skeleton { @include flex-column; align-items: center; padding: $spacing-xxl $spacing-md $spacing-lg; }
+  &__skeleton-emoji { width: 96rpx; height: 96rpx; border-radius: 50%; background: linear-gradient(135deg, #f0ebe0, #e8e0d0); margin-bottom: $spacing-base; animation: shimmer 1.2s ease-in-out infinite; }
+  &__skeleton-title { width: 320rpx; height: 40rpx; border-radius: 8rpx; background: linear-gradient(135deg, #f0ebe0, #e8e0d0); margin-bottom: $spacing-xl; animation: shimmer 1.2s ease-in-out infinite; }
+  &__skeleton-card { width: calc(100% - #{$spacing-md * 2}); margin: 0 $spacing-md $spacing-lg; padding: $spacing-md; border-radius: $radius-lg; background: #fffdf8; border: 1rpx solid #efe8d8; }
+  &__skeleton-row { height: 48rpx; border-radius: 8rpx; background: linear-gradient(135deg, #f5f0e5, #ede5d5); margin-bottom: $spacing-sm; animation: shimmer 1.2s ease-in-out infinite; &:last-child { margin-bottom: 0; } }
   &__scroll { flex: 1; height: calc(100vh - 180rpx); }
   &__header { @include flex-column; align-items: center; padding: $spacing-xxl $spacing-md $spacing-lg; }
   &__emoji { font-size: 96rpx; margin-bottom: $spacing-base; animation: bounce 0.8s ease-in-out infinite alternate; }
@@ -28,3 +33,4 @@
   }
 }
 @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12rpx); } }
+@keyframes shimmer { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }

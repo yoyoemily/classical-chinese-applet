@@ -116,15 +116,38 @@ export function addUserBadge(badgeId: string): void {
   wx.setStorageSync(STORAGE_KEYS.BADGES, JSON.stringify(badges));
 }
 
+/**
+ * 批量添加勋章（仅一次读写，避免循环内重复 get/set）
+ */
+export function addUserBadges(badgeIds: string[]): void {
+  if (badgeIds.length === 0) return;
+  const badges = getUserBadges();
+  const existingIds = new Set(badges.map(b => b.badgeId));
+  const today = new Date().toISOString().split('T')[0];
+  for (const id of badgeIds) {
+    if (!existingIds.has(id)) {
+      badges.push({ badgeId: id, earnedDate: today, notified: false });
+    }
+  }
+  wx.setStorageSync(STORAGE_KEYS.BADGES, JSON.stringify(badges));
+}
+
 // ============================================
 // 打卡相关
 // ============================================
 export function checkinToday(): void {
   const progress = getProgress();
+  _applyCheckin(progress);
+  saveProgress(progress);
+}
+
+/**
+ * 打卡逻辑（纯数据，不读写存储），供 completeStudy 复用
+ */
+export function _applyCheckin(progress: IUserProgress): void {
   const today = new Date().toISOString().split('T')[0];
   if (progress.checkinDates.includes(today)) return;
 
-  // 计算连续打卡
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
   if (progress.checkinDates.includes(yesterday)) {
     progress.currentStreak++;
@@ -141,8 +164,6 @@ export function checkinToday(): void {
   if (progress.currentStreak % 7 === 0) {
     progress.totalXP += 50;
   }
-
-  saveProgress(progress);
 }
 
 export function isCheckedInToday(): boolean {

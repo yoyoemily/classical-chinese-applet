@@ -8,7 +8,7 @@ import type {
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
-import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, checkinToday, addUserBadge, getUserBadges } from '../utils/storage';
+import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadges, getUserBadges, _applyCheckin } from '../utils/storage';
 import { generateTodayTask, updateWordProgress } from '../utils/ebbinghaus';
 import { mockBadges, checkNewBadges } from '../mock/badges';
 import { mockArticles } from '../mock/articles';
@@ -85,29 +85,37 @@ export async function submitAnswer(data: {
 
 export async function completeStudy(data: { wordBookId: string; correctCount: number; wrongCount: number }): Promise<{ newBadges: IBadge[]; xpGained: number }> {
   if (USE_MOCK) {
-    checkinToday();
+    // 一次性读取，避免多次 JSON.parse 阻塞主线程
     const progress = getProgress();
-    // 计算总体统计
+    const existingBadges = getUserBadges();
+    const existingBadgeIds = existingBadges.map(b => b.badgeId);
+
+    // 打卡
+    _applyCheckin(progress);
+
+    // 统计
     const allProgresses = Object.values(progress.wordProgresses);
     const totalAnswers = allProgresses.reduce((sum, wp) => sum + (wp.correctCount || 0) + (wp.wrongCount || 0), 0);
-    const streakCorrect = 0; // 简化：实时 streak 需要从 session 获取
     const accuracy = allProgresses.length > 0
       ? Math.round(allProgresses.reduce((sum, wp) => sum + (wp.correctCount || 0), 0) / Math.max(1, totalAnswers) * 100)
       : 0;
     const completedBooks = allProgresses.filter(wp => wp.stage === 'done').length >= 10 ? 1 : 0;
 
-    const existingBadgeIds = getUserBadges().map(b => b.badgeId);
+    // 检查新勋章
     const newBadges = checkNewBadges(existingBadgeIds, {
       streak: progress.currentStreak,
       completedBooks,
       accuracy,
-      streakCorrect,
+      streakCorrect: 0,
       totalAnswers,
     });
 
-    newBadges.forEach(b => addUserBadge(b.id));
+    // 经验
     const xpGained = data.correctCount * 10;
     progress.totalXP += xpGained;
+
+    // 一次性写入：勋章批量写入 + 进度
+    addUserBadges(newBadges.map(b => b.id));
     saveProgress(progress);
 
     return { newBadges, xpGained };

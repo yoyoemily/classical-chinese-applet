@@ -1,4 +1,17 @@
 <view class="page-study-complete">
+  <!-- loading 骨架 -->
+  <block wx:if="{{loading}}">
+    <view class="page-study-complete__skeleton">
+      <view class="page-study-complete__skeleton-emoji"></view>
+      <view class="page-study-complete__skeleton-title"></view>
+      <view class="page-study-complete__skeleton-card">
+        <view class="page-study-complete__skeleton-row" wx:for="{{[1,2,3,4,5]}}" wx:key="*this"></view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 正常内容 -->
+  <block wx:else>
   <scroll-view class="page-study-complete__scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="page-study-complete__header">
       <text class="page-study-complete__emoji">🎉</text>
@@ -30,4 +43,5 @@
     <button class="page-study-complete__btn page-study-complete__btn--secondary" bindtap="onTapHome">↺ 返回首页</button>
     <button class="page-study-complete__btn page-study-complete__btn--primary" bindtap="onTapVocab">📚 查看生词本</button>
   </view>
+</block>
 </view>
