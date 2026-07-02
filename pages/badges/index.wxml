@@ -1,19 +1,48 @@
 <view class="page-badges">
-  <view class="page-badges__filters">
-    <view wx:for="{{filters}}" wx:key="key" class="page-badges__filter {{activeFilter === item.key ? 'page-badges__filter--active' : ''}}" data-filter="{{item.key}}" bindtap="onTapFilter">{{item.label}}</view>
-  </view>
-  <view class="page-badges__list">
-    <view wx:for="{{badges}}" wx:key="id"
-      class="page-badges__card {{!item.earned ? 'page-badges__card--locked' : ''}}"
-      wx:if="{{activeFilter === 'all' || (activeFilter === 'earned' && item.earned) || (activeFilter === 'unearned' && !item.earned)}}">
-      <text class="page-badges__icon">{{item.icon}}</text>
-      <view class="page-badges__info">
-        <text class="page-badges__name {{!item.earned ? 'page-badges__name--locked' : ''}}">{{item.name}}</text>
-        <text class="page-badges__desc">{{item.description}}</text>
-        <text wx:if="{{item.earned && item.earnedDate}}" class="page-badges__date">获得于 {{item.earnedDate}}</text>
+  <view class="page-badges__grid">
+    <view
+      wx:for="{{badges}}"
+      wx:key="id"
+      class="page-badges__card page-badges__card--theme-{{item.theme}} {{!item.earned ? 'page-badges__card--locked' : ''}}"
+    >
+
+      <!-- 顶部色条 -->
+      <view class="page-badges__top-bar"></view>
+
+      <!-- 勋章圆形 -->
+      <view class="page-badges__medal {{item.earned ? 'page-badges__medal--earned' : ''}}">
+        <view class="page-badges__medal-ring">
+          <view class="page-badges__medal-face">
+            <text class="page-badges__medal-icon">{{item.icon}}</text>
+          </view>
+        </view>
+        <!-- 光芒点缀 (仅已获得) -->
+        <view wx:if="{{item.earned}}" class="page-badges__sparkle page-badges__sparkle--1">✦</view>
+        <view wx:if="{{item.earned}}" class="page-badges__sparkle page-badges__sparkle--2">✦</view>
       </view>
-      <text class="page-badges__status {{item.earned ? 'page-badges__status--earned' : ''}}">{{item.earned ? '已获得' : '未获得'}}</text>
+
+      <!-- 勋章名称 -->
+      <text class="page-badges__name">{{item.name}}</text>
+
+      <!-- 描述 -->
+      <text class="page-badges__desc">{{item.description}}</text>
+
+      <!-- 状态 -->
+      <view class="page-badges__status {{item.earned ? 'page-badges__status--earned' : ''}}">
+        <block wx:if="{{item.earned}}">
+          <text class="page-badges__status-mark">✓</text>
+          <text class="page-badges__status-text">获得于 {{item.earnedDate}}</text>
+        </block>
+        <block wx:else>
+          <text class="page-badges__status-mark page-badges__status-mark--lock">🔒</text>
+          <text class="page-badges__status-text">未获得</text>
+        </block>
+      </view>
     </view>
   </view>
-  <view class="page-badges__empty" wx:if="{{badges.length === 0 && !loading}}"><text>🏅</text><text>暂无勋章数据</text></view>
+
+  <view class="page-badges__empty" wx:if="{{badges.length === 0 && !loading}}">
+    <text>🏅</text>
+    <text>暂无勋章数据</text>
+  </view>
 </view>
