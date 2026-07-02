@@ -11,7 +11,6 @@ interface IWordSummaryData {
   characterType: string;
   explanation: string;
   oracleForm: string;
-  ancientForm: string;
   examFrequency: string;
   meaningItems: IMeaningItem[];
   loading: boolean;
@@ -20,7 +19,7 @@ interface IWordSummaryData {
 Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
   data: {
     word: null, character: '', characterType: '', explanation: '',
-    oracleForm: '', ancientForm: '', examFrequency: '',
+    oracleForm: '', examFrequency: '',
     meaningItems: [],
     loading: true,
   },
@@ -39,7 +38,6 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
         characterType: word.characterType || '',
         explanation: word.explanation || '',
         oracleForm: word.oracleForm || '',
-        ancientForm: word.ancientForm || '',
         examFrequency: word.examFrequency || '',
         meaningItems,
         loading: false,

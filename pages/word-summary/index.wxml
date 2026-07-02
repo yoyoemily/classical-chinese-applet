@@ -3,18 +3,17 @@
   <scroll-view class="page-word-summary__scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view wx:if="{{loading}}" class="page-word-summary__loading"><text>加载中...</text></view>
     <block wx:else>
-      <!-- 顶部：字型标签 + 大字 + 频次 + 解释 + 古写法 -->
+      <!-- 顶部汉字卡片 -->
       <view class="page-word-summary__char-card">
-        <view class="page-word-summary__char-badge" wx:if="{{characterType}}">
-          <text>{{characterType}}</text>
+        <view class="page-word-summary__char-top">
+          <view class="page-word-summary__char-badge" wx:if="{{characterType}}">
+            <text>{{characterType}}</text>
+          </view>
+          <text class="page-word-summary__freq" wx:if="{{examFrequency}}">{{examFrequency}}</text>
         </view>
         <text class="page-word-summary__character">{{character}}</text>
-        <text class="page-word-summary__freq" wx:if="{{examFrequency}}">{{examFrequency}}</text>
-        <view class="page-word-summary__explanation" wx:if="{{explanation}}">
-          <text>{{explanation}}</text>
-        </view>
+        <text class="page-word-summary__explanation" wx:if="{{explanation}}">{{explanation}}</text>
         <image class="page-word-summary__ancient" wx:if="{{oracleForm}}" src="{{oracleForm}}" mode="widthFix" />
-        <image class="page-word-summary__ancient" wx:if="{{ancientForm}}" src="{{ancientForm}}" mode="widthFix" />
       </view>
 
       <!-- 义项列表（折叠展开） -->
@@ -32,8 +31,7 @@
             <view class="page-word-summary__meaning-row">
               <text class="page-word-summary__meaning-number">{{index + 1}}</text>
               <view class="page-word-summary__meaning-summary">
-                <text class="page-word-summary__meaning-pos">{{item.partOfSpeech}}</text>
-                <text class="page-word-summary__meaning-pinyin-line" wx:if="{{item.pinyin}}">· {{item.pinyin}}</text>
+                <text class="page-word-summary__meaning-pinyin-line" wx:if="{{item.pinyin}}">{{item.pinyin}}</text>
                 <text> · </text>
                 <text class="page-word-summary__meaning-def-text">{{item.definition}}</text>
               </view>

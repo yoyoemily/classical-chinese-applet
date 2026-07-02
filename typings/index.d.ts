@@ -51,10 +51,7 @@ export interface IWordBook {
   words: IWord[]
 }
 
-export type PartOfSpeech = '副词' | '介词' | '连词' | '助词' | '代词' | '动词' | '名词' | '形容词' | '通假字' | '古今异义'
-
 export interface IMeaning {
-  partOfSpeech: PartOfSpeech
   definition: string
   /** 本义项的读音（多音字时区分），如 "zhì" */
   pinyin?: string
@@ -98,8 +95,6 @@ export interface IWord {
   explanation?: string
   /** 甲骨文图片 URL */
   oracleForm?: string
-  /** 古写法图片 URL */
-  ancientForm?: string
   /** 考试频次，如 "5年3考" */
   examFrequency?: string
 
