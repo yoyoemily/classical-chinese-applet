@@ -208,6 +208,10 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 
 ### ⚠️ 上线前必须完成
 - **替换 `WECHAT_APP_SECRET` 为真实值**：后端目前未配 AppSecret 时用固定 `dev-openid` 兜底，仅适合开发。上线前需在微信公众平台获取真实 AppSecret，设为后端环境变量。
+- **TTS 语音播报配置**（`utils/tts.ts`）：
+  - 若使用 `api` 引擎（当前默认）：将 `TTS_API_URL` 从 `https://api.example.com/tts` 替换为真实 TTS API 地址
+  - 若改用 `wechat` 引擎：需在 `app.json` 中配置微信同声传译插件（WechatSI），并在微信公众平台提交插件审核，审核通过后方可使用
+  - 确认生产环境使用的 `TTS_ENGINE` 并完成对应配置
 
 ## 项目记忆
 
