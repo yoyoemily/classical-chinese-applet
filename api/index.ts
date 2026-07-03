@@ -1,15 +1,15 @@
 // ============================================
 // API 接口层（MVP 阶段使用 Mock 数据，后续切换到真实 API）
 // ============================================
-import { get, post } from '../utils/request';
+import { get, post, put } from '../utils/request';
 import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IVocabularyItem, IBadge, IUserBadge, IUserProgress,
-  IFeedbackSubmitParams,
+  IFeedbackSubmitParams, IUserProfile,
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
-import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadges, getUserBadges, _applyCheckin } from '../utils/storage';
+import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadges, getUserBadges, _applyCheckin, getUserProfile, saveUserProfile } from '../utils/storage';
 import { generateTodayTask, updateWordProgress } from '../utils/ebbinghaus';
 import { mockBadges, checkNewBadges } from '../mock/badges';
 import { mockArticles } from '../mock/articles';
@@ -245,6 +245,24 @@ export async function fetchFullText(sentenceId: string): Promise<{ title: string
     return null;
   }
   return get(`/api/full-text/${sentenceId}`);
+}
+
+// ============================================
+// 用户个人信息
+// ============================================
+export async function fetchUserInfo(): Promise<IUserProfile> {
+  if (USE_MOCK) {
+    return getUserProfile();
+  }
+  return get('/api/user/info');
+}
+
+export async function saveUserInfo(profile: IUserProfile): Promise<void> {
+  if (USE_MOCK) {
+    saveUserProfile(profile);
+    return;
+  }
+  return put('/api/user/info', profile as unknown as Record<string, unknown>);
 }
 
 // ============================================

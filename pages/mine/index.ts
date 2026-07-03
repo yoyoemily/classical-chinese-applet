@@ -1,8 +1,8 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchWordBooks } from '../../api/index';
-import { getCurrentBookId, getUserProfile } from '../../utils/storage';
+import { fetchUserProfile, fetchWordBooks, fetchUserInfo } from '../../api/index';
+import { getCurrentBookId } from '../../utils/storage';
 import { getLevelXP, RANK_TITLES, calcLevel } from '../../constants/config';
 
 interface IMenuItem {
@@ -67,14 +67,14 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ loading: true });
 
     try {
-      // 加载本地个人信息
-      const userProfile = getUserProfile();
-      const displayName = userProfile.nickName || '学友';
-
-      const [profileResult, bookResult] = await Promise.all([
+      // 加载个人信息
+      const [profileResult, bookResult, userInfo] = await Promise.all([
         fetchUserProfile(),
         this.getCurrentBookName(),
+        fetchUserInfo(),
       ]);
+
+      const displayName = userInfo.nickName || '学友';
 
       const levelInfo = calcLevel(profileResult.totalXP);
       const xpForNextLevel = getLevelXP(levelInfo.level);
@@ -85,7 +85,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       const xpProgress = Math.min(Math.round((xpIntoLevel / xpForNextLevel) * 100), 100);
 
       this.setData({
-        avatarUrl: userProfile.avatarUrl,
+        avatarUrl: userInfo.avatarUrl,
         userName: displayName,
         level: levelInfo.level,
         levelTitle: levelInfo.title,

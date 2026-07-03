@@ -1,7 +1,7 @@
 // ============================================
 // 个人信息编辑页面
 // ============================================
-import { getUserProfile, saveUserProfile } from '../../utils/storage';
+import { fetchUserInfo, saveUserInfo } from '../../api/index';
 import type { IUserProfile } from '../../typings/index.d';
 
 interface IProfileEditData {
@@ -30,16 +30,24 @@ Page<IProfileEditData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onLoad(): void {
-    const profile = getUserProfile();
-    const gradeIndex = profile.grade
-      ? this.data.gradeOptions.indexOf(profile.grade)
-      : 0;
-    this.setData({
-      avatarUrl: profile.avatarUrl,
-      nickName: profile.nickName,
-      grade: profile.grade,
-      gradeIndex: gradeIndex >= 0 ? gradeIndex : 0,
-    });
+    this.loadProfile();
+  },
+
+  async loadProfile(): Promise<void> {
+    try {
+      const profile = await fetchUserInfo();
+      const gradeIndex = profile.grade
+        ? this.data.gradeOptions.indexOf(profile.grade)
+        : 0;
+      this.setData({
+        avatarUrl: profile.avatarUrl,
+        nickName: profile.nickName,
+        grade: profile.grade,
+        gradeIndex: gradeIndex >= 0 ? gradeIndex : 0,
+      });
+    } catch {
+      // 加载失败使用默认值
+    }
   },
 
   /** 选择头像（微信新版头像组件） */
@@ -87,6 +95,6 @@ Page<IProfileEditData, WechatMiniprogram.Page.CustomOption>({
       nickName: this.data.nickName,
       grade: this.data.grade,
     };
-    saveUserProfile(profile);
+    saveUserInfo(profile);
   },
 });

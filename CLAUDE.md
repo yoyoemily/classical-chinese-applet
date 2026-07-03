@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-经典文言文打卡（Classical Chinese Check-in）——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。15 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
+博古通今——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。15 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
 
 ## 开发环境
 
@@ -26,11 +26,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 尺寸单位 | `rpx`（1rpx = 屏幕宽度 / 750） |
 | UI 组件库 | 无，全部手写 |
 | 后端 | 传统 HTTP API（非云开发），基础地址 `https://api.example.com` |
+| 数据源 | 词书/名篇/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存 |
+| 艾宾浩斯 | 客户端调度——本地计算任务和复习日，服务端只记录答题结果 |
 | 状态管理 | 轻量：`app.globalData` + 事件总线 |
 | Mock 模式 | `api/index.ts` 中 `USE_MOCK = true`，设为 `false` 切换到真实 API；所有依赖静态顶级导入（禁止 `await import()`） |
 | 路径别名 | `@/*` → `./*`（`tsconfig.json` → `paths`），但在小程序中 import 需使用相对路径 |
 
-## 目录结构
+## API 端点清单（共 15 个）
+
+| 分类 | 接口 | 方法 | 路径 |
+|------|------|------|------|
+| 词书 | fetchWordBooks | GET | /api/wordbooks |
+| 词书 | fetchWordBookDetail | GET | /api/wordbooks/:id |
+| 学习 | fetchTodayTask | GET | /api/study/today |
+| 学习 | submitAnswer | POST | /api/study/answer |
+| 学习 | completeStudy | POST | /api/study/complete |
+| 进度 | fetchProgress | GET | /api/progress |
+| 生词本 | fetchVocabulary | GET | /api/vocabulary |
+| 打卡 | fetchCheckinRecords | GET | /api/checkin |
+| 勋章 | fetchBadges | GET | /api/badges |
+| 用户 | fetchUserProfile | GET | /api/user/profile |
+| 用户 | fetchUserInfo | GET | /api/user/info |
+| 用户 | saveUserInfo | PUT | /api/user/info |
+| 名篇 | fetchArticles | GET | /api/articles |
+| 名篇 | fetchArticleDetail | GET | /api/articles/:id |
+| 内容 | fetchWordDetail | GET | /api/words/:id |
+| 内容 | fetchFullText | GET | /api/full-text/:sentenceId |
+| 反馈 | submitFeedback | POST | /api/feedback |
 
 ```
 ├── app.ts              # 入口：全局错误监听、系统信息初始化
@@ -42,7 +64,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── pages/              # 页面（每页面 4 文件：ts/wxml/scss/json）
 ├── components/         # 公共组件
 ├── api/
-│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 fetchWordBooks / fetchTodayTask / submitAnswer / fetchArticles / fetchVocabulary 等
+│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 15 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息
 ├── mock/
 │   ├── wordBooks.ts     # 词书 Mock（2 本，16 词）
 │   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）
@@ -128,7 +150,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **词书选择**：多词书切换，词书详情
 - **全文阅读**：从纠错页或名篇阅读器跳转
 - **设置页**：每日新学/复习词数、学习顺序（顺序/乱序）、自动播放语音、答题音效、震动反馈、清除数据
-- **个人信息编辑**：头像（微信头像/相册/拍照）、昵称（微信昵称自动填充/自定义）、年级选择（初一～高三），数据通过 `utils/storage.ts` 的 `getUserProfile()`/`saveUserProfile()` 持久化
+- **个人信息编辑**：头像（微信头像/相册/拍照）、昵称（微信昵称自动填充/自定义）、年级选择（初一～高三），通过 API 层 `fetchUserInfo()`/`saveUserInfo()` 存取，Mock 下走 localStorage，正式环境走 `GET/PUT /api/user/info`
 - **"我的"页**：头像和昵称展示（点击跳转个人信息编辑），新增"个人信息"菜单项
 - **学习顺序**：支持顺序/乱序两种模式，在 `utils/ebbinghaus.ts` 的 `generateTodayTask()` 中根据设置决定是否 shuffle（复习和新学各自独立乱序，复习仍优先）
 - **学习页**：标题动态显示当前词书书名，答题选项随机排列，"不知道"按钮有卡片化视觉引导，语音播报按钮（🔊）支持自动/手动播放句子音频
@@ -137,6 +159,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **内联生词链接**：名篇通篇阅读模式下，`keyWords` 最长匹配切分后高亮（主题色下划线），点击弹出居中释义卡片，不打断阅读
 
 ### 待开发
+- **API 对接**：15 个 API 端点已预留，Mock 模式（`USE_MOCK = true`）跑通全部业务逻辑。对接时将 `api/index.ts` 中 `USE_MOCK` 设为 `false`，替换 `utils/request.ts` 中 `BASE_URL` 为真实地址即可。艾宾浩斯算法保留客户端调度，服务端只记录结果。
 - 后续可增强：深层字词标注（更多 mock 覆盖）
 
 ## 项目记忆
