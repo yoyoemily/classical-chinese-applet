@@ -4,7 +4,8 @@
 import { get, post } from '../utils/request';
 import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
-  IPaginationResult, IVocabularyItem, IBadge, IUserBadge, IUserProgress
+  IPaginationResult, IVocabularyItem, IBadge, IUserBadge, IUserProgress,
+  IFeedbackSubmitParams,
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
@@ -244,4 +245,15 @@ export async function fetchFullText(sentenceId: string): Promise<{ title: string
     return null;
   }
   return get(`/api/full-text/${sentenceId}`);
+}
+
+// ============================================
+// 错误反馈
+// ============================================
+export async function submitFeedback(data: IFeedbackSubmitParams): Promise<{ id: string }> {
+  if (USE_MOCK) {
+    wx.showToast({ title: '感谢反馈，我们会尽快核对', icon: 'success', duration: 2000 });
+    return { id: `fb_${Date.now()}` };
+  }
+  return post('/api/feedback', data);
 }

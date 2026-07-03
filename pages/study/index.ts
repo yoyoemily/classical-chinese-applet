@@ -1,10 +1,10 @@
 import { generateTodayTask, updateWordProgress } from '../../utils/ebbinghaus';
 import { getCurrentBookId, saveSession, getProgress, setWordProgress, loadWordBookData } from '../../utils/storage';
-import { submitAnswer } from '../../api/index';
+import { submitAnswer, submitFeedback } from '../../api/index';
 import { shuffle, formatDate, safeJSONParse } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { STORAGE_KEYS } from '../../constants/config';
-import type { IStudySession, IWord } from '../../typings/index.d';
+import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index.d';
 
 interface IStudyData {
   screen: 'question' | 'correction';
@@ -30,7 +30,21 @@ interface IStudyData {
   dotsArray: number[];
   audioPlaying: boolean;
   audioLoading: boolean;
+
+  // 错误反馈
+  showFeedbackPanel: boolean;
+  feedbackCategory: string;
+  feedbackDescription: string;
+  feedbackSubmitting: boolean;
 }
+
+const FEEDBACK_CATEGORIES: { key: FeedbackCategory; label: string }[] = [
+  { key: 'sentence_text', label: '原文有误' },
+  { key: 'translation', label: '译文有误' },
+  { key: 'definition', label: '释义有误' },
+  { key: 'source', label: '出处有误' },
+  { key: 'other', label: '其他' },
+];
 
 Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   data: {
@@ -42,6 +56,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     correctCount: 0, wrongCount: 0, showCorrect: false, showWrong: false,
     loading: true, dotsArray: [],
     audioPlaying: false, audioLoading: false,
+    showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
   },
 
   _session: null as IStudySession | null,
@@ -285,6 +300,55 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
         });
       },
     });
+  },
+
+  // ==========================================
+  // 错误反馈
+  // ==========================================
+
+  onTapFeedback(): void {
+    this.setData({ showFeedbackPanel: true, feedbackCategory: '', feedbackDescription: '' });
+  },
+
+  onCloseFeedback(): void {
+    this.setData({ showFeedbackPanel: false });
+  },
+
+  onSelectFeedbackCategory(e: WechatMiniprogram.BaseEvent): void {
+    const cat = e.currentTarget.dataset.category as string;
+    this.setData({ feedbackCategory: cat === this.data.feedbackCategory ? '' : cat });
+  },
+
+  onFeedbackDescriptionInput(e: WechatMiniprogram.Input): void {
+    this.setData({ feedbackDescription: e.detail.value });
+  },
+
+  async onSubmitFeedback(): Promise<void> {
+    if (!this.data.feedbackCategory) {
+      wx.showToast({ title: '请选择错误类型', icon: 'none' });
+      return;
+    }
+    if (this.data.feedbackSubmitting) return;
+    this.setData({ feedbackSubmitting: true });
+
+    const s = this._session;
+    const word = s ? s.words[s.currentWordIndex] : null;
+    try {
+      await submitFeedback({
+        category: this.data.feedbackCategory as FeedbackCategory,
+        source: 'learning',
+        description: this.data.feedbackDescription,
+        context: {
+          sentenceId: this.data.currentSentence?.id,
+          wordId: word?.wordId,
+          articleId: this.data.currentSentence?.articleId,
+        },
+      });
+      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
+    } catch {
+      wx.showToast({ title: '提交失败，请重试', icon: 'none' });
+      this.setData({ feedbackSubmitting: false });
+    }
   },
 
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {

@@ -1,5 +1,5 @@
-import type { IWord, IMeaning } from '../../typings/index.d';
-import { fetchWordDetail } from '../../api/index';
+import type { IWord, IMeaning, FeedbackCategory } from '../../typings/index.d';
+import { fetchWordDetail, submitFeedback } from '../../api/index';
 
 interface IMeaningItem extends IMeaning {
   expanded: boolean;
@@ -14,6 +14,12 @@ interface IWordSummaryData {
   examFrequency: string;
   meaningItems: IMeaningItem[];
   loading: boolean;
+
+  // 错误反馈
+  showFeedbackPanel: boolean;
+  feedbackCategory: string;
+  feedbackDescription: string;
+  feedbackSubmitting: boolean;
 }
 
 Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
@@ -22,6 +28,7 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
     oracleForm: '', examFrequency: '',
     meaningItems: [],
     loading: true,
+    showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
   },
   onLoad(options: Record<string, string | undefined>): void {
     const wordId = options.wordId || '';
@@ -52,4 +59,49 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
   },
   onTapContinue(): void { wx.navigateBack(); },
   onShareAppMessage() { return { title: `学习「${this.data.character || ''}」`, path: '/pages/index/index' }; },
+
+  // ==========================================
+  // 错误反馈
+  // ==========================================
+
+  onTapFeedback(): void {
+    this.setData({ showFeedbackPanel: true, feedbackCategory: '', feedbackDescription: '' });
+  },
+
+  onCloseFeedback(): void {
+    this.setData({ showFeedbackPanel: false });
+  },
+
+  onSelectFeedbackCategory(e: WechatMiniprogram.BaseEvent): void {
+    const cat = e.currentTarget.dataset.category as string;
+    this.setData({ feedbackCategory: cat === this.data.feedbackCategory ? '' : cat });
+  },
+
+  onFeedbackDescriptionInput(e: WechatMiniprogram.Input): void {
+    this.setData({ feedbackDescription: e.detail.value });
+  },
+
+  async onSubmitFeedback(): Promise<void> {
+    if (!this.data.feedbackCategory) {
+      wx.showToast({ title: '请选择错误类型', icon: 'none' });
+      return;
+    }
+    if (this.data.feedbackSubmitting) return;
+    this.setData({ feedbackSubmitting: true });
+
+    try {
+      await submitFeedback({
+        category: this.data.feedbackCategory as FeedbackCategory,
+        source: 'word_summary',
+        description: this.data.feedbackDescription,
+        context: {
+          wordId: this.data.word?.id,
+        },
+      });
+      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
+    } catch {
+      wx.showToast({ title: '提交失败，请重试', icon: 'none' });
+      this.setData({ feedbackSubmitting: false });
+    }
+  },
 });

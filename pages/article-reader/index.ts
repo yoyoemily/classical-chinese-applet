@@ -1,5 +1,5 @@
-import type { IArticle, IArticleSentence, ICharAnnotation } from '../../typings/index.d';
-import { fetchArticleDetail } from '../../api/index';
+import type { IArticle, IArticleSentence, ICharAnnotation, FeedbackCategory } from '../../typings/index.d';
+import { fetchArticleDetail, submitFeedback } from '../../api/index';
 
 /** 阅读模式 */
 type ReadingMode = 'plain' | 'paragraph' | 'sentence' | 'annotation';
@@ -31,6 +31,12 @@ interface IArticleReaderData {
   clauses: IClause[];
   /** 标注模式：当前激活的释义 */
   activeAnnotation: IActiveAnnotation | null;
+
+  // 错误反馈
+  showFeedbackPanel: boolean;
+  feedbackCategory: string;
+  feedbackDescription: string;
+  feedbackSubmitting: boolean;
 }
 
 /** 按中文标点拆分文本为子句，返回非空片段 */
@@ -46,6 +52,7 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
     article: null, loading: true, readingMode: 'plain' as ReadingMode,
     expandedStates: [], clauseExpandedStates: [], clauses: [],
     activeAnnotation: null,
+    showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
   },
 
   async onLoad(options: Record<string, string | undefined>): Promise<void> {
@@ -174,5 +181,51 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
       title: `阅读「${this.data.article?.title || ''}」`,
       path: '/pages/index/index',
     };
+  },
+
+  // ==========================================
+  // 错误反馈
+  // ==========================================
+
+  onTapFeedback(): void {
+    this.setData({ showFeedbackPanel: true, feedbackCategory: '', feedbackDescription: '' });
+  },
+
+  onCloseFeedback(): void {
+    this.setData({ showFeedbackPanel: false });
+  },
+
+  onSelectFeedbackCategory(e: WechatMiniprogram.BaseEvent): void {
+    const cat = e.currentTarget.dataset.category as string;
+    this.setData({ feedbackCategory: cat === this.data.feedbackCategory ? '' : cat });
+  },
+
+  onFeedbackDescriptionInput(e: WechatMiniprogram.Input): void {
+    this.setData({ feedbackDescription: e.detail.value });
+  },
+
+  async onSubmitFeedback(): Promise<void> {
+    if (!this.data.feedbackCategory) {
+      wx.showToast({ title: '请选择错误类型', icon: 'none' });
+      return;
+    }
+    if (this.data.feedbackSubmitting) return;
+    this.setData({ feedbackSubmitting: true });
+
+    try {
+      await submitFeedback({
+        category: this.data.feedbackCategory as FeedbackCategory,
+        source: 'article_reader',
+        description: this.data.feedbackDescription,
+        context: {
+          articleId: this.data.article?.id,
+          readingMode: this.data.readingMode,
+        },
+      });
+      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
+    } catch {
+      wx.showToast({ title: '提交失败，请重试', icon: 'none' });
+      this.setData({ feedbackSubmitting: false });
+    }
   },
 });

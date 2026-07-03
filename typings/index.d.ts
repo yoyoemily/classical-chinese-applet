@@ -287,3 +287,46 @@ export interface IStudySession {
   wrongCount: number
   startTime: number
 }
+
+// ============================================
+// 错误反馈
+// ============================================
+
+/** 反馈来源：learning=学习答题, word_summary=字总结, article_reader=名篇阅读 */
+export type FeedbackSource = 'learning' | 'word_summary' | 'article_reader'
+
+/** 错误类别 */
+export type FeedbackCategory =
+  | 'sentence_text'    // 原文有误
+  | 'translation'      // 译文有误
+  | 'definition'       // 释义有误
+  | 'source'           // 出处有误
+  | 'annotation'       // 逐字标注有误
+  | 'article_info'     // 文章信息有误
+  | 'other'            // 其他
+
+export interface IFeedback {
+  id: string
+  /** 错误类别 */
+  category: FeedbackCategory
+  /** 反馈来源 */
+  source: FeedbackSource
+  /** 用户补充说明 */
+  description: string
+  /** 上下文信息（携带当前句子/字词/文章 ID，方便后台定位） */
+  context: {
+    sentenceId?: string
+    wordId?: string
+    articleId?: string
+    readingMode?: string
+  }
+  timestamp: number
+}
+
+/** 提交反馈时的请求参数（不含 id、timestamp 等后端生成的字段） */
+export interface IFeedbackSubmitParams {
+  category: FeedbackCategory
+  source: FeedbackSource
+  description: string
+  context: IFeedback['context']
+}

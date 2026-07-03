@@ -129,7 +129,60 @@
           <text>继续</text>
         </view>
       </view>
+
+      <!-- 错误反馈入口 -->
+      <view class="page-study__feedback-entry" bindtap="onTapFeedback">
+        <text>⚠️ 内容有误？我要反馈</text>
+      </view>
     </view>
   </block>
+
+  <!-- 错误反馈浮层 -->
+  <view class="page-study__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>
+  <view class="page-study__feedback-panel {{showFeedbackPanel ? 'page-study__feedback-panel--show' : ''}}">
+    <view class="page-study__feedback-header">
+      <text class="page-study__feedback-title">🙋 反馈错误</text>
+      <view class="page-study__feedback-close" bindtap="onCloseFeedback">
+        <text>✕</text>
+      </view>
+    </view>
+
+    <view class="page-study__feedback-body">
+      <!-- 错误类别 -->
+      <view class="page-study__feedback-label">错误类型</view>
+      <view class="page-study__feedback-categories">
+        <view
+          wx:for="{{['sentence_text','translation','definition','source','other']}}"
+          wx:key="*this"
+          wx:for-item="cat"
+          class="page-study__feedback-cat {{feedbackCategory === cat ? 'page-study__feedback-cat--active' : ''}}"
+          data-category="{{cat}}"
+          bindtap="onSelectFeedbackCategory"
+        >
+          <text wx:if="{{cat === 'sentence_text'}}">原文有误</text>
+          <text wx:elif="{{cat === 'translation'}}">译文有误</text>
+          <text wx:elif="{{cat === 'definition'}}">释义有误</text>
+          <text wx:elif="{{cat === 'source'}}">出处有误</text>
+          <text wx:else>其他</text>
+        </view>
+      </view>
+
+      <!-- 详细说明 -->
+      <view class="page-study__feedback-label">详细说明（选填）</view>
+      <textarea
+        class="page-study__feedback-textarea"
+        placeholder="请描述具体哪里有问题..."
+        value="{{feedbackDescription}}"
+        maxlength="200"
+        bindinput="onFeedbackDescriptionInput"
+      />
+
+      <view class="page-study__feedback-submit-wrap">
+        <view class="page-study__feedback-submit {{feedbackSubmitting ? 'page-study__feedback-submit--loading' : ''}}" bindtap="onSubmitFeedback">
+          <text>{{feedbackSubmitting ? '提交中...' : '提交反馈'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
 
 </view>

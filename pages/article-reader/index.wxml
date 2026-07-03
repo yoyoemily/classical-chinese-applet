@@ -6,7 +6,12 @@
   <block wx:elif="{{article}}">
     <!-- 顶部头图 -->
     <view class="page-article-reader__header">
-      <view class="page-article-reader__title">《{{article.title}}》</view>
+      <view class="page-article-reader__header-top">
+        <view class="page-article-reader__title">《{{article.title}}》</view>
+        <view class="page-article-reader__feedback-icon" bindtap="onTapFeedback">
+          <text>⚠️</text>
+        </view>
+      </view>
       <view class="page-article-reader__meta">
         <text>{{article.author}}</text>
         <text> · {{article.dynasty}}</text>
@@ -217,5 +222,51 @@
 
     <!-- 底部安全区占位 -->
     <view class="page-article-reader__safe-bottom"></view>
+
+    <!-- 错误反馈浮层 -->
+    <view class="page-article-reader__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>
+    <view class="page-article-reader__feedback-panel {{showFeedbackPanel ? 'page-article-reader__feedback-panel--show' : ''}}">
+      <view class="page-article-reader__feedback-header">
+        <text class="page-article-reader__feedback-title">🙋 反馈错误</text>
+        <view class="page-article-reader__feedback-close" bindtap="onCloseFeedback">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <view class="page-article-reader__feedback-body">
+        <view class="page-article-reader__feedback-label">错误类型</view>
+        <view class="page-article-reader__feedback-categories">
+          <view
+            wx:for="{{['sentence_text','translation','annotation','article_info','other']}}"
+            wx:key="*this"
+            wx:for-item="cat"
+            class="page-article-reader__feedback-cat {{feedbackCategory === cat ? 'page-article-reader__feedback-cat--active' : ''}}"
+            data-category="{{cat}}"
+            bindtap="onSelectFeedbackCategory"
+          >
+            <text wx:if="{{cat === 'sentence_text'}}">原文有误</text>
+            <text wx:elif="{{cat === 'translation'}}">译文有误</text>
+            <text wx:elif="{{cat === 'annotation'}}">标注有误</text>
+            <text wx:elif="{{cat === 'article_info'}}">文章信息有误</text>
+            <text wx:else>其他</text>
+          </view>
+        </view>
+
+        <view class="page-article-reader__feedback-label">详细说明（选填）</view>
+        <textarea
+          class="page-article-reader__feedback-textarea"
+          placeholder="请描述具体哪里有问题..."
+          value="{{feedbackDescription}}"
+          maxlength="200"
+          bindinput="onFeedbackDescriptionInput"
+        />
+
+        <view class="page-article-reader__feedback-submit-wrap">
+          <view class="page-article-reader__feedback-submit {{feedbackSubmitting ? 'page-article-reader__feedback-submit--loading' : ''}}" bindtap="onSubmitFeedback">
+            <text>{{feedbackSubmitting ? '提交中...' : '提交反馈'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
   </block>
 </view>

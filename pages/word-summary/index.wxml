@@ -61,6 +61,53 @@
 
   <!-- 底部操作栏 -->
   <view class="page-word-summary__action-bar">
+    <view class="page-word-summary__feedback-link" bindtap="onTapFeedback">
+      <text>⚠️ 反馈错误</text>
+    </view>
     <button class="page-word-summary__btn page-word-summary__btn--primary" bindtap="onTapContinue">继续学习</button>
+  </view>
+
+  <!-- 错误反馈浮层 -->
+  <view class="page-word-summary__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>
+  <view class="page-word-summary__feedback-panel {{showFeedbackPanel ? 'page-word-summary__feedback-panel--show' : ''}}">
+    <view class="page-word-summary__feedback-header">
+      <text class="page-word-summary__feedback-title">🙋 反馈错误</text>
+      <view class="page-word-summary__feedback-close" bindtap="onCloseFeedback">
+        <text>✕</text>
+      </view>
+    </view>
+
+    <view class="page-word-summary__feedback-body">
+      <view class="page-word-summary__feedback-label">错误类型</view>
+      <view class="page-word-summary__feedback-categories">
+        <view
+          wx:for="{{['definition','source','other']}}"
+          wx:key="*this"
+          wx:for-item="cat"
+          class="page-word-summary__feedback-cat {{feedbackCategory === cat ? 'page-word-summary__feedback-cat--active' : ''}}"
+          data-category="{{cat}}"
+          bindtap="onSelectFeedbackCategory"
+        >
+          <text wx:if="{{cat === 'definition'}}">释义有误</text>
+          <text wx:elif="{{cat === 'source'}}">出处有误</text>
+          <text wx:else>其他</text>
+        </view>
+      </view>
+
+      <view class="page-word-summary__feedback-label">详细说明（选填）</view>
+      <textarea
+        class="page-word-summary__feedback-textarea"
+        placeholder="请描述具体哪里有问题..."
+        value="{{feedbackDescription}}"
+        maxlength="200"
+        bindinput="onFeedbackDescriptionInput"
+      />
+
+      <view class="page-word-summary__feedback-submit-wrap">
+        <view class="page-word-summary__feedback-submit {{feedbackSubmitting ? 'page-word-summary__feedback-submit--loading' : ''}}" bindtap="onSubmitFeedback">
+          <text>{{feedbackSubmitting ? '提交中...' : '提交反馈'}}</text>
+        </view>
+      </view>
+    </view>
   </view>
 </view>
