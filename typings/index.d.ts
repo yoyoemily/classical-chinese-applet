@@ -122,14 +122,14 @@ export interface IArticleKeyWord {
 }
 
 /** 逐字标注：单个字符的角色与释义 */
-export type CharRole = 'content' | 'function' | 'punct'
+export type CharRole = 'content' | 'function' | 'punct' | 'plain'
 
 export interface ICharAnnotation {
   /** 单个汉字或标点 */
   char: string
-  /** content=实词, function=虚词, punct=标点 */
+  /** content=实词, function=虚词, punct=标点, plain=无需标注 */
   role: CharRole
-  /** 释义（实词必填，虚词可选，标点无） */
+  /** 释义（实词必填，虚词可选，标点/plain 无） */
   definition?: string
 }
 

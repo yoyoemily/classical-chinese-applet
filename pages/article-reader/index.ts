@@ -95,7 +95,7 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
       this._tts.stop();
 
       const article = await fetchArticleDetail(articleId);
-      // 为每个句子生成 plainChars 回退数组，供逐字标注模式在无标注数据时使用
+      // 为每个句子生成 plainChars 回退数组，供AI注释模式在无标注数据时使用
       for (const s of article.sentences) {
         (s as IArticleSentence & { plainChars: string[] }).plainChars = s.text.split('');
       }
@@ -172,16 +172,16 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
-  // 逐字标注 — 判断一句是否有标注数据
+  // AI注释 — 判断一句是否有标注数据
   // ==========================================
 
-  /** 判断给定句子是否具备完整的逐字标注数据 */
+  /** 判断给定句子是否具备完整的AI注释数据 */
   hasAnnotations(sentence: IArticleSentence): sentence is IArticleSentence & { charAnnotations: ICharAnnotation[] } {
     return !!(sentence.charAnnotations && sentence.charAnnotations.length > 0);
   },
 
   // ==========================================
-  // 逐字标注 — 点击实词弹出释义
+  // AI注释 — 点击实词弹出释义
   // ==========================================
 
   onTapChar(e: WechatMiniprogram.BaseEvent): void {
@@ -203,7 +203,7 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
-  // 逐字标注 — 关闭弹出的释义
+  // AI注释 — 关闭弹出的释义
   // ==========================================
 
   onDismissAnnotation(): void {

@@ -57,7 +57,7 @@
         data-mode="annotation"
         bindtap="onSwitchMode"
       >
-        <text>逐字标注</text>
+        <text>AI注释</text>
       </view>
     </view>
 
@@ -165,7 +165,7 @@
     </scroll-view>
 
     <!-- ============================================= -->
-    <!-- 模式四：逐字标注（实词红色+释义，虚词黑色，标点灰色）    -->
+    <!-- 模式四：AI注释（实词红色，虚词深灰，标点浅灰，plain中性）    -->
     <!-- ============================================= -->
     <scroll-view
       wx:else
@@ -181,6 +181,10 @@
         <view class="page-article-reader__legend-item">
           <text class="page-article-reader__legend-dot page-article-reader__legend-dot--function"></text>
           <text>虚词</text>
+        </view>
+        <view class="page-article-reader__legend-item">
+          <text class="page-article-reader__legend-dot page-article-reader__legend-dot--plain"></text>
+          <text>普通</text>
         </view>
       </view>
 
@@ -211,8 +215,15 @@
                 </view>
                 <!-- 标点 -->
                 <view
-                  wx:else
+                  wx:elif="{{ann.role === 'punct'}}"
                   class="page-article-reader__annot-char page-article-reader__annot-char--punct"
+                >
+                  <text>{{ann.char}}</text>
+                </view>
+                <!-- 无需标注 -->
+                <view
+                  wx:else
+                  class="page-article-reader__annot-char page-article-reader__annot-char--plain"
                 >
                   <text>{{ann.char}}</text>
                 </view>
