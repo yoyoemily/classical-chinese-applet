@@ -62,7 +62,7 @@
     </view>
 
     <!-- ============================================= -->
-    <!-- 模式一：通篇阅读（原文，段落化排版）                 -->
+    <!-- 模式一：通篇阅读（原文，段落化排版，生词高亮可点击）     -->
     <!-- ============================================= -->
     <scroll-view
       wx:if="{{readingMode === 'plain'}}"
@@ -70,9 +70,21 @@
       scroll-y enhanced show-scrollbar="{{false}}"
     >
       <view class="page-article-reader__plain-list">
-        <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="s" wx:for-index="idx">
+        <block wx:for="{{vocabSegments}}" wx:key="*this" wx:for-item="segArr" wx:for-index="si">
           <view class="page-article-reader__plain-para">
-            <text>{{s.text}}</text>
+            <block wx:for="{{segArr}}" wx:key="*this" wx:for-item="seg">
+              <!-- 生词：高亮可点击 -->
+              <text
+                wx:if="{{seg.isKeyword}}"
+                class="page-article-reader__vocab-word"
+                data-word="{{seg.word}}"
+                data-definition="{{seg.definition}}"
+                bindtap="onTapVocabWord"
+                hover-class="page-article-reader__vocab-word--hover"
+              >{{seg.text}}</text>
+              <!-- 普通文本 -->
+              <text wx:else>{{seg.text}}</text>
+            </block>
           </view>
         </block>
       </view>
@@ -233,6 +245,21 @@
 
     <!-- 底部安全区占位 -->
     <view class="page-article-reader__safe-bottom"></view>
+
+    <!-- 内联生词释义弹窗 -->
+    <view class="page-article-reader__vocab-overlay" wx:if="{{vocabPopup}}" bindtap="onDismissVocabPopup">
+      <view class="page-article-reader__vocab-card" catchtap="">
+        <view class="page-article-reader__vocab-card-header">
+          <text class="page-article-reader__vocab-card-word">{{vocabPopup.word}}</text>
+        </view>
+        <view class="page-article-reader__vocab-card-body">
+          <text class="page-article-reader__vocab-card-def">{{vocabPopup.definition}}</text>
+        </view>
+        <view class="page-article-reader__vocab-card-tip">
+          <text>轻触空白处关闭</text>
+        </view>
+      </view>
+    </view>
 
     <!-- 错误反馈浮层 -->
     <view class="page-article-reader__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>

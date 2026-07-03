@@ -22,6 +22,14 @@ interface IActiveAnnotation {
   definition: string;
 }
 
+/** 通篇阅读：生词分段 */
+interface IVocabSegment {
+  text: string;
+  isKeyword: boolean;
+  word?: string;
+  definition?: string;
+}
+
 interface IArticleReaderData {
   article: IArticle | null;
   loading: boolean;
@@ -38,6 +46,12 @@ interface IArticleReaderData {
   // 音频播放
   audioLoading: boolean;
   audioPlaying: boolean;
+
+  // 内联生词链接
+  /** 每句的文本分段（用于通篇阅读模式的高亮渲染） */
+  vocabSegments: IVocabSegment[][];
+  /** 当前弹出的生词信息 */
+  vocabPopup: { word: string; definition: string } | null;
 
   // 错误反馈
   showFeedbackPanel: boolean;
@@ -59,6 +73,7 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
     article: null, loading: true, readingMode: 'plain' as ReadingMode,
     expandedStates: [], clauseExpandedStates: [], clauses: [],
     activeAnnotation: null,
+    vocabSegments: [], vocabPopup: null,
     audioLoading: false, audioPlaying: false,
     showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
   },
@@ -81,11 +96,13 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
 
       const article = await fetchArticleDetail(articleId);
       const clauses = this.buildClauses(article);
+      const vocabSegments = this.buildVocabSegments(article);
       this.setData({
         article,
         expandedStates: new Array(article.sentences.length).fill(false),
         clauseExpandedStates: new Array(clauses.length).fill(false),
         clauses,
+        vocabSegments,
         loading: false,
       });
 
@@ -199,6 +216,73 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
     if (wordBookId) {
       wx.navigateTo({ url: `/pages/word-summary/index?wordId=${encodeURIComponent(word || '')}` });
     }
+  },
+
+  // ==========================================
+  // 内联生词链接 — 将句子按 keyWords 切分为普通文本/生词片段
+  // ==========================================
+
+  /**
+   * 对一条句子的文本按 keyWords 做最长匹配切分，生成 segment 数组。
+   * 每个 segment 要么是普通文本，要么是匹配到的生词（带释义）。
+   */
+  buildVocabSegments(article: IArticle): IVocabSegment[][] {
+    return article.sentences.map(s => {
+      const segments: IVocabSegment[] = [];
+      // 按 word 长度降序排列，保证最长匹配优先
+      const sortedKeywords = [...s.keyWords].sort((a, b) => b.word.length - a.word.length);
+      let i = 0;
+      const text = s.text;
+      while (i < text.length) {
+        let matched = false;
+        for (const kw of sortedKeywords) {
+          if (text.startsWith(kw.word, i)) {
+            segments.push({
+              text: kw.word,
+              isKeyword: true,
+              word: kw.word,
+              definition: kw.definition,
+            });
+            i += kw.word.length;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          // 收集连续的非关键词文本
+          const start = i;
+          i++;
+          // 继续直到遇到下一个关键词或文本末尾
+          while (i < text.length) {
+            let hit = false;
+            for (const kw of sortedKeywords) {
+              if (text.startsWith(kw.word, i)) { hit = true; break; }
+            }
+            if (hit) break;
+            i++;
+          }
+          segments.push({ text: text.slice(start, i), isKeyword: false });
+        }
+      }
+      return segments;
+    });
+  },
+
+  /** 点击生词 → 弹出释义卡片 */
+  onTapVocabWord(e: WechatMiniprogram.BaseEvent): void {
+    const { word, definition } = e.currentTarget.dataset as { word: string; definition: string };
+    const current = this.data.vocabPopup;
+    if (current && current.word === word) {
+      // 再次点击同一个词 → 收起
+      this.setData({ vocabPopup: null });
+    } else {
+      this.setData({ vocabPopup: { word, definition } });
+    }
+  },
+
+  /** 关闭生词释义弹窗 */
+  onDismissVocabPopup(): void {
+    this.setData({ vocabPopup: null });
   },
 
   onShareAppMessage() {
