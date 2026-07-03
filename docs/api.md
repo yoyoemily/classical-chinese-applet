@@ -62,11 +62,74 @@ HTTP/1.1 400 Bad Request
 | 0 | ok | 请求成功 |
 | 10001 | 参数错误 | 请求参数缺失或格式不正确 |
 | 10002 | 未授权 | Token 无效或已过期，需重新登录 |
+| 10401 | 登录已过期 | JWT Token 无效或已过期，需重新 login |
 | 10003 | 资源不存在 | 请求的词书/名篇/字词等不存在 |
 | 10004 | 今日任务已生成 | 今日学习任务已存在，无需重复请求 |
 | 10005 | 今日学习已完成 | 所有学习任务均已打勾，可调用 complete 收尾 |
 | 10006 | 操作失败 | 服务端处理异常，可重试 |
 | 10007 | 频率限制 | 请求过于频繁，请稍后再试 |
+
+---
+
+## 认证
+
+### 微信登录
+
+小程序端调用 `wx.login()` 获取临时 code，后端换取 openId 并签发 JWT。
+
+**Endpoint:** `POST /api/auth/login`
+
+> ⚠️ 此接口不需要 Authorization header。
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | String (Required) | `wx.login()` 返回的临时 code |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.token` | String | JWT Token，后续请求放入 `Authorization: Bearer <token>` |
+| `data.userId` | Long | 用户 ID |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "token": "eyJhbGciOiJIUzI1NiJ9...",
+        "userId": 1
+    }
+}
+```
+
+#### Example: Error
+
+```json
+HTTP/1.1 401 Unauthorized
+{
+    "code": 10401,
+    "message": "微信登录失败，请稍后重试",
+    "data": null
+}
+```
+
+#### Authentication
+
+所有 `/api/auth/**` 以外的接口需要在请求头中携带 JWT：
+
+```
+Authorization: Bearer <token>
+```
+
+- Token 由 `/api/auth/login` 签发，有效期 7 天
+- 401 时客户端自动调用 `wx.login()` 刷新 token
+- 新用户首次登录自动创建账号（无需注册）
 
 ---
 

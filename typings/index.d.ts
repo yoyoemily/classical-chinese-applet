@@ -10,6 +10,8 @@ export interface IAppOption {
     currentWordBookId?: string
     /** 今日学习任务缓存 */
     todayTask?: ITodayTask
+    /** 登录 Promise，页面可 await 它确保登录完成后再请求 */
+    loginPromise?: Promise<void>
   }
   $emit?: (event: string, ...args: unknown[]) => void
   $on?: (event: string, callback: (...args: unknown[]) => void) => void

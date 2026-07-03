@@ -63,6 +63,7 @@ export const STORAGE_KEYS = {
   SETTINGS: 'userSettings',
   CACHED_ANSWERS: 'cachedAnswers',
   USER_PROFILE: 'userProfile',
+  TOKEN: 'authToken',
 } as const;
 
 // ============================================

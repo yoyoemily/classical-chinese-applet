@@ -25,34 +25,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 样式 | SCSS（变量 + mixin），BEM 命名（`block__element--modifier`） |
 | 尺寸单位 | `rpx`（1rpx = 屏幕宽度 / 750） |
 | UI 组件库 | 无，全部手写 |
-| 后端 | 传统 HTTP API（非云开发），基础地址 `https://api.example.com` |
+| 后端 | 传统 HTTP API（非云开发），基础地址 `http://localhost:8080`，JWT 认证 |
 | 数据源 | 词书/名篇/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存 |
-| 艾宾浩斯 | 客户端调度——本地计算任务和复习日，服务端只记录答题结果 |
+| 艾宾浩斯 | 服务端权威调度——服务端 `getTodayTask` 返回任务列表、`submitAnswer` 更新进度；前端保留离线冗余 |
 | 状态管理 | 轻量：`app.globalData` + 事件总线 |
-| Mock 模式 | `api/index.ts` 中 `USE_MOCK = true`，设为 `false` 切换到真实 API；所有依赖静态顶级导入（禁止 `await import()`） |
+| Mock 模式 | `api/index.ts` 中 `USE_MOCK = false`，已对接真实后端；所有依赖静态顶级导入（禁止 `await import()`） |
+| 认证 | JWT：`app.ts` onLaunch 调用 `wx.login()` → `/api/auth/login` 获取 token → `request.ts` 自动带 Authorization header，401 时自动 re-login |
 | 路径别名 | `@/*` → `./*`（`tsconfig.json` → `paths`），但在小程序中 import 需使用相对路径 |
 
 ## API 端点清单（共 15 个）
 
-| 分类 | 接口 | 方法 | 路径 |
-|------|------|------|------|
-| 词书 | fetchWordBooks | GET | /api/wordbooks |
-| 词书 | fetchWordBookDetail | GET | /api/wordbooks/:id |
-| 学习 | fetchTodayTask | GET | /api/study/today |
-| 学习 | submitAnswer | POST | /api/study/answer |
-| 学习 | completeStudy | POST | /api/study/complete |
-| 进度 | fetchProgress | GET | /api/progress |
-| 生词本 | fetchVocabulary | GET | /api/vocabulary |
-| 打卡 | fetchCheckinRecords | GET | /api/checkin |
-| 勋章 | fetchBadges | GET | /api/badges |
-| 用户 | fetchUserProfile | GET | /api/user/profile |
-| 用户 | fetchUserInfo | GET | /api/user/info |
-| 用户 | saveUserInfo | PUT | /api/user/info |
-| 名篇 | fetchArticles | GET | /api/articles |
-| 名篇 | fetchArticleDetail | GET | /api/articles/:id |
-| 内容 | fetchWordDetail | GET | /api/words/:id |
-| 内容 | fetchFullText | GET | /api/full-text/:sentenceId |
-| 反馈 | submitFeedback | POST | /api/feedback |
+| 分类 | 接口 | 方法 | 路径 | 认证 |
+|------|------|------|------|------|
+| 认证 | login | POST | /api/auth/login | — |
+| 词书 | fetchWordBooks | GET | /api/wordbooks | Bearer |
+| 词书 | fetchWordBookDetail | GET | /api/wordbooks/:id | Bearer |
+| 学习 | fetchTodayTask | GET | /api/study/today | Bearer |
+| 学习 | submitAnswer | POST | /api/study/answer | Bearer |
+| 学习 | completeStudy | POST | /api/study/complete | Bearer |
+| 进度 | fetchProgress | GET | /api/progress | Bearer |
+| 生词本 | fetchVocabulary | GET | /api/vocabulary | Bearer |
+| 打卡 | fetchCheckinRecords | GET | /api/checkin | Bearer |
+| 勋章 | fetchBadges | GET | /api/badges | Bearer |
+| 用户 | fetchUserProfile | GET | /api/user/profile | Bearer |
+| 用户 | fetchUserInfo | GET | /api/user/info | Bearer |
+| 用户 | saveUserInfo | PUT | /api/user/info | Bearer |
+| 名篇 | fetchArticles | GET | /api/articles | Bearer |
+| 名篇 | fetchArticleDetail | GET | /api/articles/:id | Bearer |
+| 内容 | fetchWordDetail | GET | /api/words/:id | Bearer |
+| 内容 | fetchFullText | GET | /api/full-text/:sentenceId | Bearer |
+| 反馈 | submitFeedback | POST | /api/feedback | Bearer |
 
 ```
 ├── app.ts              # 入口：全局错误监听、系统信息初始化
@@ -96,12 +98,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### 请求链路
 
 ```
-页面/组件 → api/（接口定义） → utils/request.ts（封装层） → wx.request → 后端
+页面/组件 → api/（接口定义） → utils/request.ts（封装层，自动带 JWT） → wx.request → 后端
                                        ↓
-                              统一错误 toast + loading
+                   401 → 自动 re-login → 重试请求
+                                   ↓
+                         统一错误 toast + loading
 ```
 
-`request.ts` 假定后端响应格式为 `{ code: 0, message: "ok", data: ... }`。`code === 0` 表示成功，其他为业务异常。当前 BASE_URL 是占位值 `https://api.example.com`，开发时替换。
+`request.ts` 假定后端响应格式为 `{ code: 0, message: "ok", data: ... }`。`code === 0` 表示成功，其他为业务异常。BASE_URL 为 `http://localhost:8080`，开发环境直连后端。JWT token 由 `app.ts` 启动时通过 `wx.login()` 获取并存储在 localStorage，`request.ts` 自动在请求头中携带，401 时自动触发重新登录。
+
+### 认证流程
+
+```
+app.ts onLaunch → wx.login() → code
+    ↓
+POST /api/auth/login { code }
+    ↓
+后端返回 { token, userId } → wx.setStorageSync('authToken', token)
+    ↓
+request.ts 每次请求自动带 Authorization: Bearer <token>
+    ↓
+401 → reLogin()（防并发）→ 重试原请求
+```
 
 ### 样式体系
 
@@ -135,6 +153,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `systemInfo`：设备信息（`wx.getSystemInfoSync()` 获取）
 - `statusBarHeight`：顶部状态栏高度
 - `userInfo`：用户信息（预留，当前 `undefined`）
+- `loginPromise`：登录 Promise（页面可 await 确保登录完成后请求）
+- `currentWordBookId`：当前选中词书 ID
+- `todayTask`：今日任务缓存
 
 后续引入事件总线时挂到 `app` 实例的 `$emit`/`$on`/`$off` 方法上（类型已在 `IAppOption` 中预留）。
 
@@ -179,11 +200,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **启动方式**：用 IntelliJ IDEA 打开该目录，运行 `ClassicalChineseApplication`。
 
-**API 覆盖**：10 个 Controller 完整对接前端 15 个 API 端点，响应格式统一 `{code: 0, message: "ok", data: ...}`。`api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'` 已完成对接。
+**API 覆盖**：12 个 Controller 完整对接前端 15 个 API 端点 + 登录接口 + 管理导入接口，响应格式统一 `{code: 0, message: "ok", data: ...}`。`api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'`。JWT 认证完整实现：`LoginInterceptor` + `@CurrentUser` 注入 userId，前端 `app.ts` onLaunch 自动登录、`request.ts` 自动带 token、401 自动 re-login。
 
 ### 待开发
 - 深层字词标注（更多数据覆盖）
 - 艾宾浩斯端到端调优
+
+### ⚠️ 上线前必须完成
+- **替换 `WECHAT_APP_SECRET` 为真实值**：后端目前未配 AppSecret 时用固定 `dev-openid` 兜底，仅适合开发。上线前需在微信公众平台获取真实 AppSecret，设为后端环境变量。
 
 ## 项目记忆
 
