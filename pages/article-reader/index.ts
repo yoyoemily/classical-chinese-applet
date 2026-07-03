@@ -1,8 +1,8 @@
-import type { IArticle } from '../../typings/index.d';
+import type { IArticle, IArticleSentence, ICharAnnotation } from '../../typings/index.d';
 import { fetchArticleDetail } from '../../api/index';
 
 /** 阅读模式 */
-type ReadingMode = 'plain' | 'paragraph' | 'sentence';
+type ReadingMode = 'plain' | 'paragraph' | 'sentence' | 'annotation';
 
 /** 逐句释义模式用的子句 */
 interface IClause {
@@ -12,16 +12,25 @@ interface IClause {
   clauseIndex: number;
 }
 
+/** 标注模式中已展开的释义位置记录 */
+interface IActiveAnnotation {
+  sentenceIndex: number;
+  charIndex: number;
+  definition: string;
+}
+
 interface IArticleReaderData {
   article: IArticle | null;
   loading: boolean;
   readingMode: ReadingMode;
-  /** 通篇释义用：按 sentence 的展开状态 */
+  /** 段落释义用：按 sentence 的展开状态 */
   expandedStates: boolean[];
   /** 逐句释义用：按 clause 的展开状态 */
   clauseExpandedStates: boolean[];
   /** 逐句释义用：全文按句号拆分的子句列表 */
   clauses: IClause[];
+  /** 标注模式：当前激活的释义 */
+  activeAnnotation: IActiveAnnotation | null;
 }
 
 /** 按中文标点拆分文本为子句，返回非空片段 */
@@ -36,6 +45,7 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
   data: {
     article: null, loading: true, readingMode: 'plain' as ReadingMode,
     expandedStates: [], clauseExpandedStates: [], clauses: [],
+    activeAnnotation: null,
   },
 
   async onLoad(options: Record<string, string | undefined>): Promise<void> {
@@ -87,7 +97,7 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
-  // 通篇释义 — 点击段落展开/收起译文
+  // 段落释义 — 点击段落展开/收起译文
   // ==========================================
 
   onTapSentence(e: WechatMiniprogram.BaseEvent): void {
@@ -106,6 +116,45 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
     const states = [...this.data.clauseExpandedStates];
     states[ci] = !states[ci];
     this.setData({ clauseExpandedStates: states });
+  },
+
+  // ==========================================
+  // 逐字标注 — 判断一句是否有标注数据
+  // ==========================================
+
+  /** 判断给定句子是否具备完整的逐字标注数据 */
+  hasAnnotations(sentence: IArticleSentence): sentence is IArticleSentence & { charAnnotations: ICharAnnotation[] } {
+    return !!(sentence.charAnnotations && sentence.charAnnotations.length > 0);
+  },
+
+  // ==========================================
+  // 逐字标注 — 点击实词弹出释义
+  // ==========================================
+
+  onTapChar(e: WechatMiniprogram.BaseEvent): void {
+    const { sentenceIndex, charIndex } = e.currentTarget.dataset as Record<string, number>;
+    const sentence = this.data.article?.sentences[sentenceIndex];
+    if (!sentence?.charAnnotations) return;
+    const ann = sentence.charAnnotations[charIndex];
+    if (!ann || ann.role !== 'content' || !ann.definition) return;
+
+    const active = this.data.activeAnnotation;
+    if (active && active.sentenceIndex === sentenceIndex && active.charIndex === charIndex) {
+      // 再次点击同一字 → 收起
+      this.setData({ activeAnnotation: null });
+    } else {
+      this.setData({
+        activeAnnotation: { sentenceIndex, charIndex, definition: ann.definition },
+      });
+    }
+  },
+
+  // ==========================================
+  // 逐字标注 — 关闭弹出的释义
+  // ==========================================
+
+  onDismissAnnotation(): void {
+    this.setData({ activeAnnotation: null });
   },
 
   // ==========================================

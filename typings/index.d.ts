@@ -117,11 +117,25 @@ export interface IArticleKeyWord {
   masteryLevel?: MasteryLevel
 }
 
+/** 逐字标注：单个字符的角色与释义 */
+export type CharRole = 'content' | 'function' | 'punct'
+
+export interface ICharAnnotation {
+  /** 单个汉字或标点 */
+  char: string
+  /** content=实词, function=虚词, punct=标点 */
+  role: CharRole
+  /** 释义（实词必填，虚词可选，标点无） */
+  definition?: string
+}
+
 export interface IArticleSentence {
   text: string
   translation: string
   keyWords: IArticleKeyWord[]
   audioUrl?: string
+  /** 逐字标注：按 text 顺序排列 */
+  charAnnotations?: ICharAnnotation[]
 }
 
 export interface IArticle {

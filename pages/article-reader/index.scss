@@ -87,7 +87,7 @@
   }
 
   // ==========================================
-  // 模式二：通篇释义 — 按段落，点击展开/收起译文
+  // 模式二：段落释义 — 按段落，点击展开/收起译文
   // ==========================================
   &__sentence {
     padding: $spacing-md $spacing-base;
@@ -209,6 +209,122 @@
   // ---------- 底部安全区 ----------
   &__safe-bottom {
     height: calc(#{$spacing-lg} + var(--safe-area-bottom));
+  }
+
+  // ==========================================
+  // 模式四：逐字标注
+  // ==========================================
+
+  // 图例
+  &__legend {
+    display: flex;
+    gap: $spacing-lg;
+    padding: $spacing-sm $spacing-base $spacing-md;
+    justify-content: center;
+  }
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6rpx;
+    font-size: 24rpx;
+    color: var(--color-text-hint);
+  }
+  &__legend-dot {
+    width: 16rpx;
+    height: 16rpx;
+    border-radius: 4rpx;
+    &--content { background: #c0392b; }
+    &--function { background: #555; }
+  }
+
+  // 每一句的容器
+  &__annot-block {
+    margin-bottom: $spacing-xl;
+    position: relative;
+  }
+
+  // 逐字行
+  &__annot-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rpx;
+    line-height: 2.4;
+  }
+
+  // 单个字符
+  &__annot-char {
+    font-size: 42rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    transition: transform 0.15s ease;
+
+    // 实词 — 红色粗体
+    &--content {
+      color: #c0392b;
+      font-weight: 700;
+      position: relative;
+      // 底部小圆点暗示可点击
+      &::after {
+        content: '·';
+        position: absolute;
+        bottom: -4rpx;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 20rpx;
+        color: #c0392b;
+        opacity: 0.6;
+      }
+    }
+    &--content#{&}--hover {
+      transform: scale(1.15);
+      color: darken(#c0392b, 10%);
+    }
+
+    // 虚词 — 深灰
+    &--function {
+      color: #444;
+      font-weight: 400;
+    }
+
+    // 标点 — 浅灰
+    &--punct {
+      color: #999;
+      font-weight: 400;
+    }
+  }
+
+  // 释义气泡
+  &__annot-bubble {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: #fef5f0;
+    border-left: 4rpx solid #c0392b;
+    border-radius: 0 $radius-sm $radius-sm 0;
+    animation: fadeIn 0.2s ease;
+  }
+  &__annot-bubble-text {
+    font-size: $font-size-base;
+    color: #5a2a1a;
+    line-height: 1.8;
+  }
+
+  // 全句译文
+  &__annot-trans {
+    margin-top: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    font-size: 24rpx;
+    color: var(--color-text-hint);
+    line-height: 1.6;
+    letter-spacing: 1rpx;
+  }
+
+  // 关闭气泡的遮罩
+  &__annot-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
   }
 }
 

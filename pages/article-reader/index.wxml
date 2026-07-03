@@ -27,7 +27,7 @@
         data-mode="paragraph"
         bindtap="onSwitchMode"
       >
-        <text>通篇释义</text>
+        <text>段落释义</text>
       </view>
       <view
         class="page-article-reader__mode-tab {{readingMode === 'sentence' ? 'page-article-reader__mode-tab--active' : ''}}"
@@ -35,6 +35,13 @@
         bindtap="onSwitchMode"
       >
         <text>逐句释义</text>
+      </view>
+      <view
+        class="page-article-reader__mode-tab {{readingMode === 'annotation' ? 'page-article-reader__mode-tab--active' : ''}}"
+        data-mode="annotation"
+        bindtap="onSwitchMode"
+      >
+        <text>逐字标注</text>
       </view>
     </view>
 
@@ -57,7 +64,7 @@
     </scroll-view>
 
     <!-- ============================================= -->
-    <!-- 模式二：通篇释义（按段落，点击展开/收起译文）           -->
+    <!-- 模式二：段落释义（按段落，点击展开/收起译文）           -->
     <!-- ============================================= -->
     <scroll-view
       wx:elif="{{readingMode === 'paragraph'}}"
@@ -106,7 +113,7 @@
     <!-- 模式三：逐句释义（按子句拆分，点击展开/收起译文）         -->
     <!-- ============================================= -->
     <scroll-view
-      wx:else
+      wx:elif="{{readingMode === 'sentence'}}"
       class="page-article-reader__body"
       scroll-y enhanced show-scrollbar="{{false}}"
     >
@@ -126,6 +133,85 @@
           <text>{{cl.translation}}</text>
         </view>
       </block>
+      <view class="page-article-reader__body-spacer"></view>
+    </scroll-view>
+
+    <!-- ============================================= -->
+    <!-- 模式四：逐字标注（实词红色+释义，虚词黑色，标点灰色）    -->
+    <!-- ============================================= -->
+    <scroll-view
+      wx:else
+      class="page-article-reader__body"
+      scroll-y enhanced show-scrollbar="{{false}}"
+    >
+      <!-- 图例 -->
+      <view class="page-article-reader__legend">
+        <view class="page-article-reader__legend-item">
+          <text class="page-article-reader__legend-dot page-article-reader__legend-dot--content"></text>
+          <text>实词</text>
+        </view>
+        <view class="page-article-reader__legend-item">
+          <text class="page-article-reader__legend-dot page-article-reader__legend-dot--function"></text>
+          <text>虚词</text>
+        </view>
+      </view>
+
+      <!-- 逐句 -->
+      <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="sent" wx:for-index="si">
+        <view class="page-article-reader__annot-block">
+          <!-- 逐字 -->
+          <view class="page-article-reader__annot-line">
+            <block wx:for="{{sent.charAnnotations}}" wx:key="*this" wx:for-item="ann" wx:for-index="ci">
+              <!-- 实词：可点击 -->
+              <view
+                wx:if="{{ann.role === 'content'}}"
+                class="page-article-reader__annot-char page-article-reader__annot-char--content"
+                data-sentence-index="{{si}}"
+                data-char-index="{{ci}}"
+                bindtap="onTapChar"
+                hover-class="page-article-reader__annot-char--hover"
+              >
+                <text>{{ann.char}}</text>
+              </view>
+              <!-- 虚词 -->
+              <view
+                wx:elif="{{ann.role === 'function'}}"
+                class="page-article-reader__annot-char page-article-reader__annot-char--function"
+              >
+                <text>{{ann.char}}</text>
+              </view>
+              <!-- 标点 -->
+              <view
+                wx:else
+                class="page-article-reader__annot-char page-article-reader__annot-char--punct"
+              >
+                <text>{{ann.char}}</text>
+              </view>
+            </block>
+          </view>
+
+          <!-- 释义气泡 -->
+          <view
+            wx:if="{{activeAnnotation && activeAnnotation.sentenceIndex === si}}"
+            class="page-article-reader__annot-bubble"
+          >
+            <text class="page-article-reader__annot-bubble-text">{{activeAnnotation.definition}}</text>
+          </view>
+
+          <!-- 全句译文（始终显示，小字号） -->
+          <view class="page-article-reader__annot-trans">
+            <text>{{sent.translation}}</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 底部遮罩（点击任意位置关闭释义） -->
+      <view
+        wx:if="{{activeAnnotation}}"
+        class="page-article-reader__annot-mask"
+        bindtap="onDismissAnnotation"
+      ></view>
+
       <view class="page-article-reader__body-spacer"></view>
     </scroll-view>
 

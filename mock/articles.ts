@@ -1,7 +1,61 @@
 // ============================================
 // 名篇 Mock 数据
 // ============================================
-import type { IArticle, ArticleCategory } from '../typings/index.d';
+import type { IArticle, ArticleCategory, ICharAnnotation } from '../typings/index.d';
+
+/** 文言文常见虚词集合 */
+const FUNCTION_WORDS = new Set([
+  '之', '乎', '者', '也', '矣', '焉', '哉', '耳', '尔',
+  '而', '以', '于', '於', '为', '与', '其', '则', '乃',
+  '所', '且', '因', '若', '虽', '然', '夫', '盖', '斯',
+  '或', '非', '是', '故', '何', '安', '孰',
+]);
+
+/** 中文标点 */
+const PUNCT_SET = new Set(['，', '。', '！', '？', '；', '：', '"', '"', '（', '）', '、', '…']);
+
+/**
+ * 根据文本和释义映射构建逐字标注数组
+ * @param text 原文
+ * @param defMap 词语→释义 映射（会自动按最长匹配优先切词），如 { '庆历': '年号', '谪': '贬官降职' }
+ */
+function buildCharAnnotations(text: string, defMap: Record<string, string>): ICharAnnotation[] {
+  const result: ICharAnnotation[] = [];
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    // 标点
+    if (PUNCT_SET.has(ch)) {
+      result.push({ char: ch, role: 'punct' });
+      i++; continue;
+    }
+    // 尝试最长匹配 key
+    let matched = false;
+    for (let len = Math.min(4, text.length - i); len >= 1; len--) {
+      const token = text.slice(i, i + len);
+      if (defMap[token] !== undefined) {
+        const definition = defMap[token];
+        // 单字且在虚词集合中 → 标记为虚词，否则为实词
+        if (len === 1 && FUNCTION_WORDS.has(token)) {
+          result.push({ char: token, role: 'function', definition });
+        } else {
+          result.push({ char: token, role: 'content', definition });
+        }
+        i += len; matched = true; break;
+      }
+    }
+    // 无匹配：单字推断
+    if (!matched) {
+      if (FUNCTION_WORDS.has(ch)) {
+        result.push({ char: ch, role: 'function' });
+      } else {
+        result.push({ char: ch, role: 'content' });
+      }
+      i++;
+    }
+  }
+  return result;
+}
 
 const art_001_sentences = [
   {
@@ -11,6 +65,42 @@ const art_001_sentences = [
       { word: '谪', definition: '贬官降职，被流放或降职外调', wordBookId: 'wb_mid_001_01' },
       { word: '属', definition: '通"嘱"，嘱托、嘱咐', wordBookId: 'wb_tjia_002_05' },
     ],
+    charAnnotations: buildCharAnnotations(
+      '庆历四年春，滕子京谪守巴陵郡。越明年，政通人和，百废具兴，乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上，属予作文以记之。',
+      {
+        '庆历': '宋仁宗年号（1041-1048）',
+        '滕子京': '人名，即滕宗谅，范仲淹好友',
+        '谪': '贬官降职，被流放或降职外调',
+        '守': '做郡守，任地方长官',
+        '巴陵郡': '今湖南岳阳一带，古郡名',
+        '越': '到了，经过',
+        '明年': '第二年',
+        '政': '政事，政务',
+        '通': '顺利，畅通',
+        '人': '百姓',
+        '和': '和乐，和睦',
+        '百废': '各种荒废了的事业',
+        '具': '同"俱"，全、都',
+        '兴': '兴办，恢复',
+        '乃': '于是，就',
+        '重修': '重新修建',
+        '岳阳楼': '岳阳城西门楼，江南名楼',
+        '增': '扩大，扩建',
+        '旧制': '原有的规模形制',
+        '刻': '镌刻，雕刻',
+        '唐贤': '唐代有名望的人士',
+        '今人': '当代的文人墨客',
+        '诗赋': '诗歌和辞赋',
+        '于': '在，在……之上',
+        '其上': '它的上面（指岳阳楼）',
+        '属': '通"嘱"，嘱托，嘱咐',
+        '予': '我',
+        '作文': '写一篇文章',
+        '以': '来（表目的）',
+        '记': '记述，记载',
+        '之': '代词，指重修岳阳楼这件事',
+      },
+    ),
   },
   {
     text: '予观夫巴陵胜状，在洞庭一湖。衔远山，吞长江，浩浩汤汤，横无际涯，朝晖夕阴，气象万千，此则岳阳楼之大观也，前人之述备矣。',
@@ -20,6 +110,40 @@ const art_001_sentences = [
       { word: '汤汤', definition: '（shāng shāng）水势浩大壮阔的样子' },
       { word: '则', definition: '就，便（表示承接）', wordBookId: 'wb_mid_001_09' },
     ],
+    charAnnotations: buildCharAnnotations(
+      '予观夫巴陵胜状，在洞庭一湖。衔远山，吞长江，浩浩汤汤，横无际涯，朝晖夕阴，气象万千，此则岳阳楼之大观也，前人之述备矣。',
+      {
+        '予': '我',
+        '观': '看，观赏',
+        '夫': '那（发语词，引出议论）',
+        '巴陵': '即巴陵郡，今湖南岳阳',
+        '胜状': '壮丽景色，美好景致',
+        '在': '在于，集中在',
+        '洞庭': '洞庭湖，中国第二大淡水湖',
+        '一湖': '整个湖面',
+        '衔': '衔接，含接',
+        '远山': '远处的群山',
+        '吞': '吞吐，吞纳',
+        '长江': '长江，中国第一大河',
+        '浩浩': '水势浩大壮阔的样子',
+        '汤汤': '（shāng）水流大而急的样子',
+        '横': '宽广，横贯',
+        '无际涯': '没有边际，看不到尽头',
+        '朝晖': '清晨的阳光',
+        '夕阴': '傍晚的昏暗天色',
+        '气象': '景象，景色',
+        '万千': '千变万化，变化多端',
+        '此': '这，指洞庭湖的景色',
+        '则': '就，便是（表判断）',
+        '岳阳楼': '岳阳城西门名楼',
+        '大观': '雄伟壮丽的景象',
+        '也': '句末语气词，表判断',
+        '前人': '前代的文人',
+        '述': '记述，描述',
+        '备': '详尽，完备',
+        '矣': '了（句末语气词）',
+      },
+    ),
   },
   {
     text: '若夫淫雨霏霏，连月不开，阴风怒号，浊浪排空，日星隐曜，山岳潜形，商旅不行，樯倾楫摧，薄暮冥冥，虎啸猿啼。登斯楼也，则有去国怀乡，忧谗畏讥，满目萧然，感极而悲者矣。',
