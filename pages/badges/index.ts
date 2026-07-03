@@ -62,15 +62,14 @@ Page<IBadgesData, WechatMiniprogram.Page.CustomOption>({
           const b = result.badges.find(badge => badge.id === id);
           if (!b) return null;
           const ub = userMap.get(b.id);
-          // 临时：前 2 个展示为已获得，方便预览样式
-          const earned = ub ? !!ub : index < 2;
+          const earned = !!ub;
           return {
             id: b.id,
             name: b.name,
             description: b.description,
             icon: b.icon,
             earned,
-            earnedDate: ub?.earnedDate || (index < 2 ? '2026-06-28' : ''),
+            earnedDate: ub?.earnedDate || '',
             theme: THEME_MAP[b.id] || 'bronze',
           };
         })

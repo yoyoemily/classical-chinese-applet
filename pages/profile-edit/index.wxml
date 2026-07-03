@@ -5,11 +5,7 @@
     <view class="page-profile-edit__section-title">头像</view>
     <view class="page-profile-edit__card">
       <view class="page-profile-edit__avatar-row">
-        <button
-          class="page-profile-edit__avatar-btn"
-          open-type="chooseAvatar"
-          bindchooseavatar="onChooseAvatar"
-        >
+        <view class="page-profile-edit__avatar-wrapper">
           <image
             wx:if="{{avatarUrl}}"
             class="page-profile-edit__avatar-img"
@@ -17,7 +13,12 @@
             mode="aspectFill"
           />
           <text wx:else class="page-profile-edit__avatar-placeholder">👤</text>
-        </button>
+          <button
+            class="page-profile-edit__avatar-btn"
+            open-type="chooseAvatar"
+            bindchooseavatar="onChooseAvatar"
+          />
+        </view>
         <view class="page-profile-edit__avatar-actions">
           <text class="page-profile-edit__avatar-hint">点击头像使用微信头像</text>
           <view class="page-profile-edit__photo-btn" bindtap="onChoosePhoto">
