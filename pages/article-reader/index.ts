@@ -1,5 +1,8 @@
 import type { IArticle, IArticleSentence, ICharAnnotation, FeedbackCategory } from '../../typings/index.d';
 import { fetchArticleDetail, submitFeedback } from '../../api/index';
+import { getTTSPlayer } from '../../utils/tts';
+import { safeJSONParse } from '../../utils/util';
+import { STORAGE_KEYS } from '../../constants/config';
 
 /** 阅读模式 */
 type ReadingMode = 'plain' | 'paragraph' | 'sentence' | 'annotation';
@@ -32,6 +35,10 @@ interface IArticleReaderData {
   /** 标注模式：当前激活的释义 */
   activeAnnotation: IActiveAnnotation | null;
 
+  // 音频播放
+  audioLoading: boolean;
+  audioPlaying: boolean;
+
   // 错误反馈
   showFeedbackPanel: boolean;
   feedbackCategory: string;
@@ -52,13 +59,26 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
     article: null, loading: true, readingMode: 'plain' as ReadingMode,
     expandedStates: [], clauseExpandedStates: [], clauses: [],
     activeAnnotation: null,
+    audioLoading: false, audioPlaying: false,
     showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
   },
+
+  _tts: null as ReturnType<typeof getTTSPlayer> | null,
+  _autoPlayAudio: true,
 
   async onLoad(options: Record<string, string | undefined>): Promise<void> {
     const articleId = options.id || '';
     if (!articleId) { wx.navigateBack(); return; }
     try {
+      // 加载设置
+      const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
+      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean }>(raw, {}) : {};
+      this._autoPlayAudio = settings.autoPlayAudio ?? true;
+
+      // 初始化 TTS 播放器
+      this._tts = getTTSPlayer();
+      this._tts.stop();
+
       const article = await fetchArticleDetail(articleId);
       const clauses = this.buildClauses(article);
       this.setData({
@@ -68,6 +88,11 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
         clauses,
         loading: false,
       });
+
+      // 自动播放
+      if (this._autoPlayAudio) {
+        this._playArticleAudio(article);
+      }
     } catch { this.setData({ loading: false }); }
   },
 
@@ -184,6 +209,40 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
+  // 音频播放
+  // ==========================================
+
+  onTapAudio(): void {
+    if (!this.data.article) return;
+
+    // 正在播放或加载中 → 停止
+    if (this._tts?.status === 'loading' || this._tts?.status === 'playing') {
+      this._tts.stop();
+      return;
+    }
+
+    this._playArticleAudio(this.data.article);
+  },
+
+  /** 拼接全文文本 */
+  _buildFullText(article: IArticle): string {
+    return article.sentences.map(s => s.text).join('');
+  },
+
+  _playArticleAudio(article: IArticle): void {
+    if (!this._tts) return;
+    const text = this._buildFullText(article);
+    this._tts.play(text, article.fullTextAudioUrl, {
+      onStatusChange: (status) => {
+        this.setData({
+          audioLoading: status === 'loading',
+          audioPlaying: status === 'playing',
+        });
+      },
+    });
+  },
+
+  // ==========================================
   // 错误反馈
   // ==========================================
 
@@ -227,5 +286,18 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
       wx.showToast({ title: '提交失败，请重试', icon: 'none' });
       this.setData({ feedbackSubmitting: false });
     }
+  },
+
+  // ==========================================
+  // 生命周期
+  // ==========================================
+
+  onHide(): void {
+    this._tts?.stop();
+  },
+
+  onUnload(): void {
+    this._tts?.destroy();
+    this._tts = null;
   },
 });

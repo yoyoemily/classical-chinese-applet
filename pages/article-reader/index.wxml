@@ -8,8 +8,19 @@
     <view class="page-article-reader__header">
       <view class="page-article-reader__header-top">
         <view class="page-article-reader__title">《{{article.title}}》</view>
-        <view class="page-article-reader__feedback-icon" bindtap="onTapFeedback">
-          <text>⚠️</text>
+        <view class="page-article-reader__header-actions">
+          <view
+            class="page-article-reader__audio-btn {{audioPlaying ? 'page-article-reader__audio-btn--playing' : ''}} {{audioLoading ? 'page-article-reader__audio-btn--loading' : ''}}"
+            bindtap="onTapAudio"
+            hover-class="page-article-reader__audio-btn--hover"
+          >
+            <text wx:if="{{audioLoading}}">⏳</text>
+            <text wx:elif="{{audioPlaying}}">🔉</text>
+            <text wx:else>🔊</text>
+          </view>
+          <view class="page-article-reader__feedback-icon" bindtap="onTapFeedback">
+            <text>⚠️</text>
+          </view>
         </view>
       </view>
       <view class="page-article-reader__meta">

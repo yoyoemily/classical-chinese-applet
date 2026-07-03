@@ -22,6 +22,31 @@
     justify-content: center;
     position: relative;
   }
+  &__header-actions {
+    position: absolute;
+    right: $spacing-sm;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+  &__audio-btn {
+    @include flex-center;
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: background 0.2s, transform 0.2s;
+    & text { font-size: 28rpx; }
+    &:active { background: rgba(255, 255, 255, 0.35); }
+    &--hover { background: rgba(255, 255, 255, 0.3); }
+    &--loading { background: rgba(255, 255, 255, 0.3); }
+    &--playing {
+      background: rgba(255, 255, 255, 0.35);
+      animation: audioPulse 1.2s ease-in-out infinite;
+    }
+  }
   &__title {
     font-size: 44rpx;
     font-weight: 700;
@@ -30,10 +55,6 @@
     font-family: 'STKaiti', 'KaiTi', '楷体', serif;
   }
   &__feedback-icon {
-    position: absolute;
-    right: $spacing-sm;
-    top: 50%;
-    transform: translateY(-50%);
     @include flex-center;
     width: 60rpx;
     height: 60rpx;
@@ -440,4 +461,9 @@
 }
 @keyframes fadeInSimple {
   from { opacity: 0; } to { opacity: 1; }
+}
+
+@keyframes audioPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
