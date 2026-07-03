@@ -19,9 +19,12 @@
   }
   &__char-badge {
     display: inline-flex; align-items: center; justify-content: center;
-    padding: 2rpx 16rpx; margin-right: auto;
-    background: $color-accent; border-radius: 20rpx;
+    padding: 2rpx 16rpx; margin-right: $spacing-xs;
+    background: $color-primary; border-radius: 20rpx;
     text { font-size: $font-size-sm; color: #fff; }
+    &--type {
+      background: $color-accent;
+    }
   }
   &__character {
     font-size: 100rpx; font-weight: 700; color: $color-text-primary;

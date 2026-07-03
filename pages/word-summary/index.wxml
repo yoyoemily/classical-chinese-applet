@@ -6,7 +6,10 @@
       <!-- 顶部汉字卡片 -->
       <view class="page-word-summary__char-card">
         <view class="page-word-summary__char-top">
-          <view class="page-word-summary__char-badge" wx:if="{{characterType}}">
+          <view class="page-word-summary__char-badge" wx:if="{{wordType}}">
+            <text>{{wordType}}</text>
+          </view>
+          <view class="page-word-summary__char-badge page-word-summary__char-badge--type" wx:if="{{characterType}}">
             <text>{{characterType}}</text>
           </view>
           <text class="page-word-summary__freq" wx:if="{{examFrequency}}">{{examFrequency}}</text>

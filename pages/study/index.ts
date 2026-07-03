@@ -8,6 +8,7 @@ import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index
 interface IStudyData {
   screen: 'question' | 'correction';
   currentWord: string;
+  currentWordType: string;
   currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string; articleId?: string; audioUrl?: string } | null;
   options: string[];
   selectedIndex: number;
@@ -47,7 +48,7 @@ const FEEDBACK_CATEGORIES: { key: FeedbackCategory; label: string }[] = [
 
 Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   data: {
-    screen: 'question', currentWord: '', currentSentence: null,
+    screen: 'question', currentWord: '', currentWordType: '', currentSentence: null,
     options: [], selectedIndex: -1, correctIndex: -1,
     sentencePrefix: '', sentenceTarget: '', sentenceSuffix: '',
     userAnswer: '', correctAnswer: '', mnemonic: '',
@@ -160,6 +161,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const suffix = idx >= 0 ? sent.text.slice(idx + word.character.length) : '';
     this.setData({
       screen: 'question', currentWord: word.character,
+      currentWordType: fullWord?.wordType || '',
       currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       options: opts, selectedIndex: -1, correctIndex: ci,
       sentencePrefix: prefix, sentenceTarget: target, sentenceSuffix: suffix,

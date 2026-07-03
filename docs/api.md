@@ -149,8 +149,8 @@ Authorization: Bearer <token>
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `data[].id` | String | 词书唯一标识，如 `wb_middle_001` |
-| `data[].name` | String | 词书名称，如"中考实词精选" |
+| `data[].id` | String | 词书唯一标识，如 `wb_zhongkao_001` |
+| `data[].name` | String | 词书名称，如"字海拾贝·中考篇" |
 | `data[].description` | String | 词书简介 |
 | `data[].category` | String | 分类：`middle_school` / `high_school` / `function` / `tongjia` / `ancient_modern` |
 | `data[].coverColor` | String | 封面主题色，如 `#4a6a5e` |
@@ -165,20 +165,12 @@ HTTP/1.1 200 OK
     "message": "ok",
     "data": [
         {
-            "id": "wb_middle_001",
-            "name": "中考实词精选",
-            "description": "收录中考必考高频文言实词，涵盖一词多义核心考点。",
+            "id": "wb_zhongkao_001",
+            "name": "字海拾贝·中考篇",
+            "description": "涵盖中考大纲全部核心文言字词，包含实词、虚词、通假字三大类，覆盖七至九年级统编版教材全部重点字词。",
             "category": "middle_school",
             "coverColor": "#4a6a5e",
-            "totalWords": 10
-        },
-        {
-            "id": "wb_tongjia_002",
-            "name": "通假字集训",
-            "description": "收录中高考必考的高频通假字。",
-            "category": "tongjia",
-            "coverColor": "#c9a96e",
-            "totalWords": 6
+            "totalWords": 75
         }
     ]
 }
@@ -196,7 +188,7 @@ HTTP/1.1 200 OK
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | String (Required) | 词书 ID，如 `wb_middle_001` |
+| `id` | String (Required) | 词书 ID，如 `wb_zhongkao_001` |
 
 #### Response Fields
 
@@ -226,6 +218,7 @@ HTTP/1.1 200 OK
 | `similarHomophones` | Array\<String\> | 同音易混字 |
 | `similarShapes` | Array\<String\> | 形近字 |
 | `mnemonic` | String | 记忆口诀 (Optional) |
+| `wordType` | String | 字词类型：`实词` / `虚词` / `通假字` (Optional) |
 
 **Meaning 对象：**
 
@@ -261,12 +254,12 @@ HTTP/1.1 200 OK
     "code": 0,
     "message": "ok",
     "data": {
-        "id": "wb_middle_001",
-        "name": "中考实词精选",
-        "description": "收录中考必考高频文言实词。",
+        "id": "wb_zhongkao_001",
+        "name": "字海拾贝·中考篇",
+        "description": "涵盖中考大纲全部核心文言字词，包含实词、虚词、通假字三大类，覆盖七至九年级统编版教材全部重点字词。",
         "category": "middle_school",
         "coverColor": "#4a6a5e",
-        "totalWords": 10,
+        "totalWords": 75,
         "words": [
             {
                 "id": "wb_mid_001_01",
@@ -300,7 +293,8 @@ HTTP/1.1 200 OK
                 ],
                 "similarHomophones": ["尔", "耳", "儿"],
                 "similarShapes": ["面", "耐", "耍"],
-                "mnemonic": "而字本义是胡须，后借用为连词。记住四个主要用法：并列又，转折却，承接就，修饰着。"
+                "mnemonic": "而字本义是胡须，后借用为连词。记住四个主要用法：并列又，转折却，承接就，修饰着。",
+                "wordType": "虚词"
             }
         ]
     }
@@ -356,8 +350,8 @@ HTTP/1.1 200 OK
     "message": "ok",
     "data": {
         "date": "2026-07-03",
-        "wordBookId": "wb_middle_001",
-        "wordBookName": "中考实词精选",
+        "wordBookId": "wb_zhongkao_001",
+        "wordBookName": "字海拾贝·中考篇",
         "reviewWords": [
             {
                 "wordId": "wb_mid_001_01",
@@ -585,7 +579,7 @@ HTTP/1.1 200 OK
     "code": 0,
     "message": "ok",
     "data": {
-        "wordBookId": "wb_middle_001",
+        "wordBookId": "wb_zhongkao_001",
         "wordsLearned": 8,
         "wordsMastered": 3,
         "checkinDates": ["2026-07-01", "2026-07-02", "2026-07-03"],
@@ -594,7 +588,6 @@ HTTP/1.1 200 OK
         "totalXP": 320,
         "wordProgresses": {
             "wb_mid_001_01": {
-                "wordId": "wb_mid_001_01",
                 "stage": 4,
                 "nextReviewDate": "2026-07-10",
                 "correctCount": 4,
@@ -1157,11 +1150,19 @@ HTTP/1.1 200 OK
 
 | 值 | 含义 |
 |----|------|
-| `middle_school` | 初中实词 |
-| `high_school` | 高中实词 |
-| `function` | 虚词 |
-| `tongjia` | 通假字 |
+| `middle_school` | 初中 |
+| `high_school` | 高中 |
+| `function` | 虚词（当前合并到初中词书） |
+| `tongjia` | 通假字（当前合并到初中词书） |
 | `ancient_modern` | 古今异义 |
+
+#### WordType — 字词类型
+
+| 值 | 含义 |
+|----|------|
+| `实词` | 实词 |
+| `虚词` | 虚词 |
+| `通假字` | 通假字 |
 
 #### SentenceDifficulty — 句子难度
 

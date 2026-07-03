@@ -8,6 +8,7 @@ interface IMeaningItem extends IMeaning {
 interface IWordSummaryData {
   word: IWord | null;
   character: string;
+  wordType: string;
   characterType: string;
   explanation: string;
   oracleForm: string;
@@ -24,7 +25,7 @@ interface IWordSummaryData {
 
 Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
   data: {
-    word: null, character: '', characterType: '', explanation: '',
+    word: null, character: '', wordType: '', characterType: '', explanation: '',
     oracleForm: '', examFrequency: '',
     meaningItems: [],
     loading: true,
@@ -42,6 +43,7 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
       const meaningItems: IMeaningItem[] = (word.meanings || []).map(m => ({ ...m, expanded: false }));
       this.setData({
         word, character: word.character,
+        wordType: word.wordType || '',
         characterType: word.characterType || '',
         explanation: word.explanation || '',
         oracleForm: word.oracleForm || '',

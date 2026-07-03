@@ -37,7 +37,7 @@
 
       <!-- 题干 -->
       <view class="page-study__question">
-        <text>句中"<text class="page-study__target-word">{{currentWord}}</text>"的意思是？</text>
+        <text>句中"<text class="page-study__target-word">{{currentWord}}</text>"<text wx:if="{{currentWordType}}">（{{currentWordType}}）</text>的意思是？</text>
       </view>
 
       <!-- 选项 -->
