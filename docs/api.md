@@ -259,6 +259,8 @@ HTTP/1.1 200 OK
 | Field | Type | Description |
 |-------|------|-------------|
 | `wordBookId` | String (Required) | 当前选中的词书 ID |
+| `dailyNew` | Integer (Optional) | 每日新学数量上限，不传则由后端使用默认值 |
+| `dailyReview` | Integer (Optional) | 每日复习数量上限，不传则由后端使用默认值 |
 
 #### Response Fields
 

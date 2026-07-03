@@ -21,7 +21,7 @@ const DEFAULT_OPTIONS: Required<Pick<IRequestOptions, 'method' | 'showLoading' |
 };
 
 /** 基础请求 URL，发布前替换为正式后端地址 */
-const BASE_URL: string = 'https://api.example.com';
+const BASE_URL: string = 'http://localhost:8080';
 
 /**
  * 显示 loading
@@ -66,11 +66,18 @@ export function request<T = unknown>(options: IRequestOptions): Promise<T> {
     showLoading();
   }
 
+  // 过滤掉 data 中值为 undefined 的字段，避免 GET 请求拼出 ?key=undefined
+  const cleanData = mergedOptions.data
+    ? Object.fromEntries(
+        Object.entries(mergedOptions.data).filter(([, v]) => v !== undefined)
+      )
+    : undefined;
+
   return new Promise<T>((resolve, reject) => {
     wx.request({
       url: fullUrl,
       method: mergedOptions.method,
-      data: mergedOptions.data,
+      data: cleanData,
       header: mergedOptions.header,
       timeout: mergedOptions.timeout,
       success(

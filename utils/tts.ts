@@ -102,7 +102,6 @@ class TTSPlayer {
       this._setStatus('stopped');
       ctx.destroy();
       if (this._ctx === ctx) this._ctx = null;
-      wx.showToast({ title: '音频播放失败', icon: 'none' });
     });
 
     this._ctx = ctx;
@@ -117,13 +116,11 @@ class TTSPlayer {
       plugin = (requirePlugin as unknown as Function)('WechatSI') as Record<string, unknown>;
     } catch {
       this._setStatus('stopped');
-      wx.showToast({ title: '语音插件未加载', icon: 'none' });
       return;
     }
 
     if (!plugin?.textToSpeech) {
       this._setStatus('stopped');
-      wx.showToast({ title: '语音插件未加载', icon: 'none' });
       return;
     }
 
@@ -145,7 +142,7 @@ class TTSPlayer {
       }
     } catch {
       this._setStatus('stopped');
-      wx.showToast({ title: '语音合成暂不可用', icon: 'none' });
+      return;
     }
   }
 
@@ -173,7 +170,7 @@ class TTSPlayer {
       }
     } catch {
       this._setStatus('stopped');
-      wx.showToast({ title: '语音合成暂不可用', icon: 'none' });
+      return;
     }
   }
 }

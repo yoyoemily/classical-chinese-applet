@@ -1,9 +1,8 @@
-import { generateTodayTask, updateWordProgress } from '../../utils/ebbinghaus';
-import { getCurrentBookId, saveSession, getProgress, setWordProgress, loadWordBookData } from '../../utils/storage';
-import { submitAnswer, submitFeedback } from '../../api/index';
+import { getCurrentBookId, saveSession } from '../../utils/storage';
+import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback } from '../../api/index';
 import { shuffle, formatDate, safeJSONParse } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
-import { STORAGE_KEYS } from '../../constants/config';
+import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS } from '../../constants/config';
 import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index.d';
 
 interface IStudyData {
@@ -89,8 +88,10 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     try {
       // 加载设置
       const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
-      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean }>(raw, {}) : {};
+      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean; dailyNewWords?: number; dailyReviewWords?: number }>(raw, {}) : {};
       this._autoPlayAudio = settings.autoPlayAudio ?? true;
+      const dailyNew = settings.dailyNewWords ?? DEFAULT_DAILY_NEW_WORDS;
+      const dailyReview = settings.dailyReviewWords ?? DEFAULT_DAILY_REVIEW_WORDS;
 
       // 初始化 TTS 播放器
       this._tts = getTTSPlayer();
@@ -98,20 +99,25 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
       const bookId = getCurrentBookId();
       this._bookId = bookId;
-      const task = generateTodayTask(bookId);
+
+      // 并行获取今日任务和词书详情
+      const [task, book] = await Promise.all([
+        fetchTodayTask(bookId, dailyNew, dailyReview),
+        fetchWordBookDetail(bookId),
+      ]).catch(() => [null, null] as const);
+
       if (!task || task.totalWords === 0) {
         wx.showToast({ title: '今日没有需要学习的字', icon: 'none' });
         setTimeout(() => wx.navigateBack(), 1500);
         return;
       }
-      const allWords = [...task.reviewWords, ...task.newWords];
-      const book = loadWordBookData(bookId);
       if (book) {
         wx.setNavigationBarTitle({ title: book.name });
         for (const w of book.words) {
           this._wordsMap[w.id] = w;
         }
       }
+      const allWords = [...task.reviewWords, ...task.newWords];
       const session: IStudySession = {
         words: allWords, currentWordIndex: 0, currentSentenceIndex: 0,
         mode: task.reviewWords.length > 0 ? 'review' : 'new',

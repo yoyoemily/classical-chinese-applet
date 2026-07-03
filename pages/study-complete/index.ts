@@ -1,7 +1,7 @@
-import { completeStudy } from '../../api/index';
-import { getProgress } from '../../utils/storage';
+import { completeStudy, fetchProgress } from '../../api/index';
 import { calcLevel, getLevelXP, ENCOURAGEMENT_POEMS } from '../../constants/config';
 import { randomPick } from '../../utils/util';
+import { getCurrentBookId } from '../../utils/storage';
 import type { IBadge } from '../../typings/index.d';
 
 interface IStudyCompleteData {
@@ -26,8 +26,9 @@ Page<IStudyCompleteData, WechatMiniprogram.Page.CustomOption>({
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
     const poem = randomPick(ENCOURAGEMENT_POEMS);
     try {
-      const result = await completeStudy({ wordBookId: '', correctCount: correct, wrongCount: wrong });
-      const progress = getProgress();
+      const bookId = getCurrentBookId();
+      const result = await completeStudy({ wordBookId: bookId, correctCount: correct, wrongCount: wrong });
+      const progress = await fetchProgress(bookId);
       const levelInfo = calcLevel(progress.totalXP);
       let xpAccum = 0;
       for (let l = 1; l < levelInfo.level; l++) xpAccum += getLevelXP(l);
@@ -39,7 +40,7 @@ Page<IStudyCompleteData, WechatMiniprogram.Page.CustomOption>({
         xpToNext: Math.max(0, xpForLevel - xpIntoLevel), loading: false,
       });
     } catch {
-      const progress = getProgress();
+      const progress = { currentStreak: 0 };
       this.setData({ correctCount: correct, wrongCount: wrong, accuracy, streak: progress.currentStreak, xpGained: correct * 10, poem, loading: false });
     }
   },

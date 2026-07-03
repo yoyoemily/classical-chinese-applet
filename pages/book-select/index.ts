@@ -1,4 +1,5 @@
-import { loadWordBooks, getCurrentBookId, setCurrentBookId } from '../../utils/storage';
+import { fetchWordBooks } from '../../api/index';
+import { getCurrentBookId, setCurrentBookId } from '../../utils/storage';
 
 interface IBookSelectData {
   books: { id: string; name: string; description: string; category: string; coverColor: string; totalWords: number }[];
@@ -9,9 +10,13 @@ Page<IBookSelectData, WechatMiniprogram.Page.CustomOption>({
   data: { books: [], currentBookId: '' },
   onLoad(): void { this.load(); },
   onShow(): void { this.load(); },
-  load(): void {
-    const books = loadWordBooks();
-    this.setData({ books, currentBookId: getCurrentBookId() });
+  async load(): Promise<void> {
+    try {
+      const books = await fetchWordBooks();
+      this.setData({ books, currentBookId: getCurrentBookId() });
+    } catch {
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    }
   },
   onTapBook(e: WechatMiniprogram.BaseEvent): void {
     const bookId = e.currentTarget.dataset.bookId as string;

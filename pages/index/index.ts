@@ -1,6 +1,6 @@
 import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchCheckinRecords, fetchBadges } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday } from '../../utils/storage';
-import { calcLevel } from '../../constants/config';
+import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS } from '../../constants/config';
 import type { IUserProgress, IBadge } from '../../typings/index.d';
 
 // ============================================
@@ -145,11 +145,23 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     try {
       const bookId = getCurrentBookId();
 
+      // 读取每日限额设置
+      const rawSettings = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
+      let dailyNew = DEFAULT_DAILY_NEW_WORDS;
+      let dailyReview = DEFAULT_DAILY_REVIEW_WORDS;
+      if (rawSettings) {
+        try {
+          const s = JSON.parse(rawSettings);
+          if (s.dailyNewWords !== undefined) dailyNew = s.dailyNewWords;
+          if (s.dailyReviewWords !== undefined) dailyReview = s.dailyReviewWords;
+        } catch { /* use defaults */ }
+      }
+
       // 并行拉取词书列表、进度、今日任务、打卡记录、勋章
       const [books, progress, task, checkinDates, badgesData] = await Promise.all([
         fetchWordBooks(),
         fetchProgress(bookId),
-        fetchTodayTask(bookId),
+        fetchTodayTask(bookId, dailyNew, dailyReview),
         fetchCheckinRecords(
           this.data.currentYear,
           this.data.currentMonth,

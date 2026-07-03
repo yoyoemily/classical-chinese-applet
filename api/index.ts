@@ -16,7 +16,7 @@ import { mockArticles } from '../mock/articles';
 import { calcLevel } from '../constants/config';
 
 // 当前使用 Mock 还是真实 API
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // ============================================
 // 词书
@@ -40,13 +40,32 @@ export async function fetchWordBookDetail(bookId: string): Promise<IWordBook> {
 // ============================================
 // 学习
 // ============================================
-export async function fetchTodayTask(wordBookId: string): Promise<ITodayTask> {
+export async function fetchTodayTask(
+  wordBookId: string,
+  dailyNew?: number,
+  dailyReview?: number
+): Promise<ITodayTask> {
   if (USE_MOCK) {
     const task = generateTodayTask(wordBookId);
     if (!task) throw new Error('无法生成今日任务');
     return task;
   }
-  return get('/api/study/today', { wordBookId });
+  const params: Record<string, unknown> = { wordBookId };
+  if (dailyNew !== undefined) params.dailyNew = dailyNew;
+  if (dailyReview !== undefined) params.dailyReview = dailyReview;
+  const task = await get<ITodayTask>('/api/study/today', params);
+  // 客户端截断兜底（后端可能未实现限额）
+  if (dailyNew !== undefined && task.newWords.length > dailyNew) {
+    task.newWords = task.newWords.slice(0, dailyNew);
+    task.totalWords = task.reviewWords.length + task.newWords.length;
+    task.estimatedMinutes = Math.ceil(task.totalWords * 1.2);
+  }
+  if (dailyReview !== undefined && task.reviewWords.length > dailyReview) {
+    task.reviewWords = task.reviewWords.slice(0, dailyReview);
+    task.totalWords = task.reviewWords.length + task.newWords.length;
+    task.estimatedMinutes = Math.ceil(task.totalWords * 1.2);
+  }
+  return task;
 }
 
 export async function submitAnswer(data: {

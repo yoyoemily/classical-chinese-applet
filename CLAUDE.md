@@ -165,7 +165,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 后端工程
 
-后端已迁移为独立的 Spring Boot 工程，位于 `/Users/zhutx/IdeaProjects/classical-chinese/`。
+后端已迁移为独立的 Spring Boot 工程，位于 `/Users/zhutx/IdeaProjects/classical-chinese/`（详见该工程根目录的 `CLAUDE.md`，含完整的 Controller/Service/Mapper/Entity 结构、API 端点对照表、数据库设计、冷启动导入流程等）。
 
 | 项 | 说明 |
 |----|------|
@@ -179,11 +179,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **启动方式**：用 IntelliJ IDEA 打开该目录，运行 `ClassicalChineseApplication`。
 
-**API 覆盖**：10 个 Controller 完整对接前端 15 个 API 端点，响应格式统一 `{code: 0, message: "ok", data: ...}`。前端对接时将 `api/index.ts` 中 `USE_MOCK` 设为 `false`，`utils/request.ts` 中 `BASE_URL` 替换为 `http://localhost:8080` 即可。
+**API 覆盖**：10 个 Controller 完整对接前端 15 个 API 端点，响应格式统一 `{code: 0, message: "ok", data: ...}`。`api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'` 已完成对接。
 
 ### 待开发
-- **API 对接**：15 个 API 端点 Mock 模式（`USE_MOCK = true`）已跑通全部业务逻辑。对接时只需关闭 Mock 开关并替换 BASE_URL。艾宾浩斯算法保留客户端调度，服务端只记录结果。
-- 后续可增强：深层字词标注（更多 mock 覆盖）
+- 深层字词标注（更多数据覆盖）
+- 艾宾浩斯端到端调优
 
 ## 项目记忆
 
