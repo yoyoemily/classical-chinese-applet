@@ -331,6 +331,12 @@
       color: #999;
       font-weight: 400;
     }
+
+    // 回退纯文字 — 无标注数据时的中性展示
+    &--plain {
+      color: #333;
+      font-weight: 400;
+    }
   }
 
   // 释义气泡

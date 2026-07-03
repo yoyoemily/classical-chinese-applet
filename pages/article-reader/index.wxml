@@ -187,48 +187,62 @@
       <!-- 逐句 -->
       <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="sent" wx:for-index="si">
         <view class="page-article-reader__annot-block">
-          <!-- 逐字 -->
-          <view class="page-article-reader__annot-line">
-            <block wx:for="{{sent.charAnnotations}}" wx:key="*this" wx:for-item="ann" wx:for-index="ci">
-              <!-- 实词：可点击 -->
-              <view
-                wx:if="{{ann.role === 'content'}}"
-                class="page-article-reader__annot-char page-article-reader__annot-char--content"
-                data-sentence-index="{{si}}"
-                data-char-index="{{ci}}"
-                bindtap="onTapChar"
-                hover-class="page-article-reader__annot-char--hover"
-              >
-                <text>{{ann.char}}</text>
-              </view>
-              <!-- 虚词 -->
-              <view
-                wx:elif="{{ann.role === 'function'}}"
-                class="page-article-reader__annot-char page-article-reader__annot-char--function"
-              >
-                <text>{{ann.char}}</text>
-              </view>
-              <!-- 标点 -->
-              <view
-                wx:else
-                class="page-article-reader__annot-char page-article-reader__annot-char--punct"
-              >
-                <text>{{ann.char}}</text>
-              </view>
-            </block>
-          </view>
+          <!-- 有逐字标注数据：按实词/虚词/标点分类渲染 -->
+          <block wx:if="{{sent.charAnnotations && sent.charAnnotations.length > 0}}">
+            <view class="page-article-reader__annot-line">
+              <block wx:for="{{sent.charAnnotations}}" wx:key="*this" wx:for-item="ann" wx:for-index="ci">
+                <!-- 实词：可点击 -->
+                <view
+                  wx:if="{{ann.role === 'content'}}"
+                  class="page-article-reader__annot-char page-article-reader__annot-char--content"
+                  data-sentence-index="{{si}}"
+                  data-char-index="{{ci}}"
+                  bindtap="onTapChar"
+                  hover-class="page-article-reader__annot-char--hover"
+                >
+                  <text>{{ann.char}}</text>
+                </view>
+                <!-- 虚词 -->
+                <view
+                  wx:elif="{{ann.role === 'function'}}"
+                  class="page-article-reader__annot-char page-article-reader__annot-char--function"
+                >
+                  <text>{{ann.char}}</text>
+                </view>
+                <!-- 标点 -->
+                <view
+                  wx:else
+                  class="page-article-reader__annot-char page-article-reader__annot-char--punct"
+                >
+                  <text>{{ann.char}}</text>
+                </view>
+              </block>
+            </view>
 
-          <!-- 释义气泡 -->
-          <view
-            wx:if="{{activeAnnotation && activeAnnotation.sentenceIndex === si}}"
-            class="page-article-reader__annot-bubble"
-          >
-            <text class="page-article-reader__annot-bubble-text">{{activeAnnotation.definition}}</text>
-          </view>
+            <!-- 释义气泡 -->
+            <view
+              wx:if="{{activeAnnotation && activeAnnotation.sentenceIndex === si}}"
+              class="page-article-reader__annot-bubble"
+            >
+              <text class="page-article-reader__annot-bubble-text">{{activeAnnotation.definition}}</text>
+            </view>
 
-          <!-- 全句译文（始终显示，小字号） -->
-          <view class="page-article-reader__annot-trans">
-            <text>{{sent.translation}}</text>
+            <!-- 全句译文 -->
+            <view class="page-article-reader__annot-trans">
+              <text>{{sent.translation}}</text>
+            </view>
+          </block>
+
+          <!-- 无逐字标注数据：用 plainChars 回退，纯文字展示 -->
+          <view wx:else class="page-article-reader__annot-line">
+            <view
+              wx:for="{{sent.plainChars}}"
+              wx:key="*this"
+              wx:for-item="ch"
+              class="page-article-reader__annot-char page-article-reader__annot-char--plain"
+            >
+              <text>{{ch}}</text>
+            </view>
           </view>
         </view>
       </block>

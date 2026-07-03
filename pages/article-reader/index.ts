@@ -95,6 +95,10 @@ Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
       this._tts.stop();
 
       const article = await fetchArticleDetail(articleId);
+      // 为每个句子生成 plainChars 回退数组，供逐字标注模式在无标注数据时使用
+      for (const s of article.sentences) {
+        (s as IArticleSentence & { plainChars: string[] }).plainChars = s.text.split('');
+      }
       const clauses = this.buildClauses(article);
       const vocabSegments = this.buildVocabSegments(article);
       this.setData({
