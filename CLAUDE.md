@@ -137,7 +137,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **内联生词链接**：名篇通篇阅读模式下，`keyWords` 最长匹配切分后高亮（主题色下划线），点击弹出居中释义卡片，不打断阅读
 
 ### 待开发
-- 后续可增强：深层字词标注（更多 mock 覆盖）、生词卡片关联学习进度
+- 后续可增强：深层字词标注（更多 mock 覆盖）
 
 ## 项目记忆
 
