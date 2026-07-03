@@ -88,13 +88,17 @@ Page<IProfileEditData, WechatMiniprogram.Page.CustomOption>({
     this.save();
   },
 
-  /** 持久化保存 */
-  save(): void {
+  /** 即时持久化保存——哪个字段不为空就传哪个 */
+  async save(): Promise<void> {
     const profile: IUserProfile = {
       avatarUrl: this.data.avatarUrl,
       nickName: this.data.nickName,
       grade: this.data.grade,
     };
-    saveUserInfo(profile);
+    try {
+      await saveUserInfo(profile);
+    } catch {
+      // 静默失败
+    }
   },
 });
