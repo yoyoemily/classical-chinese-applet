@@ -68,7 +68,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── mock/
 │   ├── wordBooks.ts     # 词书 Mock（2 本，16 词）
 │   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）
-│   └── badges.ts        # 勋章 Mock（12 枚）
+│   └── badges.ts        # 勋章 Mock（8 枚）
+├── docs/
+│   └── api.md           # API 文档（EasyBit 风格，15 个接口完整描述）
+├── data/
+│   ├── source.json      # 冷启动数据源（3词书75字+20篇名篇+8勋章，188KB）
+│   ├── schema.sql       # MySQL DDL（21 张表）
+│   └── backend-java/    # Java 后端（Spring Boot 3.2，含导入服务）
 ├── utils/
 │   ├── request.ts       # wx.request 封装（Promise 化、拦截、错误处理）
 │   ├── util.ts          # 通用工具（formatDate、throttle、debounce 等）
@@ -157,6 +163,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **语音播报**：`utils/tts.ts` 双引擎架构（HTTP API + WechatSI 插件），通过 `TTS_ENGINE` 常量切换。优先使用句子 `audioUrl` 预录音频，无则走 TTS 合成。学习页 `showNextQuestion` 自动播报，喇叭按钮可手动控制。当前默认 `api` 引擎，`TTS_API_URL` 为占位值。
 - **错误反馈**：学习/名篇板块底部弹出浮层，选择错误类型 + 详细描述，提交到后端
 - **内联生词链接**：名篇通篇阅读模式下，`keyWords` 最长匹配切分后高亮（主题色下划线），点击弹出居中释义卡片，不打断阅读
+
+### 已完成（文档与后端基础设施）
+- **API 文档**：`docs/api.md`，15 个接口完整文档（EasyBit 风格），含请求参数/响应字段表格、成功+错误示例、枚举值速查附录
+- **冷启动数据源**：`data/source.json`（188KB），3 本词书 75 字（实词 40 + 虚词 15 + 通假字 20）、20 篇名篇（全部来自统编版七至九年级）、8 枚勋章。每条含完整释义/例句/干扰项/记忆口诀，可直接用于 API 对接和项目冷启动
+- **MySQL DDL**：`data/schema.sql`，21 张表（词书/字词/义项/句子/干扰项/名篇/逐字标注/用户进度/打卡/勋章/答题记录/反馈/每日任务），utf8mb4 + 外键级联 + 索引
+- **Java 后端代码**：`data/backend-java/`，Spring Boot 3.2 + MyBatis-Plus 3.5，含 `SourceData.java`（完整 DTO）、`DataImportService.java`（事务批量导入 service）、`ImportController.java`（管理后台触发接口）
 
 ### 待开发
 - **API 对接**：15 个 API 端点已预留，Mock 模式（`USE_MOCK = true`）跑通全部业务逻辑。对接时将 `api/index.ts` 中 `USE_MOCK` 设为 `false`，替换 `utils/request.ts` 中 `BASE_URL` 为真实地址即可。艾宾浩斯算法保留客户端调度，服务端只记录结果。

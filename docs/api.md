@@ -1,0 +1,1170 @@
+# 博古通今 API 文档
+
+> 博古通今——文言文学习小程序后端 REST API，提供词书、学习、名篇、进度、生词本、打卡、勋章、用户等模块的数据服务。
+
+## General API Information
+
+| Item | Value |
+|------|-------|
+| Base Endpoint | `https://api.example.com`（开发时替换为正式地址） |
+| Content-Type | `application/json` |
+| Authentication | Bearer Token（Header: `Authorization: Bearer <token>`） |
+| Server Time | UTC (ISO 8601) |
+| Timestamp Format | Unix timestamp in milliseconds |
+| Request Encoding | UTF-8 |
+
+## Response Format
+
+### Success Response
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": { }
+}
+```
+
+### Error Response
+
+```json
+HTTP/1.1 400 Bad Request
+{
+    "code": 10001,
+    "message": "参数错误",
+    "data": null
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | Integer | 状态码。`0` = 成功，其他 = 业务错误 |
+| `message` | String | 可读的错误描述 |
+| `data` | Object \| Array \| Null | 响应数据载荷，错误时为 `null` |
+
+### Pagination Response
+
+分页接口统一使用 `IPaginationResult<T>` 结构：
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `list` | Array\<T\> | 当前页数据列表 |
+| `total` | Integer | 总记录数 |
+| `page` | Integer | 当前页码 |
+| `pageSize` | Integer | 每页条数 |
+| `hasMore` | Boolean | 是否还有更多数据 |
+
+## Error Codes
+
+| Code | Message | Description |
+|------|---------|-------------|
+| 0 | ok | 请求成功 |
+| 10001 | 参数错误 | 请求参数缺失或格式不正确 |
+| 10002 | 未授权 | Token 无效或已过期，需重新登录 |
+| 10003 | 资源不存在 | 请求的词书/名篇/字词等不存在 |
+| 10004 | 今日任务已生成 | 今日学习任务已存在，无需重复请求 |
+| 10005 | 今日学习已完成 | 所有学习任务均已打勾，可调用 complete 收尾 |
+| 10006 | 操作失败 | 服务端处理异常，可重试 |
+| 10007 | 频率限制 | 请求过于频繁，请稍后再试 |
+
+---
+
+## 词书
+
+### 获取词书列表
+
+返回所有可用词书的摘要信息（不含字词详情）。
+
+**Endpoint:** `GET /api/wordbooks`
+
+#### Request Parameters
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].id` | String | 词书唯一标识，如 `wb_middle_001` |
+| `data[].name` | String | 词书名称，如"中考实词精选" |
+| `data[].description` | String | 词书简介 |
+| `data[].category` | String | 分类：`middle_school` / `high_school` / `function` / `tongjia` / `ancient_modern` |
+| `data[].coverColor` | String | 封面主题色，如 `#4a6a5e` |
+| `data[].totalWords` | Integer | 收录字词总数 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": [
+        {
+            "id": "wb_middle_001",
+            "name": "中考实词精选",
+            "description": "收录中考必考高频文言实词，涵盖一词多义核心考点。",
+            "category": "middle_school",
+            "coverColor": "#4a6a5e",
+            "totalWords": 10
+        },
+        {
+            "id": "wb_tongjia_002",
+            "name": "通假字集训",
+            "description": "收录中高考必考的高频通假字。",
+            "category": "tongjia",
+            "coverColor": "#c9a96e",
+            "totalWords": 6
+        }
+    ]
+}
+```
+
+---
+
+### 获取词书详情
+
+返回指定词书的完整信息，包含所有字词及每个字的释义、例句、干扰项等。
+
+**Endpoint:** `GET /api/wordbooks/:id`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String (Required) | 词书 ID，如 `wb_middle_001` |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.id` | String | 词书 ID |
+| `data.name` | String | 词书名称 |
+| `data.description` | String | 词书简介 |
+| `data.category` | String | 词书分类 |
+| `data.coverColor` | String | 封面主题色 |
+| `data.totalWords` | Integer | 字词总数 |
+| `data.words` | Array\<Word\> | 字词列表 |
+
+**Word 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String | 字词 ID |
+| `character` | String | 汉字 |
+| `pinyin` | String | 拼音 |
+| `characterType` | String | 字型：象形字/指事字/会意字/形声字 (Optional) |
+| `explanation` | String | 字形解释 (Optional) |
+| `oracleForm` | String | 甲骨文图片 URL (Optional) |
+| `examFrequency` | String | 考试频次，如"5年3考" (Optional) |
+| `meanings` | Array\<Meaning\> | 义项列表 |
+| `sentences` | Array\<Sentence\> | 考题句子列表 |
+| `similarHomophones` | Array\<String\> | 同音易混字 |
+| `similarShapes` | Array\<String\> | 形近字 |
+| `mnemonic` | String | 记忆口诀 (Optional) |
+
+**Meaning 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `definition` | String | 释义说明 |
+| `pinyin` | String | 该义项的读音，多音字时区分 (Optional) |
+| `example` | String | 例句原文 |
+| `translation` | String | 例句翻译 (Optional) |
+| `source` | String | 例句出处，如"《论语·为政》" (Optional) |
+
+**Sentence 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String | 句子 ID |
+| `text` | String | 句子原文 |
+| `source` | String | 句子出处 |
+| `translation` | String | 整句翻译 |
+| `targetWord` | String | 考查的目标字 |
+| `correctMeaningIndex` | Integer | 正确答案在 `distractors[]` 中的序号（0-based） |
+| `difficulty` | String | 难度：`basic` / `medium` / `hard` |
+| `distractors` | Array\<String\> | 干扰项列表 |
+| `fullText` | String | 该句所在段落的全文 (Optional) |
+| `articleId` | String | 关联的名篇 ID (Optional) |
+| `audioUrl` | String | 预录音频 URL (Optional) |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "id": "wb_middle_001",
+        "name": "中考实词精选",
+        "description": "收录中考必考高频文言实词。",
+        "category": "middle_school",
+        "coverColor": "#4a6a5e",
+        "totalWords": 10,
+        "words": [
+            {
+                "id": "wb_mid_001_01",
+                "character": "而",
+                "pinyin": "ér",
+                "characterType": "象形字",
+                "explanation": "甲骨文像面颊胡须之形，本义为胡须。后假借为连词。",
+                "examFrequency": "5年4考",
+                "meanings": [
+                    {
+                        "definition": "表示并列关系，可译为\"和\"\"又\"\"并且\"",
+                        "pinyin": "ér",
+                        "example": "敏而好学，不耻下问。",
+                        "translation": "聪敏并且爱好学习，不以向不如自己的人请教为耻。",
+                        "source": "《论语·公冶长》"
+                    }
+                ],
+                "sentences": [
+                    {
+                        "id": "s_001_01_1",
+                        "text": "学而不思则罔，思而不学则殆。",
+                        "source": "《论语·为政》",
+                        "translation": "只学习而不思考就会迷惑。",
+                        "targetWord": "而",
+                        "correctMeaningIndex": 1,
+                        "difficulty": "basic",
+                        "distractors": ["和，又，并且", "地，着", "就，然后"],
+                        "fullText": "子曰：\"学而不思则罔，思而不学则殆。\"",
+                        "articleId": "art_002"
+                    }
+                ],
+                "similarHomophones": ["尔", "耳", "儿"],
+                "similarShapes": ["面", "耐", "耍"],
+                "mnemonic": "而字本义是胡须，后借用为连词。记住四个主要用法：并列又，转折却，承接就，修饰着。"
+            }
+        ]
+    }
+}
+```
+
+---
+
+## 学习
+
+### 获取今日任务
+
+根据词书 ID 和用户当前学习进度，生成今日需完成的复习+新学任务。
+
+**Endpoint:** `GET /api/study/today`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 当前选中的词书 ID |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.date` | String | 日期，格式 `YYYY-MM-DD` |
+| `data.wordBookId` | String | 词书 ID |
+| `data.wordBookName` | String | 词书名称 |
+| `data.reviewWords` | Array\<TodayWord\> | 待复习的字词列表 |
+| `data.newWords` | Array\<TodayWord\> | 待新学的字词列表 |
+| `data.totalWords` | Integer | 今日总词数 |
+| `data.estimatedMinutes` | Integer | 预估用时（分钟） |
+
+**TodayWord 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordId` | String | 字词 ID |
+| `character` | String | 汉字 |
+| `isReview` | Boolean | 是否为复习（true=复习，false=新学） |
+| `reviewStage` | Integer \| String | 当前复习阶段：0–6 或 `"done"` (Optional) |
+| `sentences` | Array\<Sentence\> | 该字的考题句子 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "date": "2026-07-03",
+        "wordBookId": "wb_middle_001",
+        "wordBookName": "中考实词精选",
+        "reviewWords": [
+            {
+                "wordId": "wb_mid_001_01",
+                "character": "而",
+                "isReview": true,
+                "reviewStage": 3,
+                "sentences": [
+                    {
+                        "id": "s_001_01_1",
+                        "text": "学而不思则罔，思而不学则殆。",
+                        "source": "《论语·为政》",
+                        "translation": "只学习而不思考就会迷惑。",
+                        "targetWord": "而",
+                        "correctMeaningIndex": 1,
+                        "difficulty": "basic",
+                        "distractors": ["和，又，并且", "地，着", "就，然后"]
+                    }
+                ]
+            }
+        ],
+        "newWords": [
+            {
+                "wordId": "wb_mid_001_06",
+                "character": "乃",
+                "isReview": false,
+                "sentences": [
+                    {
+                        "id": "s_001_06_1",
+                        "text": "乃悟前狼假寐，盖以诱敌。",
+                        "source": "《狼》",
+                        "translation": "这才明白前面那只狼假装睡觉。",
+                        "targetWord": "乃",
+                        "correctMeaningIndex": 0,
+                        "difficulty": "basic",
+                        "distractors": ["竟然，却", "是，就是", "你"]
+                    }
+                ]
+            }
+        ],
+        "totalWords": 7,
+        "estimatedMinutes": 10
+    }
+}
+```
+
+---
+
+### 提交答题结果
+
+记录用户对某个句子的一次答题结果，服务端据此更新该字的艾宾浩斯进度。
+
+**Endpoint:** `POST /api/study/answer`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 当前词书 ID |
+| `wordId` | String (Required) | 考查的字词 ID |
+| `sentenceId` | String (Required) | 考题句子 ID |
+| `selectedOption` | Integer (Required) | 用户选择的选项序号（0-based） |
+| `correct` | Boolean (Required) | 是否答对 |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.updatedProgress.stage` | Integer \| String | 更新后的复习阶段（0–6 或 `"done"`） |
+| `data.updatedProgress.nextReviewDate` | String | 下次复习日期，格式 `YYYY-MM-DD` |
+| `data.updatedProgress.correctCount` | Integer | 累计答对次数 |
+| `data.updatedProgress.wrongCount` | Integer | 累计答错次数 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "updatedProgress": {
+            "stage": 4,
+            "nextReviewDate": "2026-07-10",
+            "correctCount": 5,
+            "wrongCount": 1
+        }
+    }
+}
+```
+
+#### Example: Error
+
+```json
+HTTP/1.1 400 Bad Request
+{
+    "code": 10001,
+    "message": "sentenceId 不存在",
+    "data": null
+}
+```
+
+---
+
+### 完成今日学习
+
+全部答题结束后调用，记录打卡、计算经验、检查新勋章。
+
+**Endpoint:** `POST /api/study/complete`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 当前词书 ID |
+| `correctCount` | Integer (Required) | 本次答对题数 |
+| `wrongCount` | Integer (Required) | 本次答错题数 |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.newBadges` | Array\<Badge\> | 本次新获得的勋章列表 |
+| `data.xpGained` | Integer | 本次获得的经验值 |
+
+**Badge 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String | 勋章 ID，如 `badge_streak_7` |
+| `name` | String | 勋章名称，如"日积月累" |
+| `description` | String | 勋章描述 |
+| `icon` | String | 勋章图标（emoji） |
+| `category` | String | 类别：`streak` / `achievement` / `milestone` |
+| `condition.type` | String | 获得条件类型，如 `streak` |
+| `condition.value` | Integer | 获得条件阈值 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "newBadges": [
+            {
+                "id": "badge_streak_7",
+                "name": "日积月累",
+                "description": "累计学习 7 天",
+                "icon": "🥈",
+                "category": "streak",
+                "condition": { "type": "streak", "value": 7 }
+            }
+        ],
+        "xpGained": 50
+    }
+}
+```
+
+---
+
+## 进度
+
+### 获取学习进度
+
+返回用户在指定词书上的完整学习进度数据。
+
+**Endpoint:** `GET /api/progress`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 词书 ID |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.wordBookId` | String | 词书 ID |
+| `data.wordsLearned` | Integer | 已学字数 |
+| `data.wordsMastered` | Integer | 已掌握字数 |
+| `data.checkinDates` | Array\<String\> | 打卡日期列表，格式 `YYYY-MM-DD` |
+| `data.currentStreak` | Integer | 当前连续学习天数 |
+| `data.longestStreak` | Integer | 历史最长连续学习天数 |
+| `data.totalXP` | Integer | 累计经验值 |
+| `data.wordProgresses` | Object | 字词进度映射，key 为 wordId |
+| `data.articleProgresses` | Object | 名篇进度映射，key 为 articleId |
+
+**wordProgresses[wordId] 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordId` | String | 字词 ID |
+| `stage` | Integer \| String | 复习阶段：0–6 或 `"done"` |
+| `nextReviewDate` | String | 下次复习日期，格式 `YYYY-MM-DD` |
+| `correctCount` | Integer | 累计答对次数 |
+| `wrongCount` | Integer | 累计答错次数 |
+| `resetCount` | Integer | 重置次数（遗忘后重新开始） |
+| `history` | Array\<AnswerRecord\> | 答题历史记录 |
+
+**AnswerRecord 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sentenceId` | String | 句子 ID |
+| `selectedOption` | Integer | 选择的选项序号 |
+| `correct` | Boolean | 是否答对 |
+| `timestamp` | Long | 答题时间戳（ms） |
+
+**articleProgresses[articleId] 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `articleId` | String | 名篇 ID |
+| `readProgress` | Integer | 已点击阅读的句子数 |
+| `mastery` | String | 掌握程度：`none` / `read` / `understood` / `memorized` |
+| `lastReadDate` | String | 最后阅读日期 (Optional) |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "wordBookId": "wb_middle_001",
+        "wordsLearned": 8,
+        "wordsMastered": 3,
+        "checkinDates": ["2026-07-01", "2026-07-02", "2026-07-03"],
+        "currentStreak": 3,
+        "longestStreak": 5,
+        "totalXP": 320,
+        "wordProgresses": {
+            "wb_mid_001_01": {
+                "wordId": "wb_mid_001_01",
+                "stage": 4,
+                "nextReviewDate": "2026-07-10",
+                "correctCount": 4,
+                "wrongCount": 1,
+                "resetCount": 0,
+                "history": [
+                    {
+                        "sentenceId": "s_001_01_1",
+                        "selectedOption": 1,
+                        "correct": true,
+                        "timestamp": 1720000000000
+                    }
+                ]
+            }
+        },
+        "articleProgresses": {
+            "art_001": {
+                "articleId": "art_001",
+                "readProgress": 3,
+                "mastery": "read",
+                "lastReadDate": "2026-07-02"
+            }
+        }
+    }
+}
+```
+
+---
+
+## 生词本
+
+### 获取生词本
+
+返回用户在指定词书中的字词掌握情况列表，支持按掌握程度筛选。
+
+**Endpoint:** `GET /api/vocabulary`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 词书 ID |
+| `tab` | String (Required) | 筛选标签：`all` / `difficult` / `unclear` / `familiar` / `mastered` |
+
+#### Response Fields
+
+分页结构，`data.list` 中各元素：
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordId` | String | 字词 ID |
+| `character` | String | 汉字 |
+| `pinyin` | String | 拼音 |
+| `masteryLevel` | String | 掌握程度：`new` / `difficult` / `unclear` / `familiar` / `mastered` |
+| `progress` | Integer | 学习进度百分比 (0–100) |
+| `stage` | Integer \| String | 复习阶段：0–6 或 `"done"` |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "list": [
+            {
+                "wordId": "wb_mid_001_01",
+                "character": "而",
+                "pinyin": "ér",
+                "masteryLevel": "familiar",
+                "progress": 67,
+                "stage": 4
+            },
+            {
+                "wordId": "wb_mid_001_03",
+                "character": "以",
+                "pinyin": "yǐ",
+                "masteryLevel": "difficult",
+                "progress": 17,
+                "stage": 1
+            }
+        ],
+        "total": 2,
+        "page": 1,
+        "pageSize": 20,
+        "hasMore": false
+    }
+}
+```
+
+---
+
+## 打卡
+
+### 获取打卡记录
+
+返回指定月份的打卡日期列表。
+
+**Endpoint:** `GET /api/checkin`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `year` | Integer (Required) | 年份，如 `2026` |
+| `month` | Integer (Required) | 月份，1–12 |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | Array\<String\> | 打卡日期列表，格式 `YYYY-MM-DD` |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": [
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-03"
+    ]
+}
+```
+
+---
+
+## 勋章
+
+### 获取勋章列表
+
+返回全部勋章定义及用户已获得的勋章。
+
+**Endpoint:** `GET /api/badges`
+
+#### Request Parameters
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.badges` | Array\<Badge\> | 全部勋章定义 |
+| `data.userBadges` | Array\<UserBadge\> | 用户已获得的勋章 |
+
+**UserBadge 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `badgeId` | String | 勋章 ID |
+| `earnedDate` | String | 获得日期，格式 `YYYY-MM-DD` |
+| `notified` | Boolean | 是否已通知用户 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "badges": [
+            {
+                "id": "badge_streak_3",
+                "name": "初识文言",
+                "description": "累计学习 3 天",
+                "icon": "🥉",
+                "category": "streak",
+                "condition": { "type": "streak", "value": 3 }
+            },
+            {
+                "id": "badge_streak_7",
+                "name": "日积月累",
+                "description": "累计学习 7 天",
+                "icon": "🥈",
+                "category": "streak",
+                "condition": { "type": "streak", "value": 7 }
+            }
+        ],
+        "userBadges": [
+            {
+                "badgeId": "badge_streak_3",
+                "earnedDate": "2026-07-03",
+                "notified": true
+            }
+        ]
+    }
+}
+```
+
+---
+
+## 用户
+
+### 获取用户等级信息
+
+返回用户的等级、称号、经验值和连续学习天数。
+
+**Endpoint:** `GET /api/user/profile`
+
+#### Request Parameters
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.level` | Integer | 当前等级 |
+| `data.title` | String | 等级称号，如"秀才"、"举人" |
+| `data.totalXP` | Integer | 累计经验值 |
+| `data.currentStreak` | Integer | 当前连续学习天数 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "level": 4,
+        "title": "举人",
+        "totalXP": 320,
+        "currentStreak": 3
+    }
+}
+```
+
+---
+
+### 获取个人信息
+
+返回用户的个人资料（头像、昵称、年级）。
+
+**Endpoint:** `GET /api/user/info`
+
+#### Request Parameters
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.avatarUrl` | String | 头像 URL |
+| `data.nickName` | String | 昵称 |
+| `data.grade` | String | 年级，如 `grade7a` 或空字符串 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "avatarUrl": "https://example.com/avatars/123.png",
+        "nickName": "小明",
+        "grade": "grade8a"
+    }
+}
+```
+
+---
+
+### 保存个人信息
+
+更新用户的个人资料。
+
+**Endpoint:** `PUT /api/user/info`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `avatarUrl` | String (Required) | 头像 URL |
+| `nickName` | String (Required) | 昵称 |
+| `grade` | String (Required) | 年级，如 `grade8a`，可为空字符串 |
+
+#### Response
+
+无 data 内容。
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": null
+}
+```
+
+---
+
+## 名篇
+
+### 获取名篇列表
+
+返回名篇列表，支持按分类和教材年级筛选。
+
+**Endpoint:** `GET /api/articles`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `category` | String | 分类筛选：`all` / `prose`(散文) / `argument`(论说) / `poem`(诗词) / `verse`(骈赋)。传入 `all` 或不传则不筛选 (Optional) |
+| `textbook` | String | 教材年级筛选：`all` / `grade7a`~`grade9b`。传入 `all` 或不传则不筛选 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].id` | String | 名篇 ID |
+| `data[].title` | String | 标题 |
+| `data[].author` | String | 作者 |
+| `data[].dynasty` | String | 朝代 |
+| `data[].category` | String | 文体分类 |
+| `data[].textbook` | String | 教材年级 (Optional) |
+| `data[].fullTextAudioUrl` | String | 全文音频 URL (Optional) |
+| `data[].sentences` | Array\<ArticleSentence\> | 句子列表 |
+| `data[].relatedWordIds` | Array\<String\> | 关联的字词 ID |
+
+**ArticleSentence 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `text` | String | 句子原文 |
+| `translation` | String | 句子翻译 |
+| `keyWords` | Array\<KeyWord\> | 内联生词列表 |
+| `audioUrl` | String | 句子音频 URL (Optional) |
+| `charAnnotations` | Array\<CharAnnotation\> | 逐字标注数据 (Optional) |
+
+**KeyWord 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `word` | String | 生词文本 |
+| `definition` | String | 释义 |
+| `wordBookId` | String | 所属词书 ID (Optional) |
+| `masteryLevel` | String | 用户对该词的掌握程度 (Optional) |
+
+**CharAnnotation 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `char` | String | 单个汉字或标点 |
+| `role` | String | 角色：`content`(实词) / `function`(虚词) / `punct`(标点) |
+| `definition` | String | 释义，实词必填，虚词可选，标点无 (Optional) |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": [
+        {
+            "id": "art_001",
+            "title": "岳阳楼记",
+            "author": "范仲淹",
+            "dynasty": "北宋",
+            "category": "prose",
+            "textbook": "grade9a",
+            "sentences": [
+                {
+                    "text": "庆历四年春，滕子京谪守巴陵郡。",
+                    "translation": "庆历四年的春天，滕子京被贬官到巴陵郡做太守。",
+                    "keyWords": [
+                        { "word": "谪", "definition": "贬官降职", "wordBookId": "wb_mid_001_01" }
+                    ],
+                    "charAnnotations": [
+                        { "char": "庆", "role": "content", "definition": "宋仁宗年号" },
+                        { "char": "历", "role": "content" },
+                        { "char": "谪", "role": "content", "definition": "贬官降职" },
+                        { "char": "守", "role": "content", "definition": "做郡守" }
+                    ]
+                }
+            ],
+            "relatedWordIds": ["wb_mid_001_01", "wb_mid_001_03"]
+        }
+    ]
+}
+```
+
+---
+
+### 获取名篇详情
+
+返回指定名篇的完整内容。
+
+**Endpoint:** `GET /api/articles/:id`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String (Required) | 名篇 ID，如 `art_001` |
+
+#### Response Fields
+
+与名篇列表中单个元素一致（`IArticle` 结构），含全部句子。
+
+#### Example: Error
+
+```json
+HTTP/1.1 404 Not Found
+{
+    "code": 10003,
+    "message": "名篇不存在",
+    "data": null
+}
+```
+
+---
+
+## 内容
+
+### 获取字词详情
+
+根据字词 ID 返回完整的字词信息（含释义、例句、形近字等）。
+
+**Endpoint:** `GET /api/words/:id`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String (Required) | 字词 ID，如 `wb_mid_001_01` |
+
+#### Response Fields
+
+返回 `Word` 对象（结构与词书详情中的 words 元素一致），`null` 表示未找到。
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "id": "wb_mid_001_01",
+        "character": "而",
+        "pinyin": "ér",
+        "characterType": "象形字",
+        "explanation": "甲骨文像面颊胡须之形，本义为胡须。后假借为连词。",
+        "examFrequency": "5年4考",
+        "meanings": [
+            {
+                "definition": "表示并列关系，可译为\"和\"\"又\"\"并且\"",
+                "example": "敏而好学，不耻下问。",
+                "source": "《论语·公冶长》"
+            }
+        ],
+        "sentences": [],
+        "similarHomophones": ["尔", "耳", "儿"],
+        "similarShapes": ["面", "耐", "耍"],
+        "mnemonic": "而字本义是胡须，后借用为连词。"
+    }
+}
+```
+
+---
+
+### 获取全文
+
+根据句子 ID 查找其所在篇目的完整全文内容。
+
+**Endpoint:** `GET /api/full-text/:sentenceId`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sentenceId` | String (Required) | 句子 ID，如 `s_001_01_1` |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.title` | String | 文章标题 |
+| `data.author` | String | 作者 |
+| `data.content` | String | 全文内容 |
+
+`null` 表示未找到关联全文。
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "title": "《论语·为政》",
+        "author": "",
+        "content": "子曰：\"学而不思则罔，思而不学则殆。\""
+    }
+}
+```
+
+---
+
+## 反馈
+
+### 提交错误反馈
+
+用户在学习或阅读过程中提交内容错误反馈。
+
+**Endpoint:** `POST /api/feedback`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `category` | String (Required) | 错误类别：`sentence_text` / `translation` / `definition` / `source` / `annotation` / `article_info` / `other` |
+| `source` | String (Required) | 反馈来源：`learning`(学习答题) / `word_summary`(字总结) / `article_reader`(名篇阅读) |
+| `description` | String (Required) | 用户补充描述 |
+| `context.sentenceId` | String | 关联的句子 ID (Optional) |
+| `context.wordId` | String | 关联的字词 ID (Optional) |
+| `context.articleId` | String | 关联的名篇 ID (Optional) |
+| `context.readingMode` | String | 名篇阅读模式 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.id` | String | 反馈 ID |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "id": "fb_1720000000001"
+    }
+}
+```
+
+---
+
+## 附录
+
+### 枚举值速查
+
+#### WordBookCategory — 词书分类
+
+| 值 | 含义 |
+|----|------|
+| `middle_school` | 初中实词 |
+| `high_school` | 高中实词 |
+| `function` | 虚词 |
+| `tongjia` | 通假字 |
+| `ancient_modern` | 古今异义 |
+
+#### SentenceDifficulty — 句子难度
+
+| 值 | 含义 |
+|----|------|
+| `basic` | 基础 |
+| `medium` | 中等 |
+| `hard` | 困难 |
+
+#### ArticleCategory — 名篇分类
+
+| 值 | 含义 |
+|----|------|
+| `prose` | 散文 |
+| `argument` | 论说 |
+| `poem` | 诗词 |
+| `verse` | 骈赋 |
+
+#### TextbookGrade — 教材年级
+
+| 值 | 含义 |
+|----|------|
+| `grade7a` | 七年级上 |
+| `grade7b` | 七年级下 |
+| `grade8a` | 八年级上 |
+| `grade8b` | 八年级下 |
+| `grade9a` | 九年级上 |
+| `grade9b` | 九年级下 |
+
+#### MasteryLevel — 掌握程度
+
+| 值 | 含义 |
+|----|------|
+| `new` | 未学 |
+| `difficult` | 困难 |
+| `unclear` | 模糊 |
+| `familiar` | 熟悉 |
+| `mastered` | 已掌握 |
+
+#### ReviewStage — 艾宾浩斯复习阶段
+
+| 值 | 含义 |
+|----|------|
+| `0` | 新学，当天复习 |
+| `1` | 1 天后 |
+| `2` | 2 天后 |
+| `3` | 4 天后 |
+| `4` | 7 天后 |
+| `5` | 15 天后 |
+| `6` | 30 天后 |
+| `"done"` | 已完成全部复习 |
+
+#### FeedbackCategory — 反馈类别
+
+| 值 | 含义 |
+|----|------|
+| `sentence_text` | 原文有误 |
+| `translation` | 译文有误 |
+| `definition` | 释义有误 |
+| `source` | 出处有误 |
+| `annotation` | 逐字标注有误 |
+| `article_info` | 文章信息有误 |
+| `other` | 其他 |
+
+#### FeedbackSource — 反馈来源
+
+| 值 | 含义 |
+|----|------|
+| `learning` | 学习答题 |
+| `word_summary` | 字总结 |
+| `article_reader` | 名篇阅读 |

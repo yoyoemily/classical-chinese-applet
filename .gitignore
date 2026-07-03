@@ -5,3 +5,6 @@ dist/
 *.log
 project.private.config.json
 .claude/
+
+temp/
+data/
