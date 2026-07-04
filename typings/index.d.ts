@@ -55,6 +55,10 @@ export interface IWordBook {
   studyMode?: 'standard' | 'identify_first'
   /** 前置步骤提示文案（仅 identify_first 模式有效，兜底按 category 自动生成） */
   identifyPrompt?: string
+  /** 考试级别：zhongkao / gaokao */
+  examLevel?: 'zhongkao' | 'gaokao'
+  /** 词书是否已完成初始化（含真实数据），未初始化的不可选择 */
+  initialized?: boolean
 }
 
 export interface IMeaning {

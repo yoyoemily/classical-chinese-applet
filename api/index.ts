@@ -21,7 +21,7 @@ const USE_MOCK = false;
 // ============================================
 // 词书
 // ============================================
-export async function fetchWordBooks(): Promise<{ id: string; name: string; description: string; category: string; coverColor: string; totalWords: number }[]> {
+export async function fetchWordBooks(): Promise<{ id: string; name: string; description: string; category: string; coverColor: string; totalWords: number; studyMode?: string; identifyPrompt?: string; examLevel?: string; initialized?: boolean }[]> {
   if (USE_MOCK) {
     return loadWordBooks();
   }

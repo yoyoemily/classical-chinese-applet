@@ -1,15 +1,36 @@
 <view class="page-book-select">
-  <view class="page-book-select__list">
-    <view wx:for="{{books}}" wx:key="id" class="page-book-select__card {{currentBookId === item.id ? 'page-book-select__card--active' : ''}}" data-book-id="{{item.id}}" bindtap="onTapBook" hover-class="page-book-select__card--hover">
-      <view class="page-book-select__cover" style="background-color: {{item.coverColor}}"><text>{{item.category === 'middle_school' ? '📗' : item.category === 'high_school' ? '📕' : item.category === 'tongjia' ? '📙' : item.category === 'ancient_modern' ? '📓' : item.category === 'flexible_usage' ? '📒' : '📘'}}</text></view>
-      <view class="page-book-select__info">
-        <view class="page-book-select__title-row">
-          <text class="page-book-select__name">{{item.name}}</text>
-          <text wx:if="{{currentBookId === item.id}}" class="page-book-select__badge">当前</text>
-        </view>
-        <text class="page-book-select__desc">{{item.description}} · {{item.totalWords}}词</text>
-      </view>
-      <text class="page-book-select__arrow">›</text>
+  <view class="page-book-select__tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="page-book-select__tab {{activeTab === item.key ? 'page-book-select__tab--active' : ''}}"
+      data-tab="{{item.key}}"
+      bindtap="onTapTab"
+    >
+      <text>{{item.label}}</text>
     </view>
+  </view>
+  <view class="page-book-select__list">
+    <block wx:for="{{filteredBooks}}" wx:key="id">
+      <view
+        class="page-book-select__card {{!item.initialized ? 'page-book-select__card--disabled' : ''}} {{currentBookId === item.id ? 'page-book-select__card--active' : ''}}"
+        data-book-id="{{item.id}}"
+        bindtap="onTapBook"
+        hover-class="{{item.initialized ? 'page-book-select__card--hover' : ''}}"
+      >
+        <view class="page-book-select__cover" style="background-color: {{item.coverColor}}">
+          <text>{{item.category === 'middle_school' ? '📗' : item.category === 'high_school' ? '📕' : item.category === 'tongjia' ? '📙' : item.category === 'ancient_modern' ? '📓' : item.category === 'flexible_usage' ? '📒' : '📘'}}</text>
+        </view>
+        <view class="page-book-select__info">
+          <view class="page-book-select__title-row">
+            <text class="page-book-select__name">{{item.name}}</text>
+            <text wx:if="{{currentBookId === item.id}}" class="page-book-select__badge">当前</text>
+            <text wx:if="{{!item.initialized}}" class="page-book-select__badge-coming">待开放</text>
+          </view>
+          <text class="page-book-select__desc">{{item.description}} · {{item.totalWords}}词</text>
+        </view>
+        <text class="page-book-select__arrow">›</text>
+      </view>
+    </block>
   </view>
 </view>

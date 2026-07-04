@@ -1,11 +1,24 @@
 @import '../../styles/variables.scss'; @import '../../styles/mixins.scss';
-.page-book-select { min-height: 100vh; background: var(--color-bg-page); padding: $spacing-md $spacing-base; padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); }
-.page-book-select__list { @include flex-column; gap: $spacing-base; }
-.page-book-select__card { @include card; @include flex-between; padding: $spacing-lg $spacing-md; &--active { border: 2rpx solid var(--color-primary); } &--hover { background: var(--color-bg-card); } }
+.page-book-select { min-height: 100vh; background: var(--color-bg-page); padding: 0 $spacing-base; padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom)); }
+
+// Tab 栏
+.page-book-select__tabs { @include flex-center; gap: 0; padding: $spacing-md 0; position: sticky; top: 0; z-index: 10; background: var(--color-bg-page); }
+.page-book-select__tab { flex: 1; text-align: center; padding: $spacing-sm 0; font-size: $font-size-md; color: var(--color-text-secondary); border-bottom: 4rpx solid transparent; transition: color .2s, border-color .2s;
+  &--active { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: 600; }
+}
+
+// 列表
+.page-book-select__list { @include flex-column; gap: $spacing-base; padding-top: $spacing-sm; }
+.page-book-select__card { @include card; @include flex-between; padding: $spacing-lg $spacing-md; transition: opacity .2s;
+  &--active { border: 2rpx solid var(--color-primary); }
+  &--hover { background: var(--color-bg-card); }
+  &--disabled { opacity: .45; background: #e8e8e8; }
+}
 .page-book-select__cover { width: 80rpx; height: 80rpx; border-radius: $radius-base; @include flex-center; flex-shrink: 0; font-size: 40rpx; margin-right: $spacing-md; }
 .page-book-select__info { flex: 1; @include flex-column; gap: $spacing-xs; }
 .page-book-select__title-row { display: flex; align-items: center; gap: $spacing-sm; }
 .page-book-select__name { font-size: $font-size-md; font-weight: 600; color: var(--color-text-primary); }
 .page-book-select__badge { font-size: $font-size-xs; color: var(--color-primary); background: var(--color-primary-light); padding: 2rpx 12rpx; border-radius: 16rpx; }
+.page-book-select__badge-coming { font-size: $font-size-xs; color: var(--color-text-hint); background: #d0d0d0; padding: 2rpx 12rpx; border-radius: 16rpx; }
 .page-book-select__desc { font-size: $font-size-sm; color: var(--color-text-secondary); }
 .page-book-select__arrow { font-size: 48rpx; color: var(--color-text-hint); flex-shrink: 0; }

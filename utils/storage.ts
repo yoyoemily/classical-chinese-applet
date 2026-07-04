@@ -183,6 +183,10 @@ export function loadWordBooks() {
     category: wb.category,
     coverColor: wb.coverColor,
     totalWords: wb.words.length,
+    studyMode: wb.studyMode,
+    identifyPrompt: wb.identifyPrompt,
+    examLevel: wb.examLevel,
+    initialized: wb.initialized,
   }));
 }
 
@@ -200,9 +204,13 @@ export function getWordById(bookId: string, wordId: string) {
 // 当前词书管理
 // ============================================
 
-/** 旧版合辑词书 ID → 新版实词虚词分册 ID 迁移 */
+/** 旧版合辑/旧 Mock 词书 ID → 新版分册 ID 迁移 */
 const BOOK_ID_MIGRATION: Record<string, string> = {
   'wb_zhongkao_001': 'wb_zhongkao_shixu',
+  'wb_middle_001': 'wb_zhongkao_shixu',
+  'wb_tongjia_002': 'wb_zhongkao_tongjia',
+  'wb_ancient_001': 'wb_zhongkao_gujinyi',
+  'wb_flexible_001': 'wb_zhongkao_cileihuoyong',
 };
 
 export function getCurrentBookId(): string {

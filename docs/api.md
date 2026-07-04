@@ -156,6 +156,8 @@ Authorization: Bearer <token>
 | `data[].coverColor` | String | 封面主题色，如 `#4a6a5e` |
 | `data[].studyMode` | String | 学习模式：`standard`（直接选题）或 `identify_first`（先识别目标字再选题） |
 | `data[].identifyPrompt` | String? | 前置步骤提示文案，仅 `identify_first` 模式有效 |
+| `data[].examLevel` | String | 考试级别：`zhongkao`（中考）或 `gaokao`（高考） |
+| `data[].initialized` | Boolean | 词书是否已完成数据初始化，`false` 时不可选择 |
 | `data[].totalWords` | Integer | 收录字词总数 |
 
 #### Example: Success
@@ -173,6 +175,8 @@ HTTP/1.1 200 OK
             "category": "middle_school",
             "studyMode": "standard",
             "coverColor": "#4a6a5e",
+            "examLevel": "zhongkao",
+            "initialized": true,
             "totalWords": 168
         }
     ]
@@ -204,6 +208,8 @@ HTTP/1.1 200 OK
 | `data.coverColor` | String | 封面主题色 |
 | `data.studyMode` | String | 学习模式：`standard` 或 `identify_first` |
 | `data.identifyPrompt` | String? | 前置步骤提示文案 |
+| `data.examLevel` | String | 考试级别：`zhongkao` 或 `gaokao` |
+| `data.initialized` | Boolean | 词书是否已完成数据初始化 |
 | `data.totalWords` | Integer | 字词总数 |
 | `data.words` | Array\<Word\> | 字词列表 |
 
@@ -1166,6 +1172,14 @@ HTTP/1.1 200 OK
 | `function` | 虚词（当前合并到初中词书） |
 | `tongjia` | 通假字（当前合并到初中词书） |
 | `ancient_modern` | 古今异义 |
+| `flexible_usage` | 词类活用 |
+
+#### ExamLevel — 考试级别
+
+| 值 | 含义 |
+|----|------|
+| `zhongkao` | 中考 |
+| `gaokao` | 高考 |
 
 #### WordType — 字词类型
 
