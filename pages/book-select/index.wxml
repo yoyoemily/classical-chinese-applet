@@ -1,7 +1,7 @@
 <view class="page-book-select">
   <view class="page-book-select__list">
     <view wx:for="{{books}}" wx:key="id" class="page-book-select__card {{currentBookId === item.id ? 'page-book-select__card--active' : ''}}" data-book-id="{{item.id}}" bindtap="onTapBook" hover-class="page-book-select__card--hover">
-      <view class="page-book-select__cover" style="background-color: {{item.coverColor}}"><text>{{item.category === 'middle_school' ? '📗' : item.category === 'high_school' ? '📕' : item.category === 'tongjia' ? '📙' : '📘'}}</text></view>
+      <view class="page-book-select__cover" style="background-color: {{item.coverColor}}"><text>{{item.category === 'middle_school' ? '📗' : item.category === 'high_school' ? '📕' : item.category === 'tongjia' ? '📙' : item.category === 'ancient_modern' ? '📓' : item.category === 'flexible_usage' ? '📒' : '📘'}}</text></view>
       <view class="page-book-select__info">
         <view class="page-book-select__title-row">
           <text class="page-book-select__name">{{item.name}}</text>

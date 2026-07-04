@@ -152,8 +152,10 @@ Authorization: Bearer <token>
 | `data[].id` | String | 词书唯一标识，如 `wb_zhongkao_001` |
 | `data[].name` | String | 词书名称，如"字海拾贝·中考篇" |
 | `data[].description` | String | 词书简介 |
-| `data[].category` | String | 分类：`middle_school` / `high_school` / `function` / `tongjia` / `ancient_modern` |
+| `data[].category` | String | 分类：`middle_school` / `high_school` / `function` / `tongjia` / `ancient_modern` / `flexible_usage` |
 | `data[].coverColor` | String | 封面主题色，如 `#4a6a5e` |
+| `data[].studyMode` | String | 学习模式：`standard`（直接选题）或 `identify_first`（先识别目标字再选题） |
+| `data[].identifyPrompt` | String? | 前置步骤提示文案，仅 `identify_first` 模式有效 |
 | `data[].totalWords` | Integer | 收录字词总数 |
 
 #### Example: Success
@@ -169,8 +171,9 @@ HTTP/1.1 200 OK
             "name": "字海拾贝·中考篇",
             "description": "涵盖中考大纲全部核心文言字词，包含实词、虚词、通假字三大类，覆盖七至九年级统编版教材全部重点字词。",
             "category": "middle_school",
+            "studyMode": "standard",
             "coverColor": "#4a6a5e",
-            "totalWords": 75
+            "totalWords": 168
         }
     ]
 }
@@ -199,6 +202,8 @@ HTTP/1.1 200 OK
 | `data.description` | String | 词书简介 |
 | `data.category` | String | 词书分类 |
 | `data.coverColor` | String | 封面主题色 |
+| `data.studyMode` | String | 学习模式：`standard` 或 `identify_first` |
+| `data.identifyPrompt` | String? | 前置步骤提示文案 |
 | `data.totalWords` | Integer | 字词总数 |
 | `data.words` | Array\<Word\> | 字词列表 |
 

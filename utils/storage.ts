@@ -199,9 +199,23 @@ export function getWordById(bookId: string, wordId: string) {
 // ============================================
 // 当前词书管理
 // ============================================
+
+/** 旧版合辑词书 ID → 新版实词虚词分册 ID 迁移 */
+const BOOK_ID_MIGRATION: Record<string, string> = {
+  'wb_zhongkao_001': 'wb_zhongkao_shixu',
+};
+
 export function getCurrentBookId(): string {
   const saved = wx.getStorageSync(STORAGE_KEYS.CURRENT_BOOK);
-  if (saved) return saved;
+  // 迁移旧 ID
+  const migrated = saved && BOOK_ID_MIGRATION[saved] ? BOOK_ID_MIGRATION[saved] : saved;
+  if (migrated) {
+    // 写回迁移后的 ID
+    if (migrated !== saved) {
+      wx.setStorageSync(STORAGE_KEYS.CURRENT_BOOK, migrated);
+    }
+    return migrated;
+  }
   const books = loadWordBooks();
   const first = books[0]?.id ?? '';
   if (first) wx.setStorageSync(STORAGE_KEYS.CURRENT_BOOK, first);

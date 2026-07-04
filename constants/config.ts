@@ -111,3 +111,12 @@ export const ENCOURAGEMENT_POEMS: string[] = [
   '业精于勤，荒于嬉。——韩愈',
   '读书破万卷，下笔如有神。——杜甫',
 ];
+
+// ============================================
+// 前置步骤提示文案（按词书 category 兜底）
+// ============================================
+export const PRESTEP_PROMPTS: Record<string, string> = {
+  tongjia: '请从句子中找出通假字',
+  ancient_modern: '请从句子中找出古今异义词',
+  flexible_usage: '请从句子中找出词类活用字',
+};

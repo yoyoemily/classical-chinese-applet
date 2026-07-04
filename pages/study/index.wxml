@@ -1,6 +1,58 @@
 <!-- 学习核心页面 -->
 <view class="page-study">
 
+  <!-- ==================== 前置步骤：从句子中识别目标字 ==================== -->
+  <block wx:if="{{screen === 'preStep'}}">
+    <view class="page-study__header">
+      <view class="page-study__dots">
+        <view wx:for="{{dotsArray}}" wx:key="*this" class="page-study__dot {{index < completedWords ? 'page-study__dot--filled' : ''}}"></view>
+        <text wx:if="{{totalWords > 10}}" class="page-study__dots-extra">+{{totalWords - 10}}</text>
+      </view>
+      <view class="page-study__meta">
+        <text class="page-study__mode">{{modeLabel}}</text>
+        <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
+      </view>
+    </view>
+
+    <view class="page-study__body">
+      <!-- 句子展示 -->
+      <view class="page-study__sentence-area">
+        <text class="page-study__sentence-text">{{currentSentence.text}}</text>
+        <view class="page-study__sentence-source {{currentSentence.articleId ? 'page-study__sentence-source--link' : ''}}" wx:if="{{currentSentence.source}}" bindtap="onTapFullText">
+          <text>—— {{currentSentence.source}} <text wx:if="{{currentSentence.articleId}}" class="page-study__sentence-source-arrow">→</text></text>
+        </view>
+      </view>
+
+      <!-- 题干提示 -->
+      <view class="page-study__prestep-prompt">
+        <text>{{preStepPrompt}}</text>
+      </view>
+
+      <!-- 字符选择网格 -->
+      <view class="page-study__char-grid">
+        <view wx:for="{{charOptions}}" wx:key="*this"
+          class="page-study__char-cell
+            {{showPreStepCorrect && item === preStepCorrectChar ? 'page-study__char-cell--correct' : ''}}
+            {{showPreStepWrong && item === preStepSelectedChar ? 'page-study__char-cell--wrong' : ''}}"
+          data-char="{{item}}" bindtap="onSelectPreChar"
+          hover-class="page-study__char-cell--hover">
+          <text>{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 错误提示 -->
+      <view class="page-study__prestep-hint" wx:if="{{showPreStepWrong}}">
+        <text>不对，再试一次</text>
+      </view>
+
+      <!-- 正确提示 -->
+      <view class="page-study__prestep-success" wx:if="{{showPreStepCorrect}}">
+        <text class="page-study__prestep-success-icon">✓</text>
+        <text>正确！</text>
+      </view>
+    </view>
+  </block>
+
   <!-- 问答视图 -->
   <block wx:if="{{screen === 'question'}}">
     <!-- 顶部进度 -->

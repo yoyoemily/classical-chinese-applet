@@ -19,6 +19,22 @@
 	    &--hover { background: var(--color-bg-hover); }
 	  }
 
+	// ---- 前置步骤：字符选择网格 ----
+  &__prestep-prompt { @include flex-center; padding: $spacing-md 0; margin-bottom: $spacing-lg;
+    & text { font-size: 32rpx; color: var(--color-accent); font-weight: 600; }
+  }
+  &__char-grid { display: flex; flex-wrap: wrap; gap: 16rpx; justify-content: center; padding: $spacing-md 0; }
+  &__char-cell { @include flex-center; width: 72rpx; height: 72rpx; border-radius: 14rpx; border: 2rpx solid var(--color-border); background: var(--color-bg-white); font-size: 36rpx; font-weight: 600; color: var(--color-text-primary); font-family: 'STKaiti','KaiTi','楷体',serif; transition: all 0.15s ease;
+    &--correct { background: rgba(82,196,26,0.12); border-color: var(--color-success); color: var(--color-success); transform: scale(1.08); }
+    &--wrong { background: rgba(255,77,79,0.12); border-color: var(--color-error); color: var(--color-error); animation: cellShake 0.3s ease; }
+    &--hover { background: var(--color-bg-card); border-color: var(--color-primary-light); }
+  }
+  &__prestep-hint { @include flex-center; margin-top: $spacing-lg;
+    & text { font-size: 28rpx; color: #d48806; }
+  }
+  &__prestep-success { @include flex-column; align-items: center; gap: $spacing-sm; margin-top: $spacing-lg; }
+  &__prestep-success-icon { @include flex-center; width: 64rpx; height: 64rpx; border-radius: 50%; background: var(--color-success); color: #fff; font-size: 36rpx; font-weight: 700; }
+
   &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-xl; }
   &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-lg; }
   &__sentence-target { color: var(--color-accent); border-bottom: 6rpx solid var(--color-accent); padding-bottom: 4rpx; }
@@ -231,3 +247,4 @@
 @keyframes flashPulse { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes audioPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cellShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8rpx); } 75% { transform: translateX(8rpx); } }

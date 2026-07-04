@@ -41,7 +41,7 @@ export interface IPaginationResult<T> {
 // ============================================
 // 词书 & 字词
 // ============================================
-export type WordBookCategory = 'middle_school' | 'high_school' | 'function' | 'tongjia' | 'ancient_modern'
+export type WordBookCategory = 'middle_school' | 'high_school' | 'function' | 'tongjia' | 'ancient_modern' | 'flexible_usage'
 
 export interface IWordBook {
   id: string
@@ -51,6 +51,10 @@ export interface IWordBook {
   coverColor: string
   totalWords: number
   words: IWord[]
+  /** 学习模式：standard = 直接选题，identify_first = 先识别目标字再选题 */
+  studyMode?: 'standard' | 'identify_first'
+  /** 前置步骤提示文案（仅 identify_first 模式有效，兜底按 category 自动生成） */
+  identifyPrompt?: string
 }
 
 export interface IMeaning {
@@ -104,8 +108,8 @@ export interface IWord {
 
   /** 记忆口诀 */
   mnemonic?: string
-  /** 字词类型：实词 / 虚词 / 通假字 */
-  wordType?: '实词' | '虚词' | '通假字'
+  /** 字词类型：实词 / 虚词 / 通假字 / 古今异义 / 词类活用 */
+  wordType?: '实词' | '虚词' | '通假字' | '古今异义' | '词类活用'
 }
 
 // ============================================

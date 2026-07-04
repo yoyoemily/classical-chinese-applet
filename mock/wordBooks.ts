@@ -6,9 +6,10 @@ import type { IWordBook } from '../typings/index.d';
 export const mockWordBooks: IWordBook[] = [
   {
     id: 'wb_middle_001',
-    name: '中考实词精选',
-    description: '收录中考必考高频文言实词，涵盖一词多义核心考点，每个词配有真实典籍例句与实战题目。',
+    name: '中考实词虚词一本通',
+    description: '收录中考必考高频文言实词与虚词，涵盖一词多义核心考点，每个词配有真实典籍例句与实战题目。',
     category: 'middle_school',
+    studyMode: 'standard',
     coverColor: '#4a6a5e',
     totalWords: 10,
     words: [
@@ -205,9 +206,11 @@ export const mockWordBooks: IWordBook[] = [
   },
   {
     id: 'wb_tongjia_002',
-    name: '通假字集训',
+    name: '中考通假字一本通',
     description: '收录中高考必考的高频通假字，每个字包含本义与通假义，配备真实古籍例句，助你一举攻克通假字难题。',
     category: 'tongjia',
+    studyMode: 'identify_first',
+    identifyPrompt: '请从句子中找出通假字',
     coverColor: '#c9a96e',
     totalWords: 6,
     words: [
@@ -310,5 +313,27 @@ export const mockWordBooks: IWordBook[] = [
         similarHomophones: ['层'], similarShapes: ['增', '憎', '赠'],
       },
     ],
+  },
+  {
+    id: 'wb_ancient_001',
+    name: '中考古今异义一本通',
+    description: '收录部编版初中教材高频古今异义词，对比古今词义差异，帮助掌握文言文阅读中的词义辨析。',
+    category: 'ancient_modern',
+    studyMode: 'identify_first',
+    identifyPrompt: '请从句子中找出古今异义词',
+    coverColor: '#6B8E7B',
+    totalWords: 0,
+    words: [],
+  },
+  {
+    id: 'wb_flexible_001',
+    name: '中考词类活用一本通',
+    description: '收录中考常考的词类活用现象，涵盖名词作动词、使动用法、意动用法等六大类型。',
+    category: 'flexible_usage',
+    studyMode: 'identify_first',
+    identifyPrompt: '请从句子中找出词类活用字',
+    coverColor: '#8B7D6B',
+    totalWords: 0,
+    words: [],
   },
 ];

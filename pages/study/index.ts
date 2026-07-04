@@ -1,12 +1,12 @@
 import { getCurrentBookId, saveSession } from '../../utils/storage';
 import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback } from '../../api/index';
-import { shuffle, formatDate, safeJSONParse } from '../../utils/util';
+import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
-import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS } from '../../constants/config';
+import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRESTEP_PROMPTS } from '../../constants/config';
 import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index.d';
 
 interface IStudyData {
-  screen: 'question' | 'correction';
+  screen: 'preStep' | 'question' | 'correction';
   currentWord: string;
   currentWordType: string;
   currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string; articleId?: string; audioUrl?: string } | null;
@@ -16,6 +16,10 @@ interface IStudyData {
   sentencePrefix: string;
   sentenceTarget: string;
   sentenceSuffix: string;
+  // 纠错页也用到的字段
+  sentenceText: string;
+  sentenceSource: string;
+  sentenceTranslation: string;
   userAnswer: string;
   correctAnswer: string;
   mnemonic: string;
@@ -36,6 +40,14 @@ interface IStudyData {
   feedbackCategory: string;
   feedbackDescription: string;
   feedbackSubmitting: boolean;
+
+  // 前置步骤
+  preStepPrompt: string;
+  charOptions: string[];
+  preStepCorrectChar: string;
+  preStepSelectedChar: string;
+  showPreStepCorrect: boolean;
+  showPreStepWrong: boolean;
 }
 
 const FEEDBACK_CATEGORIES: { key: FeedbackCategory; label: string }[] = [
@@ -51,12 +63,15 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     screen: 'question', currentWord: '', currentWordType: '', currentSentence: null,
     options: [], selectedIndex: -1, correctIndex: -1,
     sentencePrefix: '', sentenceTarget: '', sentenceSuffix: '',
+    sentenceText: '', sentenceSource: '', sentenceTranslation: '',
     userAnswer: '', correctAnswer: '', mnemonic: '',
     totalWords: 0, completedWords: 0, modeLabel: '复习',
     correctCount: 0, wrongCount: 0, showCorrect: false, showWrong: false,
     loading: true, dotsArray: [],
     audioPlaying: false, audioLoading: false,
     showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
+    preStepPrompt: '', charOptions: [], preStepCorrectChar: '',
+    preStepSelectedChar: '', showPreStepCorrect: false, showPreStepWrong: false,
   },
 
   _session: null as IStudySession | null,
@@ -67,12 +82,15 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   _tts: null as ReturnType<typeof getTTSPlayer> | null,
   _autoPlayAudio: true,
 
+  // 前置步骤相关
+  _hasPreStep: false,
+  _preStepDoneForCurrentWord: false,
+
   onLoad(): void {
     this.init();
   },
 
   onShow(): void {
-    // 从字总结页返回后，继续展示下一个词
     if (this._needResume) {
       this._needResume = false;
       const s = this._session;
@@ -87,21 +105,18 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
   async init(): Promise<void> {
     try {
-      // 加载设置
       const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
-      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean; dailyNewWords?: number; dailyReviewWords?: number }>(raw, {}) : {};
+      const settings = raw ? JSON.parse(raw) as { autoPlayAudio?: boolean; dailyNewWords?: number; dailyReviewWords?: number } : {};
       this._autoPlayAudio = settings.autoPlayAudio ?? true;
       const dailyNew = settings.dailyNewWords ?? DEFAULT_DAILY_NEW_WORDS;
       const dailyReview = settings.dailyReviewWords ?? DEFAULT_DAILY_REVIEW_WORDS;
 
-      // 初始化 TTS 播放器
       this._tts = getTTSPlayer();
       this._tts.stop();
 
       const bookId = getCurrentBookId();
       this._bookId = bookId;
 
-      // 并行获取今日任务和词书详情
       const [task, book] = await Promise.all([
         fetchTodayTask(bookId, dailyNew, dailyReview),
         fetchWordBookDetail(bookId),
@@ -114,6 +129,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       }
       if (book) {
         wx.setNavigationBarTitle({ title: book.name });
+        // 缓存词书的学习模式
+        this._hasPreStep = book.studyMode === 'identify_first';
         for (const w of book.words) {
           this._wordsMap[w.id] = w;
         }
@@ -138,7 +155,108 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     }
   },
 
+  // ==========================================
+  // 路由：根据词书学习模式决定是否先走前置步骤
+  // ==========================================
+
   showNextQuestion(): void {
+    const s = this._session;
+    if (!s) return;
+    if (s.currentWordIndex >= s.words.length) { this.finishStudy(); return; }
+
+    if (this._hasPreStep && !this._preStepDoneForCurrentWord) {
+      this.showPreStep();
+    } else {
+      this.showMeaningQuestion();
+    }
+  },
+
+  // ==========================================
+  // 前置步骤：从句子中识别目标字
+  // ==========================================
+
+  showPreStep(): void {
+    const s = this._session;
+    if (!s) return;
+    const word = s.words[s.currentWordIndex];
+    const sent = word.sentences[s.currentSentenceIndex];
+    const book = this._wordsMap[word.wordId];
+    // 从词书中取 category，生成对应提示文案
+    // studyMode 是词书级别属性，但当前 _hasPreStep 已为 true
+    // identifyPrompt 优先，否则按 category 兜底
+
+    // 从句子中提取字符选项（去重、排除标点）
+    const punctuation = /[，。！？、；：""''《》（）\s，．？！：；…—　]/g;
+    const cleaned = sent.text.replace(punctuation, '');
+    const chars = [...new Set(cleaned.split(''))].filter(c => c.trim().length > 0);
+
+    // 确保 targetWord 在选项中（处理多字目标的情况）
+    const options = chars.slice(0, 12); // 最多 12 个选项
+
+    this.setData({
+      screen: 'preStep',
+      preStepPrompt: this._getPreStepPrompt(),
+      charOptions: options,
+      preStepCorrectChar: word.character,
+      preStepSelectedChar: '',
+      showPreStepCorrect: false,
+      showPreStepWrong: false,
+    });
+  },
+
+  _getPreStepPrompt(): string {
+    // 优先使用当前词书 entry 的 identifyPrompt
+    const s = this._session;
+    if (s) {
+      const word = s.words[s.currentWordIndex];
+      const book = this._wordsMap[word.wordId];
+      if (book && (book as unknown as Record<string, unknown>).identifyPrompt) {
+        return (book as unknown as Record<string, unknown>).identifyPrompt as string;
+      }
+    }
+    // 兜底：按当前词的 wordType 生成
+    const s2 = this._session;
+    if (s2) {
+      const word = s2.words[s2.currentWordIndex];
+      const book = this._wordsMap[word.wordId];
+      if (book) {
+        const cat = (book as unknown as Record<string, string>).category;
+        if (cat && PRESTEP_PROMPTS[cat]) return PRESTEP_PROMPTS[cat];
+      }
+    }
+    return '请从句子中找出目标字';
+  },
+
+  onSelectPreChar(e: WechatMiniprogram.BaseEvent): void {
+    if (this.data.showPreStepCorrect || this.data.showPreStepWrong) return;
+    const char = e.currentTarget.dataset.char as string;
+    const isCorrect = char === this.data.preStepCorrectChar;
+
+    if (isCorrect) {
+      this.setData({
+        preStepSelectedChar: char,
+        showPreStepCorrect: true,
+      });
+      setTimeout(() => {
+        this._preStepDoneForCurrentWord = true;
+        this.showMeaningQuestion();
+      }, 600);
+    } else {
+      this.setData({
+        preStepSelectedChar: char,
+        showPreStepWrong: true,
+      });
+      setTimeout(() => {
+        this.setData({ showPreStepWrong: false, preStepSelectedChar: '' });
+      }, 400);
+    }
+  },
+
+  // ==========================================
+  // 释义答题（现有流程）
+  // ==========================================
+
+  showMeaningQuestion(): void {
     const s = this._session;
     if (!s) return;
     if (s.currentWordIndex >= s.words.length) { this.finishStudy(); return; }
@@ -168,7 +286,6 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       showCorrect: false, showWrong: false,
     });
 
-    // 自动播放语音
     if (this._autoPlayAudio) {
       this._playSentenceAudio(sent.text, (sent as Record<string, unknown>).audioUrl as string | undefined);
     }
@@ -244,6 +361,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     s.completedCount = s.currentWordIndex;
     const remaining = s.words.slice(s.currentWordIndex);
     s.mode = remaining.length > 0 && remaining.every(w => !w.isReview) ? 'new' : s.mode;
+    // 重置前置步骤状态，下一词重新判断
+    this._preStepDoneForCurrentWord = false;
     saveSession(s);
     this.setData({
       completedWords: s.currentWordIndex,
@@ -290,7 +409,6 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const { currentSentence } = this.data;
     if (!currentSentence) return;
 
-    // 如果正在播放，点击停止；否则开始播放
     if (this._tts?.status === 'loading' || this._tts?.status === 'playing') {
       this._tts.stop();
       return;
