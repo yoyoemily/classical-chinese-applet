@@ -253,110 +253,59 @@
   }
 
   // ==========================================
-  // 模式四：AI注释
+  // 模式四：典故注释
   // ==========================================
 
-  // 图例
-  &__legend {
-    display: flex;
-    gap: $spacing-lg;
-    padding: $spacing-sm $spacing-base $spacing-md;
-    justify-content: center;
-  }
-  &__legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6rpx;
-    font-size: 24rpx;
-    color: var(--color-text-hint);
-  }
-  &__legend-dot {
-    width: 16rpx;
-    height: 16rpx;
-    border-radius: 4rpx;
-    &--content { background: #c0392b; }
-    &--function { background: #555; }
-    &--plain { background: #999; }
-  }
-
   // 每一句的容器
-  &__annot-block {
+  &__gloss-block {
     margin-bottom: $spacing-xl;
     position: relative;
   }
 
-  // 逐字行
-  &__annot-line {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rpx;
+  // 句内行
+  &__gloss-line {
     line-height: 2.4;
+    font-size: 38rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    letter-spacing: 2rpx;
   }
 
-  // 单个字符
-  &__annot-char {
-    font-size: 42rpx;
-    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-    transition: transform 0.15s ease;
-
-    // 实词 — 红色粗体
-    &--content {
-      color: #c0392b;
-      font-weight: 700;
-      position: relative;
-      // 底部小圆点暗示可点击
-      &::after {
-        content: '·';
-        position: absolute;
-        bottom: -4rpx;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 20rpx;
-        color: #c0392b;
-        opacity: 0.6;
-      }
-    }
-    &--content#{&}--hover {
-      transform: scale(1.15);
-      color: darken(#c0392b, 10%);
-    }
-
-    // 虚词 — 深灰
-    &--function {
-      color: #444;
-      font-weight: 400;
-    }
-
-    // 标点 — 浅灰
-    &--punct {
-      color: #999;
-      font-weight: 400;
-    }
-
-    // 回退纯文字 — 无标注数据时的中性展示
-    &--plain {
-      color: #333;
-      font-weight: 400;
+  // 典故词条高亮
+  &__gloss-word {
+    color: var(--color-primary, #4a6a5e);
+    border-bottom: 2rpx solid var(--color-accent, #c9a96e);
+    padding-bottom: 2rpx;
+    transition: background 0.15s ease;
+    &--hover {
+      background: rgba(201, 169, 110, 0.15);
     }
   }
 
   // 释义气泡
-  &__annot-bubble {
+  &__gloss-bubble {
     margin-top: $spacing-sm;
     padding: $spacing-sm $spacing-md;
-    background: #fef5f0;
-    border-left: 4rpx solid #c0392b;
+    background: #fef9f0;
+    border-left: 4rpx solid var(--color-accent, #c9a96e);
     border-radius: 0 $radius-sm $radius-sm 0;
     animation: fadeIn 0.2s ease;
   }
-  &__annot-bubble-text {
+  &__gloss-bubble-word {
+    display: block;
+    font-size: 36rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    font-weight: 700;
+    color: var(--color-primary, #4a6a5e);
+    margin-bottom: 4rpx;
+  }
+  &__gloss-bubble-def {
     font-size: $font-size-base;
     color: #5a2a1a;
     line-height: 1.8;
   }
 
   // 全句译文
-  &__annot-trans {
+  &__gloss-trans {
     margin-top: $spacing-sm;
     padding: $spacing-xs $spacing-sm;
     font-size: 24rpx;
@@ -366,7 +315,7 @@
   }
 
   // 关闭气泡的遮罩
-  &__annot-mask {
+  &__gloss-mask {
     position: fixed;
     top: 0;
     left: 0;

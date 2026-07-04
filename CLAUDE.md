@@ -164,7 +164,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 ### 已完成
 - **15 页面**全部搭建，含 4 TabBar（学习/名篇/生词本/我的）
 - **核心学习回路**：句子卡片答题 → 纠错页（正确/错误/不知道）→ 字总结 → 学习完成（含艾宾浩斯引擎 `utils/ebbinghaus.ts`）
-- **名篇阅读器**：通篇阅读 / 段落释义 / 逐句释义 / 逐字标注 四种模式，通篇模式内联生词高亮（keyWords 自动匹配下划线，点击弹出释义卡片）
+- **名篇阅读器**：通篇阅读 / 段落释义 / 逐句释义 / 典故注释 四种模式，通篇模式内联生词高亮（keyWords 自动匹配下划线，点击弹出释义卡片）
 - **名篇列表**：双行筛选（分类 + 人教版教材年级），交叉过滤
 - **勋章系统**：8 枚勋章，全部为累计学习天数维度（3/7/21/30/60/100/180/365 天），学习完成时自动检测新勋章
 - **打卡日历**：月视图打卡展示，已嵌入首页学习 Tab 内联展示
@@ -203,8 +203,8 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 **API 覆盖**：12 个 Controller 完整对接前端 15 个 API 端点 + 登录接口 + 管理导入接口，响应格式统一 `{code: 0, message: "ok", data: ...}`。`api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'`。JWT 认证完整实现：`LoginInterceptor` + `@CurrentUser` 注入 userId，前端 `app.ts` onLaunch 自动登录、`request.ts` 自动带 token、401 自动 re-login。
 
 ### 待开发
-- 深层字词标注（更多数据覆盖）
 - 艾宾浩斯端到端调优
+- 典故注释数据补充（剩余 36 篇名篇的 `glossary` 标注）
 
 ### ⚠️ 上线前必须完成
 - **替换 `WECHAT_APP_SECRET` 为真实值**：后端目前未配 AppSecret 时用固定 `dev-openid` 兜底，仅适合开发。上线前需在微信公众平台获取真实 AppSecret，设为后端环境变量。

@@ -927,7 +927,8 @@ HTTP/1.1 200 OK
 | `translation` | String | 句子翻译 |
 | `keyWords` | Array\<KeyWord\> | 内联生词列表 |
 | `audioUrl` | String | 句子音频 URL (Optional) |
-| `charAnnotations` | Array\<CharAnnotation\> | 逐字标注数据 (Optional) |
+| `charAnnotations` | Array\<CharAnnotation\> | 逐字标注数据 (已废弃，保留兼容) (Optional) |
+| `glossary` | Array\<GlossaryItem\> | 典故注释数据 (Optional) |
 
 **KeyWord 对象：**
 
@@ -938,13 +939,20 @@ HTTP/1.1 200 OK
 | `wordBookId` | String | 所属词书 ID (Optional) |
 | `masteryLevel` | String | 用户对该词的掌握程度 (Optional) |
 
-**CharAnnotation 对象：**
+**CharAnnotation 对象（已废弃）：**
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `char` | String | 单个汉字或标点 |
 | `role` | String | 角色：`content`(实词) / `function`(虚词) / `punct`(标点) |
 | `definition` | String | 释义，实词必填，虚词可选，标点无 (Optional) |
+
+**GlossaryItem 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `word` | String | 被标注的词或短语 |
+| `definition` | String | 文化背景释义 |
 
 #### Example: Success
 
@@ -968,11 +976,9 @@ HTTP/1.1 200 OK
                     "keyWords": [
                         { "word": "谪", "definition": "贬官降职", "wordBookId": "wb_mid_001_01" }
                     ],
-                    "charAnnotations": [
-                        { "char": "庆", "role": "content", "definition": "宋仁宗年号" },
-                        { "char": "历", "role": "content" },
-                        { "char": "谪", "role": "content", "definition": "贬官降职" },
-                        { "char": "守", "role": "content", "definition": "做郡守" }
+                    "glossary": [
+                        { "word": "庆历", "definition": "宋仁宗赵祯的年号（1041-1048年）" },
+                        { "word": "滕子京", "definition": "名宗谅，字子京，与范仲淹同为祥符八年进士" }
                     ]
                 }
             ],
@@ -1223,7 +1229,7 @@ HTTP/1.1 200 OK
 | `translation` | 译文有误 |
 | `definition` | 释义有误 |
 | `source` | 出处有误 |
-| `annotation` | 逐字标注有误 |
+| `annotation` | 标注有误 |
 | `article_info` | 文章信息有误 |
 | `other` | 其他 |
 

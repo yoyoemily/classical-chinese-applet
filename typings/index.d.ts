@@ -121,9 +121,23 @@ export interface IArticleKeyWord {
   masteryLevel?: MasteryLevel
 }
 
-/** 逐字标注：单个字符的角色与释义 */
+/** 典故注释：句中的文化背景词条 */
+export interface IGlossaryItem {
+  /** 被标注的词或短语 */
+  word: string
+  /** 文化背景释义 */
+  definition: string
+}
+
+/**
+ * 逐字标注角色（已废弃，保留兼容）
+ * @deprecated 典故注释模式已改用 glossary 字段
+ */
 export type CharRole = 'content' | 'function' | 'punct' | 'plain'
 
+/**
+ * @deprecated 典故注释模式已改用 IGlossaryItem
+ */
 export interface ICharAnnotation {
   /** 单个汉字或标点 */
   char: string
@@ -138,7 +152,12 @@ export interface IArticleSentence {
   translation: string
   keyWords: IArticleKeyWord[]
   audioUrl?: string
-  /** 逐字标注：按 text 顺序排列 */
+  /** 典故注释：句中文化背景词条，用于典故注释模式 */
+  glossary?: IGlossaryItem[]
+  /**
+   * 逐字标注（已废弃，保留兼容）
+   * @deprecated 典故注释模式已改用 glossary 字段
+   */
   charAnnotations?: ICharAnnotation[]
 }
 
@@ -305,7 +324,7 @@ export type FeedbackCategory =
   | 'translation'      // 译文有误
   | 'definition'       // 释义有误
   | 'source'           // 出处有误
-  | 'annotation'       // 逐字标注有误
+  | 'annotation'       // 标注有误
   | 'article_info'     // 文章信息有误
   | 'other'            // 其他
 
