@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-博古通今——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。15 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
+文言雀——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。15 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
 
 ## 开发环境
 
 - **IDE**：微信开发者工具（WeChat DevTools），直接用该工具打开项目根目录即可
 - **编译**：开发者工具自动完成 TypeScript → JavaScript、SCSS → WXSS 的编译，无需手动执行任何构建命令
 - **基础库版本**：`2.25.0`（`project.config.json` → `libVersion`）
-- **AppID**：`wxc50759cc61eda134`（`project.config.json` → `appid`）
+- **AppID**：`wxa192d18a50c75dca`（`project.config.json` → `appid`）
 - **编译插件**：`["typescript", "sass"]`（`project.config.json` → `setting.useCompilerPlugins`）
 
 没有 Lint/Test 等 CLI 命令，一切编译和预览都在微信开发者工具内完成。
@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 样式 | SCSS（变量 + mixin），BEM 命名（`block__element--modifier`） |
 | 尺寸单位 | `rpx`（1rpx = 屏幕宽度 / 750） |
 | UI 组件库 | 无，全部手写 |
-| 后端 | 传统 HTTP API（非云开发），基础地址 `http://localhost:8080`，JWT 认证 |
+| 后端 | 传统 HTTP API（非云开发），JWT 认证。BASE_URL 根据环境自动切换：`wx.getAccountInfoSync().miniProgram.envVersion === 'release'` → `https://wyq.yinque-ai.com`，否则 → `http://localhost:8080` |
 | 数据源 | 词书/名篇/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存 |
 | 艾宾浩斯 | 服务端权威调度——服务端 `getTodayTask` 返回任务列表、`submitAnswer` 更新进度；前端保留离线冗余 |
 | 状态管理 | 轻量：`app.globalData` + 事件总线 |

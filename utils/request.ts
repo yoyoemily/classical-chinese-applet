@@ -21,8 +21,19 @@ const DEFAULT_OPTIONS: Required<Pick<IRequestOptions, 'method' | 'showLoading' |
   },
 };
 
-/** 基础请求 URL，发布前替换为正式后端地址 */
-const BASE_URL: string = 'http://localhost:8080';
+/** 基础请求 URL，开发/体验版走本地，正式版走线上 */
+function getBaseUrl(): string {
+  try {
+    const { envVersion } = wx.getAccountInfoSync().miniProgram;
+    return envVersion === 'release'
+      ? 'https://wyq.yinque-ai.com'
+      : 'http://localhost:8080';
+  } catch {
+    return 'http://localhost:8080';
+  }
+}
+
+const BASE_URL: string = getBaseUrl();
 
 /** 是否正在刷新 token（防止并发请求触发多次登录） */
 let isLoggingIn = false;
@@ -53,7 +64,7 @@ function getToken(): string {
 /**
  * 重新执行微信登录，返回新的 token（内置防并发）
  */
-function reLogin(): Promise<string> {
+export function reLogin(): Promise<string> {
   if (!isLoggingIn) {
     isLoggingIn = true;
     loginPromise = new Promise<string>((resolve, reject) => {

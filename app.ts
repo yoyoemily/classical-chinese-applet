@@ -1,6 +1,7 @@
 import type { IAppOption } from './typings/index.d';
 import { getCurrentBookId } from './utils/storage';
 import { STORAGE_KEYS } from './constants/config';
+import { reLogin } from './utils/request';
 
 App<IAppOption>({
   onLaunch(): void {
@@ -38,39 +39,13 @@ App<IAppOption>({
   },
 
   /**
-   * 执行微信登录流程：
-   * wx.login() → code → POST /api/auth/login → 存储 token
+   * 执行微信登录流程（复用 request.ts 的 reLogin，内置防并发）
    */
   async doLogin(): Promise<void> {
     try {
-      const loginRes = await new Promise<WechatMiniprogram.LoginSuccessCallbackResult>(
-        (resolve, reject) => {
-          wx.login({
-            success: resolve,
-            fail: reject,
-          });
-        }
-      );
-
-      const resp = await new Promise<WechatMiniprogram.RequestSuccessCallbackResult>(
-        (resolve, reject) => {
-          wx.request({
-            url: 'http://localhost:8080/api/auth/login',
-            method: 'POST',
-            header: { 'content-type': 'application/json' },
-            data: { code: loginRes.code },
-            success: resolve,
-            fail: reject,
-          });
-        }
-      );
-
-      const body = resp.data as { code: number; data?: { token: string; userId: number } };
-      if (resp.statusCode === 200 && body.code === 0 && body.data?.token) {
-        wx.setStorageSync(STORAGE_KEYS.TOKEN, body.data.token);
-        console.log('[App] 登录成功, userId=', body.data.userId);
-      } else {
-        console.warn('[App] 登录失败:', body.message || '未知错误');
+      const token = await reLogin();
+      if (token) {
+        console.log('[App] 登录成功');
       }
     } catch (err) {
       console.error('[App] 登录异常:', err);
