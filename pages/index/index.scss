@@ -21,7 +21,7 @@
     background-color: var(--color-bg-white);
     border-radius: $radius-lg;
     padding: $spacing-sm $spacing-md;
-    margin-bottom: $spacing-md;
+    margin-bottom: $spacing-sm;
     height: 72rpx;
     box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 
@@ -67,7 +67,7 @@
   // 顶部问候区
   // ==========================================
   &__header {
-    padding: $spacing-lg 0;
+    padding: $spacing-base 0;
   }
   &__header-top {
     @include flex-between;
@@ -286,14 +286,13 @@
     font-weight: 600;
     color: var(--color-text-primary);
     margin-bottom: $spacing-base;
-    padding-bottom: $spacing-sm;
-    @include hairline('bottom', var(--color-border-light));
   }
 
   // 新学/复习两列
   &__task-row {
     display: flex;
     gap: $spacing-md;
+    margin-top: $spacing-base;
     margin-bottom: $spacing-sm;
   }
   &__task-stat {
