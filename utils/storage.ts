@@ -287,10 +287,6 @@ export function getMistakes(): IMistakeRecord[] {
   // 迁移旧格式：扁平字段 → 嵌套 sentences 数组
   return parsed.map(m => {
     if (m.sentences && m.sentences.length > 0) {
-      // 如果已有 totalErrors 则直接用，否则从 sentences 计算
-      if (m.totalErrors === undefined) {
-        m.totalErrors = m.sentences.reduce((sum, s) => sum + s.errorCount, 0);
-      }
       return m;
     }
     // 旧格式：将扁平字段转为单个句子的数组
