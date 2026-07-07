@@ -162,17 +162,19 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 ## 当前完成度
 
 ### 已完成
-- **15 页面**全部搭建，含 4 TabBar（学习/名篇/生词本/我的）
+- **16 页面**全部搭建，含 4 TabBar（学习/名篇/错题本/我的）
 - **核心学习回路**：句子卡片答题 → 纠错页（正确/错误/不知道）→ 字总结 → 学习完成（含艾宾浩斯引擎 `utils/ebbinghaus.ts`）
+- **错题本**：自动收录答错词、连续答对 N 次自动移出（阈值可配 1/2/3 次）、全部/高频/近期筛选。详见 [[mistake-book-and-search]]
+- **全局搜索**：学习页搜索框 → 搜索页，实时展示完整义项。详见 [[mistake-book-and-search]]
 - **名篇阅读器**：通篇阅读 / 段落释义 / 逐句释义 / 典故注释 四种模式，通篇模式内联生词高亮（keyWords 自动匹配下划线，点击弹出释义卡片）
 - **名篇列表**：双行筛选（分类 + 人教版教材年级），交叉过滤
 - **勋章系统**：8 枚勋章，全部为累计学习天数维度（3/7/21/30/60/100/180/365 天），学习完成时自动检测新勋章
 - **打卡日历**：月视图打卡展示，已嵌入首页学习 Tab 内联展示
-- **首页**：右上角"下一个勋章"倒计时激励卡片，词书进度+分布，今日任务+CTA，内嵌月日历，去掉了生词本入口（TabBar 已有）
-- **生词本**：5 级标签（困难/模糊/熟悉/掌握/全部）
+- **首页**：搜索框置顶，勋章倒计时激励卡片，词书进度+分布，今日任务+CTA，内嵌月日历
+- **生词本**：已废弃，由错题本替代
 - **词书选择**：多词书切换，词书详情
 - **全文阅读**：从纠错页或名篇阅读器跳转
-- **设置页**：每日新学/复习词数、学习顺序（顺序/乱序）、自动播放语音、答题音效、震动反馈、清除数据
+- **设置页**：每日新学/复习词数、学习顺序（顺序/乱序）、错题移出阈值（1/2/3次）、自动播放语音、答题音效、震动反馈、清除数据
 - **个人信息编辑**：头像（微信头像/相册/拍照）、昵称（微信昵称自动填充/自定义）、年级选择（初一～高三），通过 API 层 `fetchUserInfo()`/`saveUserInfo()` 存取，Mock 下走 localStorage，正式环境走 `GET/PUT /api/user/info`
 - **"我的"页**：头像和昵称展示（点击跳转个人信息编辑），新增"个人信息"菜单项
 - **学习顺序**：支持顺序/乱序两种模式，在 `utils/ebbinghaus.ts` 的 `generateTodayTask()` 中根据设置决定是否 shuffle（复习和新学各自独立乱序，复习仍优先）
@@ -191,10 +193,10 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 | 项 | 说明 |
 |----|------|
 | 框架 | Spring Boot 3.2.1 + Java 17 + MyBatis-Plus 3.5.5 |
-| 数据库 | MySQL 8.0，数据库名 `classical_chinese`，21 张表，DDL 在后端工程 `data/schema.sql` |
+| 数据库 | MySQL 8.0，数据库名 `classical_chinese`，22 张表，DDL 在后端工程 `data/schema.sql` |
 | 端口 | `8080` |
 | 基础路径 | `com.bogutongjin` |
-| 源码结构 | common(Result/异常处理) → config(分页/跨域) → entity(21) → mapper(21, BaseMapper) → service(10) → controller(11) |
+| 源码结构 | common(Result/异常处理) → config(分页/跨域) → entity(22) → mapper(22, BaseMapper) → service(10) → controller(11) |
 | 冷启动数据 | `src/main/resources/source.json`（188KB，与前端 data/source.json 相同内容） |
 | 数据导入 | `POST /api/admin/import` → `DataImportService.importFromJson()` (JDBC Template 批处理，事务保护) |
 

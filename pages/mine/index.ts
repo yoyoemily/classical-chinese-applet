@@ -46,6 +46,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     currentBookName: '',
     menuItems: [
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
+      { key: 'mistake', icon: '📝', label: '错题本', url: '/pages/mistake-book/index' },
       { key: 'badges', icon: '🏅', label: '勋章墙', url: '/pages/badges/index' },
       { key: 'profile', icon: '👤', label: '个人信息', url: '/pages/profile-edit/index' },
       { key: 'settings', icon: '⚙️', label: '设置', url: '/pages/settings/index' },

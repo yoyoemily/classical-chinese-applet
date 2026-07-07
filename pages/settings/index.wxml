@@ -14,6 +14,8 @@
       <view class="page-settings__row"><text class="page-settings__label">震动反馈</text><switch checked="{{vibrateFeedback}}" bindchange="onToggleVibrate" color="#4a6a5e" /></view>
       <view class="page-settings__row"><text class="page-settings__label">学习顺序</text>
         <picker mode="selector" range="{{studyOrderOptions}}" value="{{studyOrder}}" bindchange="onStudyOrderChange"><view class="page-settings__picker-value"><text>{{studyOrderOptions[studyOrder]}}</text><text class="page-settings__picker-arrow">›</text></view></picker></view>
+      <view class="page-settings__row"><text class="page-settings__label">错题移出阈值</text>
+        <picker mode="selector" range="{{['1次','2次','3次']}}" value="{{['1次','2次','3次'].indexOf(mistakeThreshold + '次')}}" bindchange="onMistakeThresholdChange"><view class="page-settings__picker-value"><text>{{mistakeThreshold}}次答对后移出</text><text class="page-settings__picker-arrow">›</text></view></picker></view>
     </view>
   </view>
   <view class="page-settings__section"><view class="page-settings__section-title">关于</view>

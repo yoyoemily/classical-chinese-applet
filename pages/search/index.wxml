@@ -1,0 +1,104 @@
+<!-- 全局搜索页面 -->
+<view class="page-search">
+  <!-- 顶部搜索栏 -->
+  <view class="page-search__bar">
+    <view class="page-search__input-wrap">
+      <text class="page-search__input-icon">🔍</text>
+      <input
+        class="page-search__input"
+        value="{{keyword}}"
+        placeholder="搜索文言字词（如：之、其、而）"
+        focus="{{true}}"
+        confirm-type="search"
+        bindinput="onInput"
+        bindconfirm="onConfirm"
+      />
+      <text
+        wx:if="{{keyword}}"
+        class="page-search__clear"
+        bindtap="onClearInput"
+      >✕</text>
+    </view>
+    <text class="page-search__cancel" bindtap="onCancel">取消</text>
+  </view>
+
+  <!-- 搜索历史 -->
+  <view class="page-search__history" wx:if="{{showHistory && history.length > 0}}">
+    <view class="page-search__history-header">
+      <text class="page-search__history-title">搜索历史</text>
+      <text class="page-search__history-clear" bindtap="onClearHistory">清除</text>
+    </view>
+    <view class="page-search__history-list">
+      <block wx:for="{{history}}" wx:key="*this">
+        <view
+          class="page-search__history-item"
+          data-keyword="{{item}}"
+          bindtap="onTapHistory"
+          hover-class="page-search__history-item--hover"
+        >
+          <text>{{item}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="page-search__results" wx:if="{{searched}}">
+    <!-- 无结果 -->
+    <view class="page-search__empty" wx:if="{{results.length === 0 && !loading}}">
+      <text class="page-search__empty-icon">🔍</text>
+      <text class="page-search__empty-title">未找到相关字词</text>
+      <text class="page-search__empty-subtitle">试试其他关键词</text>
+    </view>
+
+    <!-- 结果列表 -->
+    <view class="page-search__result-list" wx:if="{{results.length > 0}}">
+      <view class="page-search__result-count">共找到 {{results.length}} 个结果</view>
+      <block wx:for="{{results}}" wx:key="wordId">
+        <view class="page-search__result-item">
+          <!-- 词头 -->
+          <view class="page-search__result-word">
+            <text class="page-search__result-character">{{item.character}}</text>
+            <text
+              wx:if="{{item.pinyin}}"
+              class="page-search__result-pinyin"
+            >{{item.pinyin}}</text>
+          </view>
+
+          <!-- 义项列表 -->
+          <view class="page-search__result-meanings">
+            <block wx:for="{{item.meanings}}" wx:key="index" wx:for-item="meaning">
+              <view class="page-search__meaning-item">
+                <view class="page-search__meaning-header">
+                  <text class="page-search__meaning-index">{{index + 1}}</text>
+                  <text class="page-search__meaning-definition">{{meaning.definition}}</text>
+                </view>
+                <view class="page-search__meaning-body">
+                  <text class="page-search__meaning-example">"{{meaning.example}}"</text>
+                  <text
+                    wx:if="{{meaning.translation}}"
+                    class="page-search__meaning-translation"
+                  >{{meaning.translation}}</text>
+                </view>
+                <text
+                  wx:if="{{meaning.source}}"
+                  class="page-search__meaning-source"
+                >—— {{meaning.source}}</text>
+              </view>
+            </block>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="page-search__loading" wx:if="{{loading}}">
+    <text>搜索中...</text>
+  </view>
+
+  <!-- 初始空白状态 -->
+  <view class="page-search__hint" wx:if="{{!searched && !showHistory}}">
+    <text class="page-search__hint-text">输入字词名称，即可搜索释义</text>
+  </view>
+</view>

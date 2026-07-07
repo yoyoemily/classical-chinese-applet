@@ -1,0 +1,252 @@
+// ============================================
+// 全局搜索页面样式
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-search {
+  min-height: 100vh;
+  @include flex-column;
+  background-color: var(--color-bg-page);
+
+  // -------- 搜索栏 --------
+  &__bar {
+    @include flex-between;
+    padding: $spacing-sm $spacing-base;
+    background-color: var(--color-bg-white);
+    gap: $spacing-sm;
+  }
+
+  &__input-wrap {
+    flex: 1;
+    @include flex-center;
+    background-color: var(--color-bg-page);
+    border-radius: $radius-lg;
+    padding: 0 $spacing-md;
+    height: 64rpx;
+  }
+
+  &__input-icon {
+    font-size: $font-size-base;
+    margin-right: $spacing-sm;
+    opacity: 0.5;
+  }
+
+  &__input {
+    flex: 1;
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+    height: 100%;
+  }
+
+  &__clear {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    padding: 8rpx;
+    margin-left: $spacing-xs;
+    @include active;
+  }
+
+  &__cancel {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+    @include active;
+  }
+
+  // -------- 搜索历史 --------
+  &__history {
+    padding: $spacing-md $spacing-base;
+  }
+
+  &__history-header {
+    @include flex-between;
+    margin-bottom: $spacing-md;
+  }
+
+  &__history-title {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+
+  &__history-clear {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    @include active;
+  }
+
+  &__history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__history-item {
+    padding: 10rpx 28rpx;
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-white);
+    border-radius: $radius-lg;
+    @include active;
+
+    &--hover {
+      opacity: 0.7;
+    }
+  }
+
+  // -------- 搜索结果 --------
+  &__results {
+    flex: 1;
+  }
+
+  &__result-list {
+    padding: 0 $spacing-base;
+  }
+
+  &__result-count {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    padding: $spacing-sm 0 $spacing-md;
+  }
+
+  &__result-item {
+    @include card;
+    padding: $spacing-lg;
+    margin-bottom: $spacing-base;
+    @include flex-column;
+    gap: $spacing-md;
+  }
+
+  &__result-word {
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-sm;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+
+  &__result-character {
+    font-size: 56rpx;
+    font-weight: 700;
+    color: var(--color-primary);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    line-height: 1.2;
+  }
+
+  &__result-pinyin {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+
+  // -------- 义项列表 --------
+  &__result-meanings {
+    @include flex-column;
+    gap: $spacing-md;
+  }
+
+  &__meaning-item {
+    padding: 0;
+  }
+
+  &__meaning-header {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+
+  &__meaning-index {
+    width: 40rpx;
+    height: 40rpx;
+    @include flex-center;
+    background-color: var(--color-primary);
+    color: #fff;
+    font-size: $font-size-xs;
+    font-weight: 600;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2rpx;
+  }
+
+  &__meaning-definition {
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    flex: 1;
+    line-height: 1.6;
+  }
+
+  &__meaning-body {
+    margin-top: $spacing-sm;
+    padding-left: 52rpx;
+  }
+
+  &__meaning-example {
+    display: block;
+    font-size: $font-size-base;
+    color: var(--color-accent);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  &__meaning-translation {
+    display: block;
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    margin-top: 6rpx;
+    line-height: 1.5;
+  }
+
+  &__meaning-source {
+    display: block;
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    margin-top: 8rpx;
+    padding-left: 52rpx;
+  }
+
+  // -------- 空状态 --------
+  &__empty {
+    flex: 1;
+    @include flex-column;
+    @include flex-center;
+    padding-top: 200rpx;
+  }
+
+  &__empty-icon {
+    font-size: 96rpx;
+    margin-bottom: $spacing-lg;
+    opacity: 0.6;
+  }
+
+  &__empty-title {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+    margin-bottom: $spacing-sm;
+  }
+
+  &__empty-subtitle {
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+
+  // -------- 提示文字 --------
+  &__hint {
+    flex: 1;
+    @include flex-center;
+    padding-top: 200rpx;
+  }
+
+  &__hint-text {
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+
+  // -------- 加载中 --------
+  &__loading {
+    flex: 1;
+    @include flex-center;
+    padding-top: 200rpx;
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+}

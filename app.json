@@ -2,7 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/article-list/index",
-    "pages/vocabulary/index",
+    "pages/mistake-book/index",
     "pages/mine/index",
     "pages/book-select/index",
     "pages/book-detail/index",
@@ -14,7 +14,8 @@
     "pages/badges/index",
     "pages/calendar/index",
     "pages/settings/index",
-    "pages/profile-edit/index"
+    "pages/profile-edit/index",
+    "pages/search/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4a6a5e",
@@ -42,10 +43,10 @@
         "selectedIconPath": "assets/tab/article-active.png"
       },
       {
-        "pagePath": "pages/vocabulary/index",
-        "text": "生词本",
-        "iconPath": "assets/tab/vocab.png",
-        "selectedIconPath": "assets/tab/vocab-active.png"
+        "pagePath": "pages/mistake-book/index",
+        "text": "错题本",
+        "iconPath": "assets/tab/mistake.png",
+        "selectedIconPath": "assets/tab/mistake-active.png"
       },
       {
         "pagePath": "pages/mine/index",

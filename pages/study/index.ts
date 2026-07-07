@@ -1,4 +1,4 @@
-import { getCurrentBookId, saveSession } from '../../utils/storage';
+import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold } from '../../utils/storage';
 import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
@@ -389,9 +389,48 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     if (isCorrect) {
       s.correctCount++;
       this.setData({ correctCount: s.correctCount });
+      // 错题本：答对时检查是否需要移出
+      this._checkAndRemoveMistake(word.wordId);
     } else {
       s.wrongCount++;
       this.setData({ wrongCount: s.wrongCount });
+      // 错题本：答错时记录
+      this._recordMistake(word.wordId, word.character, sent);
+    }
+  },
+
+  /** 答错时记录到错题本 */
+  _recordMistake(wordId: string, character: string, sent: IStudyData['currentSentence']): void {
+    if (!sent) return;
+    const fullWord = this._wordsMap[wordId];
+    const existing = getMistakes().find(m => m.wordId === wordId);
+
+    addMistake({
+      wordId,
+      character,
+      pinyin: fullWord?.pinyin || '',
+      sentenceText: sent.text,
+      sentenceId: sent.id,
+      wrongAnswer: this.data.options[this.data.selectedIndex] || '不知道',
+      correctAnswer: this.data.options[this.data.correctIndex] || '',
+      errorCount: (existing?.errorCount || 0) + 1,
+      lastErrorTime: new Date().toISOString().split('T')[0],
+      consecutiveCorrect: 0,
+    });
+  },
+
+  /** 答对时检查是否达到移出阈值 */
+  _checkAndRemoveMistake(wordId: string): void {
+    const existing = getMistakes().find(m => m.wordId === wordId);
+    if (!existing) return;
+
+    const threshold = getMistakeRemoveThreshold();
+    const newConsecutive = existing.consecutiveCorrect + 1;
+
+    if (newConsecutive >= threshold) {
+      removeMistake(wordId);
+    } else {
+      addMistake({ ...existing, consecutiveCorrect: newConsecutive });
     }
   },
 

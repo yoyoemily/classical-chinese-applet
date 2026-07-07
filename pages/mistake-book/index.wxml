@@ -1,0 +1,79 @@
+<!-- 错题本页面 -->
+<view class="page-mistake-book">
+  <!-- 筛选标签栏 -->
+  <view class="page-mistake-book__tabs">
+    <block wx:for="{{filters}}" wx:key="key">
+      <view
+        class="page-mistake-book__tab {{activeFilter === item.key ? 'page-mistake-book__tab--active' : ''}}"
+        data-filter="{{item.key}}"
+        bindtap="onTapFilter"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 错题列表 -->
+  <view class="page-mistake-book__list" wx:if="{{!isEmpty}}">
+    <block wx:for="{{mistakes}}" wx:key="wordId">
+      <view class="page-mistake-book__card">
+        <!-- 词条头部（可点击展开） -->
+        <view
+          class="page-mistake-book__card-header"
+          data-word-id="{{item.wordId}}"
+          bindtap="onTapWord"
+          hover-class="page-mistake-book__card-header--hover"
+        >
+          <view class="page-mistake-book__word-main">
+            <text class="page-mistake-book__character">{{item.character}}</text>
+            <text class="page-mistake-book__pinyin">{{item.pinyin}}</text>
+          </view>
+          <view class="page-mistake-book__meta">
+            <text class="page-mistake-book__error-count">错{{item.errorCount}}次</text>
+            <text class="page-mistake-book__arrow">{{expandedWordId === item.wordId ? '▼' : '▶'}}</text>
+          </view>
+        </view>
+
+        <!-- 展开的详情 -->
+        <view class="page-mistake-book__card-detail" wx:if="{{expandedWordId === item.wordId}}">
+          <view class="page-mistake-book__detail-row">
+            <text class="page-mistake-book__detail-label">原句</text>
+            <text class="page-mistake-book__detail-value">{{item.sentenceText}}</text>
+          </view>
+          <view class="page-mistake-book__detail-row">
+            <text class="page-mistake-book__detail-label">我的答案</text>
+            <text class="page-mistake-book__detail-value page-mistake-book__detail-value--wrong">{{item.wrongAnswer}}</text>
+          </view>
+          <view class="page-mistake-book__detail-row">
+            <text class="page-mistake-book__detail-label">正确答案</text>
+            <text class="page-mistake-book__detail-value page-mistake-book__detail-value--correct">{{item.correctAnswer}}</text>
+          </view>
+          <view class="page-mistake-book__detail-row">
+            <text class="page-mistake-book__detail-label">最近答错</text>
+            <text class="page-mistake-book__detail-value">{{item.lastErrorTime}}</text>
+          </view>
+          <view class="page-mistake-book__detail-actions">
+            <view class="page-mistake-book__detail-btn" data-word-id="{{item.wordId}}" bindtap="onTapWordDetail">
+              查看详情
+            </view>
+            <view class="page-mistake-book__detail-btn page-mistake-book__detail-btn--remove" data-word-id="{{item.wordId}}" catchtap="onRemoveMistake">
+              移除
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="page-mistake-book__empty" wx:if="{{isEmpty && !loading}}">
+    <text class="page-mistake-book__empty-icon">📝</text>
+    <text class="page-mistake-book__empty-title">暂无错题</text>
+    <text class="page-mistake-book__empty-subtitle">继续保持，加油！</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="page-mistake-book__loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

@@ -13,6 +13,35 @@
   padding: $spacing-md $spacing-base;
 
   // ==========================================
+  // 搜索栏（置顶）
+  // ==========================================
+  &__search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-bg-white);
+    border-radius: $radius-lg;
+    padding: $spacing-sm $spacing-md;
+    margin-bottom: $spacing-md;
+    height: 72rpx;
+    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+
+    &--hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__search-bar-icon {
+    font-size: $font-size-base;
+    margin-right: $spacing-sm;
+    opacity: 0.5;
+  }
+
+  &__search-bar-placeholder {
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+
+  // ==========================================
   // 加载态
   // ==========================================
   &__loading {

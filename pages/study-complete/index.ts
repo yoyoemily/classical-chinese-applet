@@ -44,7 +44,7 @@ Page<IStudyCompleteData, WechatMiniprogram.Page.CustomOption>({
       this.setData({ correctCount: correct, wrongCount: wrong, accuracy, streak: progress.currentStreak, xpGained: correct * 10, poem, loading: false });
     }
   },
-  onTapVocab(): void { wx.switchTab({ url: '/pages/vocabulary/index' }); },
+  onTapMistake(): void { wx.switchTab({ url: '/pages/mistake-book/index' }); },
   onTapHome(): void { wx.switchTab({ url: '/pages/index/index' }); },
   onShareAppMessage() { return { title: `今日学习完成！答对 ${this.data.correctCount} 题`, path: '/pages/index/index' }; },
 });

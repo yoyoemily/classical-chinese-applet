@@ -281,17 +281,41 @@ export interface ITodayTask {
 }
 
 // ============================================
-// 生词本
+// 错题本
 // ============================================
-export type VocabularyTab = 'all' | 'difficult' | 'unclear' | 'familiar' | 'mastered'
+export type MistakeFilter = 'all' | 'frequent' | 'recent'
 
-export interface IVocabularyItem {
+export interface IMistakeRecord {
   wordId: string
   character: string
   pinyin: string
-  masteryLevel: MasteryLevel
-  progress: number
-  stage: ReviewStage
+  /** 答错时的原句上下文 */
+  sentenceText: string
+  sentenceId: string
+  /** 用户选择了什么 */
+  wrongAnswer: string
+  /** 正确答案 */
+  correctAnswer: string
+  /** 累计错误次数 */
+  errorCount: number
+  /** 最近一次答错时间 */
+  lastErrorTime: string
+  /** 连续答对次数（达到阈值自动移出） */
+  consecutiveCorrect: number
+}
+
+// ============================================
+// 全局搜索
+// ============================================
+export interface IWordSearchResult {
+  wordId: string
+  character: string
+  pinyin: string
+  /** 该词的所有义项 */
+  meanings: { definition: string; example: string; translation?: string; source?: string }[]
+  /** 所属词书名称 */
+  wordBookName: string
+  wordBookId: string
 }
 
 // ============================================

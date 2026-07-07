@@ -1,10 +1,12 @@
-import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS } from '../../constants/config';
+import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, MISTAKE_REMOVE_THRESHOLD_OPTIONS, DEFAULT_MISTAKE_REMOVE_THRESHOLD } from '../../constants/config';
+import { getMistakeRemoveThreshold, setMistakeRemoveThreshold } from '../../utils/storage';
 import { safeJSONParse } from '../../utils/util';
 
 interface ISettingsData {
   dailyNewWords: number; dailyReviewWords: number;
   autoPlayAudio: boolean; answerSound: boolean; vibrateFeedback: boolean;
   studyOrder: number;
+  mistakeThreshold: number;
   version: string;
   newWordsRange: number[]; reviewWordsRange: number[]; studyOrderOptions: string[];
 }
@@ -14,6 +16,7 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
     dailyNewWords: DEFAULT_DAILY_NEW_WORDS, dailyReviewWords: DEFAULT_DAILY_REVIEW_WORDS,
     autoPlayAudio: true, answerSound: true, vibrateFeedback: false,
     studyOrder: 0,
+    mistakeThreshold: DEFAULT_MISTAKE_REMOVE_THRESHOLD,
     version: '0.1.0',
     newWordsRange: Array.from({ length: 10 }, (_, i) => i + 1),
     reviewWordsRange: Array.from({ length: 20 }, (_, i) => i + 1),
@@ -31,6 +34,7 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
         answerSound: saved.answerSound ?? true,
         vibrateFeedback: saved.vibrateFeedback ?? false,
         studyOrder: saved.studyOrder ?? 0,
+        mistakeThreshold: getMistakeRemoveThreshold(),
       });
     } catch { /* use defaults */ }
   },
@@ -48,6 +52,12 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
   onToggleAnswerSound(e: WechatMiniprogram.SwitchChange): void { this.setData({ answerSound: e.detail.value }); this.save(); },
   onToggleVibrate(e: WechatMiniprogram.SwitchChange): void { this.setData({ vibrateFeedback: e.detail.value }); this.save(); },
   onStudyOrderChange(e: WechatMiniprogram.PickerChange): void { this.setData({ studyOrder: Number(e.detail.value) }); this.save(); },
+  onMistakeThresholdChange(e: WechatMiniprogram.PickerChange): void {
+    const value = Number(e.detail.value);
+    const threshold = MISTAKE_REMOVE_THRESHOLD_OPTIONS[value];
+    this.setData({ mistakeThreshold: threshold });
+    setMistakeRemoveThreshold(threshold);
+  },
   onClearData(): void {
     wx.showModal({
       title: '确认清除', content: '将清除所有学习进度、打卡记录和勋章数据，此操作不可恢复。',

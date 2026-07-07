@@ -17,7 +17,7 @@ interface IBookInfo {
   totalWords: number;
 }
 
-/** 分布标签项（供 WXML 点击跳转生词本） */
+/** 分布标签项（供 WXML 点击跳转错题本） */
 interface IDistributionItem {
   key: string;
   label: string;
@@ -437,13 +437,16 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/study/index' });
   },
 
-  /** 点击分布标签 → 跳转生词本页并选中对应 tab */
+  /** 点击分布标签 → 跳转错题本页 */
   onTapDistribution(e: WechatMiniprogram.TouchEvent): void {
-    const tab = e.currentTarget.dataset.tab as string;
-    if (!tab) return;
     wx.navigateTo({
-      url: `/pages/vocabulary/index?tab=${tab}`,
+      url: '/pages/mistake-book/index',
     });
+  },
+
+  /** 点击搜索 → 跳转搜索页 */
+  onTapSearch(): void {
+    wx.navigateTo({ url: '/pages/search/index' });
   },
 
   /** 点击勋章墙 → 跳转勋章页 */

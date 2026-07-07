@@ -41,7 +41,7 @@
 
   <view class="page-study-complete__action-bar">
     <button class="page-study-complete__btn page-study-complete__btn--secondary" bindtap="onTapHome">↺ 返回首页</button>
-    <button class="page-study-complete__btn page-study-complete__btn--primary" bindtap="onTapVocab">📚 查看生词本</button>
+    <button class="page-study-complete__btn page-study-complete__btn--primary" bindtap="onTapMistake">📝 查看错题本</button>
   </view>
 </block>
 </view>

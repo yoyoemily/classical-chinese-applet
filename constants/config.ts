@@ -88,15 +88,17 @@ export const TEXTBOOK_GRADES = [
 ] as const;
 
 // ============================================
-// 生词本 Tab
+// 错题本筛选项
 // ============================================
-export const VOCABULARY_TABS = [
+export const MISTAKE_FILTERS = [
   { key: 'all', label: '全部' },
-  { key: 'difficult', label: '困难' },
-  { key: 'unclear', label: '模糊' },
-  { key: 'familiar', label: '熟悉' },
-  { key: 'mastered', label: '掌握' },
+  { key: 'frequent', label: '高频错误' },
+  { key: 'recent', label: '近期' },
 ] as const;
+
+/** 错题移出阈值选项（连续答对次数） */
+export const MISTAKE_REMOVE_THRESHOLD_OPTIONS = [1, 2, 3] as const;
+export const DEFAULT_MISTAKE_REMOVE_THRESHOLD = 3;
 
 // ============================================
 // 励志诗词库（学习反馈随机展示）

@@ -10,6 +10,12 @@
   <!-- ===== 主体内容 ===== -->
   <block wx:else>
 
+    <!-- -------- 搜索栏（置顶） -------- -->
+    <view class="page-index__search-bar" bindtap="onTapSearch" hover-class="page-index__search-bar--hover">
+      <text class="page-index__search-bar-icon">🔍</text>
+      <text class="page-index__search-bar-placeholder">搜索文言字词</text>
+    </view>
+
     <!-- -------- 顶部问候区域 -------- -->
     <view class="page-index__header">
       <view class="page-index__header-top">

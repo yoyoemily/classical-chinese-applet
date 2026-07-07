@@ -1,11 +1,11 @@
 // ============================================
 // API 接口层（MVP 阶段使用 Mock 数据，后续切换到真实 API）
 // ============================================
-import { get, post, put } from '../utils/request';
+import { get, post, put, del } from '../utils/request';
 import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
-  IPaginationResult, IVocabularyItem, IBadge, IUserBadge, IUserProgress,
-  IFeedbackSubmitParams, IUserProfile,
+  IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
+  IFeedbackSubmitParams, IUserProfile, IWordSearchResult,
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
@@ -139,39 +139,66 @@ export async function fetchProgress(wordBookId: string): Promise<IUserProgress> 
   return get('/api/progress', { wordBookId });
 }
 
-export async function fetchVocabulary(wordBookId: string, tab: string): Promise<IPaginationResult<IVocabularyItem>> {
+// ============================================
+// 错题本
+// ============================================
+export async function fetchMistakes(wordBookId?: string): Promise<IMistakeRecord[]> {
   if (USE_MOCK) {
-    const book = loadWordBookData(wordBookId);
-    const progress = getProgress();
-    if (!book) return { list: [], total: 0, page: 1, pageSize: 20, hasMore: false };
-
-    let items: IVocabularyItem[] = book.words
-      .filter(w => progress.wordProgresses[w.id])
-      .map(w => {
-        const wp = progress.wordProgresses[w.id];
-        return {
-          wordId: w.id,
-          character: w.character,
-          pinyin: w.pinyin,
-          masteryLevel: (wp.stage === 'done' ? 'mastered' :
-            wp.resetCount >= 3 ? 'difficult' :
-            wp.wrongCount >= 2 ? 'unclear' :
-            typeof wp.stage === 'number' && wp.stage >= 3 ? 'familiar' : 'unclear') as IVocabularyItem['masteryLevel'],
-          progress: wp.stage === 'done' ? 100 : typeof wp.stage === 'number' ? Math.round((wp.stage / 6) * 100) : 0,
-          stage: wp.stage,
-        };
-      });
-
-    if (tab !== 'all') {
-      const levelMap: Record<string, string> = { difficult: 'difficult', unclear: 'unclear', familiar: 'familiar', mastered: 'mastered' };
-      items = items.filter(i => i.masteryLevel === levelMap[tab]);
-    }
-
-    return { list: items, total: items.length, page: 1, pageSize: 20, hasMore: false };
+    const { getMistakes } = require('../utils/storage');
+    const allMistakes = getMistakes() as IMistakeRecord[];
+    return wordBookId ? allMistakes.filter(m => m.wordId.startsWith(wordBookId)) : allMistakes;
   }
-  return get('/api/vocabulary', { wordBookId, tab });
+  const params: Record<string, string> = {};
+  if (wordBookId) params.wordBookId = wordBookId;
+  return get('/api/study/mistakes', params);
 }
 
+export async function removeMistakeApi(wordId: string): Promise<void> {
+  if (USE_MOCK) {
+    require('../utils/storage').removeMistake(wordId);
+    return;
+  }
+  return del(`/api/study/mistakes/${wordId}`);
+}
+
+// ============================================
+// 全局搜索
+// ============================================
+export async function searchWords(keyword: string): Promise<IWordSearchResult[]> {
+  if (USE_MOCK) {
+    if (!keyword.trim()) return [];
+    const books = loadWordBooks();
+    const results: IWordSearchResult[] = [];
+    for (const book of books) {
+      const full = loadWordBookData(book.id);
+      if (full) {
+        for (const word of full.words) {
+          if (word.character.includes(keyword)) {
+            results.push({
+              wordId: word.id,
+              character: word.character,
+              pinyin: word.pinyin,
+              meanings: word.meanings.map(m => ({
+                definition: m.definition,
+                example: m.example,
+                translation: m.translation,
+                source: m.source,
+              })),
+              wordBookName: book.name,
+              wordBookId: book.id,
+            });
+          }
+        }
+      }
+    }
+    return results;
+  }
+  return get('/api/words/search', { keyword });
+}
+
+// ============================================
+// 打卡
+// ============================================
 export async function fetchCheckinRecords(year: number, month: number): Promise<string[]> {
   if (USE_MOCK) {
     const progress = getProgress();
@@ -181,6 +208,9 @@ export async function fetchCheckinRecords(year: number, month: number): Promise<
   return get('/api/checkin', { year, month });
 }
 
+// ============================================
+// 勋章
+// ============================================
 export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUserBadge[] }> {
   if (USE_MOCK) {
     return { badges: mockBadges, userBadges: getUserBadges() };

@@ -5,8 +5,12 @@ import { reLogin } from './utils/request';
 
 App<IAppOption>({
   onLaunch(): void {
-    // 获取系统信息
-    const systemInfo: WechatMiniprogram.SystemInfo = wx.getSystemInfoSync();
+    // 获取系统信息（使用新版 API 替代已废弃的 wx.getSystemInfoSync）
+    const systemInfo = {
+      ...wx.getWindowInfo(),
+      ...wx.getDeviceInfo(),
+      ...wx.getAppBaseInfo(),
+    } as WechatMiniprogram.SystemInfo;
     this.globalData.systemInfo = systemInfo;
     this.globalData.statusBarHeight = systemInfo.statusBarHeight;
 

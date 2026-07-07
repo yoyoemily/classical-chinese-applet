@@ -3,9 +3,9 @@
 // ============================================
 import type {
   IUserProgress, IWordProgress, IUserBadge,
-  ITodayTask, IArticleProgress, IUserProfile
+  ITodayTask, IArticleProgress, IUserProfile, IMistakeRecord
 } from '../typings/index.d';
-import { STORAGE_KEYS } from '../constants/config';
+import { STORAGE_KEYS, DEFAULT_MISTAKE_REMOVE_THRESHOLD } from '../constants/config';
 import { safeJSONParse } from './util';
 import { mockWordBooks } from '../mock/wordBooks';
 
@@ -276,4 +276,42 @@ export function getUserProfile(): IUserProfile {
 
 export function saveUserProfile(profile: IUserProfile): void {
   wx.setStorageSync(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
+}
+
+// ============================================
+// 错题本（本地缓存，后台同步）
+// ============================================
+export function getMistakes(): IMistakeRecord[] {
+  const raw = wx.getStorageSync('mistakeBook');
+  return safeJSONParse<IMistakeRecord[]>(raw, []);
+}
+
+export function saveMistakes(mistakes: IMistakeRecord[]): void {
+  wx.setStorageSync('mistakeBook', JSON.stringify(mistakes));
+}
+
+export function addMistake(record: IMistakeRecord): void {
+  const mistakes = getMistakes();
+  const idx = mistakes.findIndex(m => m.wordId === record.wordId);
+  if (idx >= 0) {
+    mistakes[idx] = record;
+  } else {
+    mistakes.push(record);
+  }
+  saveMistakes(mistakes);
+}
+
+export function removeMistake(wordId: string): void {
+  const mistakes = getMistakes().filter(m => m.wordId !== wordId);
+  saveMistakes(mistakes);
+}
+
+export function getMistakeRemoveThreshold(): number {
+  const raw = wx.getStorageSync('mistake_remove_threshold');
+  const parsed = typeof raw === 'number' ? raw : Number(raw);
+  return parsed > 0 ? parsed : DEFAULT_MISTAKE_REMOVE_THRESHOLD;
+}
+
+export function setMistakeRemoveThreshold(threshold: number): void {
+  wx.setStorageSync('mistake_remove_threshold', threshold);
 }
