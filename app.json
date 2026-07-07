@@ -15,7 +15,9 @@
     "pages/calendar/index",
     "pages/settings/index",
     "pages/profile-edit/index",
-    "pages/search/index"
+    "pages/search/index",
+    "pages/vocabulary/index",
+    "pages/classic/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4a6a5e",
@@ -43,10 +45,10 @@
         "selectedIconPath": "assets/tab/article-active.png"
       },
       {
-        "pagePath": "pages/mistake-book/index",
-        "text": "错题本",
-        "iconPath": "assets/tab/mistake.png",
-        "selectedIconPath": "assets/tab/mistake-active.png"
+        "pagePath": "pages/classic/index",
+        "text": "经典",
+        "iconPath": "assets/tab/classic.png",
+        "selectedIconPath": "assets/tab/classic-active.png"
       },
       {
         "pagePath": "pages/mine/index",

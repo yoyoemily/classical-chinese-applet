@@ -1,0 +1,52 @@
+<!-- 生词本页面 -->
+<view class="page-vocabulary">
+
+  <!-- Tab 栏 -->
+  <view class="page-vocabulary__tabs">
+    <block wx:for="{{tabs}}" wx:key="key">
+      <view
+        class="page-vocabulary__tab {{activeTab === item.key ? 'page-vocabulary__tab--active page-vocabulary__tab--' + item.key : ''}}"
+        data-tab="{{item.key}}"
+        bindtap="onTapTab"
+      >
+        <text class="page-vocabulary__tab-label">{{item.label}}</text>
+        <text class="page-vocabulary__tab-count">{{item.count}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 词列表 -->
+  <view class="page-vocabulary__list" wx:if="{{words.length > 0}}">
+    <block wx:for="{{words}}" wx:key="wordId">
+      <view
+        class="page-vocabulary__card"
+        data-word-id="{{item.wordId}}"
+        bindtap="onTapWord"
+        hover-class="page-vocabulary__card--active"
+      >
+        <view class="page-vocabulary__card-left">
+          <text class="page-vocabulary__character">{{item.character}}</text>
+          <text class="page-vocabulary__pinyin">{{item.pinyin}}</text>
+        </view>
+        <view class="page-vocabulary__card-right">
+          <text class="page-vocabulary__meaning">{{item.firstMeaning}}</text>
+          <text class="page-vocabulary__book-name">{{item.wordBookName}}</text>
+        </view>
+        <text class="page-vocabulary__arrow">›</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="page-vocabulary__empty" wx:if="{{words.length === 0 && !loading}}">
+    <text class="page-vocabulary__empty-icon">📝</text>
+    <text class="page-vocabulary__empty-text">暂无此类字词</text>
+    <text class="page-vocabulary__empty-sub">继续学习后会出现在这里</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="page-vocabulary__loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+</view>

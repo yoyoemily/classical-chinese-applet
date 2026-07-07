@@ -1,4 +1,4 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchCheckinRecords, fetchBadges } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday } from '../../utils/storage';
 import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS } from '../../constants/config';
 import type { IUserProgress, IBadge } from '../../typings/index.d';
@@ -22,15 +22,6 @@ interface IDistributionItem {
   key: string;
   label: string;
   count: number;
-}
-
-/** 日历单元格 */
-interface IDayCell {
-  day: number;
-  fullDate: string;
-  isToday: boolean;
-  isCheckedIn: boolean;
-  isCurrentMonth: boolean;
 }
 
 /** 距离最近的下一个未获得勋章 */
@@ -77,16 +68,8 @@ interface IIndexData {
   checkedIn: boolean;
   /** 是否正在加载 */
   loading: boolean;
-  /** 日历：当前年 */
-  currentYear: number;
-  /** 日历：当前月 */
-  currentMonth: number;
-  /** 日历：月份标签 */
-  monthLabel: string;
-  /** 日历：星期表头 */
-  weekdays: string[];
-  /** 日历：格子列表 */
-  calendarGrid: IDayCell[];
+  /** 错题数量 */
+  mistakeCount: number;
   /** 下一个可获得的勋章 */
   nextBadge: INextBadge | null;
 }
@@ -113,11 +96,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     streak: 0,
     checkedIn: false,
     loading: true,
-    currentYear: new Date().getFullYear(),
-    currentMonth: new Date().getMonth() + 1,
-    monthLabel: '',
-    weekdays: ['日', '一', '二', '三', '四', '五', '六'],
-    calendarGrid: [],
+    mistakeCount: 0,
     nextBadge: null,
   },
 
@@ -157,16 +136,13 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         } catch { /* use defaults */ }
       }
 
-      // 并行拉取词书列表、进度、今日任务、打卡记录、勋章
-      const [books, progress, task, checkinDates, badgesData] = await Promise.all([
+      // 并行拉取词书列表、进度、今日任务、勋章、错题数
+      const [books, progress, task, badgesData, mistakes] = await Promise.all([
         fetchWordBooks(),
         fetchProgress(bookId),
         fetchTodayTask(bookId, dailyNew, dailyReview),
-        fetchCheckinRecords(
-          this.data.currentYear,
-          this.data.currentMonth,
-        ),
         fetchBadges(),
+        fetchMistakes(),
       ]);
 
       const currentBook = books.find((b) => b.id === bookId) ?? null;
@@ -178,9 +154,8 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
           ? Math.round((progress.wordsMastered / totalWords) * 100)
           : 0;
       const distribution = this.computeDistribution(progress, progress.wordsMastered);
-
-      const calendarGrid = this.buildCalendarGrid(checkinDates);
       const nextBadge = this.computeNextBadge(badgesData.badges, badgesData.userBadges, progress);
+      const mistakeCount = mistakes.length;
 
       // 兼容 calcLevel 导入（计算用户等级信息供后续扩展使用）
       void calcLevel;
@@ -206,8 +181,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         streak: progress.currentStreak,
         checkedIn,
         loading: false,
-        calendarGrid,
-        monthLabel: `${this.data.currentYear}年${this.data.currentMonth}月`,
+        mistakeCount,
         nextBadge,
       });
     } catch (err) {
@@ -272,116 +246,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     }));
   },
 
-  /** 根据打卡日期列表构建日历网格 */
-  buildCalendarGrid(checkinDates: string[]): IDayCell[] {
-    const { currentYear, currentMonth } = this.data;
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const firstDay = new Date(currentYear, currentMonth - 1, 1);
-    const lastDay = new Date(currentYear, currentMonth, 0);
-    const startDow = firstDay.getDay();
-    const daysInMonth = lastDay.getDate();
-    const checkinSet = new Set(checkinDates);
-
-    const grid: IDayCell[] = [];
-
-    // 上月尾部填充
-    const prevLast = new Date(currentYear, currentMonth - 1, 0).getDate();
-    for (let i = startDow - 1; i >= 0; i--) {
-      const day = prevLast - i;
-      const fd =
-        currentMonth === 1
-          ? `${currentYear - 1}-12-${String(day).padStart(2, '0')}`
-          : `${currentYear}-${String(currentMonth - 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      grid.push({
-        day,
-        fullDate: fd,
-        isToday: fd === todayStr,
-        isCheckedIn: checkinSet.has(fd),
-        isCurrentMonth: false,
-      });
-    }
-
-    // 当月每天
-    for (let d = 1; d <= daysInMonth; d++) {
-      const fd = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      grid.push({
-        day: d,
-        fullDate: fd,
-        isToday: fd === todayStr,
-        isCheckedIn: checkinSet.has(fd),
-        isCurrentMonth: true,
-      });
-    }
-
-    // 下月头部填充
-    const rem = grid.length % 7 === 0 ? 0 : 7 - (grid.length % 7);
-    const nextM = currentMonth === 12 ? 1 : currentMonth + 1;
-    const nextY = currentMonth === 12 ? currentYear + 1 : currentYear;
-    for (let d = 1; d <= rem; d++) {
-      const fd = `${nextY}-${String(nextM).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      grid.push({
-        day: d,
-        fullDate: fd,
-        isToday: fd === todayStr,
-        isCheckedIn: checkinSet.has(fd),
-        isCurrentMonth: false,
-      });
-    }
-
-    return grid;
-  },
-
-  /** 切换至上一个月 */
-  onPrevMonth(): void {
-    let { currentYear, currentMonth } = this.data;
-    if (currentMonth === 1) {
-      currentMonth = 12;
-      currentYear--;
-    } else {
-      currentMonth--;
-    }
-    this.setData({ currentYear, currentMonth });
-    this.refreshCalendar();
-  },
-
-  /** 切换至下一个月（不能超过当前月） */
-  onNextMonth(): void {
-    let { currentYear, currentMonth } = this.data;
-    const now = new Date();
-    if (
-      currentYear * 12 + currentMonth >=
-      now.getFullYear() * 12 + now.getMonth() + 1
-    ) {
-      return;
-    }
-    if (currentMonth === 12) {
-      currentMonth = 1;
-      currentYear++;
-    } else {
-      currentMonth++;
-    }
-    this.setData({ currentYear, currentMonth });
-    this.refreshCalendar();
-  },
-
-  /** 重新拉取打卡记录并刷新日历 */
-  async refreshCalendar(): Promise<void> {
-    try {
-      const checkinDates = await fetchCheckinRecords(
-        this.data.currentYear,
-        this.data.currentMonth,
-      );
-      const calendarGrid = this.buildCalendarGrid(checkinDates);
-      this.setData({
-        calendarGrid,
-        monthLabel: `${this.data.currentYear}年${this.data.currentMonth}月`,
-      });
-    } catch {
-      // 静默失败
-    }
-  },
-
   /**
    * 计算下一个可获得的勋章
    * 全部勋章均为累计学习天数维度，取 gap 最小的未获得勋章
@@ -437,10 +301,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/study/index' });
   },
 
-  /** 点击分布标签 → 跳转错题本页 */
+  /** 点击分布标签 → 跳转生词本对应 tab */
   onTapDistribution(e: WechatMiniprogram.TouchEvent): void {
+    const tab = e.currentTarget.dataset.tab as string;
     wx.navigateTo({
-      url: '/pages/mistake-book/index',
+      url: `/pages/vocabulary/index?tab=${tab}`,
     });
   },
 
@@ -452,5 +317,20 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   /** 点击勋章墙 → 跳转勋章页 */
   onTapBadges(): void {
     wx.navigateTo({ url: '/pages/badges/index' });
+  },
+
+  /** 点击生词本入口 */
+  onTapVocabulary(): void {
+    wx.navigateTo({ url: '/pages/vocabulary/index' });
+  },
+
+  /** 点击错题本入口 */
+  onTapMistakeBook(): void {
+    wx.navigateTo({ url: '/pages/mistake-book/index' });
+  },
+
+  /** 点击打卡日历入口 */
+  onTapCalendar(): void {
+    wx.navigateTo({ url: '/pages/calendar/index' });
   },
 });

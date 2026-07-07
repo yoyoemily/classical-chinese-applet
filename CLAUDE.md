@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-文言雀——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。15 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
+文言雀——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。18 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
 
 ## 开发环境
 
@@ -63,7 +63,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── sitemap.json        # SEO 站点地图
 ├── project.config.json # 微信开发者工具配置
 ├── tsconfig.json       # TS strict 配置
-├── pages/              # 页面（每页面 4 文件：ts/wxml/scss/json）
+├── pages/              # 页面（每页面 4 文件：ts/wxml/scss/json），共 18 个
+│   ├── index/          # TabBar 1 — 学习（首页）: 搜索框、勋章倒计时、词书进度、今日任务、快捷入口
+│   ├── article-list/   # TabBar 2 — 名篇: 双行筛选，通篇/段落/逐句/典故注释四种阅读模式
+│   ├── classic/        # TabBar 3 — 经典: 36 部传世典籍，四部分类（经/史/子/集），阅读板块锁定中
+│   ├── mine/           # TabBar 4 — 我的: 等级+XP、菜单
+│   ├── study/          # 学习页（核心）: 句子答题→纠错→字总结→完成
+│   ├── study-complete/ # 学习完成页: 统计+新勋章+诗词
+│   ├── word-summary/   # 字总结页: 大字展示+义项+字型+记忆口诀
+│   ├── mistake-book/   # 错题本（非 Tab）: 自动收录+筛选+手动移除
+│   ├── vocabulary/     # 生词本: 全部词书按困难/模糊/熟悉/掌握分类
+│   ├── book-select/    # 词书选择: 8 本词书，按中考/高考 Tab 过滤
+│   ├── book-detail/    # 词书详情
+│   ├── article-reader/ # 名篇阅读器: 4 种模式+内联生词高亮
+│   ├── calendar/       # 打卡日历: 月视图
+│   ├── badges/         # 勋章墙: 8 枚累计学习天数勋章
+│   ├── search/         # 全局搜索: 实时搜索完整义项
+│   ├── settings/       # 设置: 学习配置+错题阈值
+│   ├── profile-edit/   # 个人信息编辑: 头像/昵称/年级
+│   └── full-text/      # 全文阅读: 纠错页/名篇跳转
 ├── components/         # 公共组件
 ├── api/
 │   └── index.ts         # 统一接口层（USE_MOCK 开关），含 15 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息
@@ -162,7 +180,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 ## 当前完成度
 
 ### 已完成
-- **16 页面**全部搭建，含 4 TabBar（学习/名篇/错题本/我的）
+- **18 页面**全部搭建，含 4 TabBar（学习/名篇/经典/我的）
 - **核心学习回路**：句子卡片答题 → 纠错页（正确/错误/不知道）→ 字总结 → 学习完成（含艾宾浩斯引擎 `utils/ebbinghaus.ts`）
 - **错题本**：自动收录答错词、连续答对 N 次自动移出（阈值可配 1/2/3 次）、全部/高频/近期筛选。详见 [[mistake-book-and-search]]
 - **全局搜索**：学习页搜索框 → 搜索页，实时展示完整义项。详见 [[mistake-book-and-search]]

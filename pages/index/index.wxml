@@ -136,45 +136,37 @@
       >开 始 学 习</button>
     </view>
 
-    <!-- -------- 打卡日历区 -------- -->
-    <view class="page-index__calendar">
-      <!-- 月份导航 -->
-      <view class="page-index__calendar-nav">
-        <view
-          class="page-index__calendar-nav-btn"
-          hover-class="page-index__calendar-nav-btn--active"
-          bindtap="onPrevMonth"
-        >‹</view>
-        <text class="page-index__calendar-nav-label">{{monthLabel}}</text>
-        <view
-          class="page-index__calendar-nav-btn"
-          hover-class="page-index__calendar-nav-btn--active"
-          bindtap="onNextMonth"
-        >›</view>
+    <!-- -------- 快捷入口区 -------- -->
+    <view class="page-index__entry-section">
+      <!-- 生词本 -->
+      <view
+        class="page-index__entry-card"
+        hover-class="page-index__entry-card--active"
+        bindtap="onTapVocabulary"
+      >
+        <text class="page-index__entry-icon">📝</text>
+        <text class="page-index__entry-label">生词本</text>
+        <text class="page-index__entry-desc">掌握分布</text>
       </view>
-
-      <!-- 星期表头 -->
-      <view class="page-index__calendar-weekdays">
-        <text
-          wx:for="{{weekdays}}"
-          wx:key="*this"
-          class="page-index__calendar-weekday {{index === 0 || index === 6 ? 'page-index__calendar-weekday--weekend' : ''}}"
-        >{{item}}</text>
+      <!-- 错题本 -->
+      <view
+        class="page-index__entry-card"
+        hover-class="page-index__entry-card--active"
+        bindtap="onTapMistakeBook"
+      >
+        <text class="page-index__entry-icon">📋</text>
+        <text class="page-index__entry-label">错题本</text>
+        <text class="page-index__entry-desc">已收录 {{mistakeCount}} 条</text>
       </view>
-
-      <!-- 日期网格 -->
-      <view class="page-index__calendar-grid">
-        <view
-          wx:for="{{calendarGrid}}"
-          wx:key="fullDate"
-          class="page-index__calendar-cell {{!item.isCurrentMonth ? 'page-index__calendar-cell--other' : ''}} {{item.isToday ? 'page-index__calendar-cell--today' : ''}}"
-        >
-          <text>{{item.day}}</text>
-          <view
-            wx:if="{{item.isCheckedIn && item.isCurrentMonth}}"
-            class="page-index__calendar-cell-dot"
-          ></view>
-        </view>
+      <!-- 打卡日历 -->
+      <view
+        class="page-index__entry-card"
+        hover-class="page-index__entry-card--active"
+        bindtap="onTapCalendar"
+      >
+        <text class="page-index__entry-icon">📅</text>
+        <text class="page-index__entry-label">打卡日历</text>
+        <text class="page-index__entry-desc">连续打卡 {{streak}} 天</text>
       </view>
     </view>
 

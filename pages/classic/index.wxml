@@ -1,0 +1,54 @@
+<!-- 经典著作列表页 -->
+<view class="page-classic">
+
+  <!-- 页首说明 -->
+  <view class="page-classic__intro">
+    <view class="page-classic__intro-row">
+      <text class="page-classic__intro-title">📚 中华经典</text>
+      <view
+        class="page-classic__intro-tip"
+        hover-class="page-classic__intro-tip--active"
+        bindtap="onTapTip"
+      >
+        <text class="page-classic__intro-tip-icon">🔒</text>
+      </view>
+    </view>
+    <text class="page-classic__intro-desc">三十六部传世典籍 · 涵泳其间，与古贤对话</text>
+  </view>
+
+  <!-- 分类 Tab -->
+  <view class="page-classic__tabs">
+    <block wx:for="{{groups}}" wx:key="category">
+      <view
+        class="page-classic__tab {{activeTab === item.category ? 'page-classic__tab--active' : ''}}"
+        data-tab="{{item.category}}"
+        bindtap="onTapTab"
+      >
+        <text>{{item.category}}部</text>
+        <text class="page-classic__tab-count">{{item.items.length}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 经典列表 -->
+  <view class="page-classic__list">
+    <block wx:for="{{displayItems}}" wx:key="id">
+      <view
+        class="page-classic__card"
+        hover-class="page-classic__card--active"
+        bindtap="onTapClassic"
+      >
+        <view class="page-classic__card-left">
+          <text class="page-classic__card-icon">{{item.icon}}</text>
+        </view>
+        <view class="page-classic__card-body">
+          <text class="page-classic__card-name">{{item.name}}</text>
+          <text class="page-classic__card-era">{{item.era}}</text>
+          <text class="page-classic__card-desc">{{item.description}}</text>
+        </view>
+        <text class="page-classic__card-arrow">›</text>
+      </view>
+    </block>
+  </view>
+
+</view>

@@ -1,0 +1,191 @@
+// ============================================
+// 经典著作列表页样式
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-classic {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom));
+
+  // ==========================================
+  // 页首说明
+  // ==========================================
+  &__intro {
+    @include flex-column;
+    @include flex-center;
+    padding: $spacing-lg $spacing-base $spacing-md;
+    background: linear-gradient(135deg, rgba($color-primary, 0.05), rgba($color-primary, 0.02));
+  }
+
+  &__intro-row {
+    @include flex-center;
+    gap: $spacing-sm;
+  }
+
+  &__intro-title {
+    font-size: $font-size-xl;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: 4rpx;
+  }
+
+  &__intro-tip {
+    width: 44rpx;
+    height: 44rpx;
+    @include flex-center;
+    border-radius: $radius-round;
+    background: rgba($color-accent, 0.12);
+    border: 2rpx solid rgba($color-accent, 0.3);
+
+    &--active {
+      opacity: 0.7;
+    }
+  }
+
+  &__intro-tip-icon {
+    font-size: 22rpx;
+    line-height: 1;
+  }
+
+  &__intro-desc {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    margin-top: $spacing-sm;
+    letter-spacing: 2rpx;
+  }
+
+  // ==========================================
+  // 分类 Tab 栏
+  // ==========================================
+  &__tabs {
+    display: flex;
+    background-color: var(--color-bg-white);
+    padding: 0 $spacing-base;
+    box-shadow: $shadow-sm;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  &__tab {
+    flex: 1;
+    @include flex-center;
+    height: 80rpx;
+    gap: $spacing-xs;
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    position: relative;
+    @include active;
+
+    &--active {
+      color: var(--color-primary);
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48rpx;
+        height: 4rpx;
+        border-radius: 2rpx;
+        background-color: var(--color-primary);
+      }
+    }
+  }
+
+  &__tab-count {
+    font-size: 20rpx;
+    color: var(--color-text-hint);
+    background: var(--color-bg-card);
+    padding: 2rpx 12rpx;
+    border-radius: 20rpx;
+    min-width: 40rpx;
+    text-align: center;
+
+    .page-classic__tab--active & {
+      color: #fff;
+      background-color: var(--color-primary);
+    }
+  }
+
+  // ==========================================
+  // 经典列表
+  // ==========================================
+  &__list {
+    padding: 0 $spacing-base;
+  }
+
+  // ==========================================
+  // 经典卡片
+  // ==========================================
+  &__card {
+    @include card;
+    display: flex;
+    align-items: center;
+    padding: $spacing-md;
+    margin-top: $spacing-base;
+
+    &--active {
+      opacity: 0.85;
+    }
+  }
+
+  &__card-left {
+    width: 72rpx;
+    height: 72rpx;
+    @include flex-center;
+    background: var(--color-bg-card);
+    border-radius: $radius-md;
+    margin-right: $spacing-md;
+    flex-shrink: 0;
+  }
+
+  &__card-icon {
+    font-size: 36rpx;
+    line-height: 1;
+  }
+
+  &__card-body {
+    flex: 1;
+    @include flex-column;
+    overflow: hidden;
+  }
+
+  &__card-name {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__card-era {
+    font-size: 20rpx;
+    color: var(--color-primary);
+    background: rgba($color-primary, 0.08);
+    padding: 2rpx 12rpx;
+    border-radius: $radius-sm;
+    margin-top: 4rpx;
+    align-self: flex-start;
+  }
+
+  &__card-desc {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    line-height: 1.6;
+    margin-top: 6rpx;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  &__card-arrow {
+    font-size: $font-size-lg;
+    color: var(--color-text-hint);
+    flex-shrink: 0;
+    margin-left: $spacing-sm;
+  }
+}

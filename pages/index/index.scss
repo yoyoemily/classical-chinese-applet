@@ -10,7 +10,7 @@
 .page-index {
   min-height: 100vh;
   background-color: var(--color-bg-page);
-  padding: $spacing-md $spacing-base;
+  padding: $spacing-md $spacing-base calc(#{$spacing-xl} + var(--safe-area-bottom));
 
   // ==========================================
   // 搜索栏（置顶）
@@ -360,90 +360,45 @@
   }
 
   // ==========================================
-  // 打卡日历区
+  // 快捷入口区
   // ==========================================
-  &__calendar {
-    @include card;
-    padding: $spacing-md;
+  &__entry-section {
+    display: flex;
+    gap: $spacing-sm;
     margin-bottom: $spacing-md;
-
-    // 页面底部安全区适配
-    @include safe-area-bottom($spacing-xl);
   }
 
-  &__calendar-nav {
-    @include flex-between;
-    margin-bottom: $spacing-base;
-    padding: 0 $spacing-xs;
-  }
-  &__calendar-nav-btn {
-    width: 56rpx;
-    height: 56rpx;
+  &__entry-card {
+    flex: 1;
+    @include flex-column;
     @include flex-center;
-    border-radius: 50%;
-    background: var(--color-bg-card);
-    font-size: 36rpx;
-    font-weight: 300;
-    color: var(--color-text-secondary);
+    @include card;
+    padding: $spacing-md $spacing-sm;
+    gap: $spacing-xs;
+    text-align: center;
 
     &--active {
-      opacity: 0.5;
+      opacity: 0.85;
+      transform: scale(0.97);
     }
   }
-  &__calendar-nav-label {
-    font-size: $font-size-md;
+
+  &__entry-icon {
+    font-size: 40rpx;
+    line-height: 1;
+  }
+
+  &__entry-label {
+    font-size: $font-size-sm;
     font-weight: 600;
     color: var(--color-text-primary);
+    line-height: 1.4;
   }
 
-  // 星期表头
-  &__calendar-weekdays {
-    display: flex;
-    padding: $spacing-sm 0;
-  }
-  &__calendar-weekday {
-    flex: 1;
-    text-align: center;
-    font-size: $font-size-xs;
-    color: var(--color-text-secondary);
-    font-weight: 500;
-
-    &--weekend {
-      color: var(--color-error);
-      opacity: 0.7;
-    }
-  }
-
-  // 日期网格
-  &__calendar-grid {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  &__calendar-cell {
-    width: calc(100% / 7);
-    aspect-ratio: 1;
-    @include flex-column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    font-size: $font-size-sm;
-    border-radius: $radius-base;
-
-    &--other {
-      opacity: 0.3;
-    }
-    &--today {
-      background: rgba($color-primary, 0.08);
-      border: 2rpx solid var(--color-primary);
-    }
-  }
-  &__calendar-cell-dot {
-    width: 10rpx;
-    height: 10rpx;
-    border-radius: 50%;
-    background: var(--color-accent);
-    position: absolute;
-    bottom: 8rpx;
+  &__entry-desc {
+    font-size: 20rpx;
+    color: var(--color-text-hint);
+    line-height: 1.4;
   }
 
 }
