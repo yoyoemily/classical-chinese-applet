@@ -425,6 +425,8 @@ HTTP/1.1 200 OK
 | `sentenceId` | String (Required) | 考题句子 ID |
 | `selectedOption` | Integer (Required) | 用户选择的选项序号（0-based） |
 | `correct` | Boolean (Required) | 是否答对 |
+| `correctAnswer` | String | 正确答案文本（前端传入，用于错题本记录，避免后端因 shuffle 无法还原） (Optional) |
+| `wrongAnswer` | String | 用户选择的答案文本（前端传入） (Optional) |
 
 #### Response Fields
 
@@ -453,7 +455,10 @@ HTTP/1.1 200 OK
 }
 ```
 
+> **关于 `correctAnswer` / `wrongAnswer`**：前端 shuffle 后选项顺序不确定，后端无法通过 `selectedOption` 序号还原答案文本。因此由前端在 `submitAnswer` 时直接传入正确答案和用户答案的文本，后端直接写入错题本。两个字段均为可选，不传时后端从数据库兜底取值（可能不准确）。
+
 #### Example: Error
+用
 
 ```json
 HTTP/1.1 400 Bad Request
@@ -519,6 +524,112 @@ HTTP/1.1 200 OK
         ],
         "xpGained": 50
     }
+}
+```
+
+---
+
+---
+
+## 错题本
+
+### 获取错题列表
+
+返回当前用户的错题记录，每条记录对应一个字，内含多个答错的句子明细。
+
+**Endpoint:** `GET /api/study/mistakes`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String | 词书 ID，不传则返回所有词书的错题 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].wordId` | String | 字词 ID |
+| `data[].character` | String | 汉字 |
+| `data[].pinyin` | String | 拼音 |
+| `data[].totalErrors` | Integer | 所有句子的错误次数之和（冗余字段，避免前端遍历计算） |
+| `data[].lastErrorTime` | String | 最近一次答错时间，格式 `YYYY-MM-DD` |
+| `data[].sentences` | Array\<MistakeSentence\> | 该字的答错句子明细 |
+
+**MistakeSentence 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sentenceId` | String | 句子 ID |
+| `sentenceText` | String | 答错时的原句 |
+| `wrongAnswer` | String | 用户选择的错误答案 |
+| `correctAnswer` | String | 正确答案 |
+| `errorCount` | Integer | 该句子的累计错误次数 |
+| `consecutiveCorrect` | Integer | 该句子的连续答对次数 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": [
+        {
+            "wordId": "wb_c_001",
+            "character": "安",
+            "pinyin": "ān",
+            "totalErrors": 4,
+            "lastErrorTime": "2026-07-07",
+            "sentences": [
+                {
+                    "sentenceId": "s_c_0001",
+                    "sentenceText": "燕雀安知鸿鹄之志哉？",
+                    "wrongAnswer": "安定，安稳",
+                    "correctAnswer": "怎么，哪里（表示反问）",
+                    "errorCount": 3,
+                    "consecutiveCorrect": 0
+                },
+                {
+                    "sentenceId": "s_c_0004",
+                    "sentenceText": "衣食所安，弗敢专也。",
+                    "wrongAnswer": "怎么，哪里",
+                    "correctAnswer": "养，使……安定",
+                    "errorCount": 1,
+                    "consecutiveCorrect": 0
+                }
+            ]
+        }
+    ]
+}
+```
+
+---
+
+### 移除错题
+
+手动移除指定字词的全部错题记录（含所有句子明细）。
+
+**Endpoint:** `DELETE /api/study/mistakes/:wordId`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordId` | String (Required) | 要移除的字词 ID |
+
+#### Response
+
+无 data 内容。
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": null
 }
 ```
 
@@ -1159,6 +1270,61 @@ HTTP/1.1 200 OK
 
 ---
 
+## 经典著作
+
+### 获取经典著作列表
+
+返回全部或按四部分类筛选的经典著作列表。
+
+**Endpoint:** `GET /api/classics`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `category` | String | 四部分类筛选：`经` / `史` / `子` / `集`。不传则返回全部 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].id` | Long | 经典著作 ID |
+| `data[].name` | String | 经典名称，如"论语" |
+| `data[].era` | String | 朝代，如"春秋" |
+| `data[].icon` | String | emoji 图标 |
+| `data[].description` | String | 简介 |
+| `data[].category` | String | 四部分类：`经` / `史` / `子` / `集` |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": [
+        {
+            "id": 1,
+            "name": "论语",
+            "era": "春秋",
+            "icon": "📖",
+            "description": "孔子及其弟子的言行录，儒家核心经典...",
+            "category": "经"
+        },
+        {
+            "id": 2,
+            "name": "孟子",
+            "era": "战国",
+            "icon": "📜",
+            "description": "孟子与其弟子所著...",
+            "category": "经"
+        }
+    ]
+}
+```
+
+---
+
 ## 附录
 
 ### 枚举值速查
@@ -1251,6 +1417,15 @@ HTTP/1.1 200 OK
 | `annotation` | 标注有误 |
 | `article_info` | 文章信息有误 |
 | `other` | 其他 |
+
+#### ClassicCategory — 四部分类
+
+| 值 | 含义 |
+|----|------|
+| `经` | 经部 — 儒家经典十三经及其注疏 |
+| `史` | 史部 — 正史、编年、纪事本末等史学著作 |
+| `子` | 子部 — 诸子百家及释道宗教之作 |
+| `集` | 集部 — 诗文词曲等文学总集与别集 |
 
 #### FeedbackSource — 反馈来源
 

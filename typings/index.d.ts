@@ -285,23 +285,30 @@ export interface ITodayTask {
 // ============================================
 export type MistakeFilter = 'all' | 'frequent' | 'recent'
 
-export interface IMistakeRecord {
-  wordId: string
-  character: string
-  pinyin: string
-  /** 答错时的原句上下文 */
-  sentenceText: string
+/** 错题本中单个句子的记录 */
+export interface IMistakeSentence {
   sentenceId: string
+  sentenceText: string
   /** 用户选择了什么 */
   wrongAnswer: string
   /** 正确答案 */
   correctAnswer: string
-  /** 累计错误次数 */
+  /** 该句子的累计错误次数 */
   errorCount: number
+  /** 该句子的连续答对次数（达到阈值自动移出） */
+  consecutiveCorrect: number
+}
+
+export interface IMistakeRecord {
+  wordId: string
+  character: string
+  pinyin: string
+  /** 所有句子的错误次数之和（冗余字段，避免页面遍历计算） */
+  totalErrors: number
   /** 最近一次答错时间 */
   lastErrorTime: string
-  /** 连续答对次数（达到阈值自动移出） */
-  consecutiveCorrect: number
+  /** 各句子的错题记录 */
+  sentences: IMistakeSentence[]
 }
 
 // ============================================
@@ -384,4 +391,16 @@ export interface IFeedbackSubmitParams {
   source: FeedbackSource
   description: string
   context: IFeedback['context']
+}
+
+// ============================================
+// 经典著作
+// ============================================
+export interface IClassicItem {
+  id: number
+  name: string
+  era: string
+  icon: string
+  description: string
+  category: string
 }

@@ -10,7 +10,7 @@
         hover-class="page-classic__intro-tip--active"
         bindtap="onTapTip"
       >
-        <text class="page-classic__intro-tip-icon">🔒</text>
+        <text class="page-classic__intro-tip-icon">?</text>
       </view>
     </view>
     <text class="page-classic__intro-desc">三十六部传世典籍 · 涵泳其间，与古贤对话</text>
@@ -42,8 +42,10 @@
           <text class="page-classic__card-icon">{{item.icon}}</text>
         </view>
         <view class="page-classic__card-body">
-          <text class="page-classic__card-name">{{item.name}}</text>
-          <text class="page-classic__card-era">{{item.era}}</text>
+          <view class="page-classic__card-title-row">
+            <text class="page-classic__card-name">{{item.name}}</text>
+            <text class="page-classic__card-era">{{item.era}}</text>
+          </view>
           <text class="page-classic__card-desc">{{item.description}}</text>
         </view>
         <text class="page-classic__card-arrow">›</text>

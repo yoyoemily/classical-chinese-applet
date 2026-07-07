@@ -29,36 +29,36 @@
             <text class="page-mistake-book__pinyin">{{item.pinyin}}</text>
           </view>
           <view class="page-mistake-book__meta">
-            <text class="page-mistake-book__error-count">错{{item.errorCount}}次</text>
+            <text class="page-mistake-book__error-count">错{{item.totalErrors}}次</text>
             <text class="page-mistake-book__arrow">{{expandedWordId === item.wordId ? '▼' : '▶'}}</text>
           </view>
         </view>
 
         <!-- 展开的详情 -->
         <view class="page-mistake-book__card-detail" wx:if="{{expandedWordId === item.wordId}}">
-          <view class="page-mistake-book__detail-row">
-            <text class="page-mistake-book__detail-label">原句</text>
-            <text class="page-mistake-book__detail-value">{{item.sentenceText}}</text>
-          </view>
-          <view class="page-mistake-book__detail-row">
-            <text class="page-mistake-book__detail-label">我的答案</text>
-            <text class="page-mistake-book__detail-value page-mistake-book__detail-value--wrong">{{item.wrongAnswer}}</text>
-          </view>
-          <view class="page-mistake-book__detail-row">
-            <text class="page-mistake-book__detail-label">正确答案</text>
-            <text class="page-mistake-book__detail-value page-mistake-book__detail-value--correct">{{item.correctAnswer}}</text>
-          </view>
+          <block wx:for="{{item.sentences}}" wx:key="sentenceId" wx:for-item="sent">
+            <view class="page-mistake-book__sentence-block">
+              <view class="page-mistake-book__detail-row">
+                <text class="page-mistake-book__detail-label">原句</text>
+                <text class="page-mistake-book__detail-value">{{sent.sentenceText}}</text>
+              </view>
+              <view class="page-mistake-book__detail-row">
+                <text class="page-mistake-book__detail-label">我的答案</text>
+                <text class="page-mistake-book__detail-value page-mistake-book__detail-value--wrong">{{sent.wrongAnswer}}</text>
+              </view>
+              <view class="page-mistake-book__detail-row">
+                <text class="page-mistake-book__detail-label">正确答案</text>
+                <text class="page-mistake-book__detail-value page-mistake-book__detail-value--correct">{{sent.correctAnswer}}</text>
+              </view>
+              <view class="page-mistake-book__detail-row">
+                <text class="page-mistake-book__detail-label">错误次数</text>
+                <text class="page-mistake-book__detail-value">{{sent.errorCount}}次</text>
+              </view>
+            </view>
+          </block>
           <view class="page-mistake-book__detail-row">
             <text class="page-mistake-book__detail-label">最近答错</text>
             <text class="page-mistake-book__detail-value">{{item.lastErrorTime}}</text>
-          </view>
-          <view class="page-mistake-book__detail-actions">
-            <view class="page-mistake-book__detail-btn" data-word-id="{{item.wordId}}" bindtap="onTapWordDetail">
-              查看详情
-            </view>
-            <view class="page-mistake-book__detail-btn page-mistake-book__detail-btn--remove" data-word-id="{{item.wordId}}" catchtap="onRemoveMistake">
-              移除
-            </view>
           </view>
         </view>
       </view>

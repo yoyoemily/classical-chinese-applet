@@ -1,4 +1,4 @@
-<!-- 名篇阅读页 -->
+<!-- 选篇阅读页 -->
 <view class="page-article-reader">
   <block wx:if="{{loading}}">
     <view class="page-article-reader__loading"><text>加载中...</text></view>

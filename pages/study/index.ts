@@ -383,8 +383,18 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const s = this._session!;
     const word = s.words[s.currentWordIndex];
     const sent = word.sentences[s.currentSentenceIndex];
+    const options = this.data.options;
+    const correctIdx = this.data.correctIndex;
+    const wrongAnswer = selectedIndex >= 0 && selectedIndex < options.length
+      ? options[selectedIndex] : '不知道';
+    const correctAnswer = correctIdx >= 0 && correctIdx < options.length
+      ? options[correctIdx] : '';
     try {
-      await submitAnswer({ wordBookId: this._bookId, wordId: word.wordId, sentenceId: sent.id, selectedOption: selectedIndex, correct: isCorrect });
+      await submitAnswer({
+        wordBookId: this._bookId, wordId: word.wordId, sentenceId: sent.id,
+        selectedOption: selectedIndex, correct: isCorrect,
+        correctAnswer, wrongAnswer,
+      });
     } catch { /* ignore */ }
     if (isCorrect) {
       s.correctCount++;
@@ -395,27 +405,55 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       s.wrongCount++;
       this.setData({ wrongCount: s.wrongCount });
       // 错题本：答错时记录
-      this._recordMistake(word.wordId, word.character, sent);
+      this._recordMistake(word.wordId, word.character, sent, selectedIndex);
     }
   },
 
   /** 答错时记录到错题本 */
-  _recordMistake(wordId: string, character: string, sent: IStudyData['currentSentence']): void {
+  _recordMistake(wordId: string, character: string, sent: IStudyData['currentSentence'], selectedIndex: number): void {
     if (!sent) return;
     const fullWord = this._wordsMap[wordId];
     const existing = getMistakes().find(m => m.wordId === wordId);
+
+    const options = this.data.options;
+    const correctIdx = this.data.correctIndex;
+    const wrongAnswer = selectedIndex >= 0 && selectedIndex < options.length
+      ? options[selectedIndex]
+      : '不知道';
+    const correctAnswer = correctIdx >= 0 && correctIdx < options.length
+      ? options[correctIdx]
+      : '';
+
+    const sentences = existing?.sentences ? [...existing.sentences] : [];
+    const sentIdx = sentences.findIndex(s => s.sentenceId === sent.id);
+
+    if (sentIdx >= 0) {
+      const prev = sentences[sentIdx];
+      sentences[sentIdx] = {
+        ...prev,
+        wrongAnswer,
+        correctAnswer,
+        errorCount: prev.errorCount + 1,
+        consecutiveCorrect: 0,
+      };
+    } else {
+      sentences.push({
+        sentenceId: sent.id,
+        sentenceText: sent.text,
+        wrongAnswer,
+        correctAnswer,
+        errorCount: 1,
+        consecutiveCorrect: 0,
+      });
+    }
 
     addMistake({
       wordId,
       character,
       pinyin: fullWord?.pinyin || '',
-      sentenceText: sent.text,
-      sentenceId: sent.id,
-      wrongAnswer: this.data.options[this.data.selectedIndex] || '不知道',
-      correctAnswer: this.data.options[this.data.correctIndex] || '',
-      errorCount: (existing?.errorCount || 0) + 1,
+      totalErrors: (existing?.totalErrors || 0) + 1,
       lastErrorTime: new Date().toISOString().split('T')[0],
-      consecutiveCorrect: 0,
+      sentences,
     });
   },
 
@@ -424,13 +462,27 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const existing = getMistakes().find(m => m.wordId === wordId);
     if (!existing) return;
 
-    const threshold = getMistakeRemoveThreshold();
-    const newConsecutive = existing.consecutiveCorrect + 1;
+    const word = this._session?.words[this._session.currentWordIndex];
+    if (!word) return;
+    const currentSent = word.sentences[this._session!.currentSentenceIndex];
+    if (!currentSent) return;
 
-    if (newConsecutive >= threshold) {
+    const sentences = existing.sentences.map(s => {
+      if (s.sentenceId === currentSent.id) {
+        return { ...s, consecutiveCorrect: s.consecutiveCorrect + 1 };
+      }
+      return s;
+    });
+
+    const threshold = getMistakeRemoveThreshold();
+    const remaining = sentences.filter(s => s.consecutiveCorrect < threshold);
+
+    if (remaining.length === 0) {
       removeMistake(wordId);
     } else {
-      addMistake({ ...existing, consecutiveCorrect: newConsecutive });
+      // 重新计算 totalErrors（移出的句子可能有多条 errorCount）
+      const newTotal = remaining.reduce((sum, s) => sum + s.errorCount, 0);
+      addMistake({ ...existing, sentences: remaining, totalErrors: newTotal });
     }
   },
 

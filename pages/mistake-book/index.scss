@@ -116,6 +116,16 @@
     padding-top: $spacing-md;
   }
 
+  &__sentence-block {
+    padding: $spacing-sm 0;
+    margin-bottom: $spacing-sm;
+    border-bottom: 1rpx dashed var(--color-border-light);
+
+    &:last-child {
+      margin-bottom: $spacing-md;
+    }
+  }
+
   &__detail-row {
     display: flex;
     margin-bottom: $spacing-sm;
@@ -140,27 +150,6 @@
 
     &--correct {
       color: var(--color-success);
-    }
-  }
-
-  &__detail-actions {
-    display: flex;
-    gap: $spacing-md;
-    margin-top: $spacing-md;
-    justify-content: flex-end;
-  }
-
-  &__detail-btn {
-    padding: 12rpx 32rpx;
-    font-size: $font-size-sm;
-    color: var(--color-primary);
-    border: 1rpx solid var(--color-primary);
-    border-radius: $radius-sm;
-    @include active;
-
-    &--remove {
-      color: var(--color-error);
-      border-color: var(--color-error);
     }
   }
 

@@ -5,7 +5,7 @@ import { get, post, put, del } from '../utils/request';
 import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
-  IFeedbackSubmitParams, IUserProfile, IWordSearchResult,
+  IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
@@ -71,6 +71,7 @@ export async function fetchTodayTask(
 export async function submitAnswer(data: {
   wordBookId: string; wordId: string; sentenceId: string;
   selectedOption: number; correct: boolean;
+  correctAnswer?: string; wrongAnswer?: string;
 }): Promise<{ updatedProgress: { stage: number | string; nextReviewDate: string; correctCount: number; wrongCount: number } }> {
   if (USE_MOCK) {
     const progress = getProgress();
@@ -323,4 +324,16 @@ export async function submitFeedback(data: IFeedbackSubmitParams): Promise<{ id:
     return { id: `fb_${Date.now()}` };
   }
   return post('/api/feedback', data);
+}
+
+// ============================================
+// 经典著作
+// ============================================
+export async function fetchClassics(category?: string): Promise<IClassicItem[]> {
+  if (USE_MOCK) {
+    return []; // Mock 模式下返回空数组，页面将使用硬编码数据
+  }
+  const params: Record<string, string> = {};
+  if (category) params.category = category;
+  return get('/api/classics', params);
 }

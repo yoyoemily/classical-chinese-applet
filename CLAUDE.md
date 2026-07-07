@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 尺寸单位 | `rpx`（1rpx = 屏幕宽度 / 750） |
 | UI 组件库 | 无，全部手写 |
 | 后端 | 传统 HTTP API（非云开发），JWT 认证。BASE_URL 根据环境自动切换：`wx.getAccountInfoSync().miniProgram.envVersion === 'release'` → `https://wyq.yinque-ai.com`，否则 → `http://localhost:8080` |
-| 数据源 | 词书/名篇/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存 |
+| 数据源 | 词书/名篇/经典/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存 |
 | 艾宾浩斯 | 服务端权威调度——服务端 `getTodayTask` 返回任务列表、`submitAnswer` 更新进度；前端保留离线冗余 |
 | 状态管理 | 轻量：`app.globalData` + 事件总线 |
 | Mock 模式 | `api/index.ts` 中 `USE_MOCK = false`，已对接真实后端；所有依赖静态顶级导入（禁止 `await import()`） |
@@ -52,6 +52,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 用户 | saveUserInfo | PUT | /api/user/info | Bearer |
 | 名篇 | fetchArticles | GET | /api/articles | Bearer |
 | 名篇 | fetchArticleDetail | GET | /api/articles/:id | Bearer |
+| 经典 | fetchClassics | GET | /api/classics | Bearer |
 | 内容 | fetchWordDetail | GET | /api/words/:id | Bearer |
 | 内容 | fetchFullText | GET | /api/full-text/:sentenceId | Bearer |
 | 反馈 | submitFeedback | POST | /api/feedback | Bearer |

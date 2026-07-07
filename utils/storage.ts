@@ -283,7 +283,34 @@ export function saveUserProfile(profile: IUserProfile): void {
 // ============================================
 export function getMistakes(): IMistakeRecord[] {
   const raw = wx.getStorageSync('mistakeBook');
-  return safeJSONParse<IMistakeRecord[]>(raw, []);
+  const parsed = safeJSONParse<IMistakeRecord[]>(raw, []);
+  // 迁移旧格式：扁平字段 → 嵌套 sentences 数组
+  return parsed.map(m => {
+    if (m.sentences && m.sentences.length > 0) {
+      // 如果已有 totalErrors 则直接用，否则从 sentences 计算
+      if (m.totalErrors === undefined) {
+        m.totalErrors = m.sentences.reduce((sum, s) => sum + s.errorCount, 0);
+      }
+      return m;
+    }
+    // 旧格式：将扁平字段转为单个句子的数组
+    const errorCount = (m as Record<string, unknown>).errorCount as number || 0;
+    return {
+      wordId: m.wordId,
+      character: m.character,
+      pinyin: m.pinyin,
+      totalErrors: errorCount,
+      lastErrorTime: m.lastErrorTime,
+      sentences: [{
+        sentenceId: (m as Record<string, unknown>).sentenceId as string || '',
+        sentenceText: (m as Record<string, unknown>).sentenceText as string || '',
+        wrongAnswer: (m as Record<string, unknown>).wrongAnswer as string || '',
+        correctAnswer: (m as Record<string, unknown>).correctAnswer as string || '',
+        errorCount,
+        consecutiveCorrect: (m as Record<string, unknown>).consecutiveCorrect as number || 0,
+      }],
+    };
+  });
 }
 
 export function saveMistakes(mistakes: IMistakeRecord[]): void {

@@ -36,7 +36,7 @@
   &__prestep-success-icon { @include flex-center; width: 64rpx; height: 64rpx; border-radius: 50%; background: var(--color-success); color: #fff; font-size: 36rpx; font-weight: 700; }
 
   &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-xl; }
-  &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-lg; }
+  &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-lg; display: block; }
   &__sentence-target { color: var(--color-accent); border-bottom: 6rpx solid var(--color-accent); padding-bottom: 4rpx; }
   &__sentence-source { margin-top: $spacing-sm; font-size: $font-size-sm; color: var(--color-text-hint); font-style: italic;
     &--link { color: var(--color-accent); font-style: normal; font-weight: 500; text-decoration: underline; text-underline-offset: 4rpx;
@@ -68,6 +68,7 @@
     border-radius: $radius-lg;
     box-sizing: border-box;
     position: relative;
+    transition: background 0.2s, border-color 0.2s;
 
     &--hover {
       background: linear-gradient(135deg, rgba(#faad14, 0.12), rgba(#faad14, 0.06));

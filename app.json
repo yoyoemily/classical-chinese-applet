@@ -40,7 +40,7 @@
       },
       {
         "pagePath": "pages/article-list/index",
-        "text": "名篇",
+        "text": "选篇",
         "iconPath": "assets/tab/article.png",
         "selectedIconPath": "assets/tab/article-active.png"
       },

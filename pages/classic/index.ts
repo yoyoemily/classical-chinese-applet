@@ -1,17 +1,10 @@
 // ============================================
 // 经典著作列表页
 // ============================================
+import type { IClassicItem } from '../../typings/index.d';
+import { fetchClassics } from '../../api/index';
 
 type ClassicCategory = '经' | '史' | '子' | '集';
-
-interface IClassicItem {
-  id: number;
-  name: string;
-  era: string;
-  icon: string;
-  description: string;
-  category: ClassicCategory;
-}
 
 interface IClassicGroup {
   category: ClassicCategory;
@@ -22,10 +15,11 @@ interface IClassicData {
   activeTab: ClassicCategory;
   groups: IClassicGroup[];
   displayItems: IClassicItem[];
+  loading: boolean;
 }
 
-const ALL_CLASSICS: IClassicItem[] = [
-  // ---- 经部 ----
+/** 硬编码数据作为离线兜底（与后端 source.json 中的 classics 数组保持同步） */
+const FALLBACK_CLASSICS: IClassicItem[] = [
   { id: 1,  name: '论语',       era: '春秋',   icon: '📖', description: '孔子及其弟子的言行录，儒家核心经典，以"仁"为本，以"礼"为纲，二十篇记录先贤智慧。', category: '经' },
   { id: 2,  name: '孟子',       era: '战国',   icon: '📜', description: '孟子与其弟子所著，主张"性善论"，倡导"仁政""王道"，雄辩滔滔，气势磅礴。', category: '经' },
   { id: 3,  name: '大学',       era: '春秋',   icon: '📘', description: '原为《礼记》篇目，讲修身、齐家、治国、平天下之道，三纲领八条目，为学次第分明。', category: '经' },
@@ -36,14 +30,12 @@ const ALL_CLASSICS: IClassicItem[] = [
   { id: 8,  name: '礼记',       era: '战国至汉', icon: '📃', description: '先秦礼制的系统记录，涵盖制度、义理、通论，是理解古代社会与儒家思想的重要门径。', category: '经' },
   { id: 9,  name: '左传',       era: '春秋',   icon: '📜', description: '左丘明著，与《春秋》互为表里的叙事经典，大量成语典故的源头，中考常考选文出处。', category: '经' },
   { id: 10, name: '春秋',       era: '春秋',   icon: '📋', description: '鲁国编年史，孔子笔削，微言大义。左氏、公羊、穀梁三传各阐幽微，影响深远。', category: '经' },
-  // ---- 史部 ----
   { id: 11, name: '战国策',     era: '西汉',   icon: '🗂️', description: '刘向编订，战国策士游说之辞与历史故事宝库，画蛇添足、狐假虎威等成语皆出其中。', category: '史' },
   { id: 12, name: '史记',       era: '西汉',   icon: '🏛️', description: '司马迁著，中国第一部纪传体通史，上起黄帝、下至汉武。鲁迅称"史家之绝唱，无韵之离骚"。', category: '史' },
   { id: 13, name: '三国志',     era: '西晋',   icon: '⚔️', description: '陈寿著，纪传体断代史，分魏、蜀、吴三书，三国历史最权威的原始记载。', category: '史' },
   { id: 14, name: '汉书',       era: '东汉',   icon: '📚', description: '班固著，中国第一部纪传体断代史，记西汉一朝二百三十年，开正史断代体例之先河。', category: '史' },
   { id: 15, name: '后汉书',     era: '南朝宋', icon: '📑', description: '范晔著，记东汉近二百年。与《史记》《汉书》《三国志》合称"前四史"。', category: '史' },
   { id: 16, name: '资治通鉴',   era: '北宋',   icon: '🪞', description: '司马光主编，二百九十四卷编年体通史，"鉴前世之兴衰，考当今之得失"。', category: '史' },
-  // ---- 子部 ----
   { id: 17, name: '荀子',       era: '战国',   icon: '📚', description: '儒家重要一脉，主张"性恶论"与"化性起伪"，《劝学篇》为教材必背篇目，地位不亚于孟子。', category: '子' },
   { id: 18, name: '老子',       era: '春秋',   icon: '🌿', description: '道家根本经典，道法自然、无为而治，五千余言说尽天地玄机与人生智慧。', category: '子' },
   { id: 19, name: '庄子',       era: '战国',   icon: '🦋', description: '道家瑰宝，逍遥游、齐物论、养生主……汪洋恣肆的文字下，是对精神自由的极致追求。', category: '子' },
@@ -54,7 +46,6 @@ const ALL_CLASSICS: IClassicItem[] = [
   { id: 24, name: '鬼谷子',     era: '战国',   icon: '🎭', description: '纵横家经典，捭阖、反应、揣摩、权谋之术的源头，战国游说策士的理论利器。', category: '子' },
   { id: 25, name: '说文解字',   era: '东汉',   icon: '🔤', description: '许慎著，中国第一部系统分析汉字字形与来源的文字学巨著，学古文必备的工具书之祖。', category: '子' },
   { id: 26, name: '黄帝内经',   era: '战国至汉', icon: '🌱', description: '中医理论奠基之作，阴阳五行、脏腑经络、养生诊治，天人合一的东方医学哲学。', category: '子' },
-  // ---- 集部 ----
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集' },
   { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集' },
   { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集' },
@@ -74,25 +65,51 @@ const CATEGORY_TABS: { key: ClassicCategory; label: string; count: number }[] = 
   { key: '集', label: '集部', count: 10 },
 ];
 
+function buildGroups(items: IClassicItem[]): IClassicGroup[] {
+  return CATEGORY_TABS.map(tab => ({
+    category: tab.key,
+    items: items.filter(c => c.category === tab.key),
+  }));
+}
+
 Page<IClassicData, WechatMiniprogram.Page.CustomOption>({
   data: {
     activeTab: '经',
-    groups: [
-      { category: '经', items: ALL_CLASSICS.filter(c => c.category === '经') },
-      { category: '史', items: ALL_CLASSICS.filter(c => c.category === '史') },
-      { category: '子', items: ALL_CLASSICS.filter(c => c.category === '子') },
-      { category: '集', items: ALL_CLASSICS.filter(c => c.category === '集') },
-    ],
-    displayItems: ALL_CLASSICS.filter(c => c.category === '经'),
+    groups: buildGroups(FALLBACK_CLASSICS),
+    displayItems: FALLBACK_CLASSICS.filter(c => c.category === '经'),
+    loading: true,
+  },
+
+  onLoad(): void {
+    this.initPage();
+  },
+
+  async initPage(): Promise<void> {
+    try {
+      const items = await fetchClassics();
+      if (items && items.length > 0) {
+        const groups = buildGroups(items);
+        this.setData({
+          groups,
+          displayItems: groups.find(g => g.category === this.data.activeTab)?.items || items,
+          loading: false,
+        });
+        return;
+      }
+    } catch (_) {
+      // API 请求失败，使用硬编码兜底数据
+    }
+    this.setData({ loading: false });
   },
 
   /** 切换分类 Tab */
   onTapTab(e: WechatMiniprogram.BaseEvent): void {
     const tab = e.currentTarget.dataset.tab as ClassicCategory;
     if (tab === this.data.activeTab) return;
+    const group = this.data.groups.find(g => g.category === tab);
     this.setData({
       activeTab: tab,
-      displayItems: ALL_CLASSICS.filter(c => c.category === tab),
+      displayItems: group?.items || [],
     });
   },
 
@@ -103,14 +120,20 @@ Page<IClassicData, WechatMiniprogram.Page.CustomOption>({
 
   /** 点击左上角提示图标 */
   onTapTip(): void {
-    this.showLockTip();
+    wx.showModal({
+      title: '经典阅读',
+      content: '三十六部传世典籍，涵盖经史子集四部，上起商周、下至明清。阅读古籍经典需极强的文言功底，请务必深度学习掌握全部字词后再开始。届时您已深通文言，可畅游古典原典世界。',
+      showCancel: false,
+      confirmText: '我知道了',
+    });
   },
+
 
   showLockTip(): void {
     wx.showToast({
-      title: '经典板块须本词库全部夯实后方可进入。届时您已深通文言，可畅游古典原典世界。',
+      title: '经典阅读尚未开放',
       icon: 'none',
-      duration: 3000,
+      duration: 2000,
     });
   },
 });

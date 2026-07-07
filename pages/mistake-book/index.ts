@@ -2,7 +2,7 @@
 // 错题本页面
 // ============================================
 import type { IMistakeRecord, MistakeFilter } from '../../typings/index.d';
-import { fetchMistakes, removeMistakeApi } from '../../api/index';
+import { fetchMistakes } from '../../api/index';
 import { MISTAKE_FILTERS } from '../../constants/config';
 
 interface IMistakeBookData {
@@ -56,8 +56,10 @@ Page<IMistakeBookData, WechatMiniprogram.Page.CustomOption>({
     if (filter === 'all') return mistakes;
 
     if (filter === 'frequent') {
-      // 错误 3 次以上
-      return mistakes.filter(m => m.errorCount >= 3);
+      // 任意句子错误 3 次以上
+      return mistakes.filter(m =>
+        m.sentences.some(s => s.errorCount >= 3)
+      );
     }
 
     if (filter === 'recent') {
@@ -82,35 +84,5 @@ Page<IMistakeBookData, WechatMiniprogram.Page.CustomOption>({
     const wordId = e.currentTarget.dataset.wordId as string;
     const current = this.data.expandedWordId;
     this.setData({ expandedWordId: current === wordId ? '' : wordId });
-  },
-
-  /** 手动移除错题 */
-  async onRemoveMistake(e: WechatMiniprogram.BaseEvent): void {
-    const wordId = e.currentTarget.dataset.wordId as string;
-    wx.showModal({
-      title: '确认移除',
-      content: '该词的错题记录将被清除',
-      confirmText: '移除',
-      confirmColor: '#4a6a5e',
-      success: async (res) => {
-        if (res.confirm) {
-          try {
-            await removeMistakeApi(wordId);
-            this.setData({ expandedWordId: '' });
-            this.loadMistakes();
-            wx.showToast({ title: '已移除', icon: 'success' });
-          } catch {
-            wx.showToast({ title: '移除失败', icon: 'none' });
-          }
-        }
-      },
-    });
-  },
-
-  /** 点击跳转到字总结 */
-  onTapWordDetail(e: WechatMiniprogram.BaseEvent): void {
-    const wordId = e.currentTarget.dataset.wordId as string;
-    if (!wordId) return;
-    wx.navigateTo({ url: `/pages/word-summary/index?wordId=${wordId}` });
   },
 });

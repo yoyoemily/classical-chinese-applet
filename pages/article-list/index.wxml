@@ -1,4 +1,4 @@
-<!-- 名篇列表页 -->
+<!-- 选篇列表页 -->
 <view class="page-article-list">
   <!-- 筛选栏容器（分类 + 教材，吸顶） -->
   <view class="page-article-list__filters">
@@ -53,7 +53,7 @@
     <view class="page-article-list__empty">
       <text class="page-article-list__empty-icon">📖</text>
       <text class="page-article-list__empty-text">暂无文章</text>
-      <text class="page-article-list__empty-hint">该分类下还没有收录名篇，敬请期待</text>
+      <text class="page-article-list__empty-hint">该分类下还没有收录选篇，敬请期待</text>
     </view>
   </block>
 
