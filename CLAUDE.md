@@ -225,7 +225,6 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 
 ### 待开发
 - 艾宾浩斯端到端调优
-- 典故注释数据补充（37 篇中已完成 art_001，每次只做一篇，详见 [[glossary-annotation-implementation]]）
 - 经典阅读板块（典籍二级阅读页面）
 - 词书数据补充（6 本空壳词书：中考古今异义/词类活用 + 高考 4 本，totalWords=0，initialized=false）
 
