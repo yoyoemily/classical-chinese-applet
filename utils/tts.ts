@@ -7,7 +7,7 @@
 //   - 'wechat'  : 微信同声传译插件（WechatSI），免费，需先在 app.json 配置插件并申请审核通过
 // ============================================
 
-const TTS_ENGINE: 'wechat' | 'api' = 'api';
+const TTS_ENGINE: 'wechat' | 'api' = 'wechat';
 const TTS_API_URL = 'https://api.example.com/tts'; // TODO: 替换为真实 TTS API 地址
 
 type AudioStatus = 'idle' | 'loading' | 'playing' | 'stopped';

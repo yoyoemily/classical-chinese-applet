@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **IDE**：微信开发者工具（WeChat DevTools），直接用该工具打开项目根目录即可
 - **编译**：开发者工具自动完成 TypeScript → JavaScript、SCSS → WXSS 的编译，无需手动执行任何构建命令
 - **基础库版本**：`2.25.0`（`project.config.json` → `libVersion`）
-- **AppID**：`wxa192d18a50c75dca`（`project.config.json` → `appid`）
+- **AppID**：`wx00adcbea9d77ba88`（`project.config.json` → `appid`）
 - **编译插件**：`["typescript", "sass"]`（`project.config.json` → `setting.useCompilerPlugins`）
 
 没有 Lint/Test 等 CLI 命令，一切编译和预览都在微信开发者工具内完成。
@@ -198,7 +198,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 - **"我的"页**：头像和昵称展示（点击跳转个人信息编辑），新增"个人信息"菜单项
 - **学习顺序**：支持顺序/乱序两种模式，在 `utils/ebbinghaus.ts` 的 `generateTodayTask()` 中根据设置决定是否 shuffle（复习和新学各自独立乱序，复习仍优先）
 - **学习页**：标题动态显示当前词书书名，答题选项随机排列，"不知道"按钮有卡片化视觉引导，语音播报按钮（🔊）支持自动/手动播放句子音频
-- **语音播报**：`utils/tts.ts` 双引擎架构（HTTP API + WechatSI 插件），通过 `TTS_ENGINE` 常量切换。优先使用句子 `audioUrl` 预录音频，无则走 TTS 合成。学习页 `showNextQuestion` 自动播报，喇叭按钮可手动控制。当前默认 `api` 引擎，`TTS_API_URL` 为占位值。
+- **语音播报**：`utils/tts.ts` 双引擎架构（HTTP API + WechatSI 插件），通过 `TTS_ENGINE` 常量切换。优先使用句子 `audioUrl` 预录音频，无则走 TTS 合成。学习页 `showNextQuestion` 自动播报，喇叭按钮可手动控制。当前使用 `wechat` 引擎（`app.json` 已配置 WechatSI 插件）。
 - **错误反馈**：学习/名篇板块底部弹出浮层，选择错误类型 + 详细描述，提交到后端
 - **内联生词链接**：名篇通篇阅读模式下，`keyWords` 最长匹配切分后高亮（主题色下划线），点击弹出居中释义卡片，不打断阅读
 
@@ -226,14 +226,6 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 ### 待开发
 - 艾宾浩斯端到端调优
 - 典故注释数据补充（剩余 36 篇名篇的 `glossary` 标注）
-
-### ⚠️ 上线前必须完成
-- **替换 `WECHAT_APP_SECRET` 为真实值**：后端目前未配 AppSecret 时用固定 `dev-openid` 兜底，仅适合开发。上线前需在微信公众平台获取真实 AppSecret，设为后端环境变量。
-- **TTS 语音播报配置**（`utils/tts.ts`）：
-  - 若使用 `api` 引擎（当前默认）：将 `TTS_API_URL` 从 `https://api.example.com/tts` 替换为真实 TTS API 地址
-  - 若改用 `wechat` 引擎：需在 `app.json` 中配置微信同声传译插件（WechatSI），并在微信公众平台提交插件审核，审核通过后方可使用
-  - 确认生产环境使用的 `TTS_ENGINE` 并完成对应配置
-- **扩充词库数据**：当前 75 词、115 句、平均 1.5 句/词，80% 词释义覆盖不全。上线前需完成词条数量扩充（实词 40→~150、虚词 15→~18、通假字补齐）和例句释义全覆盖。详见 [[data-source-expansion]]。
 
 ## 项目记忆
 
