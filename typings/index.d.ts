@@ -176,6 +176,7 @@ export interface IArticle {
   dynasty: string
   category: ArticleCategory
   textbook?: TextbookGrade
+  background?: string
   fullTextAudioUrl?: string
   sentences: IArticleSentence[]
   relatedWordIds: string[]
