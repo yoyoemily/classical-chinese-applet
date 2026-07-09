@@ -8,7 +8,7 @@
 // ============================================
 
 const TTS_ENGINE: 'wechat' | 'api' = 'wechat';
-const PLAYBACK_RATE = 0.95; // 播放速度，0.5~2.0，1.0 为正常速度
+const PLAYBACK_RATE = 1; // 播放速度，0.5~2.0，1.0 为正常速度
 const TTS_API_URL = 'https://api.example.com/tts'; // TODO: 替换为真实 TTS API 地址
 
 type AudioStatus = 'idle' | 'loading' | 'playing' | 'stopped';

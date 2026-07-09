@@ -334,14 +334,14 @@ export const mockWordBooks: IWordBook[] = [
   {
     id: 'wb_zhongkao_cileihuoyong',
     name: '中考词类活用一本通',
-    description: '收录中考常考的词类活用现象，涵盖名词作动词、使动用法、意动用法等六大类型。',
+    description: '收录部编版初中教材26个高频词类活用字，涵盖名词作动词、名词作状语、形容词作动词、使动用法、意动用法、动词形容词作名词六大类型。',
     category: 'flexible_usage',
     studyMode: 'identify_first',
     identifyPrompt: '请从句子中找出词类活用字',
     coverColor: '#8B7D6B',
     examLevel: 'zhongkao',
-    initialized: false,
-    totalWords: 0,
+    initialized: true,
+    totalWords: 26,
     words: [],
   },
   {

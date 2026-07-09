@@ -196,6 +196,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
     this.setData({
       screen: 'preStep',
+      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       preStepPrompt: this._getPreStepPrompt(),
       charOptions: options,
       preStepCorrectChar: word.character,
