@@ -1,6 +1,6 @@
 <!-- 选篇列表页 -->
 <view class="page-article-list">
-  <!-- 筛选栏容器（分类 + 教材，吸顶） -->
+  <!-- 筛选栏容器（分类 + 学段 + 年级弹出面板，吸顶） -->
   <view class="page-article-list__filters">
     <!-- 分类标签栏（横向滚动） -->
     <scroll-view
@@ -22,25 +22,41 @@
       </view>
     </scroll-view>
 
-    <!-- 教材年级标签栏（横向滚动） -->
+    <!-- 学段标签栏（横向滚动） -->
     <scroll-view
-      class="page-article-list__tabs page-article-list__tabs--grade"
+      class="page-article-list__tabs page-article-list__tabs--stage"
       scroll-x
       enhanced
       show-scrollbar="{{false}}"
     >
       <view class="page-article-list__tabs-inner">
         <view
-          wx:for="{{textbooks}}"
+          wx:for="{{stages}}"
           wx:key="key"
-          class="page-article-list__tab {{activeTextbook === item.key ? 'page-article-list__tab--active' : ''}}"
+          class="page-article-list__tab {{activeStage === item.key ? 'page-article-list__tab--active' : ''}}"
           data-key="{{item.key}}"
-          bindtap="onTapTextbook"
+          bindtap="onTapStage"
         >
           {{item.label}}
         </view>
       </view>
     </scroll-view>
+  </view>
+
+  <!-- 年级弹出面板 -->
+  <view wx:if="{{showGradePicker}}" class="page-article-list__picker-mask" bindtap="onCloseGradePicker" catchtouchmove="{{true}}"></view>
+  <view wx:if="{{showGradePicker}}" class="page-article-list__picker">
+    <view class="page-article-list__picker-grid">
+      <view
+        wx:for="{{gradeList}}"
+        wx:key="key"
+        class="page-article-list__picker-item {{activeTextbook === item.key ? 'page-article-list__picker-item--active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onTapGrade"
+      >
+        {{item.label}}
+      </view>
+    </view>
   </view>
 
   <!-- 加载中 -->

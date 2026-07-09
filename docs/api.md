@@ -1025,7 +1025,7 @@ HTTP/1.1 200 OK
 | Field | Type | Description |
 |-------|------|-------------|
 | `category` | String | 分类筛选：`all` / `prose`(散文) / `argument`(论说) / `poem`(诗词) / `verse`(骈赋)。传入 `all` 或不传则不筛选 (Optional) |
-| `textbook` | String | 教材年级筛选：`all` / `grade7a`~`grade9b`。传入 `all` 或不传则不筛选 (Optional) |
+| `textbook` | String | 教材年级筛选：`all` / `grade7a`~`grade9b`(初中) / `grade10a`~`grade12b`(高中)。传入 `all` 或不传则不筛选 (Optional) |
 
 #### Response Fields
 
@@ -1382,6 +1382,12 @@ HTTP/1.1 200 OK
 | `grade8b` | 八年级下 |
 | `grade9a` | 九年级上 |
 | `grade9b` | 九年级下 |
+| `grade10a` | 高一上 |
+| `grade10b` | 高一下 |
+| `grade11a` | 高二上 |
+| `grade11b` | 高二下 |
+| `grade12a` | 高三上 |
+| `grade12b` | 高三下 |
 
 #### MasteryLevel — 掌握程度
 

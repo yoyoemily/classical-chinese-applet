@@ -27,7 +27,7 @@
   }
 
   // 教材年级行（第二行，去掉顶部边距和底部线）
-  &__tabs--grade {
+  &__tabs--stage {
     border-bottom: none;
     padding-top: 0;
   }
@@ -55,6 +55,65 @@
         background-color: var(--color-primary);
         border-radius: 3rpx;
       }
+    }
+  }
+
+  // -------- 年级弹出面板 --------
+  &__picker-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 20;
+  }
+
+  &__picker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background-color: var(--color-bg-white);
+    border-radius: 0 0 24rpx 24rpx;
+    box-shadow: $shadow-md;
+    padding: $spacing-md $spacing-base calc(#{$spacing-md} + var(--safe-area-bottom));
+    animation: pickerSlideDown 0.25s ease-out;
+  }
+
+  @keyframes pickerSlideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  &__picker-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__picker-item {
+    flex: 0 0 auto;
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-page);
+    border-radius: 12rpx;
+    border: 2rpx solid transparent;
+    transition: all 0.2s ease;
+
+    &--active {
+      color: var(--color-primary);
+      background-color: rgba($color-primary, 0.08);
+      border-color: var(--color-primary);
+      font-weight: 600;
     }
   }
 

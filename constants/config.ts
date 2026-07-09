@@ -77,6 +77,33 @@ export const ARTICLE_CATEGORIES = [
   { key: 'verse', label: '骈赋' },
 ] as const;
 
+export const EDUCATION_STAGES = [
+  { key: 'all', label: '全部' },
+  { key: 'junior', label: '初中' },
+  { key: 'senior', label: '高中' },
+] as const;
+
+export const JUNIOR_GRADES = [
+  { key: 'all', label: '全部' },
+  { key: 'grade7a', label: '七上' },
+  { key: 'grade7b', label: '七下' },
+  { key: 'grade8a', label: '八上' },
+  { key: 'grade8b', label: '八下' },
+  { key: 'grade9a', label: '九上' },
+  { key: 'grade9b', label: '九下' },
+] as const;
+
+export const SENIOR_GRADES = [
+  { key: 'all', label: '全部' },
+  { key: 'grade10a', label: '高一上' },
+  { key: 'grade10b', label: '高一下' },
+  { key: 'grade11a', label: '高二上' },
+  { key: 'grade11b', label: '高二下' },
+  { key: 'grade12a', label: '高三上' },
+  { key: 'grade12b', label: '高三下' },
+] as const;
+
+/** @deprecated 使用 EDUCATION_STAGES + JUNIOR_GRADES / SENIOR_GRADES 替代 */
 export const TEXTBOOK_GRADES = [
   { key: 'all', label: '全部' },
   { key: 'grade7a', label: '七上' },
@@ -85,6 +112,12 @@ export const TEXTBOOK_GRADES = [
   { key: 'grade8b', label: '八下' },
   { key: 'grade9a', label: '九上' },
   { key: 'grade9b', label: '九下' },
+  { key: 'grade10a', label: '高一上' },
+  { key: 'grade10b', label: '高一下' },
+  { key: 'grade11a', label: '高二上' },
+  { key: 'grade11b', label: '高二下' },
+  { key: 'grade12a', label: '高三上' },
+  { key: 'grade12b', label: '高三下' },
 ] as const;
 
 // ============================================
