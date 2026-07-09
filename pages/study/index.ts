@@ -43,9 +43,11 @@ interface IStudyData {
 
   // 前置步骤
   preStepPrompt: string;
-  charOptions: string[];
+  sentenceChars: Array<{ char: string; index: number; isPunct: boolean; selected: boolean; correct: boolean }>;
+  preStepSelectedIndices: number[];
+  preStepMaxSelect: number;
   preStepCorrectChar: string;
-  preStepSelectedChar: string;
+  preStepCorrectIndices: number[];
   showPreStepCorrect: boolean;
   showPreStepWrong: boolean;
 }
@@ -70,8 +72,9 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     loading: true, dotsArray: [],
     audioPlaying: false, audioLoading: false,
     showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
-    preStepPrompt: '', charOptions: [], preStepCorrectChar: '',
-    preStepSelectedChar: '', showPreStepCorrect: false, showPreStepWrong: false,
+    preStepPrompt: '', sentenceChars: [], preStepSelectedIndices: [],
+    preStepMaxSelect: 1, preStepCorrectChar: '', preStepCorrectIndices: [],
+    showPreStepCorrect: false, showPreStepWrong: false,
   },
 
   _session: null as IStudySession | null,
@@ -181,26 +184,41 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     if (!s) return;
     const word = s.words[s.currentWordIndex];
     const sent = word.sentences[s.currentSentenceIndex];
-    const book = this._wordsMap[word.wordId];
-    // 从词书中取 category，生成对应提示文案
-    // studyMode 是词书级别属性，但当前 _hasPreStep 已为 true
-    // identifyPrompt 优先，否则按 category 兜底
 
-    // 从句子中提取字符选项（去重、排除标点）
-    const punctuation = /[，。！？、；：""''《》（）\s，．？！：；…—　]/g;
-    const cleaned = sent.text.replace(punctuation, '');
-    const chars = [...new Set(cleaned.split(''))].filter(c => c.trim().length > 0);
+    const targetWord = (sent as Record<string, unknown>).targetWord as string || word.character;
+    const maxSelect = targetWord.length;
 
-    // 确保 targetWord 在选项中（处理多字目标的情况）
-    const options = chars.slice(0, 12); // 最多 12 个选项
+    // 把句子拆成逐字数组，标点/空格不参与选择
+    const chars: Array<{ char: string; index: number; isPunct: boolean; selected: boolean; correct: boolean }> = [];
+    for (let i = 0; i < sent.text.length; i++) {
+      const ch = sent.text[i];
+      const isPunct = ch === '、' || ch === '。' || ch === '，' || ch === '！' || ch === '？'
+        || ch === '；' || ch === '：' || ch === '“' || ch === '”' || ch === '‘' || ch === '’'
+        || ch === '《' || ch === '》' || ch === '（' || ch === '）' || ch === '「' || ch === '」'
+        || ch === '『' || ch === '』' || ch === '【' || ch === '】'
+        || ch === '\r' || ch === '\n' || ch === '\t' || ch === ' '
+        || ch === '…' || ch === '—' || ch === '　' || ch === '．';
+      chars.push({ char: ch, index: i, isPunct, selected: false, correct: false });
+    }
+
+    // 计算正确答案在句子中的起始位置
+    const correctStartIdx = sent.text.indexOf(targetWord);
+    const correctIndices: number[] = [];
+    if (correctStartIdx >= 0) {
+      for (let i = correctStartIdx; i < correctStartIdx + maxSelect; i++) {
+        correctIndices.push(i);
+      }
+    }
 
     this.setData({
       screen: 'preStep',
       currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       preStepPrompt: this._getPreStepPrompt(),
-      charOptions: options,
-      preStepCorrectChar: word.character,
-      preStepSelectedChar: '',
+      sentenceChars: chars,
+      preStepSelectedIndices: [],
+      preStepMaxSelect: maxSelect,
+      preStepCorrectChar: targetWord,
+      preStepCorrectIndices: correctIndices,
       showPreStepCorrect: false,
       showPreStepWrong: false,
     });
@@ -229,28 +247,91 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     return '请从句子中找出目标字';
   },
 
-  onSelectPreChar(e: WechatMiniprogram.BaseEvent): void {
+  onTapSentenceChar(e: WechatMiniprogram.BaseEvent): void {
     if (this.data.showPreStepCorrect || this.data.showPreStepWrong) return;
-    const char = e.currentTarget.dataset.char as string;
-    const isCorrect = char === this.data.preStepCorrectChar;
 
-    if (isCorrect) {
-      this.setData({
-        preStepSelectedChar: char,
-        showPreStepCorrect: true,
-      });
+    const index = e.currentTarget.dataset.index as number;
+    const isPunct = e.currentTarget.dataset.ispunct as boolean;
+    if (isPunct) return;
+
+    const maxSelect = this.data.preStepMaxSelect;
+    const selected = [...this.data.preStepSelectedIndices];
+
+    // 点同一个字 → 取消选中
+    if (selected.includes(index)) {
+      this._applyCharFlags([], [], false, false);
+      return;
+    }
+
+    // 单选模式 → 直接选中并提交
+    if (maxSelect === 1) {
+      this._submitPreStepForIndex(index);
+      return;
+    }
+
+    // 双选模式：第一个字 or 不相邻 → 重置选新字
+    if (selected.length === 0 || Math.abs(index - selected[0]) !== 1) {
+      this._applyCharFlags([index], [], false, false);
+      return;
+    }
+
+    // 双选模式：相邻 → 扩展为连续双选
+    const pair = [Math.min(selected[0], index), Math.max(selected[0], index)];
+    this._applyCharFlags(pair, [], false, false);
+  },
+
+  onConfirmPreStep(): void {
+    if (this.data.showPreStepCorrect || this.data.showPreStepWrong) return;
+    const selected = [...this.data.preStepSelectedIndices];
+    if (selected.length === 0) return;
+    this._submitPreStepForIndices(selected);
+  },
+
+  _applyCharFlags(selectedIndices: number[], correctIndices: number[], showCorrect: boolean, showWrong: boolean): void {
+    const chars = this.data.sentenceChars.map((c, i) => ({
+      ...c,
+      selected: selectedIndices.includes(i),
+      correct: showCorrect && correctIndices.includes(i),
+    }));
+    this.setData({ sentenceChars: chars, preStepSelectedIndices: selectedIndices,
+      showPreStepCorrect: showCorrect, showPreStepWrong: showWrong });
+  },
+
+  _submitPreStepForIndex(index: number): void {
+    const correctChar = this.data.preStepCorrectChar;
+    const match = this.data.sentenceChars[index]?.char === correctChar;
+
+    if (match) {
+      this._applyCharFlags([index], this.data.preStepCorrectIndices, true, false);
       setTimeout(() => {
         this._preStepDoneForCurrentWord = true;
         this.showMeaningQuestion();
       }, 600);
     } else {
-      this.setData({
-        preStepSelectedChar: char,
-        showPreStepWrong: true,
-      });
+      this._applyCharFlags([index], [], false, true);
       setTimeout(() => {
-        this.setData({ showPreStepWrong: false, preStepSelectedChar: '' });
-      }, 400);
+        this._applyCharFlags([], [], false, false);
+      }, 600);
+    }
+  },
+
+  _submitPreStepForIndices(indices: number[]): void {
+    const sorted = [...indices].sort((a, b) => a - b);
+    const chars = this.data.sentenceChars;
+    const correctChar = this.data.preStepCorrectChar;
+    const selectedText = sorted.map(i => chars[i].char || '').join('');
+
+    if (selectedText === correctChar) {
+      this._applyCharFlags(sorted, this.data.preStepCorrectIndices, true, false);
+      setTimeout(() => {
+        this._preStepDoneForCurrentWord = true;
+        this.showMeaningQuestion();
+      }, 600);
+    } else {
+      this._applyCharFlags(sorted, [], false, true);
+      setTimeout(() => {
+        this._applyCharFlags([], [], false, false);
+      }, 600);
     }
   },
 

@@ -226,7 +226,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 ### 待开发
 - 艾宾浩斯端到端调优
 - 经典阅读板块（典籍二级阅读页面）
-- 词书数据补充（6 本空壳词书：中考古今异义/词类活用 + 高考 4 本，totalWords=0，initialized=false）
+- 词书数据补充（5 本空壳词书：高考 4 本 + 中考词类活用，totalWords=0，initialized=false。中考古今异义已完成 50 词）
 
 ## 项目记忆
 

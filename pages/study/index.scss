@@ -20,8 +20,22 @@
 	  }
 
 	// ---- 前置步骤：字符选择网格 ----
-  &__prestep-prompt { @include flex-center; padding: $spacing-md 0; margin-bottom: $spacing-lg;
-    & text { font-size: 32rpx; color: var(--color-accent); font-weight: 600; }
+  &__prestep-prompt { @include flex-column; align-items: center; gap: $spacing-xs; padding: $spacing-md 0; margin-bottom: $spacing-lg;
+    &-text { font-size: 32rpx; color: var(--color-accent); font-weight: 600; }
+    &-hint { font-size: 24rpx; color: var(--color-text-hint); }
+  }
+  &__prestep-body { flex: 1; @include flex-column; align-items: center; padding: $spacing-lg; padding-bottom: calc(#{$spacing-xxl} + var(--safe-area-bottom)); overflow-y: auto; }
+  &__sentence-chars { display: flex; flex-wrap: wrap; gap: 12rpx; justify-content: center; width: 100%; margin-bottom: $spacing-xl; }
+  &__sentence-char { @include flex-center; width: 64rpx; height: 72rpx; border-radius: 10rpx; border: 2rpx solid var(--color-border); background: var(--color-bg-white); font-size: 40rpx; color: var(--color-text-primary); font-family: 'STKaiti','KaiTi','楷体',serif; transition: all 0.15s ease;
+    &--punct { border-color: transparent; background: transparent; font-size: 28rpx; width: 36rpx; }
+    &--selected { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); transform: scale(1.05); }
+    &--correct { background: rgba(82,196,26,0.15); border-color: var(--color-success); color: var(--color-success); }
+    &--wrong { background: rgba(255,77,79,0.12); border-color: var(--color-error); color: var(--color-error); animation: cellShake 0.3s ease; }
+  }
+  &__prestep-confirm-wrap { width: 100%; @include flex-center; margin-bottom: $spacing-lg; }
+  &__prestep-confirm { padding: $spacing-md $spacing-xxl; border-radius: 50rpx; background: var(--color-border); color: var(--color-text-hint); font-size: 30rpx; font-weight: 600; transition: all 0.2s ease;
+    &--active { background: var(--color-primary); color: #fff; }
+    &--hover { opacity: 0.85; }
   }
   &__char-grid { display: flex; flex-wrap: wrap; gap: 16rpx; justify-content: center; padding: $spacing-md 0; }
   &__char-cell { @include flex-center; width: 72rpx; height: 72rpx; border-radius: 14rpx; border: 2rpx solid var(--color-border); background: var(--color-bg-white); font-size: 36rpx; font-weight: 600; color: var(--color-text-primary); font-family: 'STKaiti','KaiTi','楷体',serif; transition: all 0.15s ease;
