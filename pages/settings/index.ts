@@ -11,6 +11,8 @@ interface ISettingsData {
   newWordsRange: number[]; reviewWordsRange: number[]; studyOrderOptions: string[];
 }
 
+const NEW_WORDS_RANGE = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
 Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
   data: {
     dailyNewWords: DEFAULT_DAILY_NEW_WORDS, dailyReviewWords: DEFAULT_DAILY_REVIEW_WORDS,
@@ -18,7 +20,7 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
     studyOrder: 0,
     mistakeThreshold: DEFAULT_MISTAKE_REMOVE_THRESHOLD,
     version: '0.1.0',
-    newWordsRange: Array.from({ length: 10 }, (_, i) => i + 1),
+    newWordsRange: NEW_WORDS_RANGE,
     reviewWordsRange: Array.from({ length: 20 }, (_, i) => i + 1),
     studyOrderOptions: ['顺序', '乱序'],
   },
@@ -46,7 +48,7 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
       studyOrder: this.data.studyOrder,
     }));
   },
-  onNewWordsChange(e: WechatMiniprogram.PickerChange): void { this.setData({ dailyNewWords: Number(e.detail.value) + 1 }); this.save(); },
+  onNewWordsChange(e: WechatMiniprogram.PickerChange): void { this.setData({ dailyNewWords: NEW_WORDS_RANGE[Number(e.detail.value)] }); this.save(); },
   onReviewWordsChange(e: WechatMiniprogram.PickerChange): void { this.setData({ dailyReviewWords: Number(e.detail.value) + 1 }); this.save(); },
   onToggleAutoPlay(e: WechatMiniprogram.SwitchChange): void { this.setData({ autoPlayAudio: e.detail.value }); this.save(); },
   onToggleAnswerSound(e: WechatMiniprogram.SwitchChange): void { this.setData({ answerSound: e.detail.value }); this.save(); },

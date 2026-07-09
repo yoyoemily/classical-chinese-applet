@@ -2,7 +2,7 @@
   <view class="page-settings__section"><view class="page-settings__section-title">每日学习</view>
     <view class="page-settings__card">
       <view class="page-settings__row"><text class="page-settings__label">每日新学词数</text>
-        <picker mode="selector" range="{{newWordsRange}}" value="{{dailyNewWords - 1}}" bindchange="onNewWordsChange"><view class="page-settings__picker-value"><text>{{dailyNewWords}}</text><text class="page-settings__picker-arrow">›</text></view></picker></view>
+        <picker mode="selector" range="{{newWordsRange}}" value="{{newWordsRange.indexOf(dailyNewWords)}}" bindchange="onNewWordsChange"><view class="page-settings__picker-value"><text>{{dailyNewWords}}</text><text class="page-settings__picker-arrow">›</text></view></picker></view>
       <view class="page-settings__row"><text class="page-settings__label">每日复习词数</text>
         <picker mode="selector" range="{{reviewWordsRange}}" value="{{dailyReviewWords - 1}}" bindchange="onReviewWordsChange"><view class="page-settings__picker-value"><text>{{dailyReviewWords}}</text><text class="page-settings__picker-arrow">›</text></view></picker></view>
     </view>

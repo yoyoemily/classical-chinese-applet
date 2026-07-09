@@ -397,6 +397,15 @@ export interface IFeedbackSubmitParams {
 }
 
 // ============================================
+// 学习汇总缓存（study-complete 页秒开用）
+// ============================================
+export interface IStudySummary {
+  correctCount: number
+  wrongCount: number
+  xpGained: number
+}
+
+// ============================================
 // 经典著作
 // ============================================
 export interface IClassicItem {

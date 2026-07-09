@@ -1,5 +1,5 @@
-import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold } from '../../utils/storage';
-import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback } from '../../api/index';
+import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold, initStudySummary, incrementStudySummary, getStudySummary } from '../../utils/storage';
+import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback, completeStudy } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRESTEP_PROMPTS } from '../../constants/config';
@@ -143,6 +143,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       };
       this._session = session;
       saveSession(session);
+      initStudySummary();
       const dots = Math.min(allWords.length, 10);
       this.setData({
         totalWords: allWords.length, dotsArray: Array.from({ length: dots }, (_, i) => i),
@@ -359,6 +360,14 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     s.currentWordIndex++;
     s.currentSentenceIndex = 0;
     s.completedCount = s.currentWordIndex;
+
+    // 最后一个字：跳过字总结，直接完成
+    if (s.currentWordIndex >= s.words.length) {
+      this._preStepDoneForCurrentWord = false;
+      this.finishStudy();
+      return;
+    }
+
     const remaining = s.words.slice(s.currentWordIndex);
     s.mode = remaining.length > 0 && remaining.every(w => !w.isReview) ? 'new' : s.mode;
     // 重置前置步骤状态，下一词重新判断
@@ -374,9 +383,20 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
   finishStudy(): void {
     const s = this._session!;
-    wx.redirectTo({
-      url: `/pages/study-complete/index?correctCount=${s.correctCount}&wrongCount=${s.wrongCount}`,
-    });
+    const correct = s.correctCount;
+    const wrong = s.wrongCount;
+
+    // 更新缓存中的 xpGained
+    const summary = getStudySummary();
+    if (summary) {
+      summary.xpGained = correct * 10;
+      wx.setStorageSync('study_summary', JSON.stringify(summary));
+    }
+    // 异步通知后端完成学习
+    completeStudy({ wordBookId: getCurrentBookId(), correctCount: correct, wrongCount: wrong })
+      .catch(() => {});
+
+    wx.redirectTo({ url: '/pages/study-complete/index' });
   },
 
   async recordAnswer(isCorrect: boolean, selectedIndex: number): Promise<void> {
@@ -396,15 +416,18 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
         correctAnswer, wrongAnswer,
       });
     } catch { /* ignore */ }
+
     if (isCorrect) {
       s.correctCount++;
       this.setData({ correctCount: s.correctCount });
-      // 错题本：答对时检查是否需要移出
+      incrementStudySummary(true);
+      // 答对时检查是否需要移出错题本
       this._checkAndRemoveMistake(word.wordId);
     } else {
       s.wrongCount++;
       this.setData({ wrongCount: s.wrongCount });
-      // 错题本：答错时记录
+      incrementStudySummary(false);
+      // 答错时记录到错题本
       this._recordMistake(word.wordId, word.character, sent, selectedIndex);
     }
   },

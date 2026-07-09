@@ -1,5 +1,5 @@
 import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes } from '../../api/index';
-import { getCurrentBookId, setCurrentBookId, isCheckedInToday } from '../../utils/storage';
+import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS } from '../../constants/config';
 import type { IUserProgress, IBadge } from '../../typings/index.d';
 
@@ -291,13 +291,14 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/book-select/index' });
   },
 
-  /** 点击"开始学习" → 跳转学习页 */
+  /** 点击"开始学习" → 清空旧汇总缓存 → 跳转学习页 */
   onTapStartLearning(): void {
     const { todayTask } = this.data;
     if (todayTask.newWords === 0 && todayTask.reviewWords === 0) {
       wx.showToast({ title: '今日任务已完成', icon: 'success' });
       return;
     }
+    clearStudySummary();
     wx.navigateTo({ url: '/pages/study/index' });
   },
 

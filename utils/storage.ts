@@ -3,7 +3,7 @@
 // ============================================
 import type {
   IUserProgress, IWordProgress, IUserBadge,
-  ITodayTask, IArticleProgress, IUserProfile, IMistakeRecord
+  ITodayTask, IArticleProgress, IUserProfile, IMistakeRecord, IStudySummary
 } from '../typings/index.d';
 import { STORAGE_KEYS, DEFAULT_MISTAKE_REMOVE_THRESHOLD } from '../constants/config';
 import { safeJSONParse } from './util';
@@ -337,4 +337,36 @@ export function getMistakeRemoveThreshold(): number {
 
 export function setMistakeRemoveThreshold(threshold: number): void {
   wx.setStorageSync('mistake_remove_threshold', threshold);
+}
+
+// ============================================
+// 学习汇总缓存（study-complete 页秒开，不打 API）
+// ============================================
+const STUDY_SUMMARY_KEY = 'study_summary';
+
+/** 初始化学习汇总缓存（开始时调） */
+export function initStudySummary(): void {
+  const summary: IStudySummary = { correctCount: 0, wrongCount: 0, xpGained: 0 };
+  wx.setStorageSync(STUDY_SUMMARY_KEY, JSON.stringify(summary));
+}
+
+/** 每次答题后递增正确/错误计数 */
+export function incrementStudySummary(isCorrect: boolean): void {
+  const summary = getStudySummary();
+  if (!summary) return;
+  if (isCorrect) {
+    summary.correctCount++;
+  } else {
+    summary.wrongCount++;
+  }
+  wx.setStorageSync(STUDY_SUMMARY_KEY, JSON.stringify(summary));
+}
+
+export function getStudySummary(): IStudySummary | null {
+  const raw = wx.getStorageSync(STUDY_SUMMARY_KEY);
+  return safeJSONParse<IStudySummary>(raw, null as unknown as IStudySummary);
+}
+
+export function clearStudySummary(): void {
+  wx.removeStorageSync(STUDY_SUMMARY_KEY);
 }

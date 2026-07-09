@@ -101,7 +101,7 @@ export async function submitAnswer(data: {
       }
     };
   }
-  return post('/api/study/answer', data);
+  return post('/api/study/answer', data, { showLoading: false });
 }
 
 export async function completeStudy(data: { wordBookId: string; correctCount: number; wrongCount: number }): Promise<{ newBadges: IBadge[]; xpGained: number }> {
@@ -127,7 +127,7 @@ export async function completeStudy(data: { wordBookId: string; correctCount: nu
 
     return { newBadges, xpGained };
   }
-  return post('/api/study/complete', data);
+  return post('/api/study/complete', data, { showLoading: false });
 }
 
 // ============================================

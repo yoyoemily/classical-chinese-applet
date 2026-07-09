@@ -19,7 +19,7 @@ export function getIntervalDays(stage: number): number {
 // ============================================
 // 每日学习配置
 // ============================================
-export const DEFAULT_DAILY_NEW_WORDS = 2;
+export const DEFAULT_DAILY_NEW_WORDS = 5;
 export const DEFAULT_DAILY_REVIEW_WORDS = 5;
 export const MAX_DAILY_REVIEW_LIMIT = 15;
 
