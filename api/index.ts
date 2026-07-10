@@ -6,7 +6,7 @@ import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
   IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
-  IClassicBook,
+  IClassicBook, IClassicMeta, IContentBlock,
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
@@ -308,22 +308,41 @@ export async function submitFeedback(data: IFeedbackSubmitParams): Promise<{ id:
 // ============================================
 export async function fetchClassics(category?: string): Promise<IClassicItem[]> {
   if (USE_MOCK) {
-    return []; // Mock 模式下返回空数组，页面将使用硬编码数据
+    const { getFallbackClassics } = require('../mock/classics');
+    const items = getFallbackClassics() as IClassicItem[];
+    if (category && category !== 'all') {
+      return items.filter(c => c.category === category);
+    }
+    return items;
   }
   const params: Record<string, string> = {};
   if (category) params.category = category;
   return get('/api/classics', params);
 }
 
-// ============================================
-// 经典著作——详情（章节型）
-// ============================================
-export async function fetchClassicBookDetail(classicId: number): Promise<IClassicBook> {
+/**
+ * 经典著作基本信息（含目录树，轻量）
+ * loadMode=full 时顺带返回全文 chapters 字段
+ */
+export async function fetchClassicMeta(classicId: number): Promise<IClassicMeta> {
   if (USE_MOCK) {
-    const { getClassicBookById } = require('../mock/classics');
-    const book = getClassicBookById(classicId);
-    if (!book) throw new Error('经典不存在');
-    return book;
+    const { getClassicMetaById } = require('../mock/classics');
+    const meta = getClassicMetaById(classicId);
+    if (!meta) throw new Error('经典不存在');
+    return meta;
   }
   return get(`/api/classics/${classicId}`);
+}
+
+/**
+ * 按需加载内容块（叶子节点）
+ */
+export async function fetchClassicContent(classicId: number, nodeId: string): Promise<IContentBlock> {
+  if (USE_MOCK) {
+    const { getClassicMockContent } = require('../mock/classics');
+    const content = getClassicMockContent(classicId, nodeId);
+    if (!content) throw new Error('内容不存在');
+    return content;
+  }
+  return get(`/api/classics/${classicId}/content/${nodeId}`);
 }

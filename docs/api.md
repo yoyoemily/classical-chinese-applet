@@ -1255,6 +1255,8 @@ HTTP/1.1 200 OK
 | `data[].icon` | String | emoji 图标 |
 | `data[].description` | String | 简介 |
 | `data[].category` | String | 四部分类：`经` / `史` / `子` / `集` |
+| `data[].loadMode` | String | 加载方式：`full`=全量, `chunked`=按需 |
+| `data[].navMode` | String | 导航方式：`strip` / `list` / `accordion` / `search` |
 
 #### Example: Success
 
@@ -1270,15 +1272,19 @@ HTTP/1.1 200 OK
             "era": "春秋",
             "icon": "📖",
             "description": "孔子及其弟子的言行录，儒家核心经典...",
-            "category": "经"
+            "category": "经",
+            "loadMode": "chunked",
+            "navMode": "accordion"
         },
         {
-            "id": 2,
-            "name": "孟子",
-            "era": "战国",
-            "icon": "📜",
-            "description": "孟子与其弟子所著...",
-            "category": "经"
+            "id": 22,
+            "name": "孙子兵法",
+            "era": "春秋",
+            "icon": "🗡️",
+            "description": "孙武著，兵家圣典...",
+            "category": "子",
+            "loadMode": "full",
+            "navMode": "strip"
         }
     ]
 }
@@ -1286,9 +1292,9 @@ HTTP/1.1 200 OK
 
 ---
 
-### 获取经典著作详情
+### 获取经典著作基本信息（含目录树）
 
-返回一部经典的完整内容，含章节、段落及典故注释的嵌套结构。
+返回经典著作的基本信息和目录树（轻量，不含全文）。`loadMode=full` 时顺带返回全文 `chapters` 字段。
 
 **Endpoint:** `GET /api/classics/:id`
 
@@ -1308,17 +1314,43 @@ HTTP/1.1 200 OK
 | `data.era` | String | 朝代 |
 | `data.category` | String | 四部分类 |
 | `data.description` | String | 简介 |
-| `data.chapters[]` | Array | 章节列表（按 sort_order 排序） |
-| `data.chapters[].id` | Long | 章节 ID |
-| `data.chapters[].title` | String | 章目标题 |
-| `data.chapters[].paragraphs[]` | Array | 段落列表 |
-| `data.chapters[].paragraphs[].text` | String | 原文 |
-| `data.chapters[].paragraphs[].translation` | String | 现代文翻译 |
-| `data.chapters[].paragraphs[].glossary[]` | Array | 典故注释词条 |
-| `data.chapters[].paragraphs[].glossary[].word` | String | 标注词 |
-| `data.chapters[].paragraphs[].glossary[].explanation` | String | 文化背景说明 |
+| `data.structureType` | String | 结构类型：`chapter`=章节型, `anthology`=选集型, `volume`=卷帙型 |
+| `data.loadMode` | String | 加载方式：`full` / `chunked` |
+| `data.navMode` | String | 导航方式：`strip` / `list` / `accordion` / `search` |
+| `data.toc[]` | Array | 目录树节点列表 |
+| `data.toc[].id` | String | 节点唯一标识 |
+| `data.toc[].title` | String | 显示标题 |
+| `data.toc[].level` | Integer | 层级深度（0/1/2） |
+| `data.toc[].isLeaf` | Boolean | 是否叶子节点（可加载内容） |
+| `data.toc[].children[]` | Array | 子节点（非叶子节点才有） |
+| `data.chapters[]` | Array | **[仅 loadMode=full 时返回]** 章节/段落/注释嵌套结构 |
 
-#### Example: Success
+#### Example: Success (loadMode=chunked)
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "id": 1,
+        "name": "论语",
+        "author": "孔子及其弟子",
+        "era": "春秋",
+        "category": "经",
+        "description": "孔子及其弟子的言行录...",
+        "structureType": "chapter",
+        "loadMode": "chunked",
+        "navMode": "accordion",
+        "toc": [
+            { "id": "1", "title": "学而第一", "level": 0, "isLeaf": true },
+            { "id": "2", "title": "为政第二", "level": 0, "isLeaf": true }
+        ]
+    }
+}
+```
+
+#### Example: Success (loadMode=full)
 
 ```json
 HTTP/1.1 200 OK
@@ -1332,6 +1364,13 @@ HTTP/1.1 200 OK
         "era": "春秋",
         "category": "子",
         "description": "兵家圣典...",
+        "structureType": "chapter",
+        "loadMode": "full",
+        "navMode": "strip",
+        "toc": [
+            { "id": "1", "title": "始计篇", "level": 0, "isLeaf": true },
+            { "id": "2", "title": "作战篇", "level": 0, "isLeaf": true }
+        ],
         "chapters": [
             {
                 "id": 1,
@@ -1350,6 +1389,72 @@ HTTP/1.1 200 OK
     }
 }
 ```
+
+---
+
+### 获取经典著作内容块（按需加载）
+
+按目录树叶子节点 ID 返回单个内容块（原文+译文+典故注释）。
+
+**Endpoint:** `GET /api/classics/:id/content/:nodeId`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Long | 经典著作 ID |
+| `nodeId` | String | 目录树叶子节点 ID（对应 toc 中的 id） |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.id` | String | 内容块 ID |
+| `data.title` | String | 标题 |
+| `data.text` | String | 完整原文（选集型/卷帙型用） |
+| `data.translation` | String | 完整译文（可选） |
+| `data.paragraphs[]` | Array | 段落列表（章节型用） |
+| `data.paragraphs[].text` | String | 原文 |
+| `data.paragraphs[].translation` | String | 现代文翻译 |
+| `data.paragraphs[].glossary[]` | Array | 典故注释词条 |
+| `data.paragraphs[].glossary[].word` | String | 标注词 |
+| `data.paragraphs[].glossary[].explanation` | String | 文化背景说明 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "id": "1",
+        "title": "始计篇",
+        "paragraphs": [
+            {
+                "text": "孙子曰：兵者，国之大事...",
+                "translation": "孙子说：战争是国家的大事...",
+                "glossary": [
+                    { "word": "兵", "explanation": "此处指战争、军事，非指士兵。" }
+                ]
+            }
+        ]
+    }
+}
+```
+
+#### Example: Error
+
+```json
+HTTP/1.1 400 Bad Request
+{
+    "code": 10002,
+    "message": "经典不存在",
+    "data": null
+}
+```
+
+---
 
 #### Example: Not Found
 
@@ -1518,6 +1623,30 @@ HTTP/1.1 200 OK
 | `史` | 史部 — 正史、编年、纪事本末等史学著作 |
 | `子` | 子部 — 诸子百家及释道宗教之作 |
 | `集` | 集部 — 诗文词曲等文学总集与别集 |
+
+#### LoadMode — 加载方式
+
+| 值 | 含义 |
+|----|------|
+| `full` | 全量加载 — 一次请求返回全部内容（适用于 <100KB 的经典） |
+| `chunked` | 按需加载 — 先取目录树，叶子节点内容按需请求（适用于 >100KB 的经典） |
+
+#### NavMode — 导航方式
+
+| 值 | 含义 |
+|----|------|
+| `strip` | 顶部横向滚动条 — 适用于 ≤20 个平级条目的经典 |
+| `list` | 纵向可滚动列表 — 适用于 20–200 个平级条目的经典 |
+| `accordion` | 手风琴折叠面板 — 适用于有分组/两级层级结构的经典 |
+| `search` | 搜索 + 分页列表 — 适用于 >200 条目的大体量经典 |
+
+#### StructureType — 经典结构类型
+
+| 值 | 含义 |
+|----|------|
+| `chapter` | 章节型 — 天然分章，每章内容可独立阅读（如论语、孙子兵法） |
+| `anthology` | 选集型 — 多篇/多首独立条目（如诗经、唐诗三百首） |
+| `volume` | 卷帙型 — 按卷/编/年份组织，体量较大（如史记、资治通鉴） |
 
 #### FeedbackSource — 反馈来源
 

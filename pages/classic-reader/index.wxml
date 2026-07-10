@@ -1,4 +1,4 @@
-<!-- 经典阅读页 -->
+<!-- 经典阅读页 v2 支持 full/chunked + strip/list/accordion/search -->
 <view class="page-classic-reader">
   <!-- 加载态 -->
   <block wx:if="{{loading}}">
@@ -7,7 +7,7 @@
     </view>
   </block>
 
-  <block wx:elif="{{book}}">
+  <block wx:elif="{{meta}}">
     <!-- 顶部标题区 -->
     <view class="page-classic-reader__header">
       <view class="page-classic-reader__header-top">
@@ -23,7 +23,11 @@
         </view>
         <!-- 中：书名 -->
         <view class="page-classic-reader__title">
-          <text>《{{book.name}}》</text>
+          <text>《{{meta.name}}》</text>
+        </view>
+        <!-- 目录按钮 -->
+        <view class="page-classic-reader__toc-btn" bindtap="onToggleToc">
+          <text>☰</text>
         </view>
         <!-- 右：纠错 -->
         <view class="page-classic-reader__feedback-icon" bindtap="onTapFeedback">
@@ -31,20 +35,40 @@
         </view>
       </view>
       <view class="page-classic-reader__meta">
-        <text>{{book.author}}</text>
-        <text> · {{book.era}}</text>
+        <text>{{meta.author}}</text>
+        <text> · {{meta.era}}</text>
       </view>
     </view>
 
-    <!-- 连续滚动正文 -->
+    <!-- strip 导航条（仅 strip 模式 + 条目 ≤ 20 时显示） -->
     <scroll-view
+      wx:if="{{meta.navMode === 'strip' && tocNodes.length > 0}}"
+      class="page-classic-reader__strip-nav"
+      scroll-x enhanced show-scrollbar="{{false}}"
+    >
+      <block wx:for="{{tocNodes}}" wx:key="id">
+        <view
+          class="page-classic-reader__strip-item {{currentNodeId === item.id ? 'page-classic-reader__strip-item--active' : ''}} {{!item.isLeaf ? 'page-classic-reader__strip-item--disabled' : ''}}"
+          data-node-id="{{item.id}}"
+          data-is-leaf="{{item.isLeaf}}"
+          bindtap="onTapStripNode"
+        >
+          <text>{{item.title}}</text>
+        </view>
+      </block>
+    </scroll-view>
+
+    <!-- ========================================== -->
+    <!-- full 加载模式：连续滚动正文 -->
+    <!-- ========================================== -->
+    <scroll-view
+      wx:if="{{meta.loadMode === 'full' && fullChapters.length > 0}}"
       class="page-classic-reader__scroll-body"
       scroll-y enhanced show-scrollbar="{{false}}"
+      scroll-into-view="{{'chapter-' + currentNodeId}}"
     >
-      <!-- 遍历章节 -->
-      <block wx:for="{{book.chapters}}" wx:key="id" wx:for-item="chapter" wx:for-index="ci">
-        <view class="page-classic-reader__chapter">
-
+      <block wx:for="{{fullChapters}}" wx:key="id" wx:for-item="chapter" wx:for-index="ci">
+        <view class="page-classic-reader__chapter" id="chapter-{{chapter.id}}">
           <!-- 章目标题 -->
           <view class="page-classic-reader__chapter-header">
             <view class="page-classic-reader__chapter-divider"></view>
@@ -55,14 +79,12 @@
           <!-- 遍历段落 -->
           <block wx:for="{{chapter.paragraphs}}" wx:key="*this" wx:for-item="para" wx:for-index="pi">
             <view class="page-classic-reader__paragraph">
-
-              <!-- 原文行：glossary 高亮 -->
+              <!-- 原文行 -->
               <view class="page-classic-reader__text-line">
                 <block wx:for="{{paragraphSegments[ci][pi]}}" wx:key="*this" wx:for-item="seg">
                   <text
                     wx:if="{{seg.isGlossary}}"
                     class="page-classic-reader__gloss-word"
-                    data-chapter-index="{{ci}}"
                     data-paragraph-index="{{pi}}"
                     data-word="{{seg.word}}"
                     data-explanation="{{seg.explanation}}"
@@ -75,25 +97,22 @@
 
               <!-- 释义气泡 -->
               <view
-                wx:if="{{glossaryPopup && glossaryPopup.chapterIndex === ci && glossaryPopup.paragraphIndex === pi}}"
+                wx:if="{{glossaryPopup && glossaryPopup.paragraphIndex === pi}}"
                 class="page-classic-reader__gloss-bubble"
               >
                 <text class="page-classic-reader__gloss-bubble-word">{{glossaryPopup.word}}</text>
                 <text class="page-classic-reader__gloss-bubble-explanation">{{glossaryPopup.explanation}}</text>
               </view>
 
-              <!-- 译文：常驻显示 -->
+              <!-- 译文 -->
               <view class="page-classic-reader__translation">
                 <text>{{para.translation}}</text>
               </view>
-
             </view>
           </block>
-
         </view>
       </block>
 
-      <!-- 底部终结标记 -->
       <view class="page-classic-reader__scroll-footer">
         <view class="page-classic-reader__scroll-footer-line"></view>
         <text class="page-classic-reader__scroll-footer-text">—— 终 ——</text>
@@ -101,7 +120,161 @@
       </view>
     </scroll-view>
 
-    <!-- 关闭气泡的遮罩 -->
+    <!-- ========================================== -->
+    <!-- chunked 加载模式：单章内容 -->
+    <!-- ========================================== -->
+    <scroll-view
+      wx:elif="{{meta.loadMode === 'chunked'}}"
+      class="page-classic-reader__scroll-body"
+      scroll-y enhanced show-scrollbar="{{false}}"
+    >
+      <!-- 内容加载中 -->
+      <view wx:if="{{contentLoading}}" class="page-classic-reader__content-loading">
+        <text>加载中...</text>
+      </view>
+
+      <!-- 无选中内容 -->
+      <view wx:elif="{{!currentContent}}" class="page-classic-reader__content-empty">
+        <text class="page-classic-reader__content-empty-icon">📖</text>
+        <text class="page-classic-reader__content-empty-text">点击上方目录选择章节开始阅读</text>
+      </view>
+
+      <!-- 内容渲染 -->
+      <block wx:else>
+        <!-- 章目标题 -->
+        <view class="page-classic-reader__chapter-header">
+          <view class="page-classic-reader__chapter-divider"></view>
+          <text class="page-classic-reader__chapter-title">{{currentContent.title}}</text>
+          <view class="page-classic-reader__chapter-divider"></view>
+        </view>
+
+        <!-- 段落（章节型） -->
+        <block wx:if="{{currentContent.paragraphs && currentContent.paragraphs.length > 0}}">
+          <block wx:for="{{currentContent.paragraphs}}" wx:key="*this" wx:for-item="para" wx:for-index="pi">
+            <view class="page-classic-reader__paragraph">
+              <view class="page-classic-reader__text-line">
+                <block wx:for="{{paragraphSegments[pi]}}" wx:key="*this" wx:for-item="seg">
+                  <text
+                    wx:if="{{seg.isGlossary}}"
+                    class="page-classic-reader__gloss-word"
+                    data-paragraph-index="{{pi}}"
+                    data-word="{{seg.word}}"
+                    data-explanation="{{seg.explanation}}"
+                    bindtap="onTapGlossaryWord"
+                    hover-class="page-classic-reader__gloss-word--hover"
+                  >{{seg.text}}</text>
+                  <text wx:else>{{seg.text}}</text>
+                </block>
+              </view>
+
+              <view
+                wx:if="{{glossaryPopup && glossaryPopup.paragraphIndex === pi}}"
+                class="page-classic-reader__gloss-bubble"
+              >
+                <text class="page-classic-reader__gloss-bubble-word">{{glossaryPopup.word}}</text>
+                <text class="page-classic-reader__gloss-bubble-explanation">{{glossaryPopup.explanation}}</text>
+              </view>
+
+              <view class="page-classic-reader__translation">
+                <text>{{para.translation}}</text>
+              </view>
+            </view>
+          </block>
+        </block>
+
+        <!-- 纯文本（选集型/卷帙型） -->
+        <block wx:else>
+          <view class="page-classic-reader__text-line">
+            <text>{{currentContent.text || ''}}</text>
+          </view>
+          <view wx:if="{{currentContent.translation}}" class="page-classic-reader__translation">
+            <text>{{currentContent.translation}}</text>
+          </view>
+        </block>
+
+        <!-- 上下篇导航 -->
+        <view class="page-classic-reader__chapter-nav" wx:if="{{tocNodes.length > 1}}">
+          <view class="page-classic-reader__chapter-nav-btn" bindtap="onTapPrevChapter">
+            <text>◀ 上一篇</text>
+          </view>
+          <view class="page-classic-reader__chapter-nav-btn" bindtap="onTapNextChapter">
+            <text>下一篇 ▶</text>
+          </view>
+        </view>
+
+        <!-- 底部标记 -->
+        <view class="page-classic-reader__scroll-footer">
+          <view class="page-classic-reader__scroll-footer-line"></view>
+          <text class="page-classic-reader__scroll-footer-text">—— 本章完 ——</text>
+          <view class="page-classic-reader__scroll-footer-line"></view>
+        </view>
+      </block>
+    </scroll-view>
+
+    <!-- ========================================== -->
+    <!-- 目录面板（侧滑覆盖层） -->
+    <!-- ========================================== -->
+    <view class="page-classic-reader__toc-mask {{showTocPanel ? 'page-classic-reader__toc-mask--show' : ''}}" bindtap="onCloseToc"></view>
+    <view class="page-classic-reader__toc-panel {{showTocPanel ? 'page-classic-reader__toc-panel--show' : ''}}">
+      <view class="page-classic-reader__toc-header">
+        <text class="page-classic-reader__toc-title">目录</text>
+        <view class="page-classic-reader__toc-close" bindtap="onCloseToc">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <!-- search nav mode: 搜索框 -->
+      <view wx:if="{{meta.navMode === 'search'}}" class="page-classic-reader__toc-search">
+        <input
+          class="page-classic-reader__toc-search-input"
+          placeholder="搜索章节..."
+          value="{{tocSearchKeyword}}"
+          bindinput="onTocSearchInput"
+        />
+      </view>
+
+      <!-- 目录列表 -->
+      <scroll-view class="page-classic-reader__toc-body" scroll-y enhanced show-scrollbar="{{false}}">
+        <block wx:for="{{tocNodes}}" wx:key="id">
+          <!-- 手风琴模式：非叶子节点可展开 -->
+          <block wx:if="{{meta.navMode === 'accordion' && item.children && item.children.length > 0}}">
+            <view class="page-classic-reader__toc-group">
+              <view
+                class="page-classic-reader__toc-group-title {{item.level > 0 ? 'page-classic-reader__toc-group-title--child' : ''}}"
+                data-node-id="{{item.id}}"
+              >
+                <text>{{item.title}}</text>
+                <text class="page-classic-reader__toc-group-arrow">▾</text>
+              </view>
+              <block wx:for="{{item.children}}" wx:key="id" wx:for-item="child">
+                <view
+                  class="page-classic-reader__toc-item page-classic-reader__toc-item--child {{currentNodeId === child.id ? 'page-classic-reader__toc-item--active' : ''}}"
+                  data-node-id="{{child.id}}"
+                  data-is-leaf="{{child.isLeaf}}"
+                  bindtap="onTapTocNode"
+                >
+                  <text>{{child.title}}</text>
+                </view>
+              </block>
+            </view>
+          </block>
+          <!-- 非手风琴 / 叶子节点：直接列表项 -->
+          <block wx:else>
+            <view
+              class="page-classic-reader__toc-item {{item.level > 0 ? 'page-classic-reader__toc-item--child' : ''}} {{currentNodeId === item.id ? 'page-classic-reader__toc-item--active' : ''}} {{!item.isLeaf ? 'page-classic-reader__toc-item--disabled' : ''}}"
+              data-node-id="{{item.id}}"
+              data-is-leaf="{{item.isLeaf}}"
+              bindtap="onTapTocNode"
+            >
+              <text class="page-classic-reader__toc-item-text">{{item.title}}</text>
+              <text wx:if="{{!item.isLeaf}}" class="page-classic-reader__toc-item-hint">整理中</text>
+            </view>
+          </block>
+        </block>
+      </scroll-view>
+    </view>
+
+    <!-- 关闭气泡遮罩 -->
     <view
       wx:if="{{glossaryPopup}}"
       class="page-classic-reader__gloss-mask"

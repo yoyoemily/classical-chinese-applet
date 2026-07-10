@@ -407,6 +407,14 @@ export interface IStudySummary {
 // ============================================
 // 经典著作
 // ============================================
+
+/** 内容加载方式 */
+export type LoadMode = 'full' | 'chunked'
+
+/** 导航 UI 形态 */
+export type NavMode = 'strip' | 'list' | 'accordion' | 'search'
+
+/** 经典著作列表项（含加载/导航字段） */
 export interface IClassicItem {
   id: number
   name: string
@@ -414,10 +422,58 @@ export interface IClassicItem {
   icon: string
   description: string
   category: string
+  /** 内容加载方式：full=全量, chunked=按需加载 */
+  loadMode: LoadMode
+  /** 导航 UI 形态：strip/list/accordion/search */
+  navMode: NavMode
 }
 
 // ============================================
-// 经典典籍——章节型数据结构
+// 经典典籍——通用目录与内容块
+// ============================================
+
+/** 目录树节点 */
+export interface ITocNode {
+  id: string
+  title: string
+  /** 层级深度 0/1/2，UI 按层级缩进 */
+  level: number
+  /** 是否叶子节点（可加载内容） */
+  isLeaf: boolean
+  /** 子节点（非叶子才有） */
+  children?: ITocNode[]
+}
+
+/** 经典著作基本信息（轻量，不含内容） */
+export interface IClassicMeta {
+  id: number
+  name: string
+  author: string
+  era: string
+  category: string
+  description: string
+  /** 数据结构类型：chapter=章节型, anthology=选集型, volume=卷帙型 */
+  structureType: 'chapter' | 'anthology' | 'volume'
+  loadMode: LoadMode
+  navMode: NavMode
+  /** 目录树（轻量，仅标题不含内容） */
+  toc: ITocNode[]
+}
+
+/** 内容块（按需加载的叶子节点内容） */
+export interface IContentBlock {
+  id: string
+  title: string
+  /** 完整原文（选集型、卷帙型用） */
+  text?: string
+  /** 完整译文 */
+  translation?: string
+  /** 段落（章节型用：分段原文+译文+典故注释） */
+  paragraphs?: IChapterParagraph[]
+}
+
+// ============================================
+// 经典典籍——章节型旧结构（full 加载模式下仍使用）
 // ============================================
 
 /** 注释词条：原文中的文化背景词（高亮可点击） */
@@ -440,7 +496,7 @@ export interface IClassicChapter {
   paragraphs: IChapterParagraph[]
 }
 
-/** 经典著作完整数据（章节型） */
+/** 经典著作完整数据（仅 full 加载模式使用） */
 export interface IClassicBook {
   id: number
   name: string

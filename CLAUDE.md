@@ -54,6 +54,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 名篇 | fetchArticleDetail | GET | /api/articles/:id | Bearer |
 | 经典 | fetchClassics | GET | /api/classics | Bearer |
 | 经典 | fetchClassicBookDetail | GET | /api/classics/:id | Bearer |
+| 经典 | fetchClassicContent | GET | /api/classics/:id/content/:nodeId | Bearer |
 | 内容 | fetchWordDetail | GET | /api/words/:id | Bearer |
 | 内容 | fetchFullText | GET | /api/full-text/:sentenceId | Bearer |
 | 反馈 | submitFeedback | POST | /api/feedback | Bearer |
@@ -87,7 +88,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   └── full-text/      # 全文阅读: 纠错页/名篇跳转
 ├── components/         # 公共组件
 ├── api/
-│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 21 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息/经典
+│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 23 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息/经典
 ├── mock/
 │   ├── wordBooks.ts     # 词书 Mock（8 本，4 中考 + 4 高考）
 │   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）

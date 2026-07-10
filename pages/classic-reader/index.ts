@@ -1,8 +1,12 @@
 // ============================================
-// 经典阅读器页面
+// 经典阅读器页面 v2
+// 支持 full/chunked 加载 + strip/list/accordion/search 导航
 // ============================================
-import type { IClassicBook, IClassicChapter, IChapterParagraph, IClassicGlossaryItem, FeedbackCategory } from '../../typings/index.d';
-import { fetchClassicBookDetail, submitFeedback } from '../../api/index';
+import type {
+  IClassicMeta, ITocNode, IContentBlock, IChapterParagraph, IClassicGlossaryItem,
+  FeedbackCategory
+} from '../../typings/index.d';
+import { fetchClassicMeta, fetchClassicContent, submitFeedback } from '../../api/index';
 import { getTTSPlayer } from '../../utils/tts';
 import { safeJSONParse } from '../../utils/util';
 import { STORAGE_KEYS } from '../../constants/config';
@@ -16,12 +20,25 @@ interface IGlossarySegment {
 }
 
 interface IClassicReaderData {
-  book: IClassicBook | null;
+  meta: IClassicMeta | null;
+  /** full 模式下的全量章节（兼容旧逻辑） */
+  fullChapters: IClassicChapter[];
+  /** chunked 模式下的当前内容块 */
+  currentContent: IContentBlock | null;
+  /** chunked 模式已加载内容的缓存 */
+  contentCache: Record<string, IContentBlock>;
+  /** 当前选中的目录节点 ID */
+  currentNodeId: string;
+  /** 当前内容的段落切分 */
+  paragraphSegments: IGlossarySegment[][];
   loading: boolean;
-  /** 三段嵌套：paragraphSegments[chapterIndex][paragraphIndex] = IGlossarySegment[] */
-  paragraphSegments: IGlossarySegment[][][];
+  contentLoading: boolean;
+  /** 目录面板 */
+  tocNodes: ITocNode[];
+  showTocPanel: boolean;
+  tocSearchKeyword: string;
   /** 典故弹窗 */
-  glossaryPopup: { chapterIndex: number; paragraphIndex: number; word: string; explanation: string } | null;
+  glossaryPopup: { paragraphIndex: number; word: string; explanation: string } | null;
   /** 语音播报 */
   audioLoading: boolean;
   audioPlaying: boolean;
@@ -32,11 +49,26 @@ interface IClassicReaderData {
   feedbackSubmitting: boolean;
 }
 
+/** 旧版章节结构（full 模式用，兼容 mock 数据类型） */
+interface IClassicChapter {
+  id: number;
+  title: string;
+  paragraphs: IChapterParagraph[];
+}
+
 Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   data: {
-    book: null,
-    loading: true,
+    meta: null,
+    fullChapters: [],
+    currentContent: null,
+    contentCache: {},
+    currentNodeId: '',
     paragraphSegments: [],
+    loading: true,
+    contentLoading: false,
+    tocNodes: [],
+    showTocPanel: false,
+    tocSearchKeyword: '',
     glossaryPopup: null,
     audioLoading: false,
     audioPlaying: false,
@@ -48,6 +80,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
 
   _tts: null as ReturnType<typeof getTTSPlayer> | null,
   _autoPlayAudio: true,
+  _classicId: 0,
 
   async onLoad(options: Record<string, string | undefined>): Promise<void> {
     const classicId = Number(options.id);
@@ -55,6 +88,8 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       wx.navigateBack();
       return;
     }
+    this._classicId = classicId;
+
     try {
       // 加载设置
       const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
@@ -65,12 +100,27 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       this._tts = getTTSPlayer();
       this._tts.stop();
 
-      const book = await fetchClassicBookDetail(classicId);
-      const paragraphSegments = this.buildAllGlossarySegments(book);
-      this.setData({ book, paragraphSegments, loading: false });
+      const meta = await fetchClassicMeta(classicId);
 
-      if (this._autoPlayAudio) {
-        this._playBookAudio(book);
+      // full 模式：兼容旧结构 chapters 字段
+      const fullChapters = (meta as Record<string, unknown>).chapters as IClassicChapter[] | undefined;
+
+      this.setData({ meta, tocNodes: meta.toc, loading: false });
+
+      if (meta.loadMode === 'full' && fullChapters) {
+        // full 加载：直接渲染全部内容
+        const paragraphSegments = this.buildAllGlossarySegments(fullChapters);
+        this.setData({ fullChapters, paragraphSegments, currentNodeId: '' });
+
+        if (this._autoPlayAudio) {
+          this._playFullText(fullChapters);
+        }
+      } else {
+        // chunked 模式：等待用户选择
+        // 如果 navMode 是 strip 且条目少，自动加载第一篇
+        if (meta.navMode === 'strip' && meta.toc.length > 0 && meta.toc[0].isLeaf) {
+          this.loadContent(meta.toc[0].id);
+        }
       }
     } catch {
       this.setData({ loading: false });
@@ -78,26 +128,138 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
+  // 内容加载（chunked 模式）
+  // ==========================================
+
+  async loadContent(nodeId: string): Promise<void> {
+    const cache = this.data.contentCache;
+    if (cache[nodeId]) {
+      // 缓存命中
+      this.renderContent(cache[nodeId], nodeId);
+      return;
+    }
+
+    this.setData({ contentLoading: true });
+    try {
+      const content = await fetchClassicContent(this._classicId, nodeId);
+      const newCache = { ...this.data.contentCache, [nodeId]: content };
+      this.renderContent(content, nodeId);
+      this.setData({ contentCache: newCache, contentLoading: false });
+    } catch {
+      wx.showToast({ title: '加载失败，请重试', icon: 'none' });
+      this.setData({ contentLoading: false });
+    }
+  },
+
+  renderContent(content: IContentBlock, nodeId: string): void {
+    const paragraphSegments = content.paragraphs
+      ? content.paragraphs.map(p => this.buildSegment(p))
+      : [];
+    this.setData({
+      currentContent: content,
+      currentNodeId: nodeId,
+      paragraphSegments,
+    });
+
+    // 自动播报
+    if (this._autoPlayAudio && this._tts) {
+      const text = content.paragraphs
+        ? content.paragraphs.map(p => p.text).join('')
+        : (content.text || '');
+      this._tts.play(text, undefined, {
+        onStatusChange: (status) => {
+          this.setData({
+            audioLoading: status === 'loading',
+            audioPlaying: status === 'playing',
+          });
+        },
+      });
+    }
+  },
+
+  // ==========================================
+  // 目录面板操作
+  // ==========================================
+
+  onToggleToc(): void {
+    this.setData({ showTocPanel: !this.data.showTocPanel });
+  },
+
+  onCloseToc(): void {
+    this.setData({ showTocPanel: false });
+  },
+
+  onTocSearchInput(e: WechatMiniprogram.Input): void {
+    this.setData({ tocSearchKeyword: e.detail.value });
+  },
+
+  onTapTocNode(e: WechatMiniprogram.BaseEvent): void {
+    const { nodeId, isLeaf } = e.currentTarget.dataset as { nodeId: string; isLeaf: boolean };
+    if (!isLeaf) return;
+
+    this.setData({ showTocPanel: false });
+
+    if (this.data.meta?.loadMode === 'full') {
+      // full 模式：scroll-into-view 跳转
+      this.setData({ currentNodeId: nodeId });
+    } else {
+      // chunked 模式：按需加载
+      this.loadContent(nodeId);
+    }
+  },
+
+  // ==========================================
+  // 横向导航条（strip 模式）
+  // ==========================================
+
+  onTapStripNode(e: WechatMiniprogram.BaseEvent): void {
+    const { nodeId, isLeaf } = e.currentTarget.dataset as { nodeId: string; isLeaf: boolean };
+    if (!isLeaf || nodeId === this.data.currentNodeId) return;
+
+    if (this.data.meta?.loadMode === 'full') {
+      this.setData({ currentNodeId: nodeId });
+    } else {
+      this.loadContent(nodeId);
+    }
+  },
+
+  // ==========================================
+  // 按需加载时切换章节
+  // ==========================================
+
+  onTapPrevChapter(): void {
+    const nodes = this.data.tocNodes;
+    if (nodes.length === 0) return;
+    const idx = nodes.findIndex(n => n.id === this.data.currentNodeId);
+    if (idx > 0 && nodes[idx - 1].isLeaf) {
+      this.loadContent(nodes[idx - 1].id);
+    }
+  },
+
+  onTapNextChapter(): void {
+    const nodes = this.data.tocNodes;
+    if (nodes.length === 0) return;
+    const idx = nodes.findIndex(n => n.id === this.data.currentNodeId);
+    if (idx < nodes.length - 1 && nodes[idx + 1].isLeaf) {
+      this.loadContent(nodes[idx + 1].id);
+    }
+  },
+
+  // ==========================================
   // 典故注释段切分
   // ==========================================
 
-  /**
-   * 对所有章节的所有段落执行最长匹配切分
-   */
-  buildAllGlossarySegments(book: IClassicBook): IGlossarySegment[][][] {
-    return book.chapters.map(ch =>
+  buildAllGlossarySegments(chapters: IClassicChapter[]): IGlossarySegment[][][] {
+    return chapters.map(ch =>
       ch.paragraphs.map(p => this.buildSegment(p))
     );
   },
 
-  /**
-   * 对单个段落的原文按 glossary 做最长匹配切分
-   */
   buildSegment(para: IChapterParagraph): IGlossarySegment[] {
     const segments: IGlossarySegment[] = [];
     const glossary = para.glossary || [];
-    // 按 word 长度降序，最长匹配优先
     const sorted = [...glossary].sort((a, b) => b.word.length - a.word.length);
+
     let i = 0;
     const text = para.text;
     while (i < text.length) {
@@ -133,17 +295,17 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
-  // 典故注释 — 点击/关闭
+  // 典故注释弹窗
   // ==========================================
 
   onTapGlossaryWord(e: WechatMiniprogram.BaseEvent): void {
-    const { chapterIndex, paragraphIndex, word, explanation } =
-      e.currentTarget.dataset as { chapterIndex: number; paragraphIndex: number; word: string; explanation: string };
+    const { paragraphIndex, word, explanation } =
+      e.currentTarget.dataset as { paragraphIndex: number; word: string; explanation: string };
     const current = this.data.glossaryPopup;
-    if (current && current.chapterIndex === chapterIndex && current.paragraphIndex === paragraphIndex && current.word === word) {
+    if (current && current.paragraphIndex === paragraphIndex && current.word === word) {
       this.setData({ glossaryPopup: null });
     } else {
-      this.setData({ glossaryPopup: { chapterIndex, paragraphIndex, word, explanation } });
+      this.setData({ glossaryPopup: { paragraphIndex, word, explanation } });
     }
   },
 
@@ -156,23 +318,34 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   // ==========================================
 
   onTapAudio(): void {
-    if (!this.data.book) return;
     if (this._tts?.status === 'loading' || this._tts?.status === 'playing') {
       this._tts.stop();
       return;
     }
-    this._playBookAudio(this.data.book);
+    const { meta } = this.data;
+    if (!meta) return;
+
+    if (meta.loadMode === 'full' && this.data.fullChapters.length > 0) {
+      this._playFullText(this.data.fullChapters);
+    } else if (this.data.currentContent) {
+      const c = this.data.currentContent;
+      const text = c.paragraphs ? c.paragraphs.map(p => p.text).join('') : (c.text || '');
+      this._tts?.play(text, undefined, {
+        onStatusChange: (status) => {
+          this.setData({
+            audioLoading: status === 'loading',
+            audioPlaying: status === 'playing',
+          });
+        },
+      });
+    }
   },
 
-  _buildFullText(book: IClassicBook): string {
-    return book.chapters
+  _playFullText(chapters: IClassicChapter[]): void {
+    if (!this._tts) return;
+    const text = chapters
       .map(ch => ch.paragraphs.map(p => p.text).join(''))
       .join('');
-  },
-
-  _playBookAudio(book: IClassicBook): void {
-    if (!this._tts) return;
-    const text = this._buildFullText(book);
     this._tts.play(text, undefined, {
       onStatusChange: (status) => {
         this.setData({
@@ -218,7 +391,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
         source: 'classic_reader',
         description: this.data.feedbackDescription,
         context: {
-          classicId: this.data.book?.id,
+          classicId: this.data.meta?.id,
         },
       });
       this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
@@ -234,7 +407,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
 
   onShareAppMessage() {
     return {
-      title: `阅读「${this.data.book?.name || ''}」`,
+      title: `阅读「${this.data.meta?.name || ''}」`,
       path: '/pages/index/index',
     };
   },
