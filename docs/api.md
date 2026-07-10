@@ -253,7 +253,6 @@ HTTP/1.1 200 OK
 | `correctMeaningIndex` | Integer | 正确答案在 `distractors[]` 中的序号（0-based） |
 | `difficulty` | String | 难度：`basic` / `medium` / `hard` |
 | `distractors` | Array\<String\> | 干扰项列表 |
-| `fullText` | String | 该句所在段落的全文 (Optional) |
 | `articleId` | String | 关联的名篇 ID (Optional) |
 | `audioUrl` | String | 预录音频 URL (Optional) |
 
@@ -298,7 +297,6 @@ HTTP/1.1 200 OK
                         "correctMeaningIndex": 1,
                         "difficulty": "basic",
                         "distractors": ["和，又，并且", "地，着", "就，然后"],
-                        "fullText": "子曰：\"学而不思则罔，思而不学则殆。\"",
                         "articleId": "art_002"
                     }
                 ],
@@ -1189,43 +1187,6 @@ HTTP/1.1 200 OK
 ```
 
 ---
-
-### 获取全文
-
-根据句子 ID 查找其所在篇目的完整全文内容。
-
-**Endpoint:** `GET /api/full-text/:sentenceId`
-
-#### Path Parameters
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `sentenceId` | String (Required) | 句子 ID，如 `s_001_01_1` |
-
-#### Response Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `data.title` | String | 文章标题 |
-| `data.author` | String | 作者 |
-| `data.content` | String | 全文内容 |
-
-`null` 表示未找到关联全文。
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "title": "《论语·为政》",
-        "author": "",
-        "content": "子曰：\"学而不思则罔，思而不学则殆。\""
-    }
-}
-```
 
 ---
 

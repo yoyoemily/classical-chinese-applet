@@ -4,7 +4,7 @@
 .page-study {
   min-height: 100vh;
   background-color: var(--color-bg-page);
-  &__header { @include flex-between; padding: $spacing-md $spacing-lg; background: var(--color-bg-white); box-shadow: $shadow-sm; position: sticky; top: 0; z-index: 10; }
+  &__header { @include flex-between; padding: 20rpx $spacing-lg; background: var(--color-bg-white); box-shadow: $shadow-sm; position: sticky; top: 0; z-index: 10; }
   &__dots { display: flex; align-items: center; gap: 8rpx; }
   &__dot { width: 16rpx; height: 16rpx; border-radius: 50%; background: var(--color-border-light); &--filled { background: var(--color-primary); } }
   &__dots-extra { font-size: $font-size-xs; color: var(--color-text-hint); margin-left: 4rpx; }
@@ -12,12 +12,14 @@
   &__mode { font-size: $font-size-xs; color: var(--color-text-hint); padding: 2rpx 12rpx; border-radius: 20rpx; background: var(--color-bg-card); }
   &__counter { font-size: $font-size-sm; color: var(--color-text-secondary); }
 
-  &__body { flex: 1; @include flex-column; align-items: center; padding: $spacing-xl $spacing-lg; padding-bottom: calc(#{$spacing-xxl} + var(--safe-area-bottom)); overflow-y: auto; }
-	&__audio-btn { align-self: flex-end; @include flex-center; width: 64rpx; height: 64rpx; border-radius: 50%; background: var(--color-bg-card); margin-bottom: $spacing-lg; transition: all 0.2s ease;
-	    &--loading { background: rgba(74,106,94,0.1); }
-	    &--playing { background: var(--color-primary); animation: audioPulse 0.8s ease-in-out infinite; }
-	    &--hover { background: var(--color-bg-hover); }
-	  }
+  &__body { flex: 1; @include flex-column; align-items: center; padding: $spacing-md $spacing-lg; padding-bottom: calc(#{$spacing-xxl} + var(--safe-area-bottom)); overflow-y: auto; }
+    // 顶栏：播放左 + 出处右
+    &__top-bar { width: 100%; @include flex-between; align-items: flex-start; margin-bottom: $spacing-sm; }
+    &__audio-btn { @include flex-center; width: 56rpx; height: 56rpx; border-radius: 50%; background: var(--color-bg-card); flex-shrink: 0; transition: all 0.2s ease;
+        &--loading { background: rgba(74,106,94,0.1); }
+        &--playing { background: var(--color-primary); animation: audioPulse 0.8s ease-in-out infinite; }
+        &--hover { background: var(--color-bg-hover); }
+      }
 
 	// ---- 前置步骤：字符选择网格 ----
   &__prestep-prompt { @include flex-column; align-items: center; gap: $spacing-xs; padding: $spacing-md 0; margin-bottom: $spacing-lg;
@@ -49,16 +51,18 @@
   &__prestep-success { @include flex-column; align-items: center; gap: $spacing-sm; margin-top: $spacing-lg; }
   &__prestep-success-icon { @include flex-center; width: 64rpx; height: 64rpx; border-radius: 50%; background: var(--color-success); color: #fff; font-size: 36rpx; font-weight: 700; }
 
-  &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-xl; }
-  &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-lg; display: block; }
+  &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-md; }
+  &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-sm 0; display: block; }
   &__sentence-target { color: var(--color-accent); border-bottom: 6rpx solid var(--color-accent); padding-bottom: 4rpx; }
-  &__sentence-source { margin-top: $spacing-sm; font-size: $font-size-sm; color: var(--color-text-hint); font-style: italic;
-    &--link { color: var(--color-accent); font-style: normal; font-weight: 500; text-decoration: underline; text-underline-offset: 4rpx;
-      &:active { color: darken($color-accent, 10%); }
+  &__sentence-source { font-size: $font-size-xs; color: var(--color-text-hint); font-style: italic; text-align: right; max-width: 60%;
+    &--link { .page-study__sentence-source-text { color: var(--color-accent); font-style: normal; font-weight: 500; text-decoration: underline; text-underline-offset: 4rpx;
+        &:active { color: darken($color-accent, 10%); }
+      }
     }
   }
+  &__sentence-source-text { display: inline; }
   &__sentence-source-arrow { margin-left: $spacing-xs; font-size: $font-size-sm; }
-  &__question { font-size: $font-size-md; color: var(--color-text-secondary); text-align: center; margin-bottom: $spacing-lg; }
+  &__question { font-size: $font-size-md; color: var(--color-text-secondary); text-align: center; margin-bottom: $spacing-base; }
   &__target-word { color: var(--color-accent); font-weight: 600; font-size: 40rpx; font-family: 'STKaiti','KaiTi','楷体',serif; }
 
   &__options { width: 100%; @include flex-column; gap: $spacing-base; margin-bottom: $spacing-md; }
@@ -109,46 +113,24 @@
     line-height: 1.4;
   }
   &__dont-know-badge {
-    position: absolute;
-    top: -2rpx;
-    right: $spacing-md;
-    padding: 4rpx 16rpx;
-    background: linear-gradient(135deg, #faad14, #f0a000);
-    color: #fff;
-    font-size: 18rpx;
-    font-weight: 600;
-    border-radius: 0 0 6rpx 6rpx;
-    letter-spacing: 2rpx;
+    display: none;
   }
 
-  &__flash-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; @include flex-center; z-index: 100; animation: flashPulse 0.5s ease-out; background: rgba(82,196,26,0.12); }
-  &__flash-icon-wrap { @include flex-center; width: 120rpx; height: 120rpx; border-radius: 50%; background: var(--color-success); box-shadow: 0 8rpx 32rpx rgba(82,196,26,0.4); }
-  &__flash-icon { font-size: 56rpx; color: #fff; font-weight: 700; }
 
-  // 纠错视图
-  &__body--correction { justify-content: flex-start; }
-  &__corr-sentence { width: 100%; text-align: center; padding: $spacing-lg; margin-bottom: $spacing-lg; }
-  &__corr-sentence-text { font-size: $font-size-xl; font-weight: 600; color: var(--color-text-primary); line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; }
-  &__corr-translation { width: 100%; background: var(--color-bg-card); border-radius: $radius-md; padding: $spacing-md $spacing-lg; margin-bottom: $spacing-lg; border-left: 6rpx solid var(--color-accent); }
-  &__corr-translation-label { font-size: $font-size-xs; color: var(--color-text-hint); display: block; margin-bottom: $spacing-xs; }
-  &__corr-translation-text { font-size: $font-size-base; color: var(--color-text-secondary); line-height: 1.7; }
-  &__corr-cards { width: 100%; @include flex-column; gap: $spacing-base; margin-bottom: $spacing-lg; }
-  &__corr-card { width: 100%; padding: $spacing-md $spacing-lg; border-radius: $radius-md; background: var(--color-bg-white); box-shadow: $shadow-sm; box-sizing: border-box;
-    &--wrong { border-left: 8rpx solid var(--color-error); }
-    &--right { border-left: 8rpx solid var(--color-success); }
+  // 译文（紧接句子，答题前占位防抖，答题后揭晓）
+  &__sentence-translation { margin-top: $spacing-sm; padding: $spacing-sm $spacing-md; border-radius: $radius-sm; background: var(--color-bg-card); min-height: 44rpx; @include flex-center;
+    &--revealed { background: rgba(201,169,110,0.06); border-left: 4rpx solid var(--color-accent); }
   }
-  &__corr-card-header { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; }
-  &__corr-card-icon { @include flex-center; width: 36rpx; height: 36rpx; border-radius: 50%; background: var(--color-error); color: #fff; font-size: $font-size-sm;
-    &--success { background: var(--color-success); }
+  &__sentence-translation-text { font-size: $font-size-sm; color: var(--color-text-hint); line-height: 1.6; }
+
+  // 揭晓后：记忆口诀 + 继续 + 反馈
+  &__result-mnemonic { width: 100%; background: rgba(201,169,110,0.08); border-radius: $radius-md; padding: $spacing-md $spacing-lg; margin-bottom: $spacing-md; margin-top: $spacing-md; box-sizing: border-box; }
+  &__result-mnemonic-header { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; font-size: $font-size-sm; color: var(--color-accent); }
+  &__result-mnemonic-text { font-size: $font-size-base; color: var(--color-text-secondary); line-height: 1.7; }
+  &__result-actions { width: 100%; @include flex-center; margin-bottom: $spacing-md; }
+  &__result-btn { @include flex-center; width: 100%; height: 96rpx; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); border-radius: $radius-lg; color: #fff; font-size: $font-size-md; font-weight: 500; letter-spacing: 4rpx; box-shadow: 0 8rpx 24rpx rgba(74,106,94,0.3);
+    &--hover { opacity: 0.85; }
   }
-  &__corr-card-label { font-size: $font-size-sm; color: var(--color-text-hint); }
-  &__corr-card-value { font-size: $font-size-lg; font-weight: 600; color: var(--color-text-primary); padding-left: 52rpx; }
-  &__corr-mnemonic { width: 100%; background: rgba(201,169,110,0.08); border-radius: $radius-md; padding: $spacing-md $spacing-lg; margin-bottom: $spacing-xl; box-sizing: border-box; }
-  &__corr-mnemonic-header { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; font-size: $font-size-sm; color: var(--color-accent); }
-  &__corr-mnemonic-text { font-size: $font-size-base; color: var(--color-text-secondary); line-height: 1.7; }
-  &__corr-actions { width: 100%; @include flex-column; align-items: center; gap: $spacing-md; margin-top: auto; padding-top: $spacing-lg; }
-  &__corr-link { font-size: $font-size-base; color: var(--color-primary); }
-  &__corr-btn { @include flex-center; width: 100%; height: 96rpx; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); border-radius: $radius-lg; color: #fff; font-size: $font-size-md; font-weight: 500; letter-spacing: 4rpx; box-shadow: 0 8rpx 24rpx rgba(74,106,94,0.3); }
 
   // 错误反馈入口
   &__feedback-entry {
@@ -259,7 +241,6 @@
   }
 }
 
-@keyframes flashPulse { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes audioPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cellShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8rpx); } 75% { transform: translateX(8rpx); } }

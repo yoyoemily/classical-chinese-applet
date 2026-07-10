@@ -6,17 +6,18 @@ import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRES
 import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index.d';
 
 interface IStudyData {
-  screen: 'preStep' | 'question' | 'correction';
+  screen: 'preStep' | 'question';
+  showResult: boolean;
   currentWord: string;
   currentWordType: string;
-  currentSentence: { id: string; text: string; source: string; translation: string; fullText?: string; articleId?: string; audioUrl?: string } | null;
+  currentSentence: { id: string; text: string; source: string; translation: string; articleId?: string; audioUrl?: string } | null;
   options: string[];
   selectedIndex: number;
   correctIndex: number;
   sentencePrefix: string;
   sentenceTarget: string;
   sentenceSuffix: string;
-  // 纠错页也用到的字段
+  // 揭晓结果时用到的字段
   sentenceText: string;
   sentenceSource: string;
   sentenceTranslation: string;
@@ -62,7 +63,7 @@ const FEEDBACK_CATEGORIES: { key: FeedbackCategory; label: string }[] = [
 
 Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   data: {
-    screen: 'question', currentWord: '', currentWordType: '', currentSentence: null,
+    screen: 'question', showResult: false, currentWord: '', currentWordType: '', currentSentence: null,
     options: [], selectedIndex: -1, correctIndex: -1,
     sentencePrefix: '', sentenceTarget: '', sentenceSuffix: '',
     sentenceText: '', sentenceSource: '', sentenceTranslation: '',
@@ -214,7 +215,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
     this.setData({
       screen: 'preStep',
-      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
+      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       preStepPrompt: this._getPreStepPrompt(),
       sentenceChars: chars,
       preStepSelectedIndices: [],
@@ -356,9 +357,9 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const target = idx >= 0 ? sent.text.slice(idx, idx + word.character.length) : '';
     const suffix = idx >= 0 ? sent.text.slice(idx + word.character.length) : '';
     this.setData({
-      screen: 'question', currentWord: word.character,
+      screen: 'question', showResult: false, currentWord: word.character,
       currentWordType: fullWord?.wordType || '',
-      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, fullText: (sent as Record<string, unknown>).fullText as string, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
+      currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       options: opts, selectedIndex: -1, correctIndex: ci,
       sentencePrefix: prefix, sentenceTarget: target, sentenceSuffix: suffix,
       showCorrect: false, showWrong: false,
@@ -370,7 +371,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onSelectOption(e: WechatMiniprogram.BaseEvent): void {
-    if (this._answering) return;
+    if (this._answering || this.data.showResult) return;
     this._answering = true;
     const idx = Number(e.currentTarget.dataset.index);
     const isCorrect = idx === this.data.correctIndex;
@@ -378,49 +379,44 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     this.recordAnswer(isCorrect, idx);
     if (isCorrect) {
       this.setData({ showCorrect: true });
-      setTimeout(() => { this.advance(); this._answering = false; }, 600);
+      setTimeout(() => {
+        this.showResult();
+        this._answering = false;
+      }, 400);
     } else {
       this.setData({ showWrong: true });
-      setTimeout(() => { this.showCorrection(idx); this._answering = false; }, 500);
+      setTimeout(() => {
+        this.showResult();
+        this._answering = false;
+      }, 500);
     }
   },
 
   onTapDontKnow(): void {
-    if (this._answering) return;
+    if (this._answering || this.data.showResult) return;
     this._answering = true;
     this.recordAnswer(false, -1);
     this.setData({ selectedIndex: -1, showWrong: true });
-    setTimeout(() => { this.showCorrection(-1); this._answering = false; }, 500);
+    setTimeout(() => {
+      this.showResult();
+      this._answering = false;
+    }, 500);
   },
 
-  showCorrection(selectedIndex: number): void {
-    const { options, correctIndex, currentSentence } = this.data;
-    const correctAnswer = options[correctIndex];
-    const userAnswer = selectedIndex >= 0 ? options[selectedIndex] : '不知道';
+  /** 揭晓结果：译文 + 记忆口诀（仅答错时） */
+  showResult(): void {
+    const { currentSentence } = this.data;
     const s = this._session;
     const mnemonic = s ? this._wordsMap[s.words[s.currentWordIndex].wordId]?.mnemonic || '' : '';
+
     this.setData({
-      screen: 'correction', userAnswer, correctAnswer,
-      sentenceText: currentSentence?.text || '',
-      sentenceSource: currentSentence?.source || '',
+      showResult: true,
       sentenceTranslation: currentSentence?.translation || '',
-      mnemonic, showWrong: false, showCorrect: false,
+      mnemonic,
     });
   },
 
-  onCorrectionContinue(): void {
-    const s = this._session;
-    if (!s) return;
-    const word = s.words[s.currentWordIndex];
-    s.currentSentenceIndex++;
-    if (s.currentSentenceIndex >= word.sentences.length) {
-      this.goToWordSummary(word.wordId);
-    } else {
-      this.showNextQuestion();
-    }
-  },
-
-  advance(): void {
+  onContinue(): void {
     const s = this._session;
     if (!s) return;
     const word = s.words[s.currentWordIndex];
@@ -588,12 +584,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
   onTapFullText(): void {
     const { currentSentence } = this.data;
-    if (!currentSentence) return;
-    if (currentSentence.articleId) {
-      wx.navigateTo({ url: `/pages/article-reader/index?id=${currentSentence.articleId}` });
-    } else {
-      wx.navigateTo({ url: `/pages/full-text/index?sentenceId=${currentSentence.id}` });
-    }
+    if (!currentSentence?.articleId) return;
+    wx.navigateTo({ url: `/pages/article-reader/index?id=${currentSentence.articleId}` });
   },
 
   onTapAudio(): void {

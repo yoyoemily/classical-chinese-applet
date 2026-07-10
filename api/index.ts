@@ -273,30 +273,6 @@ export async function fetchWordDetail(wordId: string): Promise<IWord | null> {
   return get(`/api/words/${wordId}`);
 }
 
-export async function fetchFullText(sentenceId: string): Promise<{ title: string; author: string; content: string } | null> {
-  if (USE_MOCK) {
-    // 在词书数据中查找句子对应的全文
-    const books = loadWordBooks();
-    for (const book of books) {
-      const full = loadWordBookData(book.id);
-      if (full) {
-        for (const word of full.words) {
-          const sentence = word.sentences.find(s => s.id === sentenceId);
-          if (sentence?.fullText) {
-            return {
-              title: sentence.source,
-              author: '',
-              content: sentence.fullText,
-            };
-          }
-        }
-      }
-    }
-    return null;
-  }
-  return get(`/api/full-text/${sentenceId}`);
-}
-
 // ============================================
 // 用户个人信息
 // ============================================

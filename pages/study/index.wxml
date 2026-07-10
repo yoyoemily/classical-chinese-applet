@@ -75,10 +75,25 @@
 
     <!-- 主体 -->
     <view class="page-study__body">
-      <view class="page-study__audio-btn {{audioPlaying ? 'page-study__audio-btn--playing' : ''}} {{audioLoading ? 'page-study__audio-btn--loading' : ''}}" bindtap="onTapAudio" hover-class="page-study__audio-btn--hover">
-        <text wx:if="{{audioLoading}}">⏳</text>
-        <text wx:elif="{{audioPlaying}}">🔉</text>
-        <text wx:else>🔊</text>
+
+      <!-- 顶栏：播放左 + 出处右 -->
+      <view class="page-study__top-bar">
+        <view class="page-study__audio-btn {{audioPlaying ? 'page-study__audio-btn--playing' : ''}} {{audioLoading ? 'page-study__audio-btn--loading' : ''}}" bindtap="onTapAudio" hover-class="page-study__audio-btn--hover">
+          <text wx:if="{{audioLoading}}">⏳</text>
+          <text wx:elif="{{audioPlaying}}">🔉</text>
+          <text wx:else>🔊</text>
+        </view>
+        <view
+          class="page-study__sentence-source {{currentSentence.articleId ? 'page-study__sentence-source--link' : ''}}"
+          wx:if="{{currentSentence.source}}"
+        >
+          <text
+            wx:if="{{currentSentence.articleId}}"
+            class="page-study__sentence-source-text"
+            bindtap="onTapFullText"
+          >—— {{currentSentence.source}} <text class="page-study__sentence-source-arrow">→</text></text>
+          <text wx:else class="page-study__sentence-source-text">—— {{currentSentence.source}}</text>
+        </view>
       </view>
 
       <!-- 句子展示 -->
@@ -88,8 +103,9 @@
           <text class="page-study__sentence-target">{{sentenceTarget}}</text>
           <text>{{sentenceSuffix}}</text>
         </view>
-        <view class="page-study__sentence-source {{currentSentence.articleId ? 'page-study__sentence-source--link' : ''}}" wx:if="{{currentSentence.source}}" bindtap="onTapFullText">
-          <text>—— {{currentSentence.source}} <text wx:if="{{currentSentence.articleId}}" class="page-study__sentence-source-arrow">→</text></text>
+        <!-- 译文：答题前占位防抖，答题后揭晓 -->
+        <view class="page-study__sentence-translation {{showResult ? 'page-study__sentence-translation--revealed' : ''}}">
+          <text class="page-study__sentence-translation-text">{{showResult ? sentenceTranslation : '答题后揭晓译文'}}</text>
         </view>
       </view>
 
@@ -119,80 +135,30 @@
           <text class="page-study__dont-know-title">不知道</text>
           <text class="page-study__dont-know-hint">拿不准就点这里，乱选没有意义</text>
         </view>
-        <view class="page-study__dont-know-badge">推荐</view>
-      </view>
-    </view>
-
-    <!-- 正确闪动 -->
-    <view class="page-study__flash-overlay" wx:if="{{showCorrect}}">
-      <view class="page-study__flash-icon-wrap">
-        <text class="page-study__flash-icon">✓</text>
-      </view>
-    </view>
-  </block>
-
-  <!-- 纠错视图 -->
-  <block wx:if="{{screen === 'correction'}}">
-    <view class="page-study__header">
-      <view class="page-study__dots">
-        <view wx:for="{{dotsArray}}" wx:key="*this" class="page-study__dot {{index < completedWords ? 'page-study__dot--filled' : ''}}"></view>
-      </view>
-      <view class="page-study__meta">
-        <text class="page-study__mode">{{modeLabel}}</text>
-        <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
-      </view>
-    </view>
-
-    <view class="page-study__body page-study__body--correction">
-      <view class="page-study__corr-sentence">
-        <text class="page-study__corr-sentence-text">{{sentenceText}}</text>
       </view>
 
-      <view class="page-study__sentence-source {{currentSentence.articleId ? 'page-study__sentence-source--link' : ''}}" wx:if="{{currentSentence.source}}" bindtap="onTapFullText">
-        <text>—— {{currentSentence.source}} <text wx:if="{{currentSentence.articleId}}" class="page-study__sentence-source-arrow">→</text></text>
-      </view>
-
-      <view class="page-study__corr-translation">
-        <text class="page-study__corr-translation-label">译文</text>
-        <text class="page-study__corr-translation-text">{{sentenceTranslation}}</text>
-      </view>
-
-      <view class="page-study__corr-cards">
-        <view class="page-study__corr-card page-study__corr-card--wrong">
-          <view class="page-study__corr-card-header">
-            <text class="page-study__corr-card-icon">✗</text>
-            <text class="page-study__corr-card-label">你的回答</text>
+      <!-- 揭晓后：记忆口诀（仅答错） + 继续 + 反馈 -->
+      <block wx:if="{{showResult}}">
+        <view class="page-study__result-mnemonic" wx:if="{{mnemonic && selectedIndex !== correctIndex}}">
+          <view class="page-study__result-mnemonic-header">
+            <text>💡</text>
+            <text>记忆提示</text>
           </view>
-          <text class="page-study__corr-card-value">{{userAnswer}}</text>
+          <text class="page-study__result-mnemonic-text">{{mnemonic}}</text>
         </view>
-        <view class="page-study__corr-card page-study__corr-card--right">
-          <view class="page-study__corr-card-header">
-            <text class="page-study__corr-card-icon page-study__corr-card-icon--success">✓</text>
-            <text class="page-study__corr-card-label">正确答案</text>
+
+        <view class="page-study__result-actions">
+          <view class="page-study__result-btn" bindtap="onContinue" hover-class="page-study__result-btn--hover">
+            <text>继续</text>
           </view>
-          <text class="page-study__corr-card-value">{{correctAnswer}}</text>
         </view>
-      </view>
 
-      <view class="page-study__corr-mnemonic" wx:if="{{mnemonic}}">
-        <view class="page-study__corr-mnemonic-header">
-          <text>💡</text>
-          <text>记忆提示</text>
+        <view class="page-study__feedback-entry" wx:if="{{selectedIndex !== correctIndex}}" bindtap="onTapFeedback">
+          <text>⚠️ 内容有误？我要反馈</text>
         </view>
-        <text class="page-study__corr-mnemonic-text">{{mnemonic}}</text>
-      </view>
-
-      <view class="page-study__corr-actions">
-        <view class="page-study__corr-btn" bindtap="onCorrectionContinue" hover-class="page-study__corr-btn--hover">
-          <text>继续</text>
-        </view>
-      </view>
-
-      <!-- 错误反馈入口 -->
-      <view class="page-study__feedback-entry" bindtap="onTapFeedback">
-        <text>⚠️ 内容有误？我要反馈</text>
-      </view>
+      </block>
     </view>
+
   </block>
 
   <!-- 错误反馈浮层 -->
