@@ -255,6 +255,8 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     toc = getShishuoMockMeta().toc;
   } else if (id === 36) {
     toc = getShanHaiJingMockMeta().toc;
+  } else if (id === 18) {
+    toc = getLaoziMockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -262,7 +264,7 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   const result: IClassicMeta = {
     id: config.id,
     name: config.name,
-    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : '佚名',
+    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : '佚名',
     era: config.era,
     category: config.category,
     description: config.description,
@@ -275,6 +277,9 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   // full 加载模式下顺带返回全文
   if (config.loadMode === 'full' && id === 22) {
     (result as Record<string, unknown>).chapters = sunTzuArtOfWar.chapters;
+  }
+  if (config.loadMode === 'full' && id === 18) {
+    (result as Record<string, unknown>).chapters = laoziMockChapters;
   }
 
   return result;
@@ -300,6 +305,11 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   if (classicId === 36) {
     const content = getShanHaiJingMockContent(nodeId);
     if (!content) throw new Error('卷不存在');
+    return content;
+  }
+  if (classicId === 18) {
+    const content = getLaoziMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
     return content;
   }
   throw new Error('该经典的数据尚在整理中');
@@ -502,4 +512,64 @@ function getShanHaiJingMockContent(nodeId: string): IContentBlock | undefined {
   const paragraphs = shanHaiJingParagraphs[nodeId];
   if (!paragraphs) return undefined;
   return { id: nodeId, title: titles[nodeId] || '', paragraphs };
+}
+
+
+// ============================================
+// 老子 Mock（章节型 → list 竖向列表，full 全量加载）
+// ============================================
+
+/** 老子 mock 精简数据（前 5 章 + 第 81 章，验证用） */
+const laoziMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '第一章', paragraphs: [
+      { text: '道可道，非常道；名可名，非常名。无名天地之始，有名万物之母。故常无欲，以观其妙；常有欲，以观其徼。此两者同出而异名，同谓之玄。玄之又玄，众妙之门。', translation: '道，可以言说的，就不是永恒的道；名，可以命名的，就不是永恒的名。无，是天地浑沌未开之际的命名；有，是万物产生之本原的命名。所以，常从"无"中领悟道的奥妙；常从"有"中领悟道的端倪。无与有这两者，来源相同而名称相异，都可以称之为玄妙。玄妙又玄妙，是一切奥妙的总门径。', glossary: [{ word: '道', explanation: '老子哲学的核心概念，指宇宙万物的本源和根本规律。不可言说，不可命名，超越一切具体规定。' }, { word: '常道', explanation: '永恒不变的道。与可道之道相对，强调道的超越性和不可言说性。' }, { word: '玄', explanation: '深远幽昧、不可测知。老子用"玄"形容道的深邃与奥妙。' }] },
+    ],
+  },
+  {
+    id: 2, title: '第二章', paragraphs: [
+      { text: '天下皆知美之为美，斯恶已；皆知善之为善，斯不善已。故有无相生，难易相成，长短相较，高下相倾，音声相和，前后相随。是以圣人处无为之事，行不言之教；万物作焉而不辞，生而不有，为而不恃，功成而弗居。夫唯弗居，是以不去。', translation: '天下人都知道美之所以为美，丑的观念也就产生了；都知道善之所以为善，不善的观念也就产生了。所以有和无互相生成，难和易互相成就，长和短互相比较，高和下互相倾倚。因此圣人用无为的方式处理世事，用不言的方式施行教化。生养万物而不据为己有，有所施为而不恃为己能，大功告成而不自居。正因不居功，所以功绩永不离去。', glossary: [{ word: '无为', explanation: '老子思想的核心主张，不是什么都不做，而是不妄为、不强行干预，顺应自然之道而行。' }, { word: '不言之教', explanation: '不用言语说教的教化方式，以身作则、潜移默化。与儒家的言传身教形成对照。' }] },
+    ],
+  },
+  {
+    id: 3, title: '第三章', paragraphs: [
+      { text: '不尚贤，使民不争；不贵难得之货，使民不为盗；不见可欲，使民心不乱。是以圣人之治，虚其心，实其腹，弱其志，强其骨。常使民无知无欲，使夫智者不敢为也。为无为，则无不治。', translation: '不推崇贤能之才，使人民不争功名；不珍贵难得的财物，使人民不做盗贼；不显露引人贪欲的东西，使人民的心智不被惑乱。因此圣人治理天下，要简化人民的思想，填饱人民的肚子，削弱人民的意志，强健人民的筋骨。常使人民处于没有智巧、没有贪欲的状态。以无为的方式处事，天下就没有治理不好的。', glossary: [{ word: '不尚贤', explanation: '不崇尚标榜贤才。老子认为过度标榜贤能会引发竞争和虚伪，反而破坏淳朴的民风。' }, { word: '虚其心', explanation: '使心境虚空纯净，减少私欲和机巧。不是愚民政策，而是让人回归淳朴本真。' }] },
+    ],
+  },
+  {
+    id: 4, title: '第四章', paragraphs: [
+      { text: '道冲，而用之或不盈。渊兮，似万物之宗。挫其锐，解其纷，和其光，同其尘。湛兮，似或存。吾不知谁之子，象帝之先。', translation: '道是虚空无形的，但它的作用却无穷无尽。它渊深啊，好像是万物的宗主。它收敛锋芒，化解纷乱，调和光芒，混同于尘世。它幽隐啊，又似乎确实存在。我不知道它是谁产生的，好像在天帝之前就已经存在了。', glossary: [{ word: '道冲', explanation: '冲，通"盅"，空虚。道体虚空无形，看似空无，却蕴藏无穷的创生力量。' }, { word: '和其光，同其尘', explanation: '调和光芒使之柔和，混同于尘世而不显耀。后世"和光同尘"成语源于此。' }] },
+    ],
+  },
+  {
+    id: 5, title: '第五章', paragraphs: [
+      { text: '天地不仁，以万物为刍狗；圣人不仁，以百姓为刍狗。天地之间，其犹橐籥乎？虚而不屈，动而愈出。多言数穷，不如守中。', translation: '天地不偏私仁爱，把万物当作刍狗一样任其自生自灭；圣人不偏私仁爱，把百姓当作刍狗一样任其自然发展。天地之间，不就像一个风箱吗？虚空而不会穷竭，越是鼓动，风量越多。政令繁多反而加速败亡，不如持守虚静中正。', glossary: [{ word: '天地不仁', explanation: '不仁，不是冷酷无情，而是无所偏爱、一视同仁。天地遵循自然规律运行，不刻意施恩，也不蓄意为害。' }, { word: '刍狗', explanation: '古代祭祀时用草扎成的狗，祭祀前备受珍视，祭祀完毕即被丢弃。比喻天地任万物自然生灭，不加干涉。' }] },
+    ],
+  },
+  {
+    id: 81, title: '第八十一章', paragraphs: [
+      { text: '信言不美，美言不信。善者不辩，辩者不善。知者不博，博者不知。圣人不积，既以为人己愈有，既以与人己愈多。天之道，利而不害；圣人之道，为而不争。', translation: '真实可信的话不华美，华美的话不真实可信。善良的人不巧辩，巧辩的人不善良。真正了解的人不炫耀博学，炫耀博学的人并不真的了解。圣人不为自己积攒，他越是帮助别人，自己反而越充足；越是给予别人，自己反而越丰富。天道是利于万物而不伤害万物的，圣人的准则是有所施为而不与人相争的。', glossary: [{ word: '信言不美', explanation: '真实的话不华美。质朴的语言最有力量。' }, { word: '天之道，利而不害', explanation: '天道是利于万物而不伤害万物的。利而不害，为而不争——全书最后一句，也是最精炼的总结。' }] },
+    ],
+  },
+];
+
+function getLaoziMockMeta(): IClassicMeta {
+  return {
+    id: 18, name: '老子', author: '老子', era: '春秋', category: '子',
+    description: '道家根本经典，道法自然、无为而治，五千余言说尽天地玄机与人生智慧。',
+    structureType: 'chapter', loadMode: 'full', navMode: 'list',
+    toc: laoziMockChapters.map(ch => ({
+      id: String(ch.id),
+      title: ch.title,
+      level: 0,
+      isLeaf: true,
+    })),
+  } as IClassicMeta;
+}
+
+function getLaoziMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = laoziMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
 }
