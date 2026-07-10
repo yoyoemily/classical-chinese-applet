@@ -151,7 +151,7 @@ export const ENCOURAGEMENT_POEMS: string[] = [
 // 前置步骤提示文案（按词书 category 兜底）
 // ============================================
 export const PRESTEP_PROMPTS: Record<string, string> = {
-  tongjia: '请从句子中找出通假字',
-  ancient_modern: '请从句子中找出古今异义词',
-  flexible_usage: '请从句子中找出词类活用字',
+  tongjia: '请从句子中找出通假字词',
+  ancient_modern: '请从句子中找出古今异义字词',
+  flexible_usage: '请从句子中找出词类活用字词',
 };

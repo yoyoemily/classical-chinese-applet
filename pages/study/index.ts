@@ -88,6 +88,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   // 前置步骤相关
   _hasPreStep: false,
   _preStepDoneForCurrentWord: false,
+  _bookIdentifyPrompt: '',
 
   onLoad(): void {
     this.init();
@@ -132,8 +133,9 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       }
       if (book) {
         wx.setNavigationBarTitle({ title: book.name });
-        // 缓存词书的学习模式
+        // 缓存词书的学习模式和前置提示文案
         this._hasPreStep = book.studyMode === 'identify_first';
+        this._bookIdentifyPrompt = (book as unknown as Record<string, unknown>).identifyPrompt as string || '';
         for (const w of book.words) {
           this._wordsMap[w.id] = w;
         }
@@ -225,26 +227,19 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   },
 
   _getPreStepPrompt(): string {
-    // 优先使用当前词书 entry 的 identifyPrompt
+    // 优先使用当前词书 entry 的 identifyPrompt（从 API 返回的词书信息缓存）
+    if (this._bookIdentifyPrompt) return this._bookIdentifyPrompt;
+    // 兜底：按当前词的 wordType 生成
     const s = this._session;
     if (s) {
       const word = s.words[s.currentWordIndex];
-      const book = this._wordsMap[word.wordId];
-      if (book && (book as unknown as Record<string, unknown>).identifyPrompt) {
-        return (book as unknown as Record<string, unknown>).identifyPrompt as string;
-      }
-    }
-    // 兜底：按当前词的 wordType 生成
-    const s2 = this._session;
-    if (s2) {
-      const word = s2.words[s2.currentWordIndex];
-      const book = this._wordsMap[word.wordId];
-      if (book) {
-        const cat = (book as unknown as Record<string, string>).category;
+      const w = this._wordsMap[word.wordId];
+      if (w) {
+        const cat = (w as unknown as Record<string, string>).category;
         if (cat && PRESTEP_PROMPTS[cat]) return PRESTEP_PROMPTS[cat];
       }
     }
-    return '请从句子中找出目标字';
+    return '请从句子中找出目标字词';
   },
 
   onTapSentenceChar(e: WechatMiniprogram.BaseEvent): void {
