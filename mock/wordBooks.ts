@@ -292,9 +292,38 @@ export const mockWordBooks: IWordBook[] = [
     identifyPrompt: '请从句子中找出古今异义字词',
     coverColor: '#6B8E7B',
     examLevel: 'zhongkao',
-    initialized: false,
-    totalWords: 0,
-    words: [],
+    initialized: true,
+    totalWords: 50,
+    words: [
+      {
+        id: 'wb_c_230', character: '去', pinyin: 'qù',
+        characterType: '会意字',
+        explanation: '从大从口，像人离开洞口之形。本义为\'离开\'，与今义\'前往\'方向恰好相反。中考高频考点，需特别注意古今方向反转。',
+        examFrequency: '5年4考',
+        meanings: [
+          { definition: '古义：离开。今义：前往、到……去。', pinyin: 'qù', example: '太丘舍去，去后乃至。', translation: '太丘丢下（友人）离开了，（他）离开后（友人）才到。', source: '《陈太丘与友期行》' },
+        ],
+        sentences: [
+          { id: 's_c_0547', text: '太丘舍去，去后乃至。', source: '《陈太丘与友期行》', targetWord: '去', translation: '太丘丢下（友人）离开了，（他）离开后（友人）才到。', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['前往', '到达', '除掉'], articleId: '' },
+          { id: 's_c_0548', text: '相委而去。', source: '《陈太丘与友期行》', targetWord: '去', translation: '丢下（我）离开了。', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['前往', '去除', '过去'], articleId: '' },
+        ],
+        similarHomophones: ['取', '曲', '趣'], similarShapes: ['法', '丢', '却'],
+        mnemonic: '古人说"去"是离开原地，和今天"去某地"方向相反。记住："去"在古代是"走开"不是"走去"。',
+      },
+      {
+        id: 'wb_c_231', character: '顾', pinyin: 'gù',
+        characterType: '形声字',
+        explanation: '从页（头部）雇声，本义为"回头看"。今义泛化为"照顾、光顾"，词义范围转移且弱化。',
+        examFrequency: '5年4考',
+        meanings: [
+          { definition: '古义：回头看。今义：照顾、光顾。', pinyin: 'gù', example: '元方入门不顾。', translation: '元方走进门去，头也不回。', source: '《陈太丘与友期行》' },
+        ],
+        sentences: [
+          { id: 's_c_0550', text: '元方入门不顾。', source: '《陈太丘与友期行》', targetWord: '顾', translation: '元方走进门去，头也不回。', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['照顾', '顾客', '顾虑'], articleId: '' },
+        ],
+        similarHomophones: ['故', '固', '雇'], similarShapes: ['硕', '须', '烦'],
+      },
+    ],
   },
   {
     id: 'wb_zhongkao_cileihuoyong',
@@ -307,7 +336,35 @@ export const mockWordBooks: IWordBook[] = [
     examLevel: 'zhongkao',
     initialized: true,
     totalWords: 26,
-    words: [],
+    words: [
+      {
+        id: 'wb_c_204', character: '洞', pinyin: 'dòng',
+        characterType: '形声字',
+        explanation: '"洞"从水同声，本义为水流急涌，后引申为孔洞、洞穴。在《狼》"一狼洞其中"中活用为动词，意为"挖洞"。',
+        examFrequency: '5年4考',
+        meanings: [
+          { definition: '挖洞（名词活用为动词）', pinyin: 'dòng', example: '一狼洞其中', translation: '一只狼在那里挖洞', source: '《狼》七上' },
+        ],
+        sentences: [
+          { id: 's_c_0510', text: '一狼洞其中，意将隧入以攻其后也。', source: '《狼》七上', targetWord: '洞', translation: '一只狼在那里挖洞，意图从隧道进入来攻击屠夫的背后。', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['洞穴', '窟窿', '洞口'], articleId: '' },
+        ],
+        similarHomophones: ['动', '冻', '东'], similarShapes: ['桐', '铜', '筒'],
+        mnemonic: '"洞"在"一狼洞其中"里不是名词"洞穴"，而是动词"挖洞"。记住：狼在柴堆里干嘛？在打洞！',
+      },
+      {
+        id: 'wb_c_205', character: '名', pinyin: 'míng',
+        characterType: '会意字',
+        explanation: '"名"从夕从口，本义为自报姓名。"有仙则名"中作动词，意为"出名、著名"。',
+        examFrequency: '5年3考',
+        meanings: [
+          { definition: '出名、著名（名词活用为动词）', pinyin: 'míng', example: '有仙则名', translation: '有仙人居住就会出名', source: '《陋室铭》七下' },
+        ],
+        sentences: [
+          { id: 's_c_0511', text: '山不在高，有仙则名。', source: '《陋室铭》七下', targetWord: '名', translation: '山不一定要高，有仙人（居住）就能出名。', correctMeaningIndex: 0, difficulty: 'basic', distractors: ['名字', '名气', '命名'], articleId: '' },
+        ],
+        similarHomophones: ['明', '鸣', '冥'], similarShapes: ['各', '召', '铭'],
+      },
+    ],
   },
   {
     id: 'wb_gaokao_shixu',

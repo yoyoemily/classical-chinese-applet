@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 尺寸单位 | `rpx`（1rpx = 屏幕宽度 / 750） |
 | UI 组件库 | 无，全部手写 |
 | 后端 | 传统 HTTP API（非云开发），JWT 认证。BASE_URL 根据环境自动切换：`wx.getAccountInfoSync().miniProgram.envVersion === 'release'` → `https://wyq.yinque-ai.com`，否则 → `http://localhost:8080` |
-| 数据源 | 词书/名篇/经典/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存 |
+| 数据源 | 词书/名篇/经典/任务/答题/进度/生词本/打卡/勋章/等级/全文/反馈/个人信息 → 全部走 API；仅设置项和学习会话本地缓存。词书 JSON、典故注释 JSON 的唯一权威数据源位于 Obsidian 知识库 `~/Documents/knowledge_library/文言文/` |
 | 艾宾浩斯 | 服务端权威调度——服务端 `getTodayTask` 返回任务列表、`submitAnswer` 更新进度；前端保留离线冗余 |
 | 状态管理 | 轻量：`app.globalData` + 事件总线 |
 | Mock 模式 | `api/index.ts` 中 `USE_MOCK = false`，已对接真实后端；所有依赖静态顶级导入（禁止 `await import()`） |
@@ -87,7 +87,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── api/
 │   └── index.ts         # 统一接口层（USE_MOCK 开关），含 15 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息
 ├── mock/
-│   ├── wordBooks.ts     # 词书 Mock（2 本，16 词）
+│   ├── wordBooks.ts     # 词书 Mock（8 本，4 中考 + 4 高考）
 │   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）
 │   └── badges.ts        # 勋章 Mock（8 枚）
 ├── docs/
@@ -192,7 +192,10 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 - **首页**：搜索框置顶，勋章倒计时激励卡片，词书进度+分布，今日任务+CTA，内嵌月日历
 - **生词本**：已废弃，由错题本替代
 - **词书选择**：多词书切换，词书详情
-- **全文阅读**：从纠错页或名篇阅读器跳转
+- **全文阅读**：已废弃，`pages/full-text/` 页已移除，句子原文出处改为跳转名篇阅读器
+- **学习页**：答题和纠错合并为同一屏幕，答题后可查看译文和记忆提示
+- **词书数据**：8 本词书，中考 4 本已完成（279 词），高考 4 本空壳待填充。数据存于知识库 `~/Documents/knowledge_library/文言文/词书/`
+- **典故注释**：37 篇全部完成（482 条），数据存于知识库 `~/Documents/knowledge_library/文言文/选篇/典故注释/`
 - **设置页**：每日新学/复习词数、学习顺序（顺序/乱序）、错题移出阈值（1/2/3次）、自动播放语音、答题音效、震动反馈、清除数据
 - **个人信息编辑**：头像（微信头像/相册/拍照）、昵称（微信昵称自动填充/自定义）、年级选择（初一～高三），通过 API 层 `fetchUserInfo()`/`saveUserInfo()` 存取，Mock 下走 localStorage，正式环境走 `GET/PUT /api/user/info`
 - **"我的"页**：头像和昵称展示（点击跳转个人信息编辑），新增"个人信息"菜单项
@@ -216,7 +219,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 | 端口 | `8080` |
 | 基础路径 | `com.bogutongjin` |
 | 源码结构 | common(Result/异常处理) → config(分页/跨域) → entity(22) → mapper(22, BaseMapper) → service(10) → controller(11) |
-| 冷启动数据 | `src/main/resources/source.json`（188KB，与前端 data/source.json 相同内容） |
+| 冷启动数据 | `src/main/resources/source.json`（188KB）。词书 JSON 和典故注释 JSON 已迁移到 Obsidian 知识库 `~/Documents/knowledge_library/文言文/`，项目内不再存放 |
 | 数据导入 | `POST /api/admin/import` → `DataImportService.importFromJson()` (JDBC Template 批处理，事务保护) |
 
 **启动方式**：用 IntelliJ IDEA 打开该目录，运行 `ClassicalChineseApplication`。
@@ -226,7 +229,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 ### 待开发
 - 艾宾浩斯端到端调优
 - 经典阅读板块（典籍二级阅读页面）
-- 词书数据补充（5 本空壳词书：高考 4 本 + 中考词类活用，totalWords=0，initialized=false。中考古今异义已完成 50 词）
+- 高考 4 本词书数据补充（实词虚词、通假字、古今异义、词类活用，当前空壳，totalWords=0）
 
 ## 项目记忆
 
