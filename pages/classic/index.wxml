@@ -36,6 +36,7 @@
       <view
         class="page-classic__card"
         hover-class="page-classic__card--active"
+        data-id="{{item.id}}"
         bindtap="onTapClassic"
       >
         <view class="page-classic__card-left">

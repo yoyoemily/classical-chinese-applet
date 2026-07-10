@@ -16,7 +16,8 @@
     "pages/profile-edit/index",
     "pages/search/index",
     "pages/vocabulary/index",
-    "pages/classic/index"
+    "pages/classic/index",
+    "pages/classic-reader/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4a6a5e",

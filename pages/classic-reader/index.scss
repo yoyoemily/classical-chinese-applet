@@ -1,0 +1,322 @@
+// ============================================
+// 经典阅读页 — 古典书卷风
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+// 古典配色
+$paper-bg: #f5efdf;
+$ink-color: #3a3020;
+$light-ink: #8a7a60;
+
+.page-classic-reader {
+  min-height: 100vh;
+  background-color: $paper-bg;
+
+  // ---------- 加载态 ----------
+  &__loading {
+    @include flex-center;
+    padding-top: 300rpx;
+  }
+  &__loading-text {
+    font-size: $font-size-md;
+    color: $light-ink;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    letter-spacing: 4rpx;
+  }
+
+  // ---------- 顶部标题区 ----------
+  &__header {
+    @include flex-column;
+    align-items: center;
+    padding: $spacing-xl $spacing-lg $spacing-base;
+    background: linear-gradient(180deg, var(--color-primary), rgba(74, 106, 94, 0.75));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  &__header-top {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: $spacing-sm;
+  }
+  &__audio-btn {
+    @include flex-center;
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
+    & text { font-size: 28rpx; }
+    &:active { background: rgba(255, 255, 255, 0.35); }
+    &--hover { background: rgba(255, 255, 255, 0.3); }
+    &--loading { background: rgba(255, 255, 255, 0.3); }
+    &--playing {
+      background: rgba(255, 255, 255, 0.35);
+      animation: audioPulse 1.2s ease-in-out infinite;
+    }
+  }
+  &__title {
+    flex: 1;
+    font-size: 38rpx;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 4rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    text-align: center;
+    line-height: 1.4;
+    min-width: 0;
+  }
+  &__feedback-icon {
+    @include flex-center;
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    & text { font-size: 28rpx; }
+    &:active { background: rgba(255, 255, 255, 0.35); }
+  }
+  &__meta {
+    display: flex;
+    gap: 2rpx;
+    margin-top: $spacing-base;
+    font-size: $font-size-base;
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    letter-spacing: 2rpx;
+  }
+
+  // ---------- 正文滚动区 ----------
+  &__scroll-body {
+    padding: $spacing-lg $spacing-lg 0;
+  }
+
+  // ---------- 章节 ----------
+  &__chapter {
+    margin-bottom: $spacing-xxl;
+  }
+
+  // ---------- 章目标题分隔 ----------
+  &__chapter-header {
+    @include flex-center;
+    margin: $spacing-xxl 0 $spacing-xl;
+  }
+  &__chapter-divider {
+    flex: 1;
+    height: 2rpx;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-primary-light) 20%,
+      var(--color-primary-light) 80%,
+      transparent
+    );
+  }
+  &__chapter-title {
+    padding: 0 $spacing-xl;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    font-size: 42rpx;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 6rpx;
+    white-space: nowrap;
+  }
+
+  // ---------- 段落 ----------
+  &__paragraph {
+    margin-bottom: $spacing-xl;
+  }
+
+  // ---------- 原文行 ----------
+  &__text-line {
+    font-size: 38rpx;
+    line-height: 2.4;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    text-align: justify;
+    color: $ink-color;
+    letter-spacing: 2rpx;
+  }
+
+  // ---------- 典故高亮词 ----------
+  &__gloss-word {
+    color: var(--color-primary);
+    border-bottom: 2rpx solid var(--color-accent);
+    padding-bottom: 2rpx;
+    transition: background 0.15s ease;
+    &--hover {
+      background: rgba(201, 169, 110, 0.15);
+    }
+  }
+
+  // ---------- 释义气泡 ----------
+  &__gloss-bubble {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: #fef9f0;
+    border-left: 4rpx solid var(--color-accent);
+    border-radius: 0 $radius-sm $radius-sm 0;
+    animation: bubbleIn 0.2s ease;
+    &-word {
+      display: block;
+      font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+      font-size: 36rpx;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 4rpx;
+    }
+    &-explanation {
+      font-size: $font-size-base;
+      color: #5a2a1a;
+      line-height: 1.8;
+    }
+  }
+
+  // ---------- 译文 ----------
+  &__translation {
+    margin-top: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-sm;
+    color: $light-ink;
+    line-height: 1.8;
+    font-family: 'STSong', 'SimSun', '宋体', serif;
+    letter-spacing: 1rpx;
+  }
+
+  // ---------- 底部终结标记 ----------
+  &__scroll-footer {
+    @include flex-center;
+    padding: $spacing-xxl 0;
+    gap: $spacing-md;
+  }
+  &__scroll-footer-line {
+    flex: 1;
+    height: 1rpx;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba($light-ink, 0.4) 50%,
+      transparent
+    );
+  }
+  &__scroll-footer-text {
+    font-size: $font-size-sm;
+    color: $light-ink;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    letter-spacing: 4rpx;
+    white-space: nowrap;
+  }
+
+  // ---------- 关闭气泡遮罩 ----------
+  &__gloss-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+  }
+
+  // ==========================================
+  // 错误反馈浮层
+  // ==========================================
+  &__feedback-mask {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4); z-index: 200;
+    animation: fadeInSimple 0.2s ease;
+  }
+  &__feedback-panel {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-radius: $radius-lg $radius-lg 0 0;
+    z-index: 201;
+    padding-bottom: calc(#{$spacing-lg} + var(--safe-area-bottom));
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    &--show { transform: translateY(0); }
+  }
+  &__feedback-header {
+    @include flex-between;
+    padding: $spacing-lg;
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+  &__feedback-title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  &__feedback-close {
+    @include flex-center;
+    width: 56rpx; height: 56rpx;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+    &:active { opacity: 0.7; }
+  }
+  &__feedback-body { padding: $spacing-lg; }
+  &__feedback-label {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    margin-bottom: $spacing-base;
+    font-weight: 500;
+  }
+  &__feedback-categories {
+    display: flex; flex-wrap: wrap; gap: $spacing-sm;
+    margin-bottom: $spacing-xl;
+  }
+  &__feedback-cat {
+    padding: 12rpx 28rpx;
+    border-radius: $radius-md;
+    background: var(--color-bg-card);
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    border: 2rpx solid transparent;
+    transition: all 0.2s ease;
+    &--active {
+      background: rgba(74,106,94,0.1);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      font-weight: 500;
+    }
+    &:active { opacity: 0.7; }
+  }
+  &__feedback-textarea {
+    width: 100%; height: 140rpx;
+    padding: $spacing-md;
+    background: var(--color-bg-card);
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    color: var(--color-text-primary);
+    box-sizing: border-box;
+    margin-bottom: $spacing-xl;
+  }
+  &__feedback-submit-wrap { @include flex-center; }
+  &__feedback-submit {
+    @include flex-center; width: 100%; height: 88rpx;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    border-radius: $radius-lg;
+    color: #fff;
+    font-size: $font-size-md;
+    font-weight: 500;
+    &:active { opacity: 0.85; }
+    &--loading { opacity: 0.6; pointer-events: none; }
+  }
+}
+
+// ==========================================
+// 动画
+// ==========================================
+@keyframes audioPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(-8rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInSimple {
+  from { opacity: 0; } to { opacity: 1; }
+}

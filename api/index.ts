@@ -6,6 +6,7 @@ import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
   IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
+  IClassicBook,
 } from '../typings/index.d';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
@@ -312,4 +313,17 @@ export async function fetchClassics(category?: string): Promise<IClassicItem[]> 
   const params: Record<string, string> = {};
   if (category) params.category = category;
   return get('/api/classics', params);
+}
+
+// ============================================
+// 经典著作——详情（章节型）
+// ============================================
+export async function fetchClassicBookDetail(classicId: number): Promise<IClassicBook> {
+  if (USE_MOCK) {
+    const { getClassicBookById } = require('../mock/classics');
+    const book = getClassicBookById(classicId);
+    if (!book) throw new Error('经典不存在');
+    return book;
+  }
+  return get(`/api/classics/${classicId}`);
 }

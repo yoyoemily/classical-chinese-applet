@@ -1286,6 +1286,131 @@ HTTP/1.1 200 OK
 
 ---
 
+### 获取经典著作详情
+
+返回一部经典的完整内容，含章节、段落及典故注释的嵌套结构。
+
+**Endpoint:** `GET /api/classics/:id`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Long | 经典著作 ID |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.id` | Long | 经典著作 ID |
+| `data.name` | String | 经典名称 |
+| `data.author` | String | 作者 |
+| `data.era` | String | 朝代 |
+| `data.category` | String | 四部分类 |
+| `data.description` | String | 简介 |
+| `data.chapters[]` | Array | 章节列表（按 sort_order 排序） |
+| `data.chapters[].id` | Long | 章节 ID |
+| `data.chapters[].title` | String | 章目标题 |
+| `data.chapters[].paragraphs[]` | Array | 段落列表 |
+| `data.chapters[].paragraphs[].text` | String | 原文 |
+| `data.chapters[].paragraphs[].translation` | String | 现代文翻译 |
+| `data.chapters[].paragraphs[].glossary[]` | Array | 典故注释词条 |
+| `data.chapters[].paragraphs[].glossary[].word` | String | 标注词 |
+| `data.chapters[].paragraphs[].glossary[].explanation` | String | 文化背景说明 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "id": 22,
+        "name": "孙子兵法",
+        "author": "孙武",
+        "era": "春秋",
+        "category": "子",
+        "description": "兵家圣典...",
+        "chapters": [
+            {
+                "id": 1,
+                "title": "始计篇",
+                "paragraphs": [
+                    {
+                        "text": "孙子曰：兵者，国之大事...",
+                        "translation": "孙子说：战争是国家的大事...",
+                        "glossary": [
+                            { "word": "兵", "explanation": "此处指战争、军事，非指士兵。" }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+#### Example: Not Found
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 10003,
+    "message": "经典不存在",
+    "data": null
+}
+```
+
+---
+
+## 管理后台
+
+### 导入经典著作章节内容
+
+幂等导入一部经典著作的章节、段落及典故注释数据。该经典已有的旧内容会被先删除再插入。
+
+**Endpoint:** `POST /api/admin/import/classic/{classicId}`
+
+> ⚠️ 此接口为管理端接口，需管理员权限。
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `classicId` | Long | 经典著作 ID（classic 表主键） |
+
+#### Request Body
+
+JSON 数组，格式与知识库 `chapters.json` 一致：
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `[].id` | Integer | 章节原始 ID |
+| `[].title` | String | 章目标题 |
+| `[].paragraphs[]` | Array | 段落数组 |
+| `[].paragraphs[].text` | String | 原文 |
+| `[].paragraphs[].translation` | String | 现代文翻译 |
+| `[].paragraphs[].glossary[]` | Array | 典故注释（可选） |
+| `[].paragraphs[].glossary[].word` | String | 标注词 |
+| `[].paragraphs[].glossary[].explanation` | String | 文化背景说明 |
+
+#### Example: Success
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": {
+        "success": true,
+        "message": "经典「孙子兵法」导入完成"
+    }
+}
+```
+
+---
+
 ## 附录
 
 ### 枚举值速查
@@ -1401,3 +1526,4 @@ HTTP/1.1 200 OK
 | `learning` | 学习答题 |
 | `word_summary` | 字总结 |
 | `article_reader` | 名篇阅读 |
+| `classic_reader` | 经典阅读 |

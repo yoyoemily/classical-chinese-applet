@@ -357,7 +357,7 @@ export interface IStudySession {
 // ============================================
 
 /** 反馈来源：learning=学习答题, word_summary=字总结, article_reader=名篇阅读 */
-export type FeedbackSource = 'learning' | 'word_summary' | 'article_reader'
+export type FeedbackSource = 'learning' | 'word_summary' | 'article_reader' | 'classic_reader'
 
 /** 错误类别 */
 export type FeedbackCategory =
@@ -414,4 +414,39 @@ export interface IClassicItem {
   icon: string
   description: string
   category: string
+}
+
+// ============================================
+// 经典典籍——章节型数据结构
+// ============================================
+
+/** 注释词条：原文中的文化背景词（高亮可点击） */
+export interface IClassicGlossaryItem {
+  word: string
+  explanation: string
+}
+
+/** 段落：原文 + 译文 + 可选注释 */
+export interface IChapterParagraph {
+  text: string
+  translation: string
+  glossary?: IClassicGlossaryItem[]
+}
+
+/** 章节 */
+export interface IClassicChapter {
+  id: number
+  title: string
+  paragraphs: IChapterParagraph[]
+}
+
+/** 经典著作完整数据（章节型） */
+export interface IClassicBook {
+  id: number
+  name: string
+  author: string
+  era: string
+  category: string
+  description: string
+  chapters: IClassicChapter[]
 }

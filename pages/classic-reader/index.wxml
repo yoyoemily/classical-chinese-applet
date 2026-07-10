@@ -1,0 +1,156 @@
+<!-- 经典阅读页 -->
+<view class="page-classic-reader">
+  <!-- 加载态 -->
+  <block wx:if="{{loading}}">
+    <view class="page-classic-reader__loading">
+      <text class="page-classic-reader__loading-text">开卷中...</text>
+    </view>
+  </block>
+
+  <block wx:elif="{{book}}">
+    <!-- 顶部标题区 -->
+    <view class="page-classic-reader__header">
+      <view class="page-classic-reader__header-top">
+        <!-- 左：喇叭 -->
+        <view
+          class="page-classic-reader__audio-btn {{audioPlaying ? 'page-classic-reader__audio-btn--playing' : ''}} {{audioLoading ? 'page-classic-reader__audio-btn--loading' : ''}}"
+          bindtap="onTapAudio"
+          hover-class="page-classic-reader__audio-btn--hover"
+        >
+          <text wx:if="{{audioLoading}}">⏳</text>
+          <text wx:elif="{{audioPlaying}}">🔉</text>
+          <text wx:else>🔊</text>
+        </view>
+        <!-- 中：书名 -->
+        <view class="page-classic-reader__title">
+          <text>《{{book.name}}》</text>
+        </view>
+        <!-- 右：纠错 -->
+        <view class="page-classic-reader__feedback-icon" bindtap="onTapFeedback">
+          <text>⚠️</text>
+        </view>
+      </view>
+      <view class="page-classic-reader__meta">
+        <text>{{book.author}}</text>
+        <text> · {{book.era}}</text>
+      </view>
+    </view>
+
+    <!-- 连续滚动正文 -->
+    <scroll-view
+      class="page-classic-reader__scroll-body"
+      scroll-y enhanced show-scrollbar="{{false}}"
+    >
+      <!-- 遍历章节 -->
+      <block wx:for="{{book.chapters}}" wx:key="id" wx:for-item="chapter" wx:for-index="ci">
+        <view class="page-classic-reader__chapter">
+
+          <!-- 章目标题 -->
+          <view class="page-classic-reader__chapter-header">
+            <view class="page-classic-reader__chapter-divider"></view>
+            <text class="page-classic-reader__chapter-title">{{chapter.title}}</text>
+            <view class="page-classic-reader__chapter-divider"></view>
+          </view>
+
+          <!-- 遍历段落 -->
+          <block wx:for="{{chapter.paragraphs}}" wx:key="*this" wx:for-item="para" wx:for-index="pi">
+            <view class="page-classic-reader__paragraph">
+
+              <!-- 原文行：glossary 高亮 -->
+              <view class="page-classic-reader__text-line">
+                <block wx:for="{{paragraphSegments[ci][pi]}}" wx:key="*this" wx:for-item="seg">
+                  <text
+                    wx:if="{{seg.isGlossary}}"
+                    class="page-classic-reader__gloss-word"
+                    data-chapter-index="{{ci}}"
+                    data-paragraph-index="{{pi}}"
+                    data-word="{{seg.word}}"
+                    data-explanation="{{seg.explanation}}"
+                    bindtap="onTapGlossaryWord"
+                    hover-class="page-classic-reader__gloss-word--hover"
+                  >{{seg.text}}</text>
+                  <text wx:else>{{seg.text}}</text>
+                </block>
+              </view>
+
+              <!-- 释义气泡 -->
+              <view
+                wx:if="{{glossaryPopup && glossaryPopup.chapterIndex === ci && glossaryPopup.paragraphIndex === pi}}"
+                class="page-classic-reader__gloss-bubble"
+              >
+                <text class="page-classic-reader__gloss-bubble-word">{{glossaryPopup.word}}</text>
+                <text class="page-classic-reader__gloss-bubble-explanation">{{glossaryPopup.explanation}}</text>
+              </view>
+
+              <!-- 译文：常驻显示 -->
+              <view class="page-classic-reader__translation">
+                <text>{{para.translation}}</text>
+              </view>
+
+            </view>
+          </block>
+
+        </view>
+      </block>
+
+      <!-- 底部终结标记 -->
+      <view class="page-classic-reader__scroll-footer">
+        <view class="page-classic-reader__scroll-footer-line"></view>
+        <text class="page-classic-reader__scroll-footer-text">—— 终 ——</text>
+        <view class="page-classic-reader__scroll-footer-line"></view>
+      </view>
+    </scroll-view>
+
+    <!-- 关闭气泡的遮罩 -->
+    <view
+      wx:if="{{glossaryPopup}}"
+      class="page-classic-reader__gloss-mask"
+      bindtap="onDismissGlossaryPopup"
+    ></view>
+
+    <!-- 错误反馈浮层 -->
+    <view class="page-classic-reader__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>
+    <view class="page-classic-reader__feedback-panel {{showFeedbackPanel ? 'page-classic-reader__feedback-panel--show' : ''}}">
+      <view class="page-classic-reader__feedback-header">
+        <text class="page-classic-reader__feedback-title">🙋 反馈错误</text>
+        <view class="page-classic-reader__feedback-close" bindtap="onCloseFeedback">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <view class="page-classic-reader__feedback-body">
+        <view class="page-classic-reader__feedback-label">错误类型</view>
+        <view class="page-classic-reader__feedback-categories">
+          <view
+            wx:for="{{['sentence_text','translation','annotation','other']}}"
+            wx:key="*this"
+            wx:for-item="cat"
+            class="page-classic-reader__feedback-cat {{feedbackCategory === cat ? 'page-classic-reader__feedback-cat--active' : ''}}"
+            data-category="{{cat}}"
+            bindtap="onSelectFeedbackCategory"
+          >
+            <text wx:if="{{cat === 'sentence_text'}}">原文有误</text>
+            <text wx:elif="{{cat === 'translation'}}">译文有误</text>
+            <text wx:elif="{{cat === 'annotation'}}">标注有误</text>
+            <text wx:else>其他</text>
+          </view>
+        </view>
+
+        <view class="page-classic-reader__feedback-label">详细说明（选填）</view>
+        <textarea
+          class="page-classic-reader__feedback-textarea"
+          placeholder="请描述具体哪里有问题..."
+          value="{{feedbackDescription}}"
+          maxlength="200"
+          bindinput="onFeedbackDescriptionInput"
+        />
+
+        <view class="page-classic-reader__feedback-submit-wrap">
+          <view class="page-classic-reader__feedback-submit {{feedbackSubmitting ? 'page-classic-reader__feedback-submit--loading' : ''}}" bindtap="onSubmitFeedback">
+            <text>{{feedbackSubmitting ? '提交中...' : '提交反馈'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

@@ -72,6 +72,9 @@ function buildGroups(items: IClassicItem[]): IClassicGroup[] {
   }));
 }
 
+/** 已开放阅读的经典 ID 列表（逐步扩充） */
+const OPEN_CLASSICS: number[] = [22]; // 22 = 孙子兵法
+
 Page<IClassicData, WechatMiniprogram.Page.CustomOption>({
   data: {
     activeTab: '经',
@@ -113,25 +116,30 @@ Page<IClassicData, WechatMiniprogram.Page.CustomOption>({
     });
   },
 
-  /** 点击经典卡片——阅读板块尚未开放 */
-  onTapClassic(): void {
-    this.showLockTip();
+  /** 点击经典卡片——已开放的跳转阅读器，未开放的提示 */
+  onTapClassic(e: WechatMiniprogram.BaseEvent): void {
+    const id = Number(e.currentTarget.dataset.id);
+    if (!id) return;
+    if (OPEN_CLASSICS.includes(id)) {
+      wx.navigateTo({ url: `/pages/classic-reader/index?id=${id}` });
+    } else {
+      wx.showToast({ title: '该经典正在整理中，敬请期待', icon: 'none', duration: 2000 });
+    }
   },
 
   /** 点击左上角提示图标 */
   onTapTip(): void {
     wx.showModal({
       title: '经典阅读',
-      content: '三十六部传世典籍，涵盖经史子集四部，上起商周、下至明清。阅读古籍经典需极强的文言功底，请务必深度学习掌握全部字词后再开始。届时您已深通文言，可畅游古典原典世界。',
+      content: '三十六部传世典籍，涵盖经史子集四部，上起商周、下至明清。已完成的经典可直接阅读，其余正在逐步整理中，敬请期待。',
       showCancel: false,
       confirmText: '我知道了',
     });
   },
 
-
   showLockTip(): void {
     wx.showToast({
-      title: '经典阅读尚未开放',
+      title: '该经典正在整理中，敬请期待',
       icon: 'none',
       duration: 2000,
     });

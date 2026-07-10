@@ -33,7 +33,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 认证 | JWT：`app.ts` onLaunch 调用 `wx.login()` → `/api/auth/login` 获取 token → `request.ts` 自动带 Authorization header，401 时自动 re-login |
 | 路径别名 | `@/*` → `./*`（`tsconfig.json` → `paths`），但在小程序中 import 需使用相对路径 |
 
-## API 端点清单（共 15 个）
+## API 端点清单（共 17 个）
 
 | 分类 | 接口 | 方法 | 路径 | 认证 |
 |------|------|------|------|------|
@@ -53,6 +53,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 名篇 | fetchArticles | GET | /api/articles | Bearer |
 | 名篇 | fetchArticleDetail | GET | /api/articles/:id | Bearer |
 | 经典 | fetchClassics | GET | /api/classics | Bearer |
+| 经典 | fetchClassicBookDetail | GET | /api/classics/:id | Bearer |
 | 内容 | fetchWordDetail | GET | /api/words/:id | Bearer |
 | 内容 | fetchFullText | GET | /api/full-text/:sentenceId | Bearer |
 | 反馈 | submitFeedback | POST | /api/feedback | Bearer |
@@ -77,6 +78,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   ├── book-select/    # 词书选择: 8 本词书，按中考/高考 Tab 过滤
 │   ├── book-detail/    # 词书详情
 │   ├── article-reader/ # 名篇阅读器: 4 种模式+内联生词高亮
+│   ├── classic-reader/   # 经典阅读器: 典故注释模式，连续滚动章节导航，古典书卷风
 │   ├── calendar/       # 打卡日历: 月视图
 │   ├── badges/         # 勋章墙: 8 枚累计学习天数勋章
 │   ├── search/         # 全局搜索: 实时搜索完整义项
@@ -85,10 +87,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │   └── full-text/      # 全文阅读: 纠错页/名篇跳转
 ├── components/         # 公共组件
 ├── api/
-│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 15 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息
+│   └── index.ts         # 统一接口层（USE_MOCK 开关），含 21 个 API 端点：词书/任务/答题/进度/生词本/打卡/勋章/用户/名篇/全文/反馈/个人信息/经典
 ├── mock/
 │   ├── wordBooks.ts     # 词书 Mock（8 本，4 中考 + 4 高考）
 │   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）
+│   ├── classics.ts      # 经典 Mock（孙子兵法 13 篇完整数据）
 │   └── badges.ts        # 勋章 Mock（8 枚）
 ├── docs/
 │   └── api.md           # API 文档（EasyBit 风格，15 个接口完整描述）
@@ -215,20 +218,20 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 | 项 | 说明 |
 |----|------|
 | 框架 | Spring Boot 3.2.1 + Java 17 + MyBatis-Plus 3.5.5 |
-| 数据库 | MySQL 8.0，数据库名 `classical_chinese`，22 张表，DDL 在后端工程 `data/schema.sql` |
+| 数据库 | MySQL 8.0，数据库名 `classical_chinese`，26 张表，DDL 在后端工程 `data/schema.sql` |
 | 端口 | `8080` |
 | 基础路径 | `com.bogutongjin` |
-| 源码结构 | common(Result/异常处理) → config(分页/跨域) → entity(22) → mapper(22, BaseMapper) → service(10) → controller(11) |
+| 源码结构 | common(Result/异常处理) → config(分页/跨域) → entity(25) → mapper(25, BaseMapper) → service(10) → controller(12) |
 | 冷启动数据 | `src/main/resources/source.json`（188KB）。词书 JSON 和典故注释 JSON 已迁移到 Obsidian 知识库 `~/Documents/knowledge_library/文言文/`，项目内不再存放 |
 | 数据导入 | `POST /api/admin/import` → `DataImportService.importFromJson()` (JDBC Template 批处理，事务保护) |
 
 **启动方式**：用 IntelliJ IDEA 打开该目录，运行 `ClassicalChineseApplication`。
 
-**API 覆盖**：12 个 Controller 完整对接前端 15 个 API 端点 + 登录接口 + 管理导入接口，响应格式统一 `{code: 0, message: "ok", data: ...}`。`api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'`。JWT 认证完整实现：`LoginInterceptor` + `@CurrentUser` 注入 userId，前端 `app.ts` onLaunch 自动登录、`request.ts` 自动带 token、401 自动 re-login。
+**API 覆盖**：12 个 Controller 完整对接前端 21 个 API 端点 + 登录接口 + 管理导入接口，响应格式统一 `{code: 0, message: "ok", data: ...}`。`api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'`。JWT 认证完整实现：`LoginInterceptor` + `@CurrentUser` 注入 userId，前端 `app.ts` onLaunch 自动登录、`request.ts` 自动带 token、401 自动 re-login。
 
 ### 待开发
 - 艾宾浩斯端到端调优
-- 经典阅读板块（典籍二级阅读页面）
+- 经典阅读板块——已部分完成（章节型已跑通，孙子兵法 13 篇可读；选集型/卷帙型待后续设计）
 - 高考 4 本词书数据补充（实词虚词、通假字、古今异义、词类活用，当前空壳，totalWords=0）
 
 ## 项目记忆
