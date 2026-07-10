@@ -251,6 +251,8 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
       level: 0,
       isLeaf: true,
     }));
+  } else if (id === 33) {
+    toc = getShishuoMockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -258,7 +260,7 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   const result: IClassicMeta = {
     id: config.id,
     name: config.name,
-    author: config.id === 22 ? '孙武' : '佚名',
+    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : '佚名',
     era: config.era,
     category: config.category,
     description: config.description,
@@ -282,17 +284,89 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
 
 /** 按 nodeId（章节 ID）返回内容块 */
 export function getClassicMockContent(classicId: number, nodeId: string): IContentBlock | undefined {
-  if (classicId !== 22) {
-    throw new Error('该经典的数据尚在整理中');
+  if (classicId === 22) {
+    const chapterId = Number(nodeId);
+    const chapter = sunTzuArtOfWar.chapters.find(ch => ch.id === chapterId);
+    if (!chapter) throw new Error('章节不存在');
+    return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
   }
+  if (classicId === 33) {
+    const content = getShishuoMockContent(nodeId);
+    if (!content) throw new Error('条目不存在');
+    return content;
+  }
+  throw new Error('该经典的数据尚在整理中');
+}
 
-  const chapterId = Number(nodeId);
-  const chapter = sunTzuArtOfWar.chapters.find(ch => ch.id === chapterId);
-  if (!chapter) throw new Error('章节不存在');
 
+// ============================================
+// 世说新语 Mock（选集型 → accordion 二级 TOC）
+// ============================================
+
+const shishuoMockParagraphs: Record<string, IChapterParagraph[]> = {
+  chenzhongju: [
+    { text: '陈仲举言为士则，行为世范，登车揽辔，有澄清天下之志。', translation: '陈仲举的言谈是读书人的准则，行为是世人的模范。他一登上车就握住缰绳，怀有澄清天下的志向。', glossary: [
+      { word: '陈仲举', explanation: '即陈蕃，字仲举，东汉末年名臣，官至太傅。' },
+      { word: '登车揽辔', explanation: '揽辔即握住缰绳。登车揽辔象征开始执掌权力、踏上仕途。' },
+      { word: '澄清天下', explanation: '使天下政治清明。东汉末年是宦官专权的黑暗时期。' },
+    ]},
+  ],
+  guanshe: [
+    { text: '管宁、华歆共园中锄菜，见地有片金，管挥锄与瓦石不异，华捉而掷去之。又尝同席读书，有乘轩冕过门者，宁读如故，歆废书出看。宁割席分坐，曰：「子非吾友也。」', translation: '管宁和华歆一起在园中锄菜，看见地上一片金子，管宁照旧挥锄，和对待瓦片石头一样，华歆拾起又扔掉。又曾同席读书，有乘坐轩冕的人从门前经过，管宁照常读书，华歆丢下书出去看。管宁割断坐席分开来坐，说："你不是我的朋友。"', glossary: [
+      { word: '轩冕', explanation: '轩是古代大夫以上乘坐的车，冕是礼帽。这里指高官显贵的车驾仪仗。' },
+      { word: '割席', explanation: '割断同坐的席子。后"割席"成为绝交的代名词。' },
+    ]},
+  ],
+  xueye: [
+    { text: '谢太傅寒雪日内集，与儿女讲论文义。俄而雪骤，公欣然曰：「白雪纷纷何所似？」兄子胡儿曰：「撒盐空中差可拟。」兄女曰：「未若柳絮因风起。」公大笑乐。', translation: '谢太傅在寒冷的雪天把家人聚在一起，和儿女们讲解议论文章的义理。不久雪下大了，太傅高兴地说："白雪纷纷像什么？"侄子胡儿说："差不多可以比作在空中撒盐。"侄女说："不如比作柳絮凭风而起。"太傅大笑，非常开心。', glossary: [
+      { word: '谢太傅', explanation: '谢安，字安石，东晋名相。指挥淝水之战大败苻坚。' },
+      { word: '胡儿', explanation: '谢朗，小名胡儿，谢安次兄谢据的长子。' },
+      { word: '兄女', explanation: '谢道韫，谢奕之女。\"未若柳絮因风起\"被奉为咏雪绝唱，谢道韫被称为"咏絮之才"。' },
+    ]},
+  ],
+  chentaiqiu: [
+    { text: '陈太丘与友期行，期日中。过中不至，太丘舍去，去后乃至。元方时年七岁，门外戏。客问元方："尊君在不？"答曰："待君久不至，已去。"友人便怒曰："非人哉！与人期行，相委而去。"元方曰："君与家君期日中。日中不至，则是无信；对子骂父，则是无礼。"友人惭，下车引之。元方入门不顾。', translation: '陈太丘与朋友约定出行，约定在正午。过了正午朋友还没到，陈太丘就离开了。元方当时七岁，在门外玩耍。客人问元方："你父亲在吗？"回答说："等您很久没来，已经走了。"朋友便生气。元方说："您和家父约的是正午。正午不到，就是没有信用；当着儿子骂父亲，就是没有礼貌。"朋友感到惭愧，下车来拉他。元方头也不回地走进大门。', glossary: [
+      { word: '陈太丘', explanation: '陈寔，字仲弓，曾任太丘县长。' },
+      { word: '元方', explanation: '陈纪，字元方，陈寔长子。与父陈寔、弟陈谌并称"三君"。' },
+    ]},
+  ],
+};
+
+function getShishuoMockMeta(): IClassicMeta {
   return {
-    id: String(chapter.id),
-    title: chapter.title,
-    paragraphs: chapter.paragraphs,
+    id: 33, name: '世说新语', author: '刘义庆', era: '南朝宋', category: '集',
+    description: '刘义庆编，魏晋名士的言行轶事集，一部"名士教科书"。',
+    structureType: 'anthology', loadMode: 'chunked', navMode: 'accordion',
+    toc: [
+      {
+        id: 'group_1', title: '德行第一', level: 0, isLeaf: false,
+        children: [
+          { id: 'chenzhongju', title: '陈仲举言为士则', level: 1, isLeaf: true },
+          { id: 'guanshe', title: '管宁割席', level: 1, isLeaf: true },
+        ],
+      },
+      {
+        id: 'group_2', title: '言语第二', level: 0, isLeaf: false,
+        children: [
+          { id: 'xueye', title: '谢太傅寒雪日内集', level: 1, isLeaf: true },
+        ],
+      },
+      {
+        id: 'group_3', title: '方正第五', level: 0, isLeaf: false,
+        children: [
+          { id: 'chentaiqiu', title: '陈太丘与友期行', level: 1, isLeaf: true },
+        ],
+      },
+    ],
+  } as IClassicMeta;
+}
+
+function getShishuoMockContent(nodeId: string): IContentBlock | undefined {
+  const titles: Record<string, string> = {
+    chenzhongju: '陈仲举言为士则', guanshe: '管宁割席',
+    xueye: '谢太傅寒雪日内集', chentaiqiu: '陈太丘与友期行',
   };
+  const paragraphs = shishuoMockParagraphs[nodeId];
+  if (!paragraphs) return undefined;
+  return { id: nodeId, title: titles[nodeId] || '', paragraphs };
 }

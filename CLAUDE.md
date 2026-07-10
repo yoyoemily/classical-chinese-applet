@@ -69,7 +69,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── pages/              # 页面（每页面 4 文件：ts/wxml/scss/json），共 18 个
 │   ├── index/          # TabBar 1 — 学习（首页）: 搜索框、勋章倒计时、词书进度、今日任务、快捷入口
 │   ├── article-list/   # TabBar 2 — 名篇: 双行筛选，通篇/段落/逐句/典故注释四种阅读模式
-│   ├── classic/        # TabBar 3 — 经典: 36 部传世典籍，四部分类（经/史/子/集），阅读板块锁定中
+│   ├── classic/        # TabBar 3 — 经典: 36 部传世典籍，四部分类（经/史/子/集），孙子兵法、世说新语可读
 │   ├── mine/           # TabBar 4 — 我的: 等级+XP、菜单
 │   ├── study/          # 学习页（核心）: 句子答题→纠错→字总结→完成
 │   ├── study-complete/ # 学习完成页: 统计+新勋章+诗词
@@ -92,7 +92,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── mock/
 │   ├── wordBooks.ts     # 词书 Mock（8 本，4 中考 + 4 高考）
 │   ├── articles.ts      # 名篇 Mock（4 篇，含 textbook 教材标注）
-│   ├── classics.ts      # 经典 Mock（孙子兵法 13 篇完整数据）
+│   ├── classics.ts      # 经典 Mock（孙子兵法 13 篇 + 世说新语 4 条精选）
 │   └── badges.ts        # 勋章 Mock（8 枚）
 ├── docs/
 │   └── api.md           # API 文档（EasyBit 风格，15 个接口完整描述）
@@ -232,7 +232,7 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 
 ### 待开发
 - 艾宾浩斯端到端调优
-- 经典阅读板块——已部分完成（章节型已跑通，孙子兵法 13 篇可读；选集型/卷帙型待后续设计）
+- 经典阅读板块——章节型（孙子兵法 13 篇）和选集型（世说新语 21 门 33 条）已完成；后续经典按 [[classics-data-structure]] 中的 5 步流程新增，核心改动仅在知识库 JSON + mock/classics.ts + ClassicService.resolveAuthor
 - 高考 4 本词书数据补充（实词虚词、通假字、古今异义、词类活用，当前空壳，totalWords=0）
 
 ## 项目记忆
