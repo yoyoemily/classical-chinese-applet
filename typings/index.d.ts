@@ -412,7 +412,7 @@ export interface IStudySummary {
 export type LoadMode = 'full' | 'chunked'
 
 /** 导航 UI 形态 */
-export type NavMode = 'strip' | 'list' | 'accordion' | 'search'
+export type NavMode = 'strip' | 'list' | 'accordion' | 'search' | 'author'
 
 /** 经典著作列表项（含加载/导航字段） */
 export interface IClassicItem {

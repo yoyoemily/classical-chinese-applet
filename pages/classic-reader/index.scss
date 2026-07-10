@@ -397,6 +397,42 @@ $light-ink: #8a7a60;
     color: var(--color-text-hint);
   }
 
+  // ---------- author nav mode ----------
+  &__author-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28rpx $spacing-lg;
+    border-bottom: 1rpx solid var(--color-border-light);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    &--hover { background: rgba(0,0,0,0.04); }
+  }
+  &__author-name {
+    font-size: $font-size-lg;
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
+  &__author-count {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+  &__author-back {
+    padding: 20rpx $spacing-lg;
+    font-size: $font-size-base;
+    color: var(--color-primary);
+    border-bottom: 1rpx solid var(--color-border-light);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    &--hover { opacity: 0.7; }
+  }
+  &__author-subtitle {
+    padding: 16rpx $spacing-lg;
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    background: rgba(0,0,0,0.02);
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+
   // ==========================================
   // 错误反馈浮层
   // ==========================================

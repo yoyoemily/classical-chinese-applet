@@ -204,7 +204,7 @@ const CLASSIC_CONFIGS: IClassicConfig[] = [
   { id: 26, name: '黄帝内经',   era: '战国至汉', icon: '🌱', description: '中医理论奠基之作，阴阳五行、脏腑经络、养生诊治，天人合一的东方医学哲学。', category: '子', structureType: 'chapter', loadMode: 'chunked', navMode: 'list' },
   // 集部 10
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集', structureType: 'anthology', loadMode: 'full', navMode: 'strip' },
-  { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'search' },
+  { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'author' },
   { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'search' },
   { id: 30, name: '乐府诗集',   era: '北宋',   icon: '🎶', description: '郭茂倩编，收录汉魏至五代乐府歌辞百卷，民间声诗与文人拟作交相辉映。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'accordion' },
   { id: 31, name: '全唐诗',     era: '唐',     icon: '📚', description: '四万八千余首唐诗总汇，李白、杜甫、王维、白居易……盛唐气象，尽在其中。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'search' },
@@ -257,6 +257,8 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     toc = getShanHaiJingMockMeta().toc;
   } else if (id === 18) {
     toc = getLaoziMockMeta().toc;
+  } else if (id === 28) {
+    toc = getTang300MockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -310,6 +312,11 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   if (classicId === 18) {
     const content = getLaoziMockContent(nodeId);
     if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 28) {
+    const content = getTang300MockContent(nodeId);
+    if (!content) throw new Error('诗篇不存在');
     return content;
   }
   throw new Error('该经典的数据尚在整理中');
@@ -573,3 +580,57 @@ function getLaoziMockContent(nodeId: string): IContentBlock | undefined {
   if (!chapter) return undefined;
   return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
 }
+
+
+// ============================================
+// 唐诗三百首 Mock（author 二级导航，精简验证用）
+// ============================================
+
+const tang300MockContent: Record<string, IChapterParagraph[]> = {
+  tang300_libai_1: [
+    { text: '暮从碧山下，山月随人归。\n却顾所来径，苍苍横翠微。\n相携及田家，童稚开荆扉。\n绿竹入幽径，青萝拂行衣。\n欢言得所憩，美酒聊共挥。\n长歌吟松风，曲尽河星稀。\n我醉君复乐，陶然共忘机。', translation: '傍晚从终南山上走下来，山月好像随着行人而归。\n回望来时走的山间小路，山林苍苍茫茫一片青翠。\n遇斛斯山人相携到他家，孩童出来急忙打开柴门。\n走进竹林穿过幽静小路，青萝枝叶拂着行人衣裳。\n欢言笑谈得到放松休息，畅饮美酒宾主频频举杯。\n放声高歌风入松的曲调，歌罢银河星星已经很稀。\n我喝醉酒主人非常高兴，欢乐忘了世俗奸诈心机。', glossary: [] },
+  ],
+  tang300_libai_2: [
+    { text: '花间一壶酒，独酌无相亲。\n举杯邀明月，对影成三人。\n月既不解饮，影徒随我身。\n暂伴月将影，行乐须及春。\n我歌月徘徊，我舞影零乱。\n醒时同交欢，醉后各分散。\n永结无情游，相期邈云汉。', translation: '提一壶美酒摆在花丛间，自斟自酌无友无亲。\n举杯邀请明月，对着身影成为三人。\n明月当然不会喝酒，身影也只是随着我身。\n我只好和他们暂时结成酒伴，要行乐就必须把美好的春光抓紧。\n我唱歌明月徘徊，我起舞身影零乱。\n醒时一起欢乐，醉后各自分散。\n我愿与他们永远结下忘掉伤情的友谊，相约在缥缈的银河边。', glossary: [] },
+  ],
+  tang300_dufu_1: [
+    { text: '岱宗夫如何，齐鲁青未了。\n造化钟神秀，阴阳割昏晓。\n荡胸生层云，决眦入归鸟。\n会当凌绝顶，一览众山小。', translation: '巍峨的泰山，到底如何雄伟？走出齐鲁，依然可见那青青的峰顶。\n神奇自然汇聚了千种美景，山南山北分隔出清晨和黄昏。\n层层白云，荡涤胸中沟壑；翩翩归鸟，飞入赏景眼圈。\n定要登上泰山顶峰，俯瞰群山，豪情满怀。', glossary: [] },
+  ],
+  tang300_bai_1: [
+    { text: '离离原上草，一岁一枯荣。\n野火烧不尽，春风吹又生。\n远芳侵古道，晴翠接荒城。\n又送王孙去，萋萋满别情。', translation: '原野上长满茂盛的青草，每年秋冬枯黄春来草色浓。\n野火无法烧尽满地的野草，春风吹来大地又是绿茸茸。\n远处芬芳的野草遮没了古道，阳光照耀下碧绿连荒城。\n今天我又来送别老朋友，连繁茂的草儿也满怀离别之情。', glossary: [] },
+  ],
+};
+
+function getTang300MockMeta(): IClassicMeta {
+  return {
+    id: 28, name: '唐诗三百首', author: '蘅塘退士 编', era: '清', category: '集',
+    description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗。',
+    structureType: 'anthology', loadMode: 'chunked', navMode: 'author',
+    toc: [
+      { id: 'group_libai', title: '李白', level: 0, isLeaf: false, children: [
+        { id: 'tang300_libai_1', title: '下终南山过斛斯山人宿置酒', level: 1, isLeaf: true },
+        { id: 'tang300_libai_2', title: '月下独酌', level: 1, isLeaf: true },
+      ]},
+      { id: 'group_dufu', title: '杜甫', level: 0, isLeaf: false, children: [
+        { id: 'tang300_dufu_1', title: '望岳', level: 1, isLeaf: true },
+      ]},
+      { id: 'group_baijuyi', title: '白居易', level: 0, isLeaf: false, children: [
+        { id: 'tang300_bai_1', title: '赋得古原草送别', level: 1, isLeaf: true },
+      ]},
+      { id: 'group_other', title: '其他', level: 0, isLeaf: false, children: [] },
+    ],
+  } as IClassicMeta;
+}
+
+function getTang300MockContent(nodeId: string): IContentBlock | undefined {
+  const paragraphs = tang300MockContent[nodeId];
+  if (!paragraphs) return undefined;
+  const titles: Record<string, string> = {
+    tang300_libai_1: '下终南山过斛斯山人宿置酒',
+    tang300_libai_2: '月下独酌',
+    tang300_dufu_1: '望岳',
+    tang300_bai_1: '赋得古原草送别',
+  };
+  return { id: nodeId, title: titles[nodeId] || '', paragraphs };
+}
+

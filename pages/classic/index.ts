@@ -47,7 +47,7 @@ const FALLBACK_CLASSICS: IClassicItem[] = [
   { id: 25, name: '说文解字',   era: '东汉',   icon: '🔤', description: '许慎著，中国第一部系统分析汉字字形与来源的文字学巨著，学古文必备的工具书之祖。', category: '子', loadMode: 'chunked', navMode: 'search' },
   { id: 26, name: '黄帝内经',   era: '战国至汉', icon: '🌱', description: '中医理论奠基之作，阴阳五行、脏腑经络、养生诊治，天人合一的东方医学哲学。', category: '子', loadMode: 'chunked', navMode: 'list' },
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集', loadMode: 'full', navMode: 'strip' },
-  { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', loadMode: 'chunked', navMode: 'search' },
+  { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', loadMode: 'chunked', navMode: 'author' },
   { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集', loadMode: 'chunked', navMode: 'search' },
   { id: 30, name: '乐府诗集',   era: '北宋',   icon: '🎶', description: '郭茂倩编，收录汉魏至五代乐府歌辞百卷，民间声诗与文人拟作交相辉映。', category: '集', loadMode: 'chunked', navMode: 'accordion' },
   { id: 31, name: '全唐诗',     era: '唐',     icon: '📚', description: '四万八千余首唐诗总汇，李白、杜甫、王维、白居易……盛唐气象，尽在其中。', category: '集', loadMode: 'chunked', navMode: 'search' },

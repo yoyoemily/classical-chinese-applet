@@ -1,6 +1,6 @@
 // ============================================
 // 经典阅读器页面 v2
-// 支持 full/chunked 加载 + strip/list/accordion/search 导航
+// 支持 full/chunked 加载 + strip/list/accordion/search/author 导航
 // ============================================
 import type {
   IClassicMeta, ITocNode, IContentBlock, IChapterParagraph, IClassicGlossaryItem,
@@ -37,6 +37,12 @@ interface IClassicReaderData {
   tocNodes: ITocNode[];
   showTocPanel: boolean;
   tocSearchKeyword: string;
+  /** author nav mode: 面板层级 0=作者列表, 1=该作者诗篇列表 */
+  authorLevel: number;
+  /** author nav mode: 当前选中的作者（group id） */
+  selectedAuthor: string;
+  /** author nav mode: 当前选中作者的诗篇列表 */
+  authorEntries: ITocNode[];
   /** 典故弹窗 */
   glossaryPopup: { paragraphIndex: number; word: string; explanation: string } | null;
   /** 语音播报 */
@@ -69,6 +75,9 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     tocNodes: [],
     showTocPanel: false,
     tocSearchKeyword: '',
+    authorLevel: 0,
+    selectedAuthor: '',
+    authorEntries: [],
     glossaryPopup: null,
     audioLoading: false,
     audioPlaying: false,
@@ -121,6 +130,10 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
         if ((meta.navMode === 'strip' || meta.navMode === 'accordion') && meta.toc.length > 0) {
           const firstNode = this.findFirstLeaf(meta.toc);
           if (firstNode) this.loadContent(firstNode.id);
+        }
+        // author 模式：显示提示，不自动加载
+        if (meta.navMode === 'author') {
+          this.setData({ authorLevel: 0 });
         }
       }
     } catch {
@@ -183,11 +196,11 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   // ==========================================
 
   onToggleToc(): void {
-    this.setData({ showTocPanel: !this.data.showTocPanel });
+    this.setData({ showTocPanel: !this.data.showTocPanel, authorLevel: 0 });
   },
 
   onCloseToc(): void {
-    this.setData({ showTocPanel: false });
+    this.setData({ showTocPanel: false, authorLevel: 0 });
   },
 
   onTocSearchInput(e: WechatMiniprogram.Input): void {
@@ -198,7 +211,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     const { nodeId, isLeaf } = e.currentTarget.dataset as { nodeId: string; isLeaf: boolean };
     if (!isLeaf) return;
 
-    this.setData({ showTocPanel: false });
+    this.setData({ showTocPanel: false, authorLevel: 0 });
 
     if (this.data.meta?.loadMode === 'full') {
       // full 模式：scroll-into-view 跳转
@@ -207,6 +220,36 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       // chunked 模式：按需加载
       this.loadContent(nodeId);
     }
+  },
+
+  // ==========================================
+  // author 导航模式：二级浏览
+  // ==========================================
+
+  /** 点击作者 → 展开该作者诗篇列表 */
+  onTapAuthor(e: WechatMiniprogram.BaseEvent): void {
+    const { groupId } = e.currentTarget.dataset as { groupId: string };
+    const node = this.data.tocNodes.find(n => n.id === groupId);
+    if (node && node.children) {
+      this.setData({
+        selectedAuthor: node.title,
+        authorEntries: node.children.filter(c => c.isLeaf),
+        authorLevel: 1,
+      });
+    }
+  },
+
+  /** 返回作者列表 */
+  onBackToAuthorList(): void {
+    this.setData({ authorLevel: 0, selectedAuthor: '', authorEntries: [] });
+  },
+
+  /** 点击诗篇 → 加载内容 */
+  onTapAuthorEntry(e: WechatMiniprogram.BaseEvent): void {
+    const { nodeId, isLeaf } = e.currentTarget.dataset as { nodeId: string; isLeaf: boolean };
+    if (!isLeaf) return;
+    this.setData({ showTocPanel: false, authorLevel: 0 });
+    this.loadContent(nodeId);
   },
 
   // ==========================================

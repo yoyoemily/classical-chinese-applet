@@ -233,8 +233,47 @@
         />
       </view>
 
-      <!-- 目录列表 -->
+      <!-- author nav mode: 作者分组浏览 -->
+      <block wx:if="{{meta.navMode === 'author'}}">
+        <!-- 一级：作者列表 -->
+        <block wx:if="{{authorLevel === 0}}">
+          <block wx:for="{{tocNodes}}" wx:key="id">
+            <view
+              class="page-classic-reader__author-group"
+              data-group-id="{{item.id}}"
+              bindtap="onTapAuthor"
+              hover-class="page-classic-reader__author-group--hover"
+            >
+              <text class="page-classic-reader__author-name">{{item.title}}</text>
+              <text class="page-classic-reader__author-count">{{item.children ? item.children.length : 0}}首</text>
+            </view>
+          </block>
+        </block>
+        <!-- 二级：该作者诗篇列表 -->
+        <block wx:elif="{{authorLevel === 1}}">
+          <view class="page-classic-reader__author-back" bindtap="onBackToAuthorList" hover-class="page-classic-reader__author-back--hover">
+            <text>‹ 返回作者列表</text>
+          </view>
+          <view class="page-classic-reader__author-subtitle">
+            <text>{{selectedAuthor}} · {{authorEntries.length}}首</text>
+          </view>
+          <block wx:for="{{authorEntries}}" wx:key="id">
+            <view
+              class="page-classic-reader__toc-item {{currentNodeId === item.id ? 'page-classic-reader__toc-item--active' : ''}}"
+              data-node-id="{{item.id}}"
+              data-is-leaf="{{item.isLeaf}}"
+              bindtap="onTapAuthorEntry"
+              hover-class="page-classic-reader__toc-item--hover"
+            >
+              <text class="page-classic-reader__toc-item-text">{{item.title}}</text>
+            </view>
+          </block>
+        </block>
+      </block>
+
+      <!-- 目录列表（非 author 模式） -->
       <scroll-view class="page-classic-reader__toc-body" scroll-y enhanced show-scrollbar="{{false}}">
+        <block wx:if="{{meta.navMode !== 'author'}}">
         <block wx:for="{{tocNodes}}" wx:key="id">
           <!-- 手风琴模式：非叶子节点可展开 -->
           <block wx:if="{{meta.navMode === 'accordion' && item.children && item.children.length > 0}}">
@@ -270,6 +309,7 @@
               <text wx:if="{{!item.isLeaf}}" class="page-classic-reader__toc-item-hint">整理中</text>
             </view>
           </block>
+        </block>
         </block>
       </scroll-view>
     </view>
