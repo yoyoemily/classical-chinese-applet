@@ -117,9 +117,10 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
         }
       } else {
         // chunked 模式：等待用户选择
-        // 如果 navMode 是 strip 且条目少，自动加载第一篇
-        if (meta.navMode === 'strip' && meta.toc.length > 0 && meta.toc[0].isLeaf) {
-          this.loadContent(meta.toc[0].id);
+        // 如果 navMode 是 strip/accordion 且有内容，自动加载第一篇
+        if ((meta.navMode === 'strip' || meta.navMode === 'accordion') && meta.toc.length > 0) {
+          const firstNode = this.findFirstLeaf(meta.toc);
+          if (firstNode) this.loadContent(firstNode.id);
         }
       }
     } catch {
@@ -410,6 +411,22 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       title: `阅读「${this.data.meta?.name || ''}」`,
       path: '/pages/index/index',
     };
+  },
+
+  // ==========================================
+  // 工具方法
+  // ==========================================
+
+  /** 从目录树中递归查找第一个叶子节点 */
+  findFirstLeaf(nodes: ITocNode[]): ITocNode | null {
+    for (const n of nodes) {
+      if (n.isLeaf) return n;
+      if (n.children && n.children.length > 0) {
+        const found = this.findFirstLeaf(n.children);
+        if (found) return found;
+      }
+    }
+    return null;
   },
 
   // ==========================================

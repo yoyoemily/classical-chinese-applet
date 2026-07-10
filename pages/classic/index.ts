@@ -55,7 +55,7 @@ const FALLBACK_CLASSICS: IClassicItem[] = [
   { id: 33, name: '世说新语',   era: '南朝宋', icon: '💬', description: '刘义庆编，魏晋名士的言行轶事集，一部"名士教科书"，风度与智慧，跃然纸上。', category: '集', loadMode: 'chunked', navMode: 'accordion' },
   { id: 34, name: '梦溪笔谈',   era: '北宋',   icon: '🔬', description: '沈括著，中国古代百科全书式的笔记，涵盖天文地理数学生物，科学精神与人文关怀兼具。', category: '集', loadMode: 'chunked', navMode: 'accordion' },
   { id: 35, name: '聊斋志异',   era: '清',     icon: '👻', description: '蒲松龄著，"刺贪刺虐入木三分"，花妖狐媚、鬼怪神异，文言短篇小说的巅峰。', category: '集', loadMode: 'chunked', navMode: 'search' },
-  { id: 36, name: '山海经',     era: '战国至汉', icon: '🐉', description: '上古奇书，山川地理与神话传说交织，夸父逐日、精卫填海、大禹治水……想象力无远弗届。', category: '集', loadMode: 'full', navMode: 'strip' },
+  { id: 36, name: '山海经',     era: '战国至汉', icon: '🐉', description: '上古奇书，山川地理与神话传说交织，夸父逐日、精卫填海、大禹治水……想象力无远弗届。', category: '集', loadMode: 'chunked', navMode: 'accordion' },
 ];
 
 const CATEGORY_TABS: { key: ClassicCategory; label: string; count: number }[] = [

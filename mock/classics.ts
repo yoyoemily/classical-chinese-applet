@@ -212,7 +212,7 @@ const CLASSIC_CONFIGS: IClassicConfig[] = [
   { id: 33, name: '世说新语',   era: '南朝宋', icon: '💬', description: '刘义庆编，魏晋名士的言行轶事集，一部"名士教科书"，风度与智慧，跃然纸上。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'accordion' },
   { id: 34, name: '梦溪笔谈',   era: '北宋',   icon: '🔬', description: '沈括著，中国古代百科全书式的笔记，涵盖天文地理数学生物，科学精神与人文关怀兼具。', category: '集', structureType: 'volume', loadMode: 'chunked', navMode: 'accordion' },
   { id: 35, name: '聊斋志异',   era: '清',     icon: '👻', description: '蒲松龄著，"刺贪刺虐入木三分"，花妖狐媚、鬼怪神异，文言短篇小说的巅峰。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'search' },
-  { id: 36, name: '山海经',     era: '战国至汉', icon: '🐉', description: '上古奇书，山川地理与神话传说交织，夸父逐日、精卫填海、大禹治水……想象力无远弗届。', category: '集', structureType: 'volume', loadMode: 'full', navMode: 'strip' },
+  { id: 36, name: '山海经',     era: '战国至汉', icon: '🐉', description: '上古奇书，山川地理与神话传说交织，夸父逐日、精卫填海、大禹治水……想象力无远弗届。', category: '集', structureType: 'volume', loadMode: 'chunked', navMode: 'accordion' },
 ];
 
 /** 获取完整三十六部经典列表（含 loadMode/navMode，供 fetchClassics 兜底） */
@@ -253,6 +253,8 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     }));
   } else if (id === 33) {
     toc = getShishuoMockMeta().toc;
+  } else if (id === 36) {
+    toc = getShanHaiJingMockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -293,6 +295,11 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   if (classicId === 33) {
     const content = getShishuoMockContent(nodeId);
     if (!content) throw new Error('条目不存在');
+    return content;
+  }
+  if (classicId === 36) {
+    const content = getShanHaiJingMockContent(nodeId);
+    if (!content) throw new Error('卷不存在');
     return content;
   }
   throw new Error('该经典的数据尚在整理中');
@@ -367,6 +374,132 @@ function getShishuoMockContent(nodeId: string): IContentBlock | undefined {
     xueye: '谢太傅寒雪日内集', chentaiqiu: '陈太丘与友期行',
   };
   const paragraphs = shishuoMockParagraphs[nodeId];
+  if (!paragraphs) return undefined;
+  return { id: nodeId, title: titles[nodeId] || '', paragraphs };
+}
+
+
+// ============================================
+// 山海经 Mock（卷帙型 → accordion 二级 TOC）
+// ============================================
+
+const shanHaiJingParagraphs: Record<string, IChapterParagraph[]> = {
+  nanshanjing: [
+    { text: '南山经之首曰鹊山。其首曰招摇之山，临于西海之上，多桂，多金玉。有草焉，其状如韭而青华，其名曰祝余，食之不饥。有木焉，其状如谷而黑理，其华四照，其名曰迷谷，佩之不迷。有兽焉，其状如禺而白耳，伏行人走，其名曰狌狌，食之善走。', translation: '南山经的第一列山系叫鹊山。它的第一座山叫招摇之山，矗立在西海边上，山上多桂树，多金矿和玉石。有一种草，形状像韭菜却开着青色的花，名叫祝余，吃了它就不会饥饿。有一种树，形状像构树却长着黑色的纹理，它的花光芒四射，名叫迷谷，佩戴它就不会迷路。有一种野兽，形状像猕猴却长着白色的耳朵，能伏地行走也能像人一样奔跑，名叫狌狌，吃了它的肉就能走得很快。', glossary: [
+      { word: '鹊山', explanation: '南山经的首列山系，不是指单座山，而是一系列山脉的总称。' },
+      { word: '招摇之山', explanation: '位于西海之滨，是《山海经》中描写的首座名山，盛产桂树和黄金美玉。' },
+      { word: '祝余', explanation: '传说中的仙草，形状像韭菜，开青色花，吃了就不会饥饿。古人幻想以此解决粮食问题。' },
+      { word: '迷谷', explanation: '传说中的灵木，形状像构树，黑色纹理，花朵光芒四射，佩戴就能不迷路。反映了古人借助自然之物辨别方向的智慧。' },
+      { word: '狌狌', explanation: '即猩猩。传说形状像猕猴，白耳朵，能爬行也能直立行走，吃了它的肉会让人健步如飞。' },
+      { word: '华四照', explanation: '花朵的光芒向四方照射。形容迷谷树的花朵光彩夺目，即使在迷雾中也能看见。' },
+    ]},
+    { text: '又东三百里，曰堂庭之山。多棪木，多白猿，多水玉，多黄金。', translation: '再往东三百里，有座堂庭之山。山上多棪木，多白猿，多水晶，多黄金。', glossary: [
+      { word: '堂庭之山', explanation: '招摇之山东面三百里的山，以白猿和矿产著称。' },
+      { word: '棪木', explanation: '棪（yǎn），一种果树，果实可食。一说即柿树。' },
+      { word: '水玉', explanation: '即水晶。古人认为水晶是水气凝结而成的玉石，故称水玉。' },
+    ]},
+    { text: '又东三百里，曰青丘之山。其阳多玉，其阴多青雘。有兽焉，其状如狐而九尾，其音如婴儿，能食人，食者不蛊。有鸟焉，其状如鸠，其音若呵，名曰灌灌，佩之不惑。', translation: '再往东三百里，有座青丘之山。山的南面多玉石，北面多青色石脂矿。有一种野兽，形状像狐狸却长着九条尾巴，叫声如同婴儿啼哭，能吃人，但人吃了它的肉可以不受妖邪蛊惑。有一种鸟，形状像斑鸠，叫声像人在呵斥，名叫灌灌，佩戴它的羽毛就不会迷惑。', glossary: [
+      { word: '青丘之山', explanation: '青丘山是《山海经》中极为著名的山，以九尾狐的栖息地而闻名天下。后世文学作品中的九尾狐多源于此。' },
+      { word: '九尾狐', explanation: '最具传奇色彩的异兽。九条尾巴的狐狸，叫声像婴儿。虽然能吃人，但吃了它的肉可以防蛊毒。后来演化为祥瑞或祸国的象征，如商纣的妲己。' },
+      { word: '食者不蛊', explanation: '吃了九尾狐的肉就不会被妖邪蛊惑。古人相信某些异兽的肉有辟邪的奇效。' },
+      { word: '灌灌', explanation: '青丘山的一种神鸟，形状像斑鸠，佩戴它的羽毛可以让人保持清醒、不受迷惑。' },
+      { word: '青雘', explanation: '雘（huò），青色石脂矿，古代用作颜料。青丘山的北面盛产此矿。' },
+    ]},
+    { text: '又东三百五十里，曰箕尾之山。其尾踆于东海，多沙石。汸水出焉，而南流注于淯。其中多白玉。', translation: '再往东三百五十里，有座箕尾之山。山的尾部伸入东海之中，多沙石。汸水从这里发源，向南流注入淯水。水中有很多白玉。', glossary: [
+      { word: '箕尾之山', explanation: '南山经的末尾之山。山尾伸入东海，是南山经第一列山系的终点。' },
+      { word: '踆', explanation: '踆（cún），蹲踞、延伸。' },
+    ]},
+  ],
+  xishanjing: [
+    { text: '西山经华山之首，曰钱来之山。其上多松，其下多洗石。有兽焉，其状如羊而马尾，名曰羬羊，其脂可以已腊。', translation: '西山经华山一系的第一座山叫钱来之山。山上多松树，山下多洗石。有一种野兽，形状像羊却长着马的尾巴，名叫羬羊，它的油脂可以治疗皮肤皲裂。', glossary: [
+      { word: '钱来之山', explanation: '西山经第一列山系的首山，在华山的西北方向。' },
+      { word: '羬羊', explanation: '羬（xián），一种像羊、长着马尾巴的异兽。古人用它的油脂涂在皮肤上防止冻裂。' },
+      { word: '已腊', explanation: '已，治愈。腊（xī），皮肤皲裂。' },
+    ]},
+    { text: '西南四百里，曰昆仑之丘，是实惟帝之下都，神陆吾司之。其神状虎身而九尾，人面而虎爪。是神也，司天之九部及帝之囿时。有兽焉，其状如羊而四角，名曰土蝼，是食人。有鸟焉，其状如蜂，大如鸳鸯，名曰钦原，蠚鸟兽则死，蠚木则枯。', translation: '往西南四百里，是昆仑之丘，这里就是天帝在人间的都城，由天神陆吾掌管。这位天神的形状是虎身九尾，人面虎爪。他掌管天庭的九部以及天帝的园林和时节。有一种兽，形状像羊却有四只角，名叫土蝼，会吃人。有一种鸟，形状像蜜蜂，个头像鸳鸯一样大，名叫钦原，蜇了鸟兽就死，蜇了树木就枯。', glossary: [
+      { word: '昆仑之丘', explanation: '昆仑山在《山海经》中被描述为天帝在人间的都城（帝之下都），是中国神话中最神圣的山。并非今天所说的新疆昆仑山脉。' },
+      { word: '帝之下都', explanation: '天帝在人间的都城。按神话传说，天帝住在天上，昆仑山是他在人间的行宫。' },
+      { word: '陆吾', explanation: '昆仑山的守护神，虎身九尾、人面虎爪，掌管天庭九部和天帝花园。地位相当于昆仑山的山神兼天帝的大管家。' },
+      { word: '土蝼', explanation: '四只角的羊形食人怪兽。反映了古人对陌生动物的恐惧与想象。' },
+      { word: '钦原', explanation: '像蜜蜂一样形状、像鸳鸯一样大的毒鸟，毒性极强——蜇鸟兽则死、蜇草木则枯。极致夸张的手法突显其毒性。' },
+    ]},
+    { text: '又西北四百二十里，曰峚山。其上多丹木，员叶而赤茎，黄华而赤实，其味如饴，食之不饥。丹水出焉，西流注于稷泽。其中多白玉，是有玉膏，其原沸沸汤汤，黄帝是食是飨。是生玄玉。玉膏所出，以灌丹木。丹木五岁，五色乃清，五味乃馨。黄帝乃取峚山之玉荣，而投之钟山之阳。', translation: '再往西北四百二十里，有座峚山。山上多丹木，圆叶红茎，黄花红果，味道像糖浆一样甜，吃了就不会饥饿。丹水从这里发源，向西流注入稷泽。水中多白玉，并涌出玉膏，汩汩沸腾，黄帝用它们来食用和祭祀。玉膏孕育出黑玉。涌出的玉膏用来浇灌丹木。丹木长到五年，五色变得鲜明，五味变得芳香。黄帝于是把峚山的玉之精华采来，种在钟山的南面。', glossary: [
+      { word: '峚山', explanation: '峚（mì），黄帝神话中的重要神山。以丹木和玉膏闻名，是黄帝饮食采玉的圣地。' },
+      { word: '丹木', explanation: '传说中的神木，圆叶红茎、黄花红果，果实甜美可以充饥。与南山经的迷谷、祝余同为仙家食粮。' },
+      { word: '玉膏', explanation: '玉石中涌出的精华汁液，沸腾涌动。黄帝以此为食、以飨神灵。反映了古人崇玉的信仰——美玉与神灵相通。' },
+      { word: '玄玉', explanation: '黑色的玉。由玉膏孕育而生，是玉中极品。古人用玉分白、青、黑等多种。' },
+      { word: '玉荣', explanation: '玉之精华。' },
+    ]},
+  ],
+  haiwainanjing: [
+    { text: '地之所载，六合之间，四海之内，照之以日月，经之以星辰，纪之以四时，要之以太岁。神灵所生，其物异形，或夭或寿，唯圣人能通其道。', translation: '大地所承载的一切，在天地四方之间、四海范围之内，日月照亮它们，星辰环绕它们，四季记载它们的运行，太岁统摄它们。神灵所生的万物，形态各异，有的短命有的长寿，只有圣人才能通晓其中的道理。', glossary: [
+      { word: '六合', explanation: '天地四方，即上、下、东、南、西、北六个方向，泛指整个宇宙空间。' },
+      { word: '太岁', explanation: '即木星。古人以木星的运行来纪年，认为太岁是时间的主宰者。' },
+      { word: '或夭或寿', explanation: '有的短命有的长寿。描述了万物的不齐——异兽们形态各异、寿命也各异。' },
+    ]},
+    { text: '比翼鸟在其东。其为鸟青、赤，两鸟比翼。一曰在南山东。', translation: '比翼鸟在灭蒙鸟的东面。这种鸟一半青一半红，两只鸟儿翅膀挨着翅膀才能飞翔。也有人说它在南山的东边。', glossary: [
+      { word: '比翼鸟', explanation: '极著名的神话之鸟，一半青一半红，必须成双成对、翅膀挨着翅膀才能飞翔。后来成为爱情忠贞的象征，白居易《长恨歌》「在天愿作比翼鸟」即用此典。' },
+      { word: '两鸟比翼', explanation: '两只鸟并排着翅膀飞行。单独的比翼鸟无法飞行，必须找到伴侣——象征着不离不弃的伴侣关系。' },
+    ]},
+    { text: '羽民国在其东南。其为人长头，身生羽。一曰在比翼鸟东南，其为人长颊。', translation: '羽民国在灭蒙鸟的东南方。这个国家的人长着长长的脑袋，身上长着羽毛。也有人说在比翼鸟的东南方，那里的人长着长长的脸颊。', glossary: [
+      { word: '羽民国', explanation: '海外三十六国之一。国中人身上长着羽毛，像鸟一样。反映了古人对飞翔的向往——人若能长羽毛不就可以飞天了吗？' },
+    ]},
+    { text: '夸父与日逐走，入日。渴欲得饮，饮于河渭，河渭不足，北饮大泽，未至，道渴而死。弃其杖，化为邓林。', translation: '夸父与太阳赛跑，一直追到了太阳落下的地方。口渴了想喝水，把黄河和渭河的水都喝干了还不够，又想去北方喝大泽的水，还没走到就在半路渴死了。他丢弃的手杖，化成了一片茂密的桃林。', glossary: [
+      { word: '夸父逐日', explanation: '中国最著名的神话传说之一。夸父与太阳竞跑，至死不屈，手杖化为桃林。这个简短的故事极富悲剧美——明知不可为而为之，是远古英雄主义精神的集中体现。' },
+      { word: '入日', explanation: '追到太阳落下的地方。一说「入」通「及」，即追上了太阳。' },
+      { word: '河渭', explanation: '黄河和渭河。两条大河的水都被夸父喝干了，极尽夸张之能事，突显夸父的巨人体魄。' },
+      { word: '邓林', explanation: '桃林。「邓」通「桃」。夸父死后手杖化为桃林，滋养后人——英雄虽然死了，但留下了泽被后人的荫庇。' },
+    ]},
+  ],
+  haineinanjing: [
+    { text: '桂林八树，在番隅东。伯虑国、离耳国、雕题国、北朐国，皆在郁水南。郁水出湘陵南海。一曰相虑。', translation: '八棵桂树组成的桂林在番隅的东边。伯虑国、离耳国、雕题国、北朐国都在郁水的南面。郁水发源于湘陵，注入南海。也有人说伯虑国叫相虑。', glossary: [
+      { word: '桂林八树', explanation: '八棵桂树组成的树林。这是「桂林」这个地名的古老出处之一。今天广西桂林的地名据说与此有关。' },
+      { word: '离耳国', explanation: '海外小邦，居民耳朵下垂、耳洞很大，以此命名。体现了海外诸邦的奇风异俗。' },
+      { word: '雕题国', explanation: '题，额头。雕题，即文身于额头。这是一个在额头上刺花纹的民族国家。' },
+    ]},
+    { text: '巴蛇食象，三岁而出其骨。君子服之，无心腹之疾。其为蛇，青黄赤黑。一曰黑蛇青首。在犀牛西。', translation: '巴蛇能吞下大象，三年后才吐出象的骨头。君子吃了巴蛇的肉，就不会得心腹的疾病。这种蛇身上的颜色有青、黄、红、黑。也有人说它是黑色的蛇、青色的头。在犀牛的西边。', glossary: [
+      { word: '巴蛇食象', explanation: '巴蛇能吞下整头大象，三年后才吐出骨头。成语「蛇吞象」即源于此。「巴」指巴地（今四川东部、重庆一带），巴蛇可以说是中国神话中最巨型的蛇。' },
+      { word: '三岁而出其骨', explanation: '三年后才吐出来——极言大象之巨大、巴蛇消化之缓慢。时间尺度的夸张让故事充满了震撼力。' },
+      { word: '无心腹之疾', explanation: '不会得心腹部的疾病。古人相信食用了巴蛇的肉就能驱除疾病，这是「以猛制邪」思维的体现。' },
+    ]},
+    { text: '夏后启之臣曰孟涂，是司神于巴。人请讼于孟涂之所，其衣有血者，乃执之，是请生。居山上，在丹山西。丹山在丹阳南，丹阳，居属也。', translation: '夏代君主启的臣子叫孟涂，他在巴地担任神的职务。当地人有了诉讼纠纷就去找孟涂裁决。他发现谁身上有血迹就抓起来，因为那人是有罪的，应当讨伐。于是请求后土让那人活下来。他住在山上，在丹山的西边。丹山在丹阳的南面。丹阳是居住和管辖的区域。', glossary: [
+      { word: '孟涂', explanation: '夏后启（夏朝开国君主启）的臣子，被派往巴地掌管神职、裁决诉讼。他的审判方式很特别——看谁身上有血迹就抓谁，暗含了神判的色彩。' },
+      { word: '司神于巴', explanation: '在巴地主管神的事务。司神即掌管祭祀、审判等神职事务。' },
+      { word: '其衣有血者乃执之', explanation: '衣服上有血迹的人就被抓起来。这是一个神判逻辑——血迹暴露了罪人的本质，也是古人相信超自然力量会揭露罪恶的体现。' },
+    ]},
+  ],
+};
+
+function getShanHaiJingMockMeta(): IClassicMeta {
+  return {
+    id: 36, name: '山海经', author: '佚名', era: '战国至汉', category: '集',
+    description: '上古奇书，山川地理与神话传说交织，夸父逐日、精卫填海、大禹治水……想象力无远弗届。',
+    structureType: 'volume', loadMode: 'chunked', navMode: 'accordion',
+    toc: [
+      {
+        id: 'group_shan', title: '山经', level: 0, isLeaf: false,
+        children: [
+          { id: 'nanshanjing', title: '南山经', level: 1, isLeaf: true },
+          { id: 'xishanjing', title: '西山经', level: 1, isLeaf: true },
+        ],
+      },
+      {
+        id: 'group_hai', title: '海经', level: 0, isLeaf: false,
+        children: [
+          { id: 'haiwainanjing', title: '海外南经', level: 1, isLeaf: true },
+          { id: 'haineinanjing', title: '海内南经', level: 1, isLeaf: true },
+        ],
+      },
+    ],
+  } as IClassicMeta;
+}
+
+function getShanHaiJingMockContent(nodeId: string): IContentBlock | undefined {
+  const titles: Record<string, string> = {
+    nanshanjing: '南山经', xishanjing: '西山经',
+    haiwainanjing: '海外南经', haineinanjing: '海内南经',
+  };
+  const paragraphs = shanHaiJingParagraphs[nodeId];
   if (!paragraphs) return undefined;
   return { id: nodeId, title: titles[nodeId] || '', paragraphs };
 }
