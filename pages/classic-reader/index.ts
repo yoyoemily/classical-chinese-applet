@@ -29,6 +29,10 @@ interface IClassicReaderData {
   contentCache: Record<string, IContentBlock>;
   /** 当前选中的目录节点 ID */
   currentNodeId: string;
+  /** 当前篇章作者（选集型从 TOC/content 获取） */
+  chapterAuthor: string;
+  /** 当前篇章朝代（选集型从 TOC/content 获取） */
+  chapterEra: string;
   /** 当前内容的段落切分 */
   paragraphSegments: IGlossarySegment[][];
   loading: boolean;
@@ -68,6 +72,8 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     currentContent: null,
     contentCache: {},
     currentNodeId: '',
+    chapterAuthor: '',
+    chapterEra: '',
     paragraphSegments: [],
     loading: true,
     contentLoading: false,
@@ -167,9 +173,16 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     const paragraphSegments = content.paragraphs
       ? content.paragraphs.map(p => this.buildSegment(p))
       : [];
+
+    // 获取当前篇章的 author/era（优先从 content 本身取，再从 TOC 叶子节点取）
+    const chapterAuthor = content.author || this.getTocLeafAuthor(nodeId);
+    const chapterEra = content.era || this.getTocLeafEra(nodeId);
+
     this.setData({
       currentContent: content,
       currentNodeId: nodeId,
+      chapterAuthor,
+      chapterEra,
       paragraphSegments,
     });
 
@@ -488,6 +501,31 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       if (n.isLeaf) return n;
       if (n.children && n.children.length > 0) {
         const found = this.findFirstLeaf(n.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  },
+
+  /** 从 TOC 中查找叶子节点的 author */
+  getTocLeafAuthor(nodeId: string): string {
+    const leaf = this.findTocNode(nodeId);
+    return leaf?.author || '';
+  },
+
+  /** 从 TOC 中查找叶子节点的 era */
+  getTocLeafEra(nodeId: string): string {
+    const leaf = this.findTocNode(nodeId);
+    return leaf?.era || '';
+  },
+
+  /** 递归遍历 TOC 查找指定 id 的节点 */
+  findTocNode(nodeId: string, nodes?: ITocNode[]): ITocNode | null {
+    const list = nodes || this.data.tocNodes;
+    for (const n of list) {
+      if (n.id === nodeId) return n;
+      if (n.children && n.children.length > 0) {
+        const found = this.findTocNode(nodeId, n.children);
         if (found) return found;
       }
     }

@@ -21,9 +21,12 @@
           <text wx:elif="{{audioPlaying}}">🔉</text>
           <text wx:else>🔊</text>
         </view>
-        <!-- 中：书名 -->
+        <!-- 中：书名 / 篇名 -->
         <view class="page-classic-reader__title">
-          <text>《{{meta.name}}》</text>
+          <!-- 选集型：有篇章作者时显示篇名 -->
+          <text wx:if="{{chapterAuthor}}">《{{currentContent.title}}》</text>
+          <!-- 章节型：无篇章作者时显示书名（保持现状） -->
+          <text wx:else>《{{meta.name}}》</text>
         </view>
         <!-- 目录按钮 -->
         <view class="page-classic-reader__toc-btn" bindtap="onToggleToc">
@@ -35,8 +38,16 @@
         </view>
       </view>
       <view class="page-classic-reader__meta">
-        <text>{{meta.author}}</text>
-        <text> · {{meta.era}}</text>
+        <!-- 选集型：有篇章作者时显示朝代·篇章作者 -->
+        <block wx:if="{{chapterAuthor}}">
+          <text>{{chapterEra}}</text>
+          <text> · {{chapterAuthor}}</text>
+        </block>
+        <!-- 章节型：无篇章作者时显示全书编者·朝代（保持现状） -->
+        <block wx:else>
+          <text>{{meta.author}}</text>
+          <text> · {{meta.era}}</text>
+        </block>
       </view>
     </view>
 

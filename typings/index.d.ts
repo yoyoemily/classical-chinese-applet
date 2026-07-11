@@ -451,6 +451,10 @@ export interface ITocNode {
   isLeaf: boolean
   /** 子节点（非叶子才有） */
   children?: ITocNode[]
+  /** 篇章作者（选集型才填，章节型为 undefined） */
+  author?: string
+  /** 篇章朝代（选集型才填） */
+  era?: string
 }
 
 /** 经典著作基本信息（轻量，不含内容） */
@@ -473,6 +477,10 @@ export interface IClassicMeta {
 export interface IContentBlock {
   id: string
   title: string
+  /** 篇章作者（选集型才填，章节型为 undefined） */
+  author?: string
+  /** 篇章朝代（选集型才填） */
+  era?: string
   /** 完整原文（选集型、卷帙型用） */
   text?: string
   /** 完整译文 */

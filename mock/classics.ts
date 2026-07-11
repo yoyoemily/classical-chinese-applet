@@ -772,14 +772,14 @@ function getTang300MockMeta(): IClassicMeta {
     structureType: 'anthology', loadMode: 'chunked', navMode: 'author',
     toc: [
       { id: 'group_libai', title: '李白', level: 0, isLeaf: false, children: [
-        { id: 'tang300_libai_1', title: '下终南山过斛斯山人宿置酒', level: 1, isLeaf: true },
-        { id: 'tang300_libai_2', title: '月下独酌', level: 1, isLeaf: true },
+        { id: 'tang300_libai_1', title: '下终南山过斛斯山人宿置酒', level: 1, isLeaf: true, author: '李白', era: '唐' },
+        { id: 'tang300_libai_2', title: '月下独酌', level: 1, isLeaf: true, author: '李白', era: '唐' },
       ]},
       { id: 'group_dufu', title: '杜甫', level: 0, isLeaf: false, children: [
-        { id: 'tang300_dufu_1', title: '望岳', level: 1, isLeaf: true },
+        { id: 'tang300_dufu_1', title: '望岳', level: 1, isLeaf: true, author: '杜甫', era: '唐' },
       ]},
       { id: 'group_baijuyi', title: '白居易', level: 0, isLeaf: false, children: [
-        { id: 'tang300_bai_1', title: '赋得古原草送别', level: 1, isLeaf: true },
+        { id: 'tang300_bai_1', title: '赋得古原草送别', level: 1, isLeaf: true, author: '白居易', era: '唐' },
       ]},
       { id: 'group_other', title: '其他', level: 0, isLeaf: false, children: [] },
     ],
@@ -789,12 +789,13 @@ function getTang300MockMeta(): IClassicMeta {
 function getTang300MockContent(nodeId: string): IContentBlock | undefined {
   const paragraphs = tang300MockContent[nodeId];
   if (!paragraphs) return undefined;
-  const titles: Record<string, string> = {
-    tang300_libai_1: '下终南山过斛斯山人宿置酒',
-    tang300_libai_2: '月下独酌',
-    tang300_dufu_1: '望岳',
-    tang300_bai_1: '赋得古原草送别',
+  const meta: Record<string, { title: string; author: string; era: string }> = {
+    tang300_libai_1: { title: '下终南山过斛斯山人宿置酒', author: '李白', era: '唐' },
+    tang300_libai_2: { title: '月下独酌', author: '李白', era: '唐' },
+    tang300_dufu_1: { title: '望岳', author: '杜甫', era: '唐' },
+    tang300_bai_1: { title: '赋得古原草送别', author: '白居易', era: '唐' },
   };
-  return { id: nodeId, title: titles[nodeId] || '', paragraphs };
+  const info = meta[nodeId] || { title: '', author: '', era: '' };
+  return { id: nodeId, title: info.title, author: info.author, era: info.era, paragraphs };
 }
 
