@@ -1,5 +1,6 @@
 import type { IWord, IMeaning } from '../../typings/index.d';
 import { fetchWordDetail } from '../../api/index';
+import { wordTypeLabel } from '../../utils/wordType';
 
 interface IMeaningItem extends IMeaning {
   expanded: boolean;
@@ -36,7 +37,7 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
       const meaningItems: IMeaningItem[] = (word.meanings || []).map(m => ({ ...m, expanded: false }));
       this.setData({
         word, character: word.character,
-        wordType: word.wordType || '',
+        wordType: wordTypeLabel(word.wordType || ''),
         characterType: word.characterType || '',
         explanation: word.explanation || '',
         oracleForm: word.oracleForm || '',

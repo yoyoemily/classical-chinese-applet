@@ -111,8 +111,8 @@ export interface IWord {
 
   /** 记忆口诀 */
   mnemonic?: string
-  /** 字词类型：实词 / 虚词 / 通假字 / 古今异义 / 词类活用 */
-  wordType?: '实词' | '虚词' | '通假字' | '古今异义' | '词类活用'
+  /** 字词类型：shi / xu / tongjia / gujinyi / huoyong */
+  wordType?: 'shi' | 'xu' | 'tongjia' | 'gujinyi' | 'huoyong'
 }
 
 // ============================================
@@ -311,6 +311,15 @@ export interface IMistakeRecord {
   lastErrorTime: string
   /** 各句子的错题记录 */
   sentences: IMistakeSentence[]
+}
+
+// ============================================
+// 快捷搜索（按词类分组）
+// ============================================
+export interface IWordQuickItem {
+  wordId: string
+  character: string
+  pinyin: string
 }
 
 // ============================================

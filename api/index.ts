@@ -6,8 +6,9 @@ import type {
   IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
   IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
-  IClassicBook, IClassicMeta, IContentBlock,
+  IClassicBook, IClassicMeta, IContentBlock, IWordQuickItem,
 } from '../typings/index.d';
+import { wordTypeToGroupKey, QUICK_GROUP_ORDER } from '../utils/wordType';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
 import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadges, getUserBadges, _applyCheckin, getUserProfile, saveUserProfile } from '../utils/storage';
@@ -196,6 +197,36 @@ export async function searchWords(keyword: string): Promise<IWordSearchResult[]>
     return results;
   }
   return get('/api/words/search', { keyword });
+}
+
+// ============================================
+// 快捷搜索 — 按词类分组
+// ============================================
+export async function fetchWordsByType(): Promise<Record<string, IWordQuickItem[]>> {
+  if (USE_MOCK) {
+    const books = loadWordBooks();
+    const result: Record<string, IWordQuickItem[]> = {};
+    for (const key of QUICK_GROUP_ORDER) {
+      result[key] = [];
+    }
+    for (const book of books) {
+      const full = loadWordBookData(book.id);
+      if (full && full.words.length > 0) {
+        // 取第一个词的 wordType 推导分组（同一词书下的 word 类型相同）
+        const key = wordTypeToGroupKey(full.words[0]?.wordType);
+        if (!key) continue;
+        for (const word of full.words) {
+          result[key].push({
+            wordId: word.id,
+            character: word.character,
+            pinyin: word.pinyin,
+          });
+        }
+      }
+    }
+    return result;
+  }
+  return get('/api/words/types');
 }
 
 // ============================================

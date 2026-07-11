@@ -4,6 +4,7 @@ import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRESTEP_PROMPTS } from '../../constants/config';
 import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index.d';
+import { wordTypeLabel } from '../../utils/wordType';
 
 interface IStudyData {
   screen: 'preStep' | 'question';
@@ -358,7 +359,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const suffix = idx >= 0 ? sent.text.slice(idx + word.character.length) : '';
     this.setData({
       screen: 'question', showResult: false, currentWord: word.character,
-      currentWordType: fullWord?.wordType || '',
+      currentWordType: wordTypeLabel(fullWord?.wordType || ''),
       currentSentence: { id: sent.id, text: sent.text, source: sent.source, translation: sent.translation, articleId: (sent as Record<string, unknown>).articleId as string | undefined, audioUrl: (sent as Record<string, unknown>).audioUrl as string | undefined },
       options: opts, selectedIndex: -1, correctIndex: ci,
       sentencePrefix: prefix, sentenceTarget: target, sentenceSuffix: suffix,

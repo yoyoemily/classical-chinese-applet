@@ -1,4 +1,16 @@
 <!-- 全局搜索页面 -->
+<wxs module="W">
+var icons = { shixu: '📖', tongjia: '🔄', huoyong: '⚡', gujinyi: '⏳' };
+var labels = { shixu: '实词虚词', tongjia: '通假字', huoyong: '词类活用', gujinyi: '古今异义' };
+var groupKeys = ['shixu', 'tongjia', 'huoyong', 'gujinyi'];
+
+module.exports = {
+  icon: function(k) { return icons[k] || ''; },
+  label: function(k) { return labels[k] || k; },
+  keys: groupKeys,
+};
+</wxs>
+
 <view class="page-search">
   <!-- 顶部搜索栏 -->
   <view class="page-search__bar">
@@ -22,8 +34,53 @@
     <text class="page-search__cancel" bindtap="onCancel">取消</text>
   </view>
 
+  <!-- 快捷搜索：词类分栏 -->
+  <view class="page-search__quick" wx:if="{{!keyword && !loading}}">
+    <view class="page-search__quick-title">快捷搜索</view>
+    <block wx:for="{{W.keys}}" wx:key="*this" wx:for-item="category">
+      <view class="page-search__type-card">
+        <view
+          class="page-search__type-header"
+          data-category="{{category}}"
+          bindtap="onToggleCategory"
+        >
+          <view class="page-search__type-label">
+            <text class="page-search__type-icon">{{W.icon(category)}}</text>
+            <text class="page-search__type-name">{{W.label(category)}}</text>
+            <text
+              wx:if="{{quickGroups[category]}}"
+              class="page-search__type-count"
+            >（{{quickGroups[category].length}}个）</text>
+          </view>
+          <text class="page-search__type-arrow {{expandedCategories[category] ? 'page-search__type-arrow--expanded' : ''}}">▼</text>
+        </view>
+        <view
+          class="page-search__type-chips"
+          wx:if="{{expandedCategories[category] && quickGroups[category] && quickGroups[category].length > 0}}"
+        >
+          <block wx:for="{{quickGroups[category]}}" wx:key="wordId">
+            <view
+              class="page-search__type-chip"
+              data-character="{{item.character}}"
+              bindtap="onTapQuickWord"
+              hover-class="page-search__type-chip--hover"
+            >
+              <text class="page-search__type-chip-text">{{item.character}}</text>
+            </view>
+          </block>
+        </view>
+        <view
+          class="page-search__type-empty"
+          wx:if="{{expandedCategories[category] && (!quickGroups[category] || quickGroups[category].length === 0)}}"
+        >
+          <text>暂无数据</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
   <!-- 搜索历史 -->
-  <view class="page-search__history" wx:if="{{showHistory && history.length > 0}}">
+  <view class="page-search__history" wx:if="{{!keyword && showHistory && history.length > 0}}">
     <view class="page-search__history-header">
       <text class="page-search__history-title">搜索历史</text>
       <text class="page-search__history-clear" bindtap="onClearHistory">清除</text>
