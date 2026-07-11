@@ -1,4 +1,4 @@
-<!-- 经典阅读页 v2 支持 full/chunked + strip/list/accordion/search -->
+<!-- 经典阅读页 v2 支持 full/chunked + strip/list/accordion/author -->
 <view class="page-classic-reader">
   <!-- 加载态 -->
   <block wx:if="{{loading}}">
@@ -221,16 +221,6 @@
         <view class="page-classic-reader__toc-close" bindtap="onCloseToc">
           <text>✕</text>
         </view>
-      </view>
-
-      <!-- search nav mode: 搜索框 -->
-      <view wx:if="{{meta.navMode === 'search'}}" class="page-classic-reader__toc-search">
-        <input
-          class="page-classic-reader__toc-search-input"
-          placeholder="搜索章节..."
-          value="{{tocSearchKeyword}}"
-          bindinput="onTocSearchInput"
-        />
       </view>
 
       <!-- author nav mode: 作者分组浏览 -->

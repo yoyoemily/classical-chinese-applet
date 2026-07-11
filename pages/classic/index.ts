@@ -44,7 +44,6 @@ const FALLBACK_CLASSICS: IClassicItem[] = [
   { id: 22, name: '孙子兵法',   era: '春秋',   icon: '🗡️', description: '孙武著，兵家圣典，"不战而屈人之兵，善之善者也"，十三篇影响遍及军事与商界。', category: '子', loadMode: 'full', navMode: 'strip' },
   { id: 23, name: '吕氏春秋',   era: '秦',     icon: '📙', description: '吕不韦门客合著，杂家经典，一字千金典故出处，融汇诸子百家，先秦思想的集大成之作。', category: '子', loadMode: 'chunked', navMode: 'accordion' },
   { id: 24, name: '鬼谷子',     era: '战国',   icon: '🎭', description: '纵横家经典，捭阖、反应、揣摩、权谋之术的源头，战国游说策士的理论利器。', category: '子', loadMode: 'full', navMode: 'strip' },
-  { id: 25, name: '说文解字',   era: '东汉',   icon: '🔤', description: '许慎著，中国第一部系统分析汉字字形与来源的文字学巨著，学古文必备的工具书之祖。', category: '子', loadMode: 'chunked', navMode: 'search' },
   { id: 26, name: '黄帝内经',   era: '战国至汉', icon: '🌱', description: '中医理论奠基之作，阴阳五行、脏腑经络、养生诊治，天人合一的东方医学哲学。', category: '子', loadMode: 'chunked', navMode: 'accordion' },
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集', loadMode: 'full', navMode: 'strip' },
   { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', loadMode: 'chunked', navMode: 'author' },
@@ -61,7 +60,7 @@ const FALLBACK_CLASSICS: IClassicItem[] = [
 const CATEGORY_TABS: { key: ClassicCategory; label: string; count: number }[] = [
   { key: '经', label: '经部', count: 10 },
   { key: '史', label: '史部', count: 6 },
-  { key: '子', label: '子部', count: 10 },
+  { key: '子', label: '子部', count: 9 },
   { key: '集', label: '集部', count: 10 },
 ];
 
@@ -129,7 +128,7 @@ Page<IClassicData, WechatMiniprogram.Page.CustomOption>({
   onTapTip(): void {
     wx.showModal({
       title: '经典阅读',
-      content: '三十六部传世典籍，涵盖经史子集四部，上起商周、下至明清。已完成的经典可直接阅读，其余正在逐步整理中，敬请期待。',
+      content: '三十余部传世典籍，涵盖经史子集四部，上起商周、下至明清。已完成的经典可直接阅读，其余正在逐步整理中，敬请期待。',
       showCancel: false,
       confirmText: '我知道了',
     });

@@ -1256,7 +1256,7 @@ HTTP/1.1 200 OK
 | `data[].description` | String | 简介 |
 | `data[].category` | String | 四部分类：`经` / `史` / `子` / `集` |
 | `data[].loadMode` | String | 加载方式：`full`=全量, `chunked`=按需 |
-| `data[].navMode` | String | 导航方式：`strip` / `list` / `accordion` / `search` |
+| `data[].navMode` | String | 导航方式：`strip` / `list` / `accordion` / `author` |
 
 #### Example: Success
 
@@ -1316,7 +1316,7 @@ HTTP/1.1 200 OK
 | `data.description` | String | 简介 |
 | `data.structureType` | String | 结构类型：`chapter`=章节型, `anthology`=选集型, `volume`=卷帙型 |
 | `data.loadMode` | String | 加载方式：`full` / `chunked` |
-| `data.navMode` | String | 导航方式：`strip` / `list` / `accordion` / `search` |
+| `data.navMode` | String | 导航方式：`strip` / `list` / `accordion` / `author` |
 | `data.toc[]` | Array | 目录树节点列表 |
 | `data.toc[].id` | String | 节点唯一标识 |
 | `data.toc[].title` | String | 显示标题 |

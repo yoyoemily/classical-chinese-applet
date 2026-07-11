@@ -412,7 +412,7 @@ export interface IStudySummary {
 export type LoadMode = 'full' | 'chunked'
 
 /** 导航 UI 形态 */
-export type NavMode = 'strip' | 'list' | 'accordion' | 'search' | 'author'
+export type NavMode = 'strip' | 'list' | 'accordion' | 'author'
 
 /** 经典著作列表项（含加载/导航字段） */
 export interface IClassicItem {
@@ -424,7 +424,7 @@ export interface IClassicItem {
   category: string
   /** 内容加载方式：full=全量, chunked=按需加载 */
   loadMode: LoadMode
-  /** 导航 UI 形态：strip/list/accordion/search */
+  /** 导航 UI 形态：strip/list/accordion/author */
   navMode: NavMode
 }
 
@@ -452,8 +452,8 @@ export interface IClassicMeta {
   era: string
   category: string
   description: string
-  /** 数据结构类型：chapter=章节型, anthology=选集型, volume=卷帙型, dictionary=字典型 */
-  structureType: 'chapter' | 'anthology' | 'volume' | 'dictionary'
+  /** 数据结构类型：chapter=章节型, anthology=选集型, volume=卷帙型 */
+  structureType: 'chapter' | 'anthology' | 'volume'
   loadMode: LoadMode
   navMode: NavMode
   /** 目录树（轻量，仅标题不含内容） */

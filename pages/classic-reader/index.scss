@@ -1,6 +1,6 @@
 // ============================================
 // 经典阅读页 — 古典书卷风 v2
-// 支持 strip/list/accordion/search 导航 + full/chunked 加载
+// 支持 strip/list/accordion/author 导航 + full/chunked 加载
 // ============================================
 @import '../../styles/variables.scss';
 @import '../../styles/mixins.scss';
@@ -334,21 +334,6 @@ $light-ink: #8a7a60;
     font-size: $font-size-base;
     color: var(--color-text-hint);
     &:active { opacity: 0.7; }
-  }
-  &__toc-search {
-    padding: $spacing-md $spacing-lg;
-    border-bottom: 1rpx solid var(--color-border-light);
-    flex-shrink: 0;
-    &-input {
-      width: 100%;
-      height: 64rpx;
-      padding: 0 $spacing-md;
-      background: var(--color-bg-card);
-      border-radius: $radius-md;
-      font-size: $font-size-sm;
-      color: var(--color-text-primary);
-      box-sizing: border-box;
-    }
   }
   &__toc-body {
     flex: 1;

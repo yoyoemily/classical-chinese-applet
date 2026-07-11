@@ -1,6 +1,6 @@
 // ============================================
 // 经典阅读器页面 v2
-// 支持 full/chunked 加载 + strip/list/accordion/search/author 导航
+// 支持 full/chunked 加载 + strip/list/accordion/author 导航
 // ============================================
 import type {
   IClassicMeta, ITocNode, IContentBlock, IChapterParagraph, IClassicGlossaryItem,
@@ -36,7 +36,6 @@ interface IClassicReaderData {
   /** 目录面板 */
   tocNodes: ITocNode[];
   showTocPanel: boolean;
-  tocSearchKeyword: string;
   /** author nav mode: 面板层级 0=作者列表, 1=该作者诗篇列表 */
   authorLevel: number;
   /** author nav mode: 当前选中的作者（group id） */
@@ -74,7 +73,6 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     contentLoading: false,
     tocNodes: [],
     showTocPanel: false,
-    tocSearchKeyword: '',
     authorLevel: 0,
     selectedAuthor: '',
     authorEntries: [],
@@ -201,10 +199,6 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
 
   onCloseToc(): void {
     this.setData({ showTocPanel: false, authorLevel: 0 });
-  },
-
-  onTocSearchInput(e: WechatMiniprogram.Input): void {
-    this.setData({ tocSearchKeyword: e.detail.value });
   },
 
   onTapTocNode(e: WechatMiniprogram.BaseEvent): void {

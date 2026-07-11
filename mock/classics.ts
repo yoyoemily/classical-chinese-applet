@@ -166,7 +166,7 @@ interface IClassicConfig {
   icon: string;
   description: string;
   category: string;
-  structureType: 'chapter' | 'anthology' | 'volume' | 'dictionary';
+  structureType: 'chapter' | 'anthology' | 'volume';
   loadMode: LoadMode;
   navMode: NavMode;
 }
@@ -200,7 +200,6 @@ const CLASSIC_CONFIGS: IClassicConfig[] = [
   { id: 22, name: '孙子兵法',   era: '春秋',   icon: '🗡️', description: '孙武著，兵家圣典，"不战而屈人之兵，善之善者也"，十三篇影响遍及军事与商界。', category: '子', structureType: 'chapter', loadMode: 'full', navMode: 'strip' },
   { id: 23, name: '吕氏春秋',   era: '秦',     icon: '📙', description: '吕不韦门客合著，杂家经典，一字千金典故出处，融汇诸子百家，先秦思想的集大成之作。', category: '子', structureType: 'chapter', loadMode: 'chunked', navMode: 'accordion' },
   { id: 24, name: '鬼谷子',     era: '战国',   icon: '🎭', description: '纵横家经典，捭阖、反应、揣摩、权谋之术的源头，战国游说策士的理论利器。', category: '子', structureType: 'chapter', loadMode: 'full', navMode: 'strip' },
-  { id: 25, name: '说文解字',   era: '东汉',   icon: '🔤', description: '许慎著，中国第一部系统分析汉字字形与来源的文字学巨著，学古文必备的工具书之祖。', category: '子', structureType: 'dictionary', loadMode: 'chunked', navMode: 'search' },
   { id: 26, name: '黄帝内经',   era: '战国至汉', icon: '🌱', description: '中医理论奠基之作，阴阳五行、脏腑经络、养生诊治，天人合一的东方医学哲学。', category: '子', structureType: 'chapter', loadMode: 'chunked', navMode: 'accordion' },
   // 集部 10
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集', structureType: 'anthology', loadMode: 'full', navMode: 'strip' },
