@@ -452,8 +452,8 @@ export interface IClassicMeta {
   era: string
   category: string
   description: string
-  /** 数据结构类型：chapter=章节型, anthology=选集型, volume=卷帙型 */
-  structureType: 'chapter' | 'anthology' | 'volume'
+  /** 数据结构类型：chapter=章节型, anthology=选集型, volume=卷帙型, dictionary=字典型 */
+  structureType: 'chapter' | 'anthology' | 'volume' | 'dictionary'
   loadMode: LoadMode
   navMode: NavMode
   /** 目录树（轻量，仅标题不含内容） */
