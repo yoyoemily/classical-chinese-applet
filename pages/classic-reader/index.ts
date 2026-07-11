@@ -265,21 +265,49 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   // 按需加载时切换章节
   // ==========================================
 
+  /**
+   * 将 TOC 扁平化为叶子节点（按阅读顺序），用于上下篇导航。
+   * accordion/author 模式下叶子节点嵌套在 children 中，直接遍历顶层 tocNodes 会漏掉。
+   */
+  flattenTocLeaves(nodes: ITocNode[]): ITocNode[] {
+    const result: ITocNode[] = [];
+    for (const n of nodes) {
+      if (n.isLeaf) {
+        result.push(n);
+      } else if (n.children && n.children.length > 0) {
+        for (const child of n.children) {
+          result.push(child);
+        }
+      }
+    }
+    return result;
+  },
+
+  getLeafNodes(): ITocNode[] {
+    const meta = this.data.meta;
+    if (!meta || !meta.toc || meta.toc.length === 0) return [];
+    // accordion / author 模式需递归扁平化，strip / list 模式顶层即为叶子
+    if (meta.navMode === 'accordion' || meta.navMode === 'author') {
+      return this.flattenTocLeaves(meta.toc);
+    }
+    return meta.toc.filter(n => n.isLeaf);
+  },
+
   onTapPrevChapter(): void {
-    const nodes = this.data.tocNodes;
-    if (nodes.length === 0) return;
-    const idx = nodes.findIndex(n => n.id === this.data.currentNodeId);
-    if (idx > 0 && nodes[idx - 1].isLeaf) {
-      this.loadContent(nodes[idx - 1].id);
+    const leaves = this.getLeafNodes();
+    if (leaves.length === 0) return;
+    const idx = leaves.findIndex(n => n.id === this.data.currentNodeId);
+    if (idx > 0) {
+      this.loadContent(leaves[idx - 1].id);
     }
   },
 
   onTapNextChapter(): void {
-    const nodes = this.data.tocNodes;
-    if (nodes.length === 0) return;
-    const idx = nodes.findIndex(n => n.id === this.data.currentNodeId);
-    if (idx < nodes.length - 1 && nodes[idx + 1].isLeaf) {
-      this.loadContent(nodes[idx + 1].id);
+    const leaves = this.getLeafNodes();
+    if (leaves.length === 0) return;
+    const idx = leaves.findIndex(n => n.id === this.data.currentNodeId);
+    if (idx < leaves.length - 1) {
+      this.loadContent(leaves[idx + 1].id);
     }
   },
 
