@@ -93,17 +93,17 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
     const { key } = e.currentTarget.dataset as { key: string };
     if (key === this.data.activeStage) return;
 
-    if (key === 'all') {
-      // 学段选"全部"→年级重置，不弹面板
+    if (key === 'all' || key === 'other') {
+      // "全部"/"其他"→年级重置，不弹面板
       this.setData({
         activeStage: key,
-        activeTextbook: 'all',
+        activeTextbook: key === 'other' ? 'other' : 'all',
         gradeList: [],
         showGradePicker: false,
       });
       this.loadArticles();
     } else {
-      // 学段选"初中"/"高中"→展开年级面板，年级重置为"全部"
+      // "初中"/"高中"→展开年级面板，年级重置为"全部"
       this.setData({
         activeStage: key,
         activeTextbook: 'all',

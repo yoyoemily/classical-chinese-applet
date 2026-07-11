@@ -81,6 +81,7 @@ export const EDUCATION_STAGES = [
   { key: 'all', label: '全部' },
   { key: 'junior', label: '初中' },
   { key: 'senior', label: '高中' },
+  { key: 'other', label: '其他' },
 ] as const;
 
 export const JUNIOR_GRADES = [
