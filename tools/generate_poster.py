@@ -31,8 +31,11 @@ BG_PATH = os.path.join(ASSETS_DIR, "share-poster-bg.png")
 QR_PATH = os.path.join(ASSETS_DIR, "qrcode.jpg")
 OUTPUT_PATH = os.path.join(ASSETS_DIR, "share-poster.png")
 
-# macOS 中文字体（霞鹜文楷——开源楷体，笔画柔和，手写感强）
-FONT_PATH = os.path.expanduser("~/Library/Fonts/LXGWWenKai-Regular.ttf")
+# macOS 中文字体
+# - 行楷（Xingkai SC Bold）：主标题"文言雀"，飘逸有力
+# - 华文楷体（Kaiti SC Regular）：正文副标题/金句/品牌文字，规范清秀
+FONT_PATH_XINGKAI = "/System/Library/AssetsV2/com_apple_MobileAsset_Font8/13b8ce423f920875b28b551f9406bf1014e0a656.asset/AssetData/Xingkai.ttc"
+FONT_PATH_KAITI = "/System/Library/AssetsV2/com_apple_MobileAsset_Font8/88d6cc32a907955efa1d014207889413890573be.asset/AssetData/Kaiti.ttc"
 
 # ============================================================
 # 海报尺寸
@@ -61,7 +64,7 @@ QR_HINT = "长按识别小程序码"
 # ============================================================
 # 布局参数（所有 y 值均为距顶部 px）
 # ============================================================
-TITLE_BRAND_TOP_Y = 140     # 顶部"中学生文言文助手"的 y 中心
+TITLE_BRAND_TOP_Y = 80      # 顶部"中学生文言文助手"的 y 中心
 MAIN_TITLE_Y = 350          # "文言雀"的 y 中心
 SUBTITLE_Y = 465            # 宣传语的 y 中心
 QUOTE_Y = 565               # 金句的 y 中心
@@ -71,7 +74,7 @@ QR_CARD_PADDING = 16        # 白底内边距
 QR_RADIUS = 16              # 白底圆角半径
 QR_HINT_GAP = 20            # 提示语距离白底底部的间距
 # QR_HINT_Y 在 main() 中根据实际白底位置动态计算
-TITLE_BRAND_BOTTOM_Y = 1150  # 底部"中学生文言文助手"的 y 中心
+TITLE_BRAND_BOTTOM_Y = 1200  # 底部"中学生文言文助手"的 y 中心
 
 # 小程序码渲染尺寸（原图 344×344，缩放到此尺寸）
 QR_DISPLAY_SIZE = 220
@@ -98,12 +101,13 @@ FONT_SIZE_QR_HINT = 24
 # 渲染函数
 # ============================================================
 
-def load_font(size: int) -> ImageFont.FreeTypeFont:
-    """加载字体，优先中文黑体，回退默认字体。"""
+def load_font(size: int, font_path: str = None) -> ImageFont.FreeTypeFont:
+    """加载字体，默认华文楷体。"""
+    path = font_path or FONT_PATH_KAITI
     try:
-        return ImageFont.truetype(FONT_PATH, size)
+        return ImageFont.truetype(path, size)
     except Exception:
-        print(f"  ⚠️  无法加载 {FONT_PATH}，使用默认字体")
+        print(f"  ⚠️  无法加载 {path}，使用默认字体")
         return ImageFont.load_default()
 
 
@@ -166,7 +170,7 @@ def draw_quote_underline(
 ) -> None:
     """在金句下方画一条细装饰线。"""
     tw, _ = text_size(draw, text, font)
-    line_w = int(tw * 0.85)
+    line_w = int(tw * 1.0)
     x_start = (WIDTH - line_w) // 2
     x_end = x_start + line_w
     y_line = QUOTE_LINE_Y
@@ -217,18 +221,18 @@ def main():
     draw = ImageDraw.Draw(canvas)
 
     # -------- 顶部品牌文字 + 两侧短横线 --------
-    font_brand = load_font(FONT_SIZE_BRAND)
+    font_brand = load_font(FONT_SIZE_BRAND)  # 华文楷体
     draw_brand_with_lines(draw, TITLE_BRAND, TITLE_BRAND_TOP_Y, font_brand, COLOR_MUTED)
 
-    # -------- 主标题：文言雀 --------
-    font_main = load_font(FONT_SIZE_MAIN_TITLE)
+    # -------- 主标题：文言雀（行楷 Bold）--------
+    font_main = load_font(FONT_SIZE_MAIN_TITLE, FONT_PATH_XINGKAI)
     draw_centered_text(draw, MAIN_TITLE, MAIN_TITLE_Y, font_main, COLOR_PRIMARY)
 
-    # -------- 宣传语 --------
+    # -------- 宣传语（华文楷体）--------
     font_sub = load_font(FONT_SIZE_SUBTITLE)
     draw_centered_text(draw, SUBTITLE, SUBTITLE_Y, font_sub, COLOR_SUBTITLE)
 
-    # -------- 金句 + 下划线 --------
+    # -------- 金句 + 下划线（华文楷体）--------
     font_quote = load_font(FONT_SIZE_QUOTE)
     draw_centered_text(draw, QUOTE, QUOTE_Y, font_quote, COLOR_PRIMARY)
     draw_quote_underline(draw, QUOTE, QUOTE_Y, font_quote)
@@ -236,7 +240,7 @@ def main():
     # -------- 小程序码 --------
     _, qr_bottom = paste_qr_code(canvas)
 
-    # 提示文字（紧贴小程序码白底下方）
+    # 提示文字（华文楷体，紧贴小程序码白底下方）
     qr_hint_y = qr_bottom + QR_HINT_GAP
     font_hint = load_font(FONT_SIZE_QR_HINT)
     draw_centered_text(draw, QR_HINT, qr_hint_y, font_hint, COLOR_MUTED)
