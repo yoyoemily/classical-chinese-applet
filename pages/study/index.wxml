@@ -91,7 +91,7 @@
             wx:if="{{currentSentence.articleId}}"
             class="page-study__sentence-source-text"
             bindtap="onTapFullText"
-          >—— {{currentSentence.source}} <text class="page-study__sentence-source-arrow">→</text></text>
+          >—— {{currentSentence.source}}</text>
           <text wx:else class="page-study__sentence-source-text">—— {{currentSentence.source}}</text>
         </view>
       </view>
@@ -129,7 +129,7 @@
       </view>
 
       <!-- 不知道按钮 —— 卡片化，鼓励用户诚实选择 -->
-      <view class="page-study__dont-know-card" bindtap="onTapDontKnow" hover-class="page-study__dont-know-card--hover">
+      <view class="page-study__dont-know-card {{showResult ? 'page-study__dont-know-card--hidden' : ''}}" bindtap="onTapDontKnow" hover-class="page-study__dont-know-card--hover">
         <view class="page-study__dont-know-icon">🤔</view>
         <view class="page-study__dont-know-body">
           <text class="page-study__dont-know-title">不知道</text>
