@@ -114,6 +114,37 @@
     transition: width 0.4s ease;
   }
 
+  // -------- 分享按钮 --------
+  &__share {
+    @include card;
+    margin: $spacing-md $spacing-base;
+    padding: $spacing-md;
+  }
+
+  &__share-btn {
+    @include flex-center;
+    gap: $spacing-sm;
+    padding: $spacing-md 0;
+    border: 2rpx dashed var(--color-accent);
+    border-radius: $radius-base;
+    background-color: var(--color-bg-card);
+    @include active(rgba(201, 169, 110, 0.08));
+
+    &::after {
+      border: none;
+    }
+  }
+
+  &__share-icon {
+    font-size: 36rpx;
+  }
+
+  &__share-label {
+    font-size: $font-size-md;
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+
   // -------- 菜单列表 --------
   &__menu {
     @include card;
@@ -184,5 +215,76 @@
   &__footer-book {
     font-size: $font-size-xs;
     color: var(--color-text-hint);
+  }
+
+  // -------- 海报弹窗 --------
+  &__poster-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    @include flex-center;
+    padding: $spacing-xl;
+  }
+
+  &__poster-modal {
+    position: relative;
+    width: 100%;
+    max-width: 600rpx;
+    @include flex-column;
+    align-items: center;
+  }
+
+  &__poster-close {
+    position: absolute;
+    top: -64rpx;
+    right: 0;
+    width: 56rpx;
+    height: 56rpx;
+    border-radius: $radius-round;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: $font-size-lg;
+    @include flex-center;
+    z-index: 1;
+  }
+
+  &__poster-image {
+    width: 100%;
+    border-radius: $radius-md;
+    box-shadow: $shadow-md;
+    display: block;
+  }
+
+  &__poster-actions {
+    width: 100%;
+    @include flex-column;
+    align-items: center;
+    margin-top: $spacing-lg;
+    gap: $spacing-sm;
+  }
+
+  &__poster-save {
+    width: 100%;
+    padding: $spacing-md 0;
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-size: $font-size-md;
+    font-weight: 500;
+    border-radius: $radius-base;
+    text-align: center;
+    @include active(rgba(74, 106, 94, 0.8));
+
+    &::after {
+      border: none;
+    }
+  }
+
+  &__poster-hint {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.6);
   }
 }

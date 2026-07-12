@@ -43,6 +43,14 @@
     </view>
   </view>
 
+  <!-- 分享按钮 -->
+  <view class="page-mine__share">
+    <view class="page-mine__share-btn" bindtap="onTapShare">
+      <text class="page-mine__share-icon">📤</text>
+      <text class="page-mine__share-label">分享给朋友</text>
+    </view>
+  </view>
+
   <!-- 菜单列表 -->
   <view class="page-mine__menu">
     <block wx:for="{{menuItems}}" wx:key="key">
@@ -74,5 +82,21 @@
       class="page-mine__footer-book"
       wx:if="{{currentBookName}}"
     >当前词书：{{currentBookName}}</text>
+  </view>
+
+  <!-- 分享海报弹窗 -->
+  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="onCloseShare">
+    <view class="page-mine__poster-modal" catchtap="noop">
+      <view class="page-mine__poster-close" bindtap="onCloseShare">✕</view>
+      <image
+        class="page-mine__poster-image"
+        src="/assets/share-poster.png"
+        mode="widthFix"
+      />
+      <view class="page-mine__poster-actions">
+        <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
+        <view class="page-mine__poster-hint">保存后到朋友圈发布即可</view>
+      </view>
+    </view>
   </view>
 </view>

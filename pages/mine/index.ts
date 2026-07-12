@@ -28,6 +28,7 @@ interface IMineData {
   currentBookName: string;
   menuItems: IMenuItem[];
   loading: boolean;
+  showSharePoster: boolean;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -53,6 +54,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       { key: 'settings', icon: '⚙️', label: '设置', url: '/pages/settings/index' },
     ],
     loading: false,
+    showSharePoster: false,
   },
 
   onLoad(): void {
@@ -122,5 +124,72 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     const url = e.currentTarget.dataset.url as string;
     if (!url) return;
     wx.navigateTo({ url });
+  },
+
+  /** 打开分享海报弹窗 */
+  onTapShare(): void {
+    this.setData({ showSharePoster: true });
+  },
+
+  /** 关闭海报弹窗 */
+  onCloseShare(): void {
+    this.setData({ showSharePoster: false });
+  },
+
+  /** 保存海报到相册 */
+  onSavePoster(): void {
+    wx.showLoading({ title: '保存中...' });
+
+    // 小程序不支持直接将项目内静态资源保存到相册
+    // 需先通过 downloadFile 下载到临时目录再保存
+    // 开发环境若后端未部署图片，可先手动将图片放到后端 static 目录
+    const POSTER_URL = 'https://wyq.yinque-ai.com/assets/share-poster.png';
+
+    wx.downloadFile({
+      url: POSTER_URL,
+      success: (res) => {
+        if (res.statusCode === 200) {
+          wx.saveImageToPhotosAlbum({
+            filePath: res.tempFilePath,
+            success: () => {
+              wx.hideLoading();
+              wx.showToast({ title: '图片已保存，快去朋友圈分享吧', icon: 'none', duration: 2000 });
+            },
+            fail: (err) => {
+              wx.hideLoading();
+              if (err.errMsg.includes('auth deny') || err.errMsg.includes('authorize')) {
+                wx.showModal({
+                  title: '需要相册权限',
+                  content: '请允许访问您的相册，以便保存海报图片',
+                  confirmText: '去设置',
+                  success: (modalRes) => {
+                    if (modalRes.confirm) {
+                      wx.openSetting();
+                    }
+                  },
+                });
+              } else {
+                wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+              }
+            },
+          });
+        } else {
+          wx.hideLoading();
+          wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+        }
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+      },
+    });
+  },
+
+  /** 分享给微信好友（原生菜单） */
+  onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
+    return {
+      title: '文言雀—无障碍畅读传世经典，领略古贤智慧',
+      path: '/pages/index/index',
+    };
   },
 });
