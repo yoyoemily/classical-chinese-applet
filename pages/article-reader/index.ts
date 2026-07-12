@@ -1,7 +1,7 @@
 	import type { IArticle, IArticleSentence, IGlossaryItem, FeedbackCategory } from '../../typings/index.d';
 	import { fetchArticleDetail, submitFeedback } from '../../api/index';
 	import { getTTSPlayer } from '../../utils/tts';
-	import { safeJSONParse } from '../../utils/util';
+	import { safeJSONParse, splitByRareChar } from '../../utils/util';
 	import { STORAGE_KEYS } from '../../constants/config';
 
 	/** 阅读模式 */
@@ -21,6 +21,8 @@
 	  isKeyword: boolean;
 	  word?: string;
 	  definition?: string;
+	  /** 生僻字拼音 */
+	  pinyin?: string;
 	}
 
 	/** 典故注释：段切分结构 */
@@ -29,6 +31,8 @@
 	  isGlossary: boolean;
 	  word?: string;
 	  definition?: string;
+	  /** 生僻字拼音 */
+	  pinyin?: string;
 	}
 
 	interface IArticleReaderData {
@@ -39,141 +43,134 @@
 	  expandedStates: boolean[];
 	  /** 逐句释义用：按 clause 的展开状态 */
 	  clauseExpandedStates: boolean[];
-	  /** 逐句释义用：全文按句号拆分的子句列表 */
-	  clauses: IClause[];
-	  /** 典故注释用：每句的段切分数组（用于高亮渲染） */
+	  /** 通篇阅读用：生词分段（二维数组：sentenceIndex → segmentIndex） */
+	  vocabSegments: IVocabSegment[][];
+	  /** 典故注释用：glossary 段切分 */
 	  glossarySegments: IGlossarySegment[][];
-	  /** 典故注释用：当前弹出的词条信息 */
+	  /** 逐句释义用：拆分后的子句 */
+	  clauses: IClause[];
+	  /** 内联生词解释弹窗 */
+	  vocabPopup: { sentenceIndex: number; word: string; definition: string } | null;
+	  /** 典故注释弹窗 */
 	  glossaryPopup: { sentenceIndex: number; word: string; definition: string } | null;
-
-	  // 音频播放
+	  /** 创作背景浮层 */
+	  showBackground: boolean;
+	  /** 语音播报 */
 	  audioLoading: boolean;
 	  audioPlaying: boolean;
-
-	  // 内联生词链接
-	  /** 每句的文本分段（用于通篇阅读模式的高亮渲染） */
-	  vocabSegments: IVocabSegment[][];
-	  /** 当前弹出的生词信息 */
-	  vocabPopup: { word: string; definition: string } | null;
-
-	  // 错误反馈
+	  /** 错误反馈 */
 	  showFeedbackPanel: boolean;
 	  feedbackCategory: string;
 	  feedbackDescription: string;
 	  feedbackSubmitting: boolean;
 	}
 
-	/** 按中文标点拆分文本为子句，返回非空片段 */
-	function splitClauses(text: string): string[] {
-	  return text
-	    .split(/[。！？；]/)
-	    .map(s => s.trim())
-	    .filter(s => s.length > 0);
-	}
-
 	Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
 	  data: {
-	    article: null, loading: true, readingMode: 'plain' as ReadingMode,
-	    expandedStates: [], clauseExpandedStates: [], clauses: [],
-	    glossarySegments: [], glossaryPopup: null,
-	    vocabSegments: [], vocabPopup: null,
-	    audioLoading: false, audioPlaying: false,
-	    showFeedbackPanel: false, feedbackCategory: '', feedbackDescription: '', feedbackSubmitting: false,
+	    article: null,
+	    loading: true,
+	    readingMode: 'plain',
+	    expandedStates: [],
+	    clauseExpandedStates: [],
+	    vocabSegments: [],
+	    glossarySegments: [],
+	    clauses: [],
+	    vocabPopup: null,
+	    glossaryPopup: null,
+	    showBackground: false,
+	    audioLoading: false,
+	    audioPlaying: false,
+	    showFeedbackPanel: false,
+	    feedbackCategory: 'sentence_text',
+	    feedbackDescription: '',
+	    feedbackSubmitting: false,
 	  },
 
 	  _tts: null as ReturnType<typeof getTTSPlayer> | null,
-	  _autoPlayAudio: true,
+	  _articleId: '',
+	  _autoPlayAudio: false,
 
-	  async onLoad(options: Record<string, string | undefined>): Promise<void> {
-	    const articleId = options.id || '';
-	    if (!articleId) { wx.navigateBack(); return; }
+	  // ==========================================
+	  // 生命周期
+	  // ==========================================
+
+	  onLoad(options: Record<string, string | undefined>): void {
+	    const id = options.id || '';
+	    this._articleId = id;
+	    // 默认进入典故注释模式
+	    const mode = (options.mode as ReadingMode) || 'glossary';
+	    // 自动播报设置
+	    const raw = wx.getStorageSync(STORAGE_KEYS.AUTO_PLAY_AUDIO);
+	    this._autoPlayAudio = typeof raw === 'boolean' ? raw : false;
+
+	    this.setData({ readingMode: mode });
+	    this._tts = getTTSPlayer();
+	    this._tts.stop();
+	    this.loadArticle();
+	  },
+
+	  onHide(): void {
+	    if (this._tts) this._tts.stop();
+	  },
+
+	  onUnload(): void {
+	    if (this._tts) this._tts.destroy();
+	  },
+
+	  // ==========================================
+	  // 数据加载
+	  // ==========================================
+
+	  async loadArticle(): Promise<void> {
+	    this.setData({ loading: true });
 	    try {
-	      // 加载设置
-	      const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
-	      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean }>(raw, {}) : {};
-	      this._autoPlayAudio = settings.autoPlayAudio ?? true;
-
-	      // 初始化 TTS 播放器
-	      this._tts = getTTSPlayer();
-	      this._tts.stop();
-
-	      const article = await fetchArticleDetail(articleId);
+	      const article = await fetchArticleDetail(this._articleId);
 	      const clauses = this.buildClauses(article);
 	      const vocabSegments = this.buildVocabSegments(article);
 	      const glossarySegments = this.buildGlossarySegments(article);
+
 	      this.setData({
 	        article,
-	        expandedStates: new Array(article.sentences.length).fill(false),
-	        clauseExpandedStates: new Array(clauses.length).fill(false),
 	        clauses,
 	        vocabSegments,
 	        glossarySegments,
+	        expandedStates: article.sentences.map(() => false),
+	        clauseExpandedStates: clauses.map(() => false),
 	        loading: false,
 	      });
 
-	      // 自动播放
-	      if (this._autoPlayAudio) {
+	      // 自动播报
+	      if (this._autoPlayAudio && this._tts) {
 	        this._playArticleAudio(article);
 	      }
-	    } catch { this.setData({ loading: false }); }
+	    } catch {
+	      this.setData({ loading: false });
+	    }
 	  },
 
 	  // ==========================================
-	  // 子句构建
+	  // 逐句释义：按标点拆分为子句
 	  // ==========================================
 
 	  buildClauses(article: IArticle): IClause[] {
-	    const result: IClause[] = [];
-	    for (let si = 0; si < article.sentences.length; si++) {
-	      const s = article.sentences[si];
-	      const textParts = splitClauses(s.text);
-	      const transParts = splitClauses(s.translation);
-	      for (let ci = 0; ci < textParts.length; ci++) {
-	        result.push({
-	          text: textParts[ci],
-	          translation: transParts[ci] || transParts[transParts.length - 1] || s.translation,
-	          sentenceIndex: si,
-	          clauseIndex: ci,
-	        });
+	    const clauses: IClause[] = [];
+	    article.sentences.forEach((s, si) => {
+	      const textParts = s.text.split(/([。！？；])/);
+	      const transParts = s.translation.split(/([。！？；])/);
+	      let ci = 0;
+	      for (let j = 0; j < textParts.length; j++) {
+	        const t = textParts[j].trim();
+	        if (!t || t === '。' || t === '！' || t === '？' || t === '；') continue;
+	        const tr = transParts[j]?.trim() || '';
+	        clauses.push({ text: t, translation: tr, sentenceIndex: si, clauseIndex: ci });
+	        ci++;
 	      }
-	    }
-	    return result;
+	    });
+	    return clauses;
 	  },
 
 	  // ==========================================
-	  // 模式切换
-	  // ==========================================
-
-	  onSwitchMode(e: WechatMiniprogram.BaseEvent): void {
-	    const mode = e.currentTarget.dataset.mode as ReadingMode;
-	    if (mode === this.data.readingMode) return;
-	    this.setData({ readingMode: mode });
-	  },
-
-	  // ==========================================
-	  // 段落释义 — 点击段落展开/收起译文
-	  // ==========================================
-
-	  onTapSentence(e: WechatMiniprogram.BaseEvent): void {
-	    const idx = Number(e.currentTarget.dataset.index);
-	    const states = [...this.data.expandedStates];
-	    states[idx] = !states[idx];
-	    this.setData({ expandedStates: states });
-	  },
-
-	  // ==========================================
-	  // 逐句释义 — 点击子句展开/收起译文
-	  // ==========================================
-
-	  onTapClause(e: WechatMiniprogram.BaseEvent): void {
-	    const ci = Number(e.currentTarget.dataset.clauseIndex);
-	    const states = [...this.data.clauseExpandedStates];
-	    states[ci] = !states[ci];
-	    this.setData({ clauseExpandedStates: states });
-	  },
-
-	  // ==========================================
-	  // 典故注释 — 段切分构建
+	  // 典故注释段切分
 	  // ==========================================
 
 	  /**
@@ -192,12 +189,16 @@
 	        let matched = false;
 	        for (const g of sorted) {
 	          if (text.startsWith(g.word, i)) {
-	            segments.push({
-	              text: g.word,
-	              isGlossary: true,
-	              word: g.word,
-	              definition: g.definition,
-	            });
+	            // 多字 glossary 词拆成单字段，每个带独立拼音
+	            for (const ch of g.word) {
+	              segments.push({
+	                text: ch,
+	                isGlossary: true,
+	                word: g.word,
+	                definition: g.definition,
+	                pinyin: s.rareCharPinyin?.[ch],
+	              });
+	            }
 	            i += g.word.length;
 	            matched = true;
 	            break;
@@ -214,7 +215,16 @@
 	            if (hit) break;
 	            i++;
 	          }
-	          segments.push({ text: text.slice(start, i), isGlossary: false });
+	          // 生僻字二次切分
+	          const plainText = text.slice(start, i);
+	          const rareSegs = splitByRareChar(plainText, s.rareCharPinyin);
+	          for (const rs of rareSegs) {
+	            segments.push({
+	              text: rs.text,
+	              isGlossary: false,
+	              pinyin: rs.pinyin,
+	            });
+	          }
 	        }
 	      }
 	      return segments;
@@ -273,12 +283,16 @@
 	        let matched = false;
 	        for (const kw of sortedKeywords) {
 	          if (text.startsWith(kw.word, i)) {
-	            segments.push({
-	              text: kw.word,
-	              isKeyword: true,
-	              word: kw.word,
-	              definition: kw.definition,
-	            });
+	            // 多字 keyword 词拆成单字段，每个带独立拼音
+	            for (const ch of kw.word) {
+	              segments.push({
+	                text: ch,
+	                isKeyword: true,
+	                word: kw.word,
+	                definition: kw.definition,
+	                pinyin: s.rareCharPinyin?.[ch],
+	              });
+	            }
 	            i += kw.word.length;
 	            matched = true;
 	            break;
@@ -297,35 +311,62 @@
 	            if (hit) break;
 	            i++;
 	          }
-	          segments.push({ text: text.slice(start, i), isKeyword: false });
+	          // 生僻字二次切分
+	          const plainText = text.slice(start, i);
+	          const rareSegs = splitByRareChar(plainText, s.rareCharPinyin);
+	          for (const rs of rareSegs) {
+	            segments.push({
+	              text: rs.text,
+	              isKeyword: false,
+	              pinyin: rs.pinyin,
+	            });
+	          }
 	        }
 	      }
 	      return segments;
 	    });
 	  },
 
-	  /** 点击生词 → 弹出释义卡片 */
+	  // ==========================================
+	  // 内联生词 — 点击弹出释义
+	  // ==========================================
+
 	  onTapVocabWord(e: WechatMiniprogram.BaseEvent): void {
-	    const { word, definition } = e.currentTarget.dataset as { word: string; definition: string };
+	    const { sentenceIndex, word, definition } =
+	      e.currentTarget.dataset as { sentenceIndex: number; word: string; definition: string };
 	    const current = this.data.vocabPopup;
-	    if (current && current.word === word) {
-	      // 再次点击同一个词 → 收起
+	    if (current && current.sentenceIndex === sentenceIndex && current.word === word) {
 	      this.setData({ vocabPopup: null });
 	    } else {
-	      this.setData({ vocabPopup: { word, definition } });
+	      this.setData({ vocabPopup: { sentenceIndex, word, definition } });
 	    }
 	  },
 
-	  /** 关闭生词释义弹窗 */
+	  /** 关闭内联生词弹窗 */
 	  onDismissVocabPopup(): void {
 	    this.setData({ vocabPopup: null });
 	  },
 
-	  onShareAppMessage() {
-	    return {
-	      title: `阅读「${this.data.article?.title || ''}」`,
-	      path: '/pages/index/index',
-	    };
+	  // ==========================================
+	  // 段落释义 — 点击展开/收起
+	  // ==========================================
+
+	  onTapSentence(e: WechatMiniprogram.BaseEvent): void {
+	    const { index } = e.currentTarget.dataset as { index: number };
+	    const states = [...this.data.expandedStates];
+	    states[index] = !states[index];
+	    this.setData({ expandedStates: states });
+	  },
+
+	  // ==========================================
+	  // 逐句释义 — 点击展开/收起
+	  // ==========================================
+
+	  onTapClause(e: WechatMiniprogram.BaseEvent): void {
+	    const { clauseIndex } = e.currentTarget.dataset as { clauseIndex: number };
+	    const states = [...this.data.clauseExpandedStates];
+	    states[clauseIndex] = !states[clauseIndex];
+	    this.setData({ clauseExpandedStates: states });
 	  },
 
 	  // ==========================================
@@ -333,39 +374,29 @@
 	  // ==========================================
 
 	  onTapBackground(): void {
-	    wx.showModal({
-	      title: '创作背景',
-	      content: this.data.article?.background || '',
-	      showCancel: false,
-	      confirmText: '知道了',
-	    });
+	    this.setData({ showBackground: true });
+	  },
+
+	  onCloseBackground(): void {
+	    this.setData({ showBackground: false });
 	  },
 
 	  // ==========================================
-	  // 音频播放
+	  // 语音播报
 	  // ==========================================
 
 	  onTapAudio(): void {
-	    if (!this.data.article) return;
-
-	    // 正在播放或加载中 → 停止
-	    if (this._tts?.status === 'loading' || this._tts?.status === 'playing') {
+	    if (!this._tts || !this.data.article) return;
+	    if (this.data.audioPlaying) {
 	      this._tts.stop();
 	      return;
 	    }
-
 	    this._playArticleAudio(this.data.article);
 	  },
 
-	  /** 拼接全文文本 */
-	  _buildFullText(article: IArticle): string {
-	    return article.sentences.map(s => s.text).join('');
-	  },
-
 	  _playArticleAudio(article: IArticle): void {
-	    if (!this._tts) return;
-	    const text = this._buildFullText(article);
-	    this._tts.play(text, article.fullTextAudioUrl, {
+	    const text = article.sentences.map(s => s.text).join('');
+	    this._tts!.play(text, article.fullTextAudioUrl, {
 	      onStatusChange: (status) => {
 	        this.setData({
 	          audioLoading: status === 'loading',
@@ -380,7 +411,7 @@
 	  // ==========================================
 
 	  onTapFeedback(): void {
-	    this.setData({ showFeedbackPanel: true, feedbackCategory: '', feedbackDescription: '' });
+	    this.setData({ showFeedbackPanel: true });
 	  },
 
 	  onCloseFeedback(): void {
@@ -388,49 +419,30 @@
 	  },
 
 	  onSelectFeedbackCategory(e: WechatMiniprogram.BaseEvent): void {
-	    const cat = e.currentTarget.dataset.category as string;
-	    this.setData({ feedbackCategory: cat === this.data.feedbackCategory ? '' : cat });
+	    const { category } = e.currentTarget.dataset as { category: string };
+	    this.setData({ feedbackCategory: category });
 	  },
 
-	  onFeedbackDescriptionInput(e: WechatMiniprogram.Input): void {
-	    this.setData({ feedbackDescription: e.detail.value });
+	  onFeedbackDescriptionInput(e: WechatMiniprogram.BaseEvent): void {
+	    this.setData({ feedbackDescription: (e.detail as { value: string }).value });
 	  },
 
 	  async onSubmitFeedback(): Promise<void> {
-	    if (!this.data.feedbackCategory) {
-	      wx.showToast({ title: '请选择错误类型', icon: 'none' });
-	      return;
-	    }
 	    if (this.data.feedbackSubmitting) return;
 	    this.setData({ feedbackSubmitting: true });
-
 	    try {
 	      await submitFeedback({
+	        articleId: this._articleId,
+	        readingMode: this.data.readingMode,
 	        category: this.data.feedbackCategory as FeedbackCategory,
-	        source: 'article_reader',
 	        description: this.data.feedbackDescription,
-	        context: {
-	          articleId: this.data.article?.id,
-	          readingMode: this.data.readingMode,
-	        },
 	      });
-	      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
+	      wx.showToast({ title: '感谢反馈', icon: 'success' });
+	      this.setData({ showFeedbackPanel: false, feedbackDescription: '' });
 	    } catch {
-	      wx.showToast({ title: '提交失败，请重试', icon: 'none' });
+	      wx.showToast({ title: '提交失败', icon: 'none' });
+	    } finally {
 	      this.setData({ feedbackSubmitting: false });
 	    }
-	  },
-
-	  // ==========================================
-	  // 生命周期
-	  // ==========================================
-
-	  onHide(): void {
-	    this._tts?.stop();
-	  },
-
-	  onUnload(): void {
-	    this._tts?.destroy();
-	    this._tts = null;
 	  },
 	});

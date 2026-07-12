@@ -8,7 +8,7 @@ import type {
 } from '../../typings/index.d';
 import { fetchClassicMeta, fetchClassicContent, submitFeedback } from '../../api/index';
 import { getTTSPlayer } from '../../utils/tts';
-import { safeJSONParse } from '../../utils/util';
+import { safeJSONParse, splitByRareChar } from '../../utils/util';
 import { STORAGE_KEYS } from '../../constants/config';
 
 /** 典故注释：段切分结构 */
@@ -17,6 +17,8 @@ interface IGlossarySegment {
   isGlossary: boolean;
   word?: string;
   explanation?: string;
+  /** 生僻字拼音（仅当 segment 为单一生僻字时携带） */
+  pinyin?: string;
 }
 
 interface IClassicReaderData {
@@ -345,12 +347,16 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       let matched = false;
       for (const g of sorted) {
         if (text.startsWith(g.word, i)) {
-          segments.push({
-            text: g.word,
-            isGlossary: true,
-            word: g.word,
-            explanation: g.explanation,
-          });
+          // 多字 glossary 词拆成单字段，每个带独立拼音
+          for (const ch of g.word) {
+            segments.push({
+              text: ch,
+              isGlossary: true,
+              word: g.word,
+              explanation: g.explanation,
+              pinyin: para.rareCharPinyin?.[ch],
+            });
+          }
           i += g.word.length;
           matched = true;
           break;
@@ -367,7 +373,16 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
           if (hit) break;
           i++;
         }
-        segments.push({ text: text.slice(start, i), isGlossary: false });
+        // 生僻字二次切分：非 glossary 文本段按 rareCharPinyin 拆开
+        const plainText = text.slice(start, i);
+        const rareSegs = splitByRareChar(plainText, para.rareCharPinyin);
+        for (const rs of rareSegs) {
+          segments.push({
+            text: rs.text,
+            isGlossary: false,
+            pinyin: rs.pinyin,
+          });
+        }
       }
     }
     return segments;

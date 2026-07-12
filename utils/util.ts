@@ -136,3 +136,50 @@ export function shuffle<T>(arr: T[]): T[] {
   }
   return result;
 }
+
+/**
+ * 生僻字拼音段
+ */
+export interface IRareCharSegment {
+  text: string
+  isGlossary: false
+  pinyin?: string
+}
+
+/**
+ * 将普通文本段按生僻字二次切分。
+ * 生僻字拆成独立 segment 并携带 pinyin，非生僻字继续合并在普通段中。
+ *
+ * @param segText 普通文本段的文本
+ * @param rareCharPinyin 该句/段的生僻字拼音映射 { "字": "拼音" }
+ * @returns 切分后的段数组
+ */
+export function splitByRareChar(
+  segText: string,
+  rareCharPinyin?: Record<string, string>
+): IRareCharSegment[] {
+  if (!rareCharPinyin || Object.keys(rareCharPinyin).length === 0) {
+    return [{ text: segText, isGlossary: false }];
+  }
+
+  const segments: IRareCharSegment[] = [];
+  let plain = '';
+  for (const ch of segText) {
+    const py = rareCharPinyin[ch];
+    if (py) {
+      // 生僻字：先刷出累积的普通文本
+      if (plain) {
+        segments.push({ text: plain, isGlossary: false });
+        plain = '';
+      }
+      // 生僻字单独成段，带拼音
+      segments.push({ text: ch, isGlossary: false, pinyin: py });
+    } else {
+      plain += ch;
+    }
+  }
+  if (plain) {
+    segments.push({ text: plain, isGlossary: false });
+  }
+  return segments;
+}

@@ -213,6 +213,12 @@ $light-ink: #8a7a60;
     letter-spacing: 2rpx;
   }
 
+  // ---------- 生僻字拼音 ----------
+  &__pinyin {
+    font-size: 24rpx;
+    color: var(--color-text-secondary);
+  }
+
   // ---------- 典故高亮词 ----------
   &__gloss-word {
     color: var(--color-primary);

@@ -87,9 +87,9 @@
                 data-definition="{{seg.definition}}"
                 bindtap="onTapVocabWord"
                 hover-class="page-article-reader__vocab-word--hover"
-              >{{seg.text}}</text>
+              >{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
               <!-- 普通文本 -->
-              <text wx:else>{{seg.text}}</text>
+              <text wx:else>{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
             </block>
           </view>
         </block>
@@ -192,8 +192,8 @@
                 data-definition="{{seg.definition}}"
                 bindtap="onTapGlossary"
                 hover-class="page-article-reader__gloss-word--hover"
-              >{{seg.text}}</text>
-              <text wx:else>{{seg.text}}</text>
+              >{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
+              <text wx:else>{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
             </block>
           </view>
 

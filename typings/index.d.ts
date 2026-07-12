@@ -168,6 +168,8 @@ export interface IArticleSentence {
    * @deprecated 典故注释模式已改用 glossary 字段
    */
   charAnnotations?: ICharAnnotation[]
+  /** 生僻字拼音映射 { "字": "拼音" } */
+  rareCharPinyin?: Record<string, string>
 }
 
 export interface IArticle {
@@ -504,6 +506,8 @@ export interface IChapterParagraph {
   text: string
   translation: string
   glossary?: IClassicGlossaryItem[]
+  /** 生僻字拼音映射 { "字": "拼音" } */
+  rareCharPinyin?: Record<string, string>
 }
 
 /** 章节 */
