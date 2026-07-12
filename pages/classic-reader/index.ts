@@ -50,6 +50,8 @@ interface IClassicReaderData {
   authorEntries: ITocNode[];
   /** 典故弹窗 */
   glossaryPopup: { paragraphIndex: number; word: string; explanation: string } | null;
+  /** 创作背景 */
+  showBackground: boolean;
   /** 语音播报 */
   audioLoading: boolean;
   audioPlaying: boolean;
@@ -85,6 +87,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     selectedAuthor: '',
     authorEntries: [],
     glossaryPopup: null,
+    showBackground: false,
     audioLoading: false,
     audioPlaying: false,
     showFeedbackPanel: false,
@@ -386,6 +389,17 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       }
     }
     return segments;
+  },
+
+  // ==========================================
+  // 创作背景
+
+  onTapBackground(): void {
+    this.setData({ showBackground: true });
+  },
+
+  onCloseBackground(): void {
+    this.setData({ showBackground: false });
   },
 
   // ==========================================

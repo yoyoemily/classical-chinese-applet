@@ -114,22 +114,6 @@
   }
   &__body-spacer { height: $spacing-md; }
 
-  // ==========================================
-  // 模式一：通篇阅读 — 原文，按段落自然分布
-  // ==========================================
-  &__plain-list {
-    padding: $spacing-base 0;
-  }
-  &__plain-para {
-    margin-bottom: $spacing-lg;
-    font-size: 38rpx;
-    line-height: 2.2;
-    color: var(--color-text-primary);
-    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-    text-align: justify;
-    text-indent: 2em;
-  }
-
   // ---------- 生僻字拼音 ----------
   &__pinyin {
     font-size: 24rpx;
@@ -137,49 +121,37 @@
   }
 
   // ==========================================
-  // 模式二：段落释义 — 按段落，点击展开/收起译文
+  // 模式一：通篇阅读 — 原文段落可展开译文，生词高亮可点击
   // ==========================================
-  &__sentence {
+  &__plain-para {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: $spacing-sm;
     padding: $spacing-md $spacing-base;
-    margin-bottom: $spacing-xs;
     border-radius: $radius-base;
     transition: background 0.2s;
     &--expanded { background: rgba(74, 106, 94, 0.04); }
-    &--hover { background: rgba(0, 0, 0, 0.04); }
+    &--hover { background: rgba(0, 0, 0, 0.03); }
   }
-  &__sentence-head {
-    display: flex;
-    align-items: flex-start;
-    gap: $spacing-sm;
-  }
-  &__sentence-num {
-    flex-shrink: 0;
-    width: 36rpx;
-    height: 36rpx;
-    @include flex-center;
-    margin-top: 14rpx;
-    background: var(--color-primary-light);
-    color: #fff;
-    font-size: 20rpx;
-    border-radius: 50%;
-    opacity: 0.7;
-  }
-  &__sentence-text {
+  &__plain-text {
     flex: 1;
     font-size: 38rpx;
-    line-height: 2;
+    line-height: 2.2;
     color: var(--color-text-primary);
     font-family: 'STKaiti', 'KaiTi', '楷体', serif;
     text-align: justify;
+    text-indent: 2em;
+    min-width: 0;
   }
-  &__sentence-arrow {
+  &__plain-arrow {
     flex-shrink: 0;
-    margin-top: 14rpx;
+    margin-top: 18rpx;
+    margin-left: $spacing-sm;
     font-size: 24rpx;
     color: var(--color-text-hint);
     transition: transform 0.2s;
   }
-  &__expand-card {
+  &__plain-expand {
     @include card;
     margin: 0 $spacing-base $spacing-md;
     padding: $spacing-lg;
@@ -188,149 +160,10 @@
     border-radius: 0 $radius-md $radius-md 0;
     animation: fadeIn 0.25s ease;
   }
-  &__translation {
+  &__plain-trans {
     font-size: $font-size-base;
     color: var(--color-text-secondary);
     line-height: 1.9;
-    padding-bottom: $spacing-md;
-    margin-bottom: $spacing-md;
-    border-bottom: 1rpx solid var(--color-border-light);
-  }
-  &__keywords-title {
-    font-size: $font-size-sm;
-    color: var(--color-text-secondary);
-    margin-bottom: $spacing-xs;
-    display: block;
-  }
-  &__keyword {
-    padding: $spacing-sm $spacing-base;
-    border-radius: $radius-sm;
-    font-size: $font-size-base;
-    color: var(--color-text-primary);
-    &--hover { background: rgba(74, 106, 94, 0.06); }
-  }
-  &__keyword-link {
-    color: var(--color-primary);
-    font-size: $font-size-sm;
-  }
-
-  // ==========================================
-  // 模式三：逐句释义 — 按子句拆分，点击展开/收起译文
-  // ==========================================
-  &__clause {
-    padding: $spacing-sm $spacing-base;
-    margin-bottom: 0;
-    border-radius: $radius-base;
-    transition: background 0.2s;
-    &--expanded { background: rgba(74, 106, 94, 0.04); }
-    &--hover { background: rgba(0, 0, 0, 0.03); }
-  }
-  &__clause-head {
-    display: flex;
-    align-items: flex-start;
-    gap: $spacing-xs;
-  }
-  &__clause-text {
-    flex: 1;
-    font-size: 36rpx;
-    line-height: 2;
-    color: var(--color-text-primary);
-    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-    text-align: justify;
-  }
-  &__clause-arrow {
-    flex-shrink: 0;
-    margin-top: 12rpx;
-    font-size: 22rpx;
-    color: var(--color-text-hint);
-  }
-  &__clause-trans {
-    margin: 0 $spacing-base $spacing-sm;
-    padding: $spacing-sm $spacing-md;
-    font-size: $font-size-sm;
-    color: var(--color-text-secondary);
-    line-height: 1.8;
-    border-left: 4rpx solid var(--color-primary-light);
-    background: rgba(74, 106, 94, 0.03);
-    border-radius: 0 $radius-sm $radius-sm 0;
-    animation: fadeIn 0.2s ease;
-  }
-
-  // ---------- 底部安全区 ----------
-  &__safe-bottom {
-    height: calc(#{$spacing-lg} + var(--safe-area-bottom));
-  }
-
-  // ==========================================
-  // 模式四：典故注释
-  // ==========================================
-
-  // 每一句的容器
-  &__gloss-block {
-    margin-bottom: $spacing-xl;
-    position: relative;
-  }
-
-  // 句内行
-  &__gloss-line {
-    line-height: 2.4;
-    font-size: 38rpx;
-    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-    letter-spacing: 2rpx;
-  }
-
-  // 典故词条高亮
-  &__gloss-word {
-    color: var(--color-primary, #4a6a5e);
-    border-bottom: 2rpx solid var(--color-accent, #c9a96e);
-    padding-bottom: 2rpx;
-    transition: background 0.15s ease;
-    &--hover {
-      background: rgba(201, 169, 110, 0.15);
-    }
-  }
-
-  // 释义气泡
-  &__gloss-bubble {
-    margin-top: $spacing-sm;
-    padding: $spacing-sm $spacing-md;
-    background: #fef9f0;
-    border-left: 4rpx solid var(--color-accent, #c9a96e);
-    border-radius: 0 $radius-sm $radius-sm 0;
-    animation: fadeIn 0.2s ease;
-  }
-  &__gloss-bubble-word {
-    display: block;
-    font-size: 36rpx;
-    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-    font-weight: 700;
-    color: var(--color-primary, #4a6a5e);
-    margin-bottom: 4rpx;
-  }
-  &__gloss-bubble-def {
-    font-size: $font-size-base;
-    color: #5a2a1a;
-    line-height: 1.8;
-  }
-
-  // 全句译文
-  &__gloss-trans {
-    margin-top: $spacing-sm;
-    padding: $spacing-xs $spacing-sm;
-    font-size: 24rpx;
-    color: var(--color-text-hint);
-    line-height: 1.6;
-    letter-spacing: 1rpx;
-  }
-
-  // 关闭气泡的遮罩
-  &__gloss-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 5;
   }
 
   // ==========================================
@@ -395,6 +228,175 @@
       font-size: $font-size-sm;
       color: var(--color-text-hint);
     }
+  }
+
+  // ==========================================
+  // 模式二：逐句释义 — 按子句拆分，点击展开/收起译文
+  // ==========================================
+  &__clause {
+    padding: $spacing-sm $spacing-base;
+    margin-bottom: 0;
+    border-radius: $radius-base;
+    transition: background 0.2s;
+    &--expanded { background: rgba(74, 106, 94, 0.04); }
+    &--hover { background: rgba(0, 0, 0, 0.03); }
+  }
+  &__clause-head {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-xs;
+  }
+  &__clause-text {
+    flex: 1;
+    font-size: 36rpx;
+    line-height: 2;
+    color: var(--color-text-primary);
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    text-align: justify;
+  }
+  &__clause-arrow {
+    flex-shrink: 0;
+    margin-top: 12rpx;
+    font-size: 22rpx;
+    color: var(--color-text-hint);
+  }
+  &__clause-trans {
+    margin: 0 $spacing-base $spacing-md;
+    padding: $spacing-lg;
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    background: var(--color-bg-card);
+    border-left: 6rpx solid var(--color-primary);
+    border-radius: 0 $radius-md $radius-md 0;
+    animation: fadeIn 0.25s ease;
+  }
+
+  // ---------- 底部安全区 ----------
+  &__safe-bottom {
+    height: calc(#{$spacing-lg} + var(--safe-area-bottom));
+  }
+
+  // ==========================================
+  // 模式三：典故注释
+  // ==========================================
+
+  // 每一句的容器
+  &__gloss-block {
+    margin-bottom: $spacing-xl;
+    position: relative;
+  }
+
+  // 句内行
+  &__gloss-line {
+    line-height: 2.4;
+    font-size: 38rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    letter-spacing: 2rpx;
+  }
+
+  // 典故词条高亮
+  &__gloss-word {
+    color: var(--color-primary, #4a6a5e);
+    border-bottom: 2rpx solid var(--color-accent, #c9a96e);
+    padding-bottom: 2rpx;
+    transition: background 0.15s ease;
+    &--hover {
+      background: rgba(201, 169, 110, 0.15);
+    }
+  }
+
+  // 释义气泡
+  &__gloss-bubble {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: #fef9f0;
+    border-left: 4rpx solid var(--color-accent, #c9a96e);
+    border-radius: 0 $radius-sm $radius-sm 0;
+    animation: fadeIn 0.2s ease;
+  }
+  &__gloss-bubble-word {
+    display: block;
+    font-size: 36rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    font-weight: 700;
+    color: var(--color-primary, #4a6a5e);
+    margin-bottom: 4rpx;
+  }
+  &__gloss-bubble-def {
+    font-size: $font-size-base;
+    color: #5a2a1a;
+    line-height: 1.8;
+  }
+
+  // 全句译文
+  &__gloss-trans {
+    margin-top: $spacing-sm;
+    padding: $spacing-lg;
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    background: var(--color-bg-card);
+    border-left: 6rpx solid var(--color-primary);
+    border-radius: 0 $radius-md $radius-md 0;
+  }
+
+  // 关闭气泡的遮罩
+  &__gloss-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+  }
+
+  // ==========================================
+  // 创作背景弹窗
+  // ==========================================
+  &__bg-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4); z-index: 200;
+    @include flex-center;
+    animation: fadeInSimple 0.2s ease;
+  }
+  &__bg-modal {
+    width: 620rpx;
+    max-height: 70vh;
+    background: #fff;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.12);
+    animation: vocabSlideUp 0.25s ease;
+  }
+  &__bg-header {
+    @include flex-between;
+    padding: $spacing-lg;
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+  &__bg-title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  &__bg-close {
+    @include flex-center;
+    width: 56rpx; height: 56rpx;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+    &:active { background: var(--color-bg-hover); }
+  }
+  &__bg-body {
+    padding: $spacing-lg;
+    max-height: 50vh;
+  }
+  &__bg-text {
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    text-align: justify;
   }
 
   // ==========================================

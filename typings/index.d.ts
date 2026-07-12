@@ -483,6 +483,8 @@ export interface IContentBlock {
   author?: string
   /** 篇章朝代（选集型才填） */
   era?: string
+  /** 篇章创作背景 */
+  background?: string
   /** 完整原文（选集型、卷帙型用） */
   text?: string
   /** 完整译文 */

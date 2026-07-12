@@ -22,7 +22,10 @@
           <text wx:else>🔊</text>
         </view>
         <!-- 中：书名 / 篇名 -->
-        <view class="page-classic-reader__title">
+        <view
+          class="page-classic-reader__title {{currentContent.background ? 'page-classic-reader__title--link' : ''}}"
+          bindtap="{{currentContent.background ? 'onTapBackground' : ''}}"
+        >
           <!-- 选集型：有篇章作者时显示篇名 -->
           <text wx:if="{{chapterAuthor}}">《{{currentContent.title}}》</text>
           <!-- 章节型：无篇章作者时显示书名（保持现状） -->
@@ -321,6 +324,21 @@
       class="page-classic-reader__gloss-mask"
       bindtap="onDismissGlossaryPopup"
     ></view>
+
+    <!-- 创作背景弹窗 -->
+    <view class="page-classic-reader__bg-overlay" wx:if="{{showBackground}}" bindtap="onCloseBackground">
+      <view class="page-classic-reader__bg-modal" catchtap="">
+        <view class="page-classic-reader__bg-header">
+          <text class="page-classic-reader__bg-title">背景介绍</text>
+          <view class="page-classic-reader__bg-close" bindtap="onCloseBackground">
+            <text>✕</text>
+          </view>
+        </view>
+        <scroll-view class="page-classic-reader__bg-body" scroll-y enhanced show-scrollbar="{{false}}">
+          <text class="page-classic-reader__bg-text">{{currentContent.background}}</text>
+        </scroll-view>
+      </view>
+    </view>
 
     <!-- 错误反馈浮层 -->
     <view class="page-classic-reader__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>

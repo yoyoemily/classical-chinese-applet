@@ -85,6 +85,13 @@ $light-ink: #8a7a60;
     text-align: center;
     line-height: 1.4;
     min-width: 0;
+    &--link {
+      text-decoration: underline;
+      text-underline-offset: 8rpx;
+      text-decoration-color: rgba(255, 255, 255, 0.35);
+      text-decoration-thickness: 1rpx;
+      &:active { opacity: 0.7; }
+    }
   }
   &__toc-btn {
     @include flex-center;
@@ -422,6 +429,54 @@ $light-ink: #8a7a60;
     font-family: 'STKaiti', 'KaiTi', '楷体', serif;
     background: rgba(0,0,0,0.02);
     border-bottom: 1rpx solid var(--color-border-light);
+  }
+
+  // ==========================================
+  // 创作背景弹窗
+  // ==========================================
+  &__bg-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4); z-index: 200;
+    @include flex-center;
+    animation: fadeInSimple 0.2s ease;
+  }
+  &__bg-modal {
+    width: 620rpx;
+    max-height: 70vh;
+    background: #fff;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.12);
+    animation: vocabSlideUp 0.25s ease;
+  }
+  &__bg-header {
+    @include flex-between;
+    padding: $spacing-lg;
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+  &__bg-title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  &__bg-close {
+    @include flex-center;
+    width: 56rpx; height: 56rpx;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+    &:active { background: var(--color-bg-hover); }
+  }
+  &__bg-body {
+    padding: $spacing-lg;
+    max-height: 50vh;
+  }
+  &__bg-text {
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    line-height: 1.9;
+    text-align: justify;
   }
 
   // ==========================================

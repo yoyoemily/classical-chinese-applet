@@ -5,7 +5,7 @@
 	import { STORAGE_KEYS } from '../../constants/config';
 
 	/** 阅读模式 */
-	type ReadingMode = 'plain' | 'paragraph' | 'sentence' | 'glossary';
+	type ReadingMode = 'plain' | 'sentence' | 'glossary';
 
 	/** 逐句释义模式用的子句 */
 	interface IClause {
@@ -97,8 +97,7 @@
 	  onLoad(options: Record<string, string | undefined>): void {
 	    const id = options.id || '';
 	    this._articleId = id;
-	    // 默认进入典故注释模式
-	    const mode = (options.mode as ReadingMode) || 'glossary';
+	    const mode = (options.mode as ReadingMode) || 'plain';
 	    // 自动播报设置
 	    const raw = wx.getStorageSync(STORAGE_KEYS.AUTO_PLAY_AUDIO);
 	    this._autoPlayAudio = typeof raw === 'boolean' ? raw : false;
@@ -145,6 +144,17 @@
 	      }
 	    } catch {
 	      this.setData({ loading: false });
+	    }
+	  },
+
+	  // ==========================================
+	  // 阅读模式切换
+	  // ==========================================
+
+	  onSwitchMode(e: WechatMiniprogram.BaseEvent): void {
+	    const mode = (e.currentTarget.dataset as { mode: ReadingMode }).mode;
+	    if (mode && mode !== this.data.readingMode) {
+	      this.setData({ readingMode: mode });
 	    }
 	  },
 
@@ -348,7 +358,7 @@
 	  },
 
 	  // ==========================================
-	  // 段落释义 — 点击展开/收起
+	  // 通篇阅读 — 点击段落展开/收起译文
 	  // ==========================================
 
 	  onTapSentence(e: WechatMiniprogram.BaseEvent): void {

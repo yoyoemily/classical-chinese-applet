@@ -35,7 +35,7 @@
       </view>
     </view>
 
-    <!-- 四模式切换栏 -->
+    <!-- 三模式切换栏 -->
     <view class="page-article-reader__mode-bar">
       <view
         class="page-article-reader__mode-tab {{readingMode === 'plain' ? 'page-article-reader__mode-tab--active' : ''}}"
@@ -43,13 +43,6 @@
         bindtap="onSwitchMode"
       >
         <text>通篇阅读</text>
-      </view>
-      <view
-        class="page-article-reader__mode-tab {{readingMode === 'paragraph' ? 'page-article-reader__mode-tab--active' : ''}}"
-        data-mode="paragraph"
-        bindtap="onSwitchMode"
-      >
-        <text>段落释义</text>
       </view>
       <view
         class="page-article-reader__mode-tab {{readingMode === 'sentence' ? 'page-article-reader__mode-tab--active' : ''}}"
@@ -68,83 +61,48 @@
     </view>
 
     <!-- ============================================= -->
-    <!-- 模式一：通篇阅读（原文，段落化排版，生词高亮可点击）     -->
+    <!-- 模式一：通篇阅读（原文，段落可展开译文，生词高亮可点击）   -->
     <!-- ============================================= -->
     <scroll-view
       wx:if="{{readingMode === 'plain'}}"
       class="page-article-reader__body"
       scroll-y enhanced show-scrollbar="{{false}}"
     >
-      <view class="page-article-reader__plain-list">
-        <block wx:for="{{vocabSegments}}" wx:key="*this" wx:for-item="segArr" wx:for-index="si">
-          <view class="page-article-reader__plain-para">
-            <block wx:for="{{segArr}}" wx:key="*this" wx:for-item="seg">
+      <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="s" wx:for-index="si">
+        <!-- 原文段落：可点击展开/收起 -->
+        <view
+          class="page-article-reader__plain-para {{expandedStates[si] ? 'page-article-reader__plain-para--expanded' : ''}}"
+          data-index="{{si}}"
+          bindtap="onTapSentence"
+          hover-class="page-article-reader__plain-para--hover"
+        >
+          <view class="page-article-reader__plain-text">
+            <block wx:for="{{vocabSegments[si]}}" wx:key="*this" wx:for-item="seg">
               <!-- 生词：高亮可点击 -->
               <text
                 wx:if="{{seg.isKeyword}}"
                 class="page-article-reader__vocab-word"
                 data-word="{{seg.word}}"
                 data-definition="{{seg.definition}}"
-                bindtap="onTapVocabWord"
+                catchtap="onTapVocabWord"
                 hover-class="page-article-reader__vocab-word--hover"
               >{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
               <!-- 普通文本 -->
               <text wx:else>{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
             </block>
           </view>
-        </block>
-      </view>
-      <view class="page-article-reader__body-spacer"></view>
-    </scroll-view>
-
-    <!-- ============================================= -->
-    <!-- 模式二：段落释义（按段落，点击展开/收起译文）           -->
-    <!-- ============================================= -->
-    <scroll-view
-      wx:elif="{{readingMode === 'paragraph'}}"
-      class="page-article-reader__body"
-      scroll-y enhanced show-scrollbar="{{false}}"
-    >
-      <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="s" wx:for-index="idx">
-        <view
-          class="page-article-reader__sentence {{expandedStates[idx] ? 'page-article-reader__sentence--expanded' : ''}}"
-          data-index="{{idx}}"
-          bindtap="onTapSentence"
-          hover-class="page-article-reader__sentence--hover"
-        >
-          <view class="page-article-reader__sentence-head">
-            <text class="page-article-reader__sentence-num">{{idx + 1}}</text>
-            <text class="page-article-reader__sentence-text">{{s.text}}</text>
-            <text class="page-article-reader__sentence-arrow">{{expandedStates[idx] ? '▾' : '▸'}}</text>
-          </view>
+          <text class="page-article-reader__plain-arrow">{{expandedStates[si] ? '▾' : '▸'}}</text>
         </view>
-        <view class="page-article-reader__expand-card" wx:if="{{expandedStates[idx]}}">
-          <view class="page-article-reader__translation">
-            <text>{{s.translation}}</text>
-          </view>
-          <view class="page-article-reader__keywords" wx:if="{{s.keyWords.length > 0}}">
-            <text class="page-article-reader__keywords-title">📖 重点字词：</text>
-            <view
-              wx:for="{{s.keyWords}}"
-              wx:key="word"
-              wx:for-item="kw"
-              class="page-article-reader__keyword"
-              data-word="{{kw.word}}"
-              data-word-book-id="{{kw.wordBookId}}"
-              catchtap="onTapKeyword"
-              hover-class="page-article-reader__keyword--hover"
-            >
-              <text>· {{kw.word}}：{{kw.definition}}</text>
-              <text wx:if="{{kw.wordBookId}}" class="page-article-reader__keyword-link"> [查看详情 →]</text>
-            </view>
-          </view>
+        <!-- 展开：仅展示译文 -->
+        <view class="page-article-reader__plain-expand" wx:if="{{expandedStates[si]}}">
+          <view class="page-article-reader__plain-trans"><text>{{s.translation}}</text></view>
         </view>
       </block>
       <view class="page-article-reader__body-spacer"></view>
     </scroll-view>
 
     <!-- ============================================= -->
-    <!-- 模式三：逐句释义（按子句拆分，点击展开/收起译文）         -->
+    <!-- 模式二：逐句释义（按子句拆分，点击展开/收起译文）         -->
     <!-- ============================================= -->
     <scroll-view
       wx:elif="{{readingMode === 'sentence'}}"
@@ -171,7 +129,7 @@
     </scroll-view>
 
     <!-- ============================================= -->
-    <!-- 模式四：典故注释（文中文化背景词高亮可点击）             -->
+    <!-- 模式三：典故注释（文中文化背景词高亮可点击）             -->
     <!-- ============================================= -->
     <scroll-view
       wx:else
@@ -225,6 +183,21 @@
 
     <!-- 底部安全区占位 -->
     <view class="page-article-reader__safe-bottom"></view>
+
+    <!-- 创作背景弹窗 -->
+    <view class="page-article-reader__bg-overlay" wx:if="{{showBackground}}" bindtap="onCloseBackground">
+      <view class="page-article-reader__bg-modal" catchtap="">
+        <view class="page-article-reader__bg-header">
+          <text class="page-article-reader__bg-title">背景介绍</text>
+          <view class="page-article-reader__bg-close" bindtap="onCloseBackground">
+            <text>✕</text>
+          </view>
+        </view>
+        <scroll-view class="page-article-reader__bg-body" scroll-y enhanced show-scrollbar="{{false}}">
+          <text class="page-article-reader__bg-text">{{article.background}}</text>
+        </scroll-view>
+      </view>
+    </view>
 
     <!-- 内联生词释义弹窗 -->
     <view class="page-article-reader__vocab-overlay" wx:if="{{vocabPopup}}" bindtap="onDismissVocabPopup">
