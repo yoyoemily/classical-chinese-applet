@@ -144,6 +144,55 @@ export const sunTzuArtOfWar: IClassicBook = {
   ],
 };
 
+// ============================================
+// 大学 Mock（章节型 → strip 横向标签，full 全量加载）
+// ============================================
+
+const daXueMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '大学', paragraphs: [
+      { text: '大学之道，在明明德，在亲民，在止于至善。知止而后有定，定而后能静，静而后能安，安而后能虑，虑而后能得。物有本末，事有终始，知所先后，则近道矣。', translation: '大学的宗旨，在于彰明自身光明的德性，在于使民众革旧更新，在于达到至善的境界。知道应达到的境界才能志向坚定，志向坚定才能心境平静，心境平静才能安于所处，安于所处才能思虑周密，思虑周密才能有所收获。万物都有根本和枝末，万事都有终结和开始，知道什么该先、什么该后，就接近于道了。', glossary: [{ word: '大学', explanation: '相对于小学而言的"大人之学"。古代八岁入小学，学习洒扫应对进退等基础；十五岁入大学，学习穷理正心、修己治人之道。' }, { word: '三纲领', explanation: '明明德、亲民、止于至善三者，被朱熹称为《大学》的"三纲领"，是全篇的总纲。' }] },
+      { text: '古之欲明明德于天下者，先治其国；欲治其国者，先齐其家；欲齐其家者，先修其身；欲修其身者，先正其心；欲正其心者，先诚其意；欲诚其意者，先致其知；致知在格物。', translation: '古代想要把光明的德性彰明于天下的人，先要治理好自己的国家；想要治理好自己的国家，先要整治好自己的家庭；想要整治好自己的家庭，先要修养好自身的品德；想要修养好自身的品德，先要端正自己的内心；想要端正自己的内心，先要使自己的意念真诚；想要使自己的意念真诚，先要获得真知；获得真知在于推究事物的道理。', glossary: [{ word: '八条目', explanation: '格物、致知、诚意、正心、修身、齐家、治国、平天下，被朱熹称为"八条目"——由内而外、由己及人的修养次第。' }, { word: '格物', explanation: '格为推究、穷尽之义，物指事物之理。格物即穷究事物的道理，是八条目的起点。' }] },
+      { text: '自天子以至于庶人，壹是皆以修身为本。其本乱而末治者，否矣。其所厚者薄，而其所薄者厚，未之有也。此谓知本，此谓知之至也。', translation: '从天子到平民百姓，一律都以修养自身的品德为根本。根本混乱而枝末却能治理好，这是不可能的。该重视的却轻视，该轻视的却重视，这是从来没有过的事。这就叫知道了根本，这就叫达到了认知的极致。', glossary: [{ word: '壹是皆以修身为本', explanation: '"壹是"即一概、一律。修身是人人之本，无一例外。这句话是《大学》全篇的纲领性总结。' }] },
+    ],
+  },
+];
+
+// ============================================
+// 中庸 Mock（章节型 → list 竖向列表，full 全量加载）
+// ============================================
+
+const zhongYongMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '中庸', paragraphs: [
+      { text: '天命之谓性，率性之谓道，修道之谓教。道也者，不可须臾离也，可离非道也。是故君子戒慎乎其所不睹，恐惧乎其所不闻。莫见乎隐，莫显乎微，故君子慎其独也。', translation: '上天赋予人的禀赋叫做性，顺着本性行事叫做道，按照道的原则修养叫做教。道是不可以片刻离开的，如果可以离开，那就不是道了。所以君子在没有人看到的地方也是谨慎敬畏的，在没有人听到的地方也是惶恐畏惧的。越是隐蔽的地方越是明显，越是细微的地方越是显著，所以君子在独处的时候一定要十分谨慎。', glossary: [{ word: '天命之谓性', explanation: '上天所赋予人的本质叫做性。这是《中庸》开篇的第一命题，也是儒家心性论的理论基石。' }, { word: '慎独', explanation: '在独处时谨慎戒惧。这个贯穿《大学》《中庸》的核心概念在此首次出现。' }] },
+      { text: '喜怒哀乐之未发，谓之中；发而皆中节，谓之和。中也者，天下之大本也；和也者，天下之达道也。致中和，天地位焉，万物育焉。', translation: '喜怒哀乐这些情感还没有表现出来的时候，叫做中；表现出来而都符合节度，叫做和。中，是天下万事万物的根本；和，是天下通行的准则。达到了中和的境界，天地就各安其位，万物就生长繁育了。', glossary: [{ word: '中', explanation: '情感未发时的内心状态——不偏不倚、无过无不及。这是《中庸》最核心的哲学概念。' }, { word: '和', explanation: '情感发出来而都符合节度——这就是和。中是体，和是用，二者一体两面。' }] },
+      { text: '仲尼曰：君子中庸，小人反中庸。君子之中庸也，君子而时中；小人之中庸也，小人而无忌惮也。', translation: '孔子说：君子实行中庸之道，小人违背中庸之道。君子的中庸，是时时处处都符合中道；小人之所以违背中庸，是因为小人无所忌惮。', glossary: [{ word: '中庸', explanation: '"中"是不偏不倚，"庸"是平常、恒常。中庸并非平庸或折中主义，而是在日用伦常中时时保持恰如其分、不偏不倚的实践智慧。' }, { word: '时中', explanation: '中不是僵硬固定的教条，而是需要在每一个具体情境中动态把握的。' }] },
+    ],
+  },
+];
+
+function getZhongYongMockMeta(): IClassicMeta {
+  return {
+    id: 4, name: '中庸', author: '子思', era: '春秋', category: '经',
+    description: '原为《礼记》篇目，论"中不偏，庸不易"的中庸之道，儒家哲学体系中至为精微的一篇。',
+    structureType: 'chapter', loadMode: 'full', navMode: 'list',
+    toc: zhongYongMockChapters.map(ch => ({
+      id: String(ch.id),
+      title: ch.title,
+      level: 0,
+      isLeaf: true,
+    })),
+  } as IClassicMeta;
+}
+
+function getZhongYongMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = zhongYongMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
 /** 所有已完成的经典著作（旧 full 加载模式兼容） */
 export const mockClassicBooks: IClassicBook[] = [
   sunTzuArtOfWar,
@@ -153,6 +202,31 @@ export const mockClassicBooks: IClassicBook[] = [
 /** 按 ID 查询经典著作（旧接口兼容） */
 export function getClassicBookById(id: number): IClassicBook | undefined {
   return mockClassicBooks.find(b => b.id === id);
+}
+
+// ============================================
+// 大学 Mock Helper Functions
+// ============================================
+
+function getDaXueMockMeta(): IClassicMeta {
+  return {
+    id: 3, name: '大学', author: '曾子', era: '春秋', category: '经',
+    description: '原为《礼记》篇目，讲修身、齐家、治国、平天下之道，三纲领八条目，为学次第分明。',
+    structureType: 'chapter', loadMode: 'full', navMode: 'strip',
+    toc: daXueMockChapters.map(ch => ({
+      id: String(ch.id),
+      title: ch.title,
+      level: 0,
+      isLeaf: true,
+    })),
+  } as IClassicMeta;
+}
+
+function getDaXueMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = daXueMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
 }
 
 // ============================================
@@ -250,6 +324,10 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
       level: 0,
       isLeaf: true,
     }));
+  } else if (id === 3) {
+    toc = getDaXueMockMeta().toc;
+  } else if (id === 4) {
+    toc = getZhongYongMockMeta().toc;
   } else if (id === 33) {
     toc = getShishuoMockMeta().toc;
   } else if (id === 36) {
@@ -265,7 +343,7 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   const result: IClassicMeta = {
     id: config.id,
     name: config.name,
-    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : '佚名',
+    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : '佚名',
     era: config.era,
     category: config.category,
     description: config.description,
@@ -282,6 +360,12 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   if (config.loadMode === 'full' && id === 18) {
     (result as Record<string, unknown>).chapters = laoziMockChapters;
   }
+  if (config.loadMode === 'full' && id === 3) {
+    (result as Record<string, unknown>).chapters = daXueMockChapters;
+  }
+  if (config.loadMode === 'full' && id === 4) {
+    (result as Record<string, unknown>).chapters = zhongYongMockChapters;
+  }
 
   return result;
 }
@@ -297,6 +381,16 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
     const chapter = sunTzuArtOfWar.chapters.find(ch => ch.id === chapterId);
     if (!chapter) throw new Error('章节不存在');
     return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+  }
+  if (classicId === 3) {
+    const content = getDaXueMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 4) {
+    const content = getZhongYongMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
   }
   if (classicId === 33) {
     const content = getShishuoMockContent(nodeId);
