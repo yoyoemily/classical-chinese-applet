@@ -1,6 +1,6 @@
 import type { IArticle, ArticleCategory } from '../../typings/index.d';
 import { fetchArticles } from '../../api/index';
-import { ARTICLE_CATEGORIES, EDUCATION_STAGES, JUNIOR_GRADES, SENIOR_GRADES } from '../../constants/config';
+import { ARTICLE_CATEGORIES, TEXTBOOK_GRADES } from '../../constants/config';
 
 interface IArticleDisplay extends IArticle {
   progress: number;
@@ -9,26 +9,24 @@ interface IArticleDisplay extends IArticle {
 
 interface IArticleListData {
   activeCategory: string;
-  activeStage: string;
   activeTextbook: string;
+  gradeLabel: string;
   articles: IArticleDisplay[];
   categories: readonly { key: string; label: string }[];
-  stages: readonly { key: string; label: string }[];
-  gradeList: readonly { key: string; label: string }[];
-  showGradePicker: boolean;
+  allGrades: readonly { key: string; label: string }[];
+  showGradeDropdown: boolean;
   loading: boolean;
 }
 
 Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
   data: {
     activeCategory: 'all',
-    activeStage: 'all',
     activeTextbook: 'all',
+    gradeLabel: '年级',
     articles: [],
     categories: ARTICLE_CATEGORIES,
-    stages: EDUCATION_STAGES,
-    gradeList: [],
-    showGradePicker: false,
+    allGrades: TEXTBOOK_GRADES,
+    showGradeDropdown: false,
     loading: false,
   },
 
@@ -46,11 +44,11 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
 
   onUnload(): void {},
 
-  /** 根据学段获取年级列表 */
-  getGradeOptions(stage: string): readonly { key: string; label: string }[] {
-    if (stage === 'junior') return JUNIOR_GRADES;
-    if (stage === 'senior') return SENIOR_GRADES;
-    return [];
+  /** 根据 activeTextbook 获取标签文案 */
+  computeGradeLabel(textbook: string): string {
+    if (textbook === 'all') return '年级';
+    const grade = TEXTBOOK_GRADES.find(g => g.key === textbook);
+    return grade ? grade.label : '年级';
   },
 
   async loadArticles(category?: string): Promise<void> {
@@ -89,48 +87,30 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
     this.loadArticles(key);
   },
 
-  onTapStage(e: WechatMiniprogram.TouchEvent): void {
-    const { key } = e.currentTarget.dataset as { key: string };
-    if (key === this.data.activeStage) return;
-
-    if (key === 'all' || key === 'other') {
-      // "全部"/"其他"→年级重置，不弹面板
-      this.setData({
-        activeStage: key,
-        activeTextbook: key === 'other' ? 'other' : 'all',
-        gradeList: [],
-        showGradePicker: false,
-      });
-      this.loadArticles();
-    } else {
-      // "初中"/"高中"→展开年级面板，年级重置为"全部"
-      this.setData({
-        activeStage: key,
-        activeTextbook: 'all',
-        gradeList: this.getGradeOptions(key),
-        showGradePicker: true,
-      });
-      this.loadArticles();
-    }
+  /** 切换年级下拉面板 */
+  onToggleGradeDropdown(): void {
+    this.setData({ showGradeDropdown: !this.data.showGradeDropdown });
   },
 
-  onTapGrade(e: WechatMiniprogram.TouchEvent): void {
+  /** 选择年级 */
+  onSelectGrade(e: WechatMiniprogram.TouchEvent): void {
     const { key } = e.currentTarget.dataset as { key: string };
     if (key === this.data.activeTextbook) {
-      this.setData({ showGradePicker: false });
+      this.setData({ showGradeDropdown: false });
       return;
     }
 
     this.setData({
       activeTextbook: key,
-      showGradePicker: false,
+      gradeLabel: this.computeGradeLabel(key),
+      showGradeDropdown: false,
     });
     this.loadArticles();
   },
 
-  /** 关闭年级面板 */
-  onCloseGradePicker(): void {
-    this.setData({ showGradePicker: false });
+  /** 关闭年级下拉面板 */
+  onCloseGradeDropdown(): void {
+    this.setData({ showGradeDropdown: false });
   },
 
   onTapArticle(e: WechatMiniprogram.TouchEvent): void {

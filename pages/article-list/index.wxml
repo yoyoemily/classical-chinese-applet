@@ -1,8 +1,8 @@
 <!-- 选篇列表页 -->
 <view class="page-article-list">
-  <!-- 筛选栏容器（分类 + 学段 + 年级弹出面板，吸顶） -->
+  <!-- 筛选栏容器（分类 + 年级下拉，吸顶） -->
   <view class="page-article-list__filters">
-    <!-- 分类标签栏（横向滚动） -->
+    <!-- 分类标签栏（横向滚动）+ 年级下拉按钮 -->
     <scroll-view
       class="page-article-list__tabs"
       scroll-x
@@ -19,40 +19,29 @@
         >
           {{item.label}}
         </view>
-      </view>
-    </scroll-view>
 
-    <!-- 学段标签栏（横向滚动） -->
-    <scroll-view
-      class="page-article-list__tabs page-article-list__tabs--stage"
-      scroll-x
-      enhanced
-      show-scrollbar="{{false}}"
-    >
-      <view class="page-article-list__tabs-inner">
+        <!-- 年级下拉触发按钮 -->
         <view
-          wx:for="{{stages}}"
-          wx:key="key"
-          class="page-article-list__tab {{activeStage === item.key ? 'page-article-list__tab--active' : ''}}"
-          data-key="{{item.key}}"
-          bindtap="onTapStage"
+          class="page-article-list__grade-trigger {{activeTextbook !== 'all' ? 'page-article-list__grade-trigger--active' : ''}}"
+          bindtap="onToggleGradeDropdown"
         >
-          {{item.label}}
+          <text>{{gradeLabel}}</text>
+          <text class="page-article-list__grade-arrow {{showGradeDropdown ? 'page-article-list__grade-arrow--up' : ''}}">▾</text>
         </view>
       </view>
     </scroll-view>
   </view>
 
-  <!-- 年级弹出面板 -->
-  <view wx:if="{{showGradePicker}}" class="page-article-list__picker-mask" bindtap="onCloseGradePicker" catchtouchmove="{{true}}"></view>
-  <view wx:if="{{showGradePicker}}" class="page-article-list__picker">
-    <view class="page-article-list__picker-grid">
+  <!-- 年级下拉面板 -->
+  <view wx:if="{{showGradeDropdown}}" class="page-article-list__dropdown-mask" bindtap="onCloseGradeDropdown" catchtouchmove="{{true}}"></view>
+  <view wx:if="{{showGradeDropdown}}" class="page-article-list__dropdown">
+    <view class="page-article-list__dropdown-grid">
       <view
-        wx:for="{{gradeList}}"
+        wx:for="{{allGrades}}"
         wx:key="key"
-        class="page-article-list__picker-item {{activeTextbook === item.key ? 'page-article-list__picker-item--active' : ''}}"
+        class="page-article-list__dropdown-item {{activeTextbook === item.key ? 'page-article-list__dropdown-item--active' : ''}}"
         data-key="{{item.key}}"
-        bindtap="onTapGrade"
+        bindtap="onSelectGrade"
       >
         {{item.label}}
       </view>

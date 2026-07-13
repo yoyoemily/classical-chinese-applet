@@ -22,14 +22,9 @@
 
   &__tabs-inner {
     display: flex;
+    align-items: center;
     padding: 0 $spacing-base;
     white-space: nowrap;
-  }
-
-  // 教材年级行（第二行，去掉顶部边距和底部线）
-  &__tabs--stage {
-    border-bottom: none;
-    padding-top: 0;
   }
 
   &__tab {
@@ -58,18 +53,47 @@
     }
   }
 
-  // -------- 年级弹出面板 --------
-  &__picker-mask {
+  // -------- 年级下拉触发按钮 --------
+  &__grade-trigger {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4rpx;
+    padding: $spacing-sm $spacing-md;
+    margin-left: auto;
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+    border-radius: 8rpx;
+    transition: all 0.2s ease;
+
+    &--active {
+      color: var(--color-primary);
+      font-weight: 600;
+      background-color: rgba(var(--color-primary-rgb, 77, 133, 232), 0.08);
+    }
+  }
+
+  &__grade-arrow {
+    font-size: $font-size-lg;
+    transition: transform 0.2s ease;
+
+    &--up {
+      transform: rotate(180deg);
+    }
+  }
+
+  // -------- 年级下拉面板 --------
+  &__dropdown-mask {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.3);
     z-index: 20;
   }
 
-  &__picker {
+  &__dropdown {
     position: fixed;
     top: 0;
     left: 0;
@@ -93,13 +117,13 @@
     }
   }
 
-  &__picker-grid {
+  &__dropdown-grid {
     display: flex;
     flex-wrap: wrap;
     gap: $spacing-sm;
   }
 
-  &__picker-item {
+  &__dropdown-item {
     flex: 0 0 auto;
     padding: $spacing-sm $spacing-lg;
     font-size: $font-size-base;
