@@ -263,12 +263,15 @@ $light-ink: #8a7a60;
   // ---------- 译文 ----------
   &__translation {
     margin-top: $spacing-sm;
-    padding: $spacing-xs $spacing-sm;
-    font-size: $font-size-sm;
+    padding: $spacing-xs $spacing-sm $spacing-xs $spacing-md;
+    font-size: 26rpx;
     color: $light-ink;
     line-height: 1.8;
     font-family: 'STSong', 'SimSun', '宋体', serif;
     letter-spacing: 1rpx;
+    border-left: 3rpx solid var(--color-accent-light);
+    background: rgba(201, 169, 110, 0.06);
+    border-radius: 0 $radius-sm $radius-sm 0;
   }
 
   // ---------- 底部终结标记 ----------
