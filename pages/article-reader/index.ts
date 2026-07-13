@@ -1,8 +1,7 @@
 	import type { IArticle, IArticleSentence, IGlossaryItem, FeedbackCategory } from '../../typings/index.d';
 	import { fetchArticleDetail, submitFeedback } from '../../api/index';
 	import { getTTSPlayer } from '../../utils/tts';
-	import { safeJSONParse, splitByRareChar } from '../../utils/util';
-	import { STORAGE_KEYS } from '../../constants/config';
+	import { splitByRareChar } from '../../utils/util';
 
 	/** 阅读模式 */
 	type ReadingMode = 'plain' | 'sentence' | 'glossary';
@@ -88,7 +87,6 @@
 
 	  _tts: null as ReturnType<typeof getTTSPlayer> | null,
 	  _articleId: '',
-	  _autoPlayAudio: false,
 
 	  // ==========================================
 	  // 生命周期
@@ -98,9 +96,6 @@
 	    const id = options.id || '';
 	    this._articleId = id;
 	    const mode = (options.mode as ReadingMode) || 'plain';
-	    // 自动播报设置
-	    const raw = wx.getStorageSync(STORAGE_KEYS.AUTO_PLAY_AUDIO);
-	    this._autoPlayAudio = typeof raw === 'boolean' ? raw : false;
 
 	    this.setData({ readingMode: mode });
 	    this._tts = getTTSPlayer();
@@ -138,10 +133,6 @@
 	        loading: false,
 	      });
 
-	      // 自动播报
-	      if (this._autoPlayAudio && this._tts) {
-	        this._playArticleAudio(article);
-	      }
 	    } catch {
 	      this.setData({ loading: false });
 	    }

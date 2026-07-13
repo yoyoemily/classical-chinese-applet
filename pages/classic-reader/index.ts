@@ -8,8 +8,7 @@ import type {
 } from '../../typings/index.d';
 import { fetchClassicMeta, fetchClassicContent, submitFeedback } from '../../api/index';
 import { getTTSPlayer } from '../../utils/tts';
-import { safeJSONParse, splitByRareChar } from '../../utils/util';
-import { STORAGE_KEYS } from '../../constants/config';
+import { splitByRareChar } from '../../utils/util';
 
 /** 典故注释：段切分结构 */
 interface IGlossarySegment {
@@ -97,7 +96,6 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
   },
 
   _tts: null as ReturnType<typeof getTTSPlayer> | null,
-  _autoPlayAudio: true,
   _classicId: 0,
 
   async onLoad(options: Record<string, string | undefined>): Promise<void> {
@@ -109,11 +107,6 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     this._classicId = classicId;
 
     try {
-      // 加载设置
-      const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
-      const settings = raw ? safeJSONParse<{ autoPlayAudio?: boolean }>(raw, {}) : {};
-      this._autoPlayAudio = settings.autoPlayAudio ?? true;
-
       // 初始化 TTS
       this._tts = getTTSPlayer();
       this._tts.stop();
@@ -129,10 +122,6 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
         // full 加载：直接渲染全部内容
         const paragraphSegments = this.buildAllGlossarySegments(fullChapters);
         this.setData({ fullChapters, paragraphSegments, currentNodeId: '' });
-
-        if (this._autoPlayAudio) {
-          this._playFullText(fullChapters);
-        }
       } else {
         // chunked 模式：等待用户选择
         // 如果 navMode 是 strip/accordion 且有内容，自动加载第一篇
@@ -190,21 +179,6 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
       chapterEra,
       paragraphSegments,
     });
-
-    // 自动播报
-    if (this._autoPlayAudio && this._tts) {
-      const text = content.paragraphs
-        ? content.paragraphs.map(p => p.text).join('')
-        : (content.text || '');
-      this._tts.play(text, undefined, {
-        onStatusChange: (status) => {
-          this.setData({
-            audioLoading: status === 'loading',
-            audioPlaying: status === 'playing',
-          });
-        },
-      });
-    }
   },
 
   // ==========================================
