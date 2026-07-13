@@ -26,6 +26,12 @@
           <text class="page-mine__level-text">Lv.{{level}}</text>
         </view>
       </view>
+
+      <!-- 勋章入口 -->
+      <view class="page-mine__badge-entry" bindtap="onTapBadges">
+        <text class="page-mine__badge-icon">🏅</text>
+        <text class="page-mine__badge-count">{{badgeCount}}/{{totalBadges}}</text>
+      </view>
     </view>
 
     <!-- XP 进度条 -->

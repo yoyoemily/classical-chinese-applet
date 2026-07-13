@@ -50,6 +50,28 @@
     flex: 1;
   }
 
+  // -------- 右上角勋章入口 --------
+  &__badge-entry {
+    display: flex;
+    align-items: center;
+    gap: 6rpx;
+    padding: 8rpx 20rpx;
+    border-radius: 24rpx;
+    background-color: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+  }
+
+  &__badge-icon {
+    font-size: 28rpx;
+    line-height: 1;
+  }
+
+  &__badge-count {
+    font-size: 22rpx;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+  }
+
   &__username {
     font-size: $font-size-xl;
     font-weight: 600;

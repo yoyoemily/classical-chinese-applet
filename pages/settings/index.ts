@@ -4,7 +4,7 @@ import { safeJSONParse } from '../../utils/util';
 
 interface ISettingsData {
   dailyNewWords: number; dailyReviewWords: number;
-  autoPlayAudio: boolean; answerSound: boolean; vibrateFeedback: boolean;
+  autoPlayAudio: boolean; answerSound: boolean;
   studyOrder: number;
   mistakeThreshold: number;
   version: string;
@@ -16,7 +16,7 @@ const NEW_WORDS_RANGE = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
   data: {
     dailyNewWords: DEFAULT_DAILY_NEW_WORDS, dailyReviewWords: DEFAULT_DAILY_REVIEW_WORDS,
-    autoPlayAudio: true, answerSound: true, vibrateFeedback: false,
+    autoPlayAudio: true, answerSound: true,
     studyOrder: 0,
     mistakeThreshold: DEFAULT_MISTAKE_REMOVE_THRESHOLD,
     version: '0.1.0',
@@ -34,7 +34,6 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
         dailyReviewWords: saved.dailyReviewWords ?? DEFAULT_DAILY_REVIEW_WORDS,
         autoPlayAudio: saved.autoPlayAudio ?? true,
         answerSound: saved.answerSound ?? true,
-        vibrateFeedback: saved.vibrateFeedback ?? false,
         studyOrder: saved.studyOrder ?? 0,
         mistakeThreshold: getMistakeRemoveThreshold(),
       });
@@ -44,7 +43,6 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
     wx.setStorageSync(STORAGE_KEYS.SETTINGS, JSON.stringify({
       dailyNewWords: this.data.dailyNewWords, dailyReviewWords: this.data.dailyReviewWords,
       autoPlayAudio: this.data.autoPlayAudio, answerSound: this.data.answerSound,
-      vibrateFeedback: this.data.vibrateFeedback,
       studyOrder: this.data.studyOrder,
     }));
   },
@@ -52,7 +50,6 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
   onReviewWordsChange(e: WechatMiniprogram.PickerChange): void { this.setData({ dailyReviewWords: Number(e.detail.value) + 1 }); this.save(); },
   onToggleAutoPlay(e: WechatMiniprogram.SwitchChange): void { this.setData({ autoPlayAudio: e.detail.value }); this.save(); },
   onToggleAnswerSound(e: WechatMiniprogram.SwitchChange): void { this.setData({ answerSound: e.detail.value }); this.save(); },
-  onToggleVibrate(e: WechatMiniprogram.SwitchChange): void { this.setData({ vibrateFeedback: e.detail.value }); this.save(); },
   onStudyOrderChange(e: WechatMiniprogram.PickerChange): void { this.setData({ studyOrder: Number(e.detail.value) }); this.save(); },
   onMistakeThresholdChange(e: WechatMiniprogram.PickerChange): void {
     const value = Number(e.detail.value);

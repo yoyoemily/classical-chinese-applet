@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchWordBooks, fetchUserInfo, recordShare } from '../../api/index';
+import { fetchUserProfile, fetchWordBooks, fetchUserInfo, recordShare, fetchBadges } from '../../api/index';
 import { getCurrentBookId } from '../../utils/storage';
 import { getLevelXP, RANK_TITLES, calcLevel } from '../../constants/config';
 
@@ -53,7 +53,6 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
       { key: 'mistake', icon: '📝', label: '错题本', url: '/pages/mistake-book/index' },
       { key: 'vocabulary', icon: '📖', label: '生词本', url: '/pages/vocabulary/index' },
-      { key: 'badges', icon: '🏅', label: '勋章墙', url: '/pages/badges/index' },
       { key: 'profile', icon: '👤', label: '个人信息', url: '/pages/profile-edit/index' },
       { key: 'settings', icon: '⚙️', label: '设置', url: '/pages/settings/index' },
     ],
@@ -107,6 +106,9 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
         currentBookName: bookResult,
         loading: false,
       });
+
+      // 勋章数异步加载（不阻塞页面渲染）
+      this.loadBadgeCount();
     } catch (err) {
       console.error('加载用户信息失败:', err);
       this.setData({ loading: false });
@@ -124,6 +126,24 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     } catch {
       return '未知';
     }
+  },
+
+  /** 加载勋章数量 */
+  async loadBadgeCount(): Promise<void> {
+    try {
+      const result = await fetchBadges();
+      this.setData({
+        badgeCount: result.userBadges.length,
+        totalBadges: result.badges.length,
+      });
+    } catch {
+      // 勋章数据加载失败不阻塞页面
+    }
+  },
+
+  /** 跳转勋章墙 */
+  onTapBadges(): void {
+    wx.navigateTo({ url: '/pages/badges/index' });
   },
 
   /** 点击菜单项 */

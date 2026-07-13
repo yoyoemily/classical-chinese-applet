@@ -11,7 +11,6 @@
     <view class="page-settings__card">
       <view class="page-settings__row"><text class="page-settings__label">自动播放语音</text><switch checked="{{autoPlayAudio}}" bindchange="onToggleAutoPlay" color="#4a6a5e" /></view>
       <view class="page-settings__row"><text class="page-settings__label">答题音效</text><switch checked="{{answerSound}}" bindchange="onToggleAnswerSound" color="#4a6a5e" /></view>
-      <view class="page-settings__row"><text class="page-settings__label">震动反馈</text><switch checked="{{vibrateFeedback}}" bindchange="onToggleVibrate" color="#4a6a5e" /></view>
       <view class="page-settings__row"><text class="page-settings__label">学习顺序</text>
         <picker mode="selector" range="{{studyOrderOptions}}" value="{{studyOrder}}" bindchange="onStudyOrderChange"><view class="page-settings__picker-value"><text>{{studyOrderOptions[studyOrder]}}</text><text class="page-settings__picker-arrow">›</text></view></picker></view>
       <view class="page-settings__row"><text class="page-settings__label">错题移出阈值</text>

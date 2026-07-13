@@ -2,6 +2,7 @@ import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, 
 import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback, completeStudy } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
+import { playCorrectSound, playWrongSound, playCompleteSound, destroyAudioContext } from '../../utils/audio-feedback';
 import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRESTEP_PROMPTS } from '../../constants/config';
 import type { IStudySession, IWord, FeedbackCategory } from '../../typings/index.d';
 import { wordTypeLabel } from '../../utils/wordType';
@@ -86,6 +87,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   _bookId: '',
   _tts: null as ReturnType<typeof getTTSPlayer> | null,
   _autoPlayAudio: true,
+  _answerSound: true,
 
   // 前置步骤相关
   _hasPreStep: false,
@@ -112,8 +114,9 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   async init(): Promise<void> {
     try {
       const raw = wx.getStorageSync(STORAGE_KEYS.SETTINGS);
-      const settings = raw ? JSON.parse(raw) as { autoPlayAudio?: boolean; dailyNewWords?: number; dailyReviewWords?: number } : {};
+      const settings = raw ? JSON.parse(raw) as { autoPlayAudio?: boolean; dailyNewWords?: number; dailyReviewWords?: number; answerSound?: boolean; studyOrder?: number } : {};
       this._autoPlayAudio = settings.autoPlayAudio ?? true;
+      this._answerSound = settings.answerSound ?? true;
       const dailyNew = settings.dailyNewWords ?? DEFAULT_DAILY_NEW_WORDS;
       const dailyReview = settings.dailyReviewWords ?? DEFAULT_DAILY_REVIEW_WORDS;
 
@@ -142,6 +145,12 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
           this._wordsMap[w.id] = w;
         }
       }
+      // 根据设置决定是否乱序（复习和新学各自独立 shuffle，复习仍优先）
+      if (settings.studyOrder === 1) {
+        task.reviewWords = shuffle(task.reviewWords);
+        task.newWords = shuffle(task.newWords);
+      }
+
       const allWords = [...task.reviewWords, ...task.newWords];
       const session: IStudySession = {
         words: allWords, currentWordIndex: 0, currentSentenceIndex: 0,
@@ -379,12 +388,14 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ selectedIndex: idx });
     this.recordAnswer(isCorrect, idx);
     if (isCorrect) {
+      if (this._answerSound) playCorrectSound();
       this.setData({ showCorrect: true });
       setTimeout(() => {
         this.showResult();
         this._answering = false;
       }, 400);
     } else {
+      if (this._answerSound) playWrongSound();
       this.setData({ showWrong: true });
       setTimeout(() => {
         this.showResult();
@@ -397,6 +408,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     if (this._answering || this.data.showResult) return;
     this._answering = true;
     this.recordAnswer(false, -1);
+    if (this._answerSound) playWrongSound();
     this.setData({ selectedIndex: -1, showWrong: true });
     setTimeout(() => {
       this.showResult();
@@ -470,7 +482,12 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     completeStudy({ wordBookId: getCurrentBookId(), correctCount: correct, wrongCount: wrong })
       .catch(() => {});
 
-    wx.redirectTo({ url: '/pages/study-complete/index' });
+    // 播放完成音效，然后跳转（延迟 0.8s 等音效播完）
+    if (this._answerSound) playCompleteSound();
+    const delay = this._answerSound ? 800 : 0;
+    setTimeout(() => {
+      wx.redirectTo({ url: '/pages/study-complete/index' });
+    }, delay);
   },
 
   async recordAnswer(isCorrect: boolean, selectedIndex: number): Promise<void> {
@@ -672,5 +689,6 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   onUnload(): void {
     this._tts?.destroy();
     this._tts = null;
+    destroyAudioContext();
   },
 });
