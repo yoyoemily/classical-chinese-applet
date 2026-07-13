@@ -172,4 +172,14 @@
 
   </block>
 
+  <!-- 分享门禁弹窗：打卡满N天需分享才能继续 -->
+  <view class="page-index__gate-overlay" wx:if="{{showShareGate}}">
+    <view class="page-index__gate-modal">
+      <view class="page-index__gate-emoji">🎉</view>
+      <view class="page-index__gate-title">你已经坚持学习了 {{shareGateDays}} 天！</view>
+      <view class="page-index__gate-desc">分享给朋友，即可继续打卡学习</view>
+      <button class="page-index__gate-share-btn" bindtap="onGoToPoster">现在去前往分享</button>
+    </view>
+  </view>
+
 </view>

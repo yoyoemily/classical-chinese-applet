@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchWordBooks, fetchUserInfo } from '../../api/index';
+import { fetchUserProfile, fetchWordBooks, fetchUserInfo, recordShare } from '../../api/index';
 import { getCurrentBookId } from '../../utils/storage';
 import { getLevelXP, RANK_TITLES, calcLevel } from '../../constants/config';
 
@@ -29,6 +29,10 @@ interface IMineData {
   menuItems: IMenuItem[];
   loading: boolean;
   showSharePoster: boolean;
+  /** 海报是否已保存成功 */
+  posterSaved: boolean;
+  /** 是否已点击「分享出去」（显示信任文案） */
+  shareConfirmed: boolean;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -55,6 +59,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     ],
     loading: false,
     showSharePoster: false,
+    posterSaved: false,
+    shareConfirmed: false,
   },
 
   onLoad(): void {
@@ -62,7 +68,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onShow(): void {
-    // 从其他页面返回时刷新数据
+    // 从其他页面返回时刷新数据，并重置海报弹窗状态
+    this.setData({ showSharePoster: false, posterSaved: false, shareConfirmed: false });
     this.loadProfile();
   },
 
@@ -128,7 +135,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 打开分享海报弹窗 */
   onTapShare(): void {
-    this.setData({ showSharePoster: true });
+    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false });
   },
 
   /** 关闭海报弹窗 */
@@ -140,10 +147,14 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   onSavePoster(): void {
     wx.showLoading({ title: '保存中...' });
 
-    // 小程序不支持直接将项目内静态资源保存到相册
-    // 需先通过 downloadFile 下载到临时目录再保存
-    // 开发环境若后端未部署图片，可先手动将图片放到后端 static 目录
-    const POSTER_URL = 'https://wyq.yinque-ai.com/assets/share-poster.png';
+    // 根据小程序环境自动选择下载地址
+    let POSTER_URL = 'https://wyq.yinque-ai.com/assets/share-poster.png';
+    try {
+      const { envVersion } = wx.getAccountInfoSync().miniProgram;
+      if (envVersion !== 'release') {
+        POSTER_URL = 'http://localhost:8080/assets/share-poster.png';
+      }
+    } catch { /* use prod fallback */ }
 
     wx.downloadFile({
       url: POSTER_URL,
@@ -153,7 +164,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
             filePath: res.tempFilePath,
             success: () => {
               wx.hideLoading();
-              wx.showToast({ title: '图片已保存，快去朋友圈分享吧', icon: 'none', duration: 2000 });
+              wx.showToast({ title: '图片已保存', icon: 'success', duration: 1500 });
+              this.setData({ posterSaved: true });
             },
             fail: (err) => {
               wx.hideLoading();
@@ -185,11 +197,22 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     });
   },
 
+  /** 点击「分享朋友圈」——先检查是否已保存，再记录分享 */
+  onConfirmShare(): void {
+    if (!this.data.posterSaved) {
+      wx.showToast({ title: '请先保存图片', icon: 'none' });
+      return;
+    }
+    recordShare().catch(() => {});
+    this.setData({ shareConfirmed: true });
+  },
+
   /** 分享给微信好友（原生菜单） */
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
     return {
-      title: '文言雀—无障碍畅读传世经典，领略古贤智慧',
+      title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
       path: '/pages/index/index',
+      imageUrl: '/assets/share-poster.png',
     };
   },
 });

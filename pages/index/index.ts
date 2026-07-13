@@ -1,6 +1,6 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes, fetchUserProfile, recordShare } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
-import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS } from '../../constants/config';
+import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
 import type { IUserProgress, IBadge } from '../../typings/index.d';
 
 // ============================================
@@ -72,6 +72,12 @@ interface IIndexData {
   mistakeCount: number;
   /** 下一个可获得的勋章 */
   nextBadge: INextBadge | null;
+  /** 用户是否已分享 */
+  hasShared: boolean;
+  /** 分享门禁弹窗 */
+  showShareGate: boolean;
+  /** 分享门禁天数（-1 表示关闭） */
+  shareGateDays: number;
 }
 
 // ============================================
@@ -98,6 +104,9 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     loading: true,
     mistakeCount: 0,
     nextBadge: null,
+    hasShared: false,
+    showShareGate: false,
+    shareGateDays: SHARE_GATE_STREAK_DAYS,
   },
 
   // ==========================================
@@ -136,13 +145,14 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         } catch { /* use defaults */ }
       }
 
-      // 并行拉取词书列表、进度、今日任务、勋章、错题数
-      const [books, progress, task, badgesData, mistakes] = await Promise.all([
+      // 并行拉取词书列表、进度、今日任务、勋章、错题数、用户信息
+      const [books, progress, task, badgesData, mistakes, profile] = await Promise.all([
         fetchWordBooks(),
         fetchProgress(bookId),
         fetchTodayTask(bookId, dailyNew, dailyReview),
         fetchBadges(),
         fetchMistakes(),
+        fetchUserProfile(),
       ]);
 
       const currentBook = books.find((b) => b.id === bookId) ?? null;
@@ -183,6 +193,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         loading: false,
         mistakeCount,
         nextBadge,
+        hasShared: profile.hasShared,
       });
     } catch (err) {
       console.error('加载首页数据失败:', err);
@@ -298,6 +309,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       wx.showToast({ title: '今日任务已完成', icon: 'success' });
       return;
     }
+    // 打卡满10天 → 进入第11天，必须分享过
+    if (SHARE_GATE_STREAK_DAYS !== -1 && this.data.streak >= SHARE_GATE_STREAK_DAYS && !this.data.hasShared) {
+      this.setData({ showShareGate: true });
+      return;
+    }
     clearStudySummary();
     wx.navigateTo({ url: '/pages/study/index' });
   },
@@ -333,5 +349,26 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   /** 点击打卡日历入口 */
   onTapCalendar(): void {
     wx.navigateTo({ url: '/pages/calendar/index' });
+  },
+
+  /** 关闭分享门禁弹窗 */
+  onCloseShareGate(): void {
+    this.setData({ showShareGate: false });
+  },
+
+  /** 引导去保存海报 */
+  onGoToPoster(): void {
+    this.setData({ showShareGate: false });
+    wx.switchTab({ url: '/pages/mine/index' });
+  },
+
+  /** 分享（门禁弹窗的转发按钮 + 右上角菜单） */
+  onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
+    recordShare().catch(() => {});
+    return {
+      title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
+      path: '/pages/index/index',
+      imageUrl: '/assets/share-poster.png',
+    };
   },
 });

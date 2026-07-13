@@ -85,17 +85,37 @@
   </view>
 
   <!-- 分享海报弹窗 -->
-  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="onCloseShare">
+  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="{{shareConfirmed ? '' : 'onCloseShare'}}">
     <view class="page-mine__poster-modal" catchtap="noop">
-      <view class="page-mine__poster-close" bindtap="onCloseShare">✕</view>
-      <image
-        class="page-mine__poster-image"
-        src="/assets/share-poster.png"
-        mode="widthFix"
-      />
-      <view class="page-mine__poster-actions">
-        <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
-        <view class="page-mine__poster-hint">保存后到朋友圈发布即可</view>
+      <view class="page-mine__poster-close" wx:if="{{!shareConfirmed}}" bindtap="onCloseShare">✕</view>
+
+      <!-- 阶段一：海报 + 操作按钮 -->
+      <block wx:if="{{!shareConfirmed}}">
+        <image
+          class="page-mine__poster-image"
+          src="/assets/share-poster.png"
+          mode="widthFix"
+        />
+        <view class="page-mine__poster-actions">
+          <view class="page-mine__poster-btn-row">
+            <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
+            <button
+              class="page-mine__poster-share {{posterSaved ? '' : 'page-mine__poster-share--disabled'}}"
+              bindtap="onConfirmShare"
+            >分享朋友圈</button>
+          </view>
+        </view>
+      </block>
+
+      <!-- 阶段二：信任文案（替换海报） -->
+      <view class="page-mine__poster-trust" wx:else>
+        <text class="page-mine__poster-trust-icon">🤝</text>
+        <text class="page-mine__poster-trust-title">君子之约</text>
+        <text class="page-mine__poster-trust-text">我们没有追踪你是否分享了</text>
+        <text class="page-mine__poster-trust-text">正如你相信文言雀能帮到你</text>
+        <text class="page-mine__poster-trust-text">我们也相信你会把它分享出去</text>
+        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--em">你可以继续学习了</text>
+        <button class="page-mine__poster-trust-btn" bindtap="onCloseShare">朕知道了</button>
       </view>
     </view>
   </view>

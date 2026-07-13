@@ -224,7 +224,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     @include flex-center;
     padding: $spacing-xl;
@@ -267,8 +267,14 @@
     gap: $spacing-sm;
   }
 
-  &__poster-save {
+  &__poster-btn-row {
     width: 100%;
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__poster-save {
+    flex: 1;
     padding: $spacing-md 0;
     background-color: var(--color-primary);
     color: #ffffff;
@@ -283,8 +289,78 @@
     }
   }
 
-  &__poster-hint {
-    font-size: $font-size-xs;
-    color: rgba(255, 255, 255, 0.6);
+  &__poster-share {
+    flex: 1;
+    padding: $spacing-md 0;
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-size: $font-size-md;
+    font-weight: 500;
+    border-radius: $radius-base;
+    text-align: center;
+    @include active(rgba(201, 169, 110, 0.8));
+
+    &::after {
+      border: none;
+    }
+
+    &--disabled {
+      opacity: 0.4;
+    }
+  }
+
+  // -------- 信任文案（替换海报） --------
+  &__poster-trust {
+    width: 100%;
+    min-height: 480rpx;
+    @include flex-column;
+    @include flex-center;
+    padding: $spacing-xl $spacing-lg;
+    border-radius: $radius-base;
+    background-color: var(--color-bg-white);
+    gap: $spacing-base;
+  }
+
+  &__poster-trust-icon {
+    font-size: 72rpx;
+    line-height: 1;
+  }
+
+  &__poster-trust-title {
+    font-size: $font-size-xxl;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin-bottom: $spacing-md;
+  }
+
+  &__poster-trust-text {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    text-align: center;
+    line-height: 2;
+
+    &--em {
+      margin-top: $spacing-md;
+      font-weight: 500;
+      color: var(--color-primary);
+      font-size: $font-size-md;
+    }
+  }
+
+  &__poster-trust-btn {
+    width: 100%;
+    margin-top: $spacing-lg;
+    padding: $spacing-md 0;
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-size: $font-size-md;
+    font-weight: 500;
+    border-radius: $radius-base;
+    text-align: center;
+
+    &::after {
+      border: none;
+    }
   }
 }
