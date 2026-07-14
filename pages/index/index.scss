@@ -72,11 +72,17 @@
   &__header-top {
     @include flex-between;
   }
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
   &__greeting {
     font-size: $font-size-xxl;
     font-weight: 600;
     color: var(--color-text-primary);
     letter-spacing: 2rpx;
+    line-height: 56rpx;
   }
   &__badges-btn {
     padding: $spacing-xs $spacing-md;
@@ -353,12 +359,12 @@
   &__nuo-badge {
     @include flex-center;
     flex-shrink: 0;
-    width: 64rpx;
-    height: 64rpx;
+    width: 56rpx;
+    height: 56rpx;
     border-radius: $radius-round;
     background: linear-gradient(135deg, #c0392b, #922b21);
     color: #ffffff;
-    font-size: $font-size-lg;
+    font-size: 34rpx;
     font-weight: 700;
     box-shadow: 0 4rpx 16rpx rgba(192, 57, 43, 0.4);
 
@@ -366,13 +372,6 @@
       opacity: 0.8;
       transform: scale(0.95);
     }
-  }
-
-  // 右侧对称占位（与诺字等宽）
-  &__nuo-spacer {
-    flex-shrink: 0;
-    width: 64rpx;
-    height: 64rpx;
   }
 
   // 开始学习 CTA 按钮

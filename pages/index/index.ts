@@ -76,6 +76,8 @@ interface IIndexData {
   hasShared: boolean;
   /** 会员级别 */
   memberLevel: number;
+  /** 用户昵称 */
+  nickName: string;
   /** 分享门禁弹窗 */
   showShareGate: boolean;
   /** 君子一诺弹窗 */
@@ -112,6 +114,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     memberLevel: 0,
     showShareGate: false,
     showTrustDialog: false,
+    nickName: '',
     shareGateDays: SHARE_GATE_STREAK_DAYS,
   },
 
@@ -201,6 +204,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         nextBadge,
         hasShared: profile.hasShared,
         memberLevel: profile.memberLevel,
+        nickName: profile.nickName || '',
       });
     } catch (err) {
       console.error('加载首页数据失败:', err);

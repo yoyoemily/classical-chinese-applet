@@ -83,11 +83,7 @@
 
   <!-- 底部信息 -->
   <view class="page-mine__footer">
-    <text class="page-mine__footer-text">古文学习</text>
-    <text
-      class="page-mine__footer-book"
-      wx:if="{{currentBookName}}"
-    >当前词书：{{currentBookName}}</text>
+    <text class="page-mine__footer-text">文言雀</text>
   </view>
 
   <!-- 分享海报弹窗 -->

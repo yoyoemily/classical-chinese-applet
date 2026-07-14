@@ -229,14 +229,12 @@
   }
 
   &__footer-text {
-    font-size: $font-size-xs;
-    color: var(--color-text-hint);
-    letter-spacing: 2rpx;
-  }
-
-  &__footer-book {
-    font-size: $font-size-xs;
-    color: var(--color-text-hint);
+    font-size: $font-size-xl;
+    font-weight: 700;
+    color: #c0403a;
+    letter-spacing: 8rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    font-size: $font-size-xxl;
   }
 
   // -------- 海报弹窗 --------

@@ -251,7 +251,7 @@ export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUs
   return get('/api/badges');
 }
 
-export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; hasShared: boolean; memberLevel: number }> {
+export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; hasShared: boolean; memberLevel: number; nickName: string }> {
   if (USE_MOCK) {
     const progress = getProgress();
     const levelInfo = calcLevel(progress.totalXP);

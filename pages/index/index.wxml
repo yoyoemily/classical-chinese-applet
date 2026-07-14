@@ -19,7 +19,16 @@
     <!-- -------- 顶部问候区域 -------- -->
     <view class="page-index__header">
       <view class="page-index__header-top">
-        <text class="page-index__greeting">你好，学友</text>
+        <view
+          class="page-index__header-left"
+          bindtap="{{memberLevel >= 1 ? 'onTapNuo' : ''}}"
+        >
+          <view
+            wx:if="{{memberLevel >= 1}}"
+            class="page-index__nuo-badge"
+          >诺</view>
+          <text class="page-index__greeting">你好，{{nickName || '学友'}}</text>
+        </view>
         <view
           wx:if="{{nextBadge}}"
           class="page-index__next-badge"
@@ -130,21 +139,14 @@
 
       <!-- 开始学习 CTA -->
       <view class="page-index__task-btn-row">
-        <view
-          wx:if="{{memberLevel >= 1}}"
-          class="page-index__nuo-badge"
-          hover-class="page-index__nuo-badge--active"
-          catch:tap="onTapNuo"
-        >诺</view>
         <button
           class="page-index__task-btn"
           hover-class="page-index__task-btn--hover"
           bindtap="onTapStartLearning"
         >开 始 学 习</button>
-        <view wx:if="{{memberLevel >= 1}}" class="page-index__nuo-spacer"></view>
       </view>
 
-      <view class="page-index__task-tip">基于艾宾浩斯遗忘曲线，智能安排复习节奏</view>
+      <view class="page-index__task-tip">艾宾浩斯遗忘曲线，智能安排复习节奏</view>
     </view>
 
     <!-- -------- 快捷入口区 -------- -->
