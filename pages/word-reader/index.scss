@@ -1,0 +1,92 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-word-reader {
+  min-height: 100vh;
+  background: $color-bg-card;
+  &__scroll { flex: 1; height: 100vh; }
+  &__loading { @include flex-center; padding: 300rpx 0; }
+
+  // ---- 简介区 ----
+  &__intro {
+    margin: $spacing-md; padding: $spacing-md;
+    background: linear-gradient(135deg, #5b6d8a, #7a8fa6);
+    border-radius: $radius-md; color: #fff;
+  }
+  &__intro-title {
+    font-size: $font-size-xl; font-weight: 700;
+    display: block; margin-bottom: $spacing-sm;
+  }
+  &__intro-desc {
+    font-size: $font-size-sm; line-height: 1.7; opacity: .9;
+  }
+
+  // ---- 词卡片 ----
+  &__list { padding: 0 $spacing-md; @include flex-column; gap: $spacing-base; }
+  &__card {
+    background: #fff; border-radius: $radius-md; overflow: hidden;
+    box-shadow: $shadow-sm;
+  }
+  &__head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: $spacing-md; background: $color-bg-card; cursor: pointer;
+    &:active { opacity: .7; }
+  }
+  &__head-left { display: flex; align-items: baseline; gap: $spacing-sm; }
+  &__character {
+    font-size: 56rpx; font-weight: 700; color: $color-primary;
+    font-family: 'STKaiti','KaiTi','楷体',serif;
+    line-height: 1;
+  }
+  &__pinyin {
+    font-size: $font-size-base; color: $color-text-hint; font-style: italic;
+  }
+  &__head-right { display: flex; align-items: center; gap: $spacing-sm; }
+  &__usage-count {
+    font-size: $font-size-sm; color: $color-text-secondary;
+  }
+  &__arrow {
+    font-size: $font-size-sm; color: $color-text-hint; transition: transform .2s;
+    &--up { transform: rotate(90deg); }
+  }
+
+  // ---- 用法条目 ----
+  &__usage-list { border-top: 1rpx solid $color-border-light; }
+  &__usage-item {
+    border-bottom: 1rpx solid $color-border-light;
+    &:last-child { border: none; }
+  }
+  &__usage-header {
+    display: flex; align-items: center; padding: $spacing-base $spacing-md;
+    &:active { background: $color-bg-card; }
+  }
+  &__usage-idx {
+    width: 40rpx; height: 40rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 20rpx; font-weight: 600; color: #fff;
+    background: $color-accent; border-radius: 50%;
+    margin-right: $spacing-base;
+    line-height: 40rpx; text-align: center;
+    margin-top: 2rpx;
+  }
+  &__usage-def {
+    flex: 1; font-size: $font-size-base; color: $color-text-primary;
+    line-height: 1.6;
+  }
+
+  // 展开详情
+  &__usage-detail {
+    padding: $spacing-sm $spacing-md $spacing-md 92rpx;
+    background: lighten($color-bg-card, 2%);
+  }
+  &__usage-detail-item {
+    display: flex; align-items: flex-start; padding: 4rpx 0;
+  }
+  &__usage-detail-label {
+    font-size: $font-size-sm; color: $color-text-hint; flex-shrink: 0;
+  }
+  &__usage-detail-text {
+    font-size: $font-size-sm; color: $color-text-secondary; line-height: 1.6;
+  }
+
+  &__bottom-placeholder { height: 80rpx; }
+}

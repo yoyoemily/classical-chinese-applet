@@ -51,8 +51,8 @@ export interface IWordBook {
   coverColor: string
   totalWords: number
   words: IWord[]
-  /** 学习模式：standard = 直接选题，identify_first = 先识别目标字再选题 */
-  studyMode?: 'standard' | 'identify_first'
+  /** 学习模式：standard = 直接选题，identify_first = 先识别目标字再选题，readonly = 纯阅读浏览 */
+  studyMode?: 'standard' | 'identify_first' | 'readonly'
   /** 前置步骤提示文案（仅 identify_first 模式有效，兜底按 category 自动生成） */
   identifyPrompt?: string
   /** 考试级别：zhongkao / gaokao */

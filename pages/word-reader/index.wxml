@@ -1,0 +1,67 @@
+<!-- 虚词阅读页：手风琴展开虚词用法 -->
+<view class="page-word-reader">
+  <scroll-view class="page-word-reader__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{loading}}" class="page-word-reader__loading"><text>加载中...</text></view>
+    <block wx:else>
+      <!-- 简介区 -->
+      <view class="page-word-reader__intro">
+        <text class="page-word-reader__intro-title">{{bookName}}</text>
+        <text class="page-word-reader__intro-desc" wx:if="{{bookDescription}}">{{bookDescription}}</text>
+      </view>
+      <!-- 虚词列表 -->
+      <view class="page-word-reader__list">
+        <view
+          wx:for="{{words}}" wx:key="id"
+          class="page-word-reader__card"
+        >
+          <!-- 词头：点击折叠/展开 -->
+          <view
+            class="page-word-reader__head"
+            data-index="{{index}}"
+            bindtap="onTapCharacter"
+          >
+            <view class="page-word-reader__head-left">
+              <text class="page-word-reader__character">{{item.character}}</text>
+              <text class="page-word-reader__pinyin" wx:if="{{item.pinyin}}">{{item.pinyin}}</text>
+            </view>
+            <view class="page-word-reader__head-right">
+              <text class="page-word-reader__usage-count">{{item.usages.length}} 种用法</text>
+              <text class="page-word-reader__arrow {{item.allExpanded ? 'page-word-reader__arrow--up' : ''}}">▶</text>
+            </view>
+          </view>
+          <!-- 用法列表 -->
+          <view class="page-word-reader__usage-list" wx:if="{{item.usages.length > 0}}">
+            <view
+              wx:for="{{item.usages}}" wx:key="index" wx:for-item="usage" wx:for-index="uIdx"
+              class="page-word-reader__usage-item"
+            >
+              <view class="page-word-reader__usage-header">
+                <view class="page-word-reader__usage-idx">{{uIdx + 1}}</view>
+                <text class="page-word-reader__usage-def">{{usage.definition}}</text>
+              </view>
+              <view class="page-word-reader__usage-detail" wx:if="{{usage.expanded}}">
+                <view class="page-word-reader__usage-detail-item" wx:if="{{usage.pinyin}}">
+                  <text class="page-word-reader__usage-detail-label">🔊 读音：</text>
+                  <text class="page-word-reader__usage-detail-text">{{usage.pinyin}}</text>
+                </view>
+                <view class="page-word-reader__usage-detail-item" wx:if="{{usage.example}}">
+                  <text class="page-word-reader__usage-detail-label">📖 例：</text>
+                  <text class="page-word-reader__usage-detail-text">{{usage.example}}</text>
+                </view>
+                <view class="page-word-reader__usage-detail-item" wx:if="{{usage.translation}}">
+                  <text class="page-word-reader__usage-detail-label">📝 译：</text>
+                  <text class="page-word-reader__usage-detail-text">{{usage.translation}}</text>
+                </view>
+                <view class="page-word-reader__usage-detail-item" wx:if="{{usage.source}}">
+                  <text class="page-word-reader__usage-detail-label">📚 出处：</text>
+                  <text class="page-word-reader__usage-detail-text">{{usage.source}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="page-word-reader__bottom-placeholder"></view>
+    </block>
+  </scroll-view>
+</view>
