@@ -22,7 +22,6 @@
           >
             <view class="page-word-reader__head-left">
               <text class="page-word-reader__character">{{item.character}}</text>
-              <text class="page-word-reader__pinyin" wx:if="{{item.pinyin}}">{{item.pinyin}}</text>
             </view>
             <view class="page-word-reader__head-right">
               <text class="page-word-reader__usage-count">{{item.usages.length}} 种用法</text>
@@ -45,11 +44,11 @@
                   <text class="page-word-reader__usage-detail-text">{{usage.pinyin}}</text>
                 </view>
                 <view class="page-word-reader__usage-detail-item" wx:if="{{usage.example}}">
-                  <text class="page-word-reader__usage-detail-label">📖 例：</text>
+                  <text class="page-word-reader__usage-detail-label">📖 例句：</text>
                   <text class="page-word-reader__usage-detail-text">{{usage.example}}</text>
                 </view>
                 <view class="page-word-reader__usage-detail-item" wx:if="{{usage.translation}}">
-                  <text class="page-word-reader__usage-detail-label">📝 译：</text>
+                  <text class="page-word-reader__usage-detail-label">📝 释义：</text>
                   <text class="page-word-reader__usage-detail-text">{{usage.translation}}</text>
                 </view>
                 <view class="page-word-reader__usage-detail-item" wx:if="{{usage.source}}">
