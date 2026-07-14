@@ -357,7 +357,7 @@
   }
 
   &__poster-trust-text {
-    font-size: $font-size-sm;
+    font-size: $font-size-md;
     color: var(--color-text-secondary);
     text-align: center;
     line-height: 2;
@@ -366,7 +366,7 @@
       margin-top: $spacing-md;
       font-weight: 500;
       color: var(--color-primary);
-      font-size: $font-size-md;
+      font-size: $font-size-lg;
     }
   }
 

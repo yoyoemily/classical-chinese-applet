@@ -129,11 +129,22 @@
       </view>
 
       <!-- 开始学习 CTA -->
-      <button
-        class="page-index__task-btn"
-        hover-class="page-index__task-btn--hover"
-        bindtap="onTapStartLearning"
-      >开 始 学 习</button>
+      <view class="page-index__task-btn-row">
+        <view
+          wx:if="{{memberLevel >= 1}}"
+          class="page-index__nuo-badge"
+          hover-class="page-index__nuo-badge--active"
+          catch:tap="onTapNuo"
+        >诺</view>
+        <button
+          class="page-index__task-btn"
+          hover-class="page-index__task-btn--hover"
+          bindtap="onTapStartLearning"
+        >开 始 学 习</button>
+        <view wx:if="{{memberLevel >= 1}}" class="page-index__nuo-spacer"></view>
+      </view>
+
+      <view class="page-index__task-tip">基于艾宾浩斯遗忘曲线，智能安排复习节奏</view>
     </view>
 
     <!-- -------- 快捷入口区 -------- -->
@@ -179,6 +190,18 @@
       <view class="page-index__gate-title">你已经坚持学习了 {{shareGateDays}} 天！</view>
       <view class="page-index__gate-desc">分享给朋友，即可继续打卡学习</view>
       <button class="page-index__gate-share-btn" bindtap="onGoToPoster">现在去前往分享</button>
+    </view>
+  </view>
+  <!-- 君子一诺弹窗（会员可见） -->
+  <view class="page-index__trust-overlay" wx:if="{{showTrustDialog}}" bindtap="onCloseTrustDialog">
+    <view class="page-index__trust-modal" catchtap="noop">
+      <text class="page-index__trust-icon">🤝</text>
+      <text class="page-index__trust-title">君子一诺</text>
+      <text class="page-index__trust-text">分享与否，吾等未之察也</text>
+      <text class="page-index__trust-text">君既信文言雀之助益</text>
+      <text class="page-index__trust-text">吾等亦信君之必传也</text>
+      <text class="page-index__trust-text page-index__trust-text--em">君已永享修习之益</text>
+      <button class="page-index__trust-btn" bindtap="onCloseTrustDialog">朕知道了</button>
     </view>
   </view>
 

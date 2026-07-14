@@ -116,11 +116,11 @@
       <!-- 阶段二：信任文案（替换海报） -->
       <view class="page-mine__poster-trust" wx:else>
         <text class="page-mine__poster-trust-icon">🤝</text>
-        <text class="page-mine__poster-trust-title">君子之约</text>
-        <text class="page-mine__poster-trust-text">我们没有追踪你是否分享了</text>
-        <text class="page-mine__poster-trust-text">正如你相信文言雀能帮到你</text>
-        <text class="page-mine__poster-trust-text">我们也相信你会把它分享出去</text>
-        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--em">你可以继续学习了</text>
+        <text class="page-mine__poster-trust-title">君子一诺</text>
+        <text class="page-mine__poster-trust-text">分享与否，吾等未之察也</text>
+        <text class="page-mine__poster-trust-text">君既信文言雀之助益</text>
+        <text class="page-mine__poster-trust-text">吾等亦信君之必传也</text>
+        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--em">君已永享修习之益</text>
         <button class="page-mine__poster-trust-btn" bindtap="onCloseShare">朕知道了</button>
       </view>
     </view>

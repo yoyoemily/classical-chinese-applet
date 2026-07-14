@@ -251,7 +251,7 @@ export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUs
   return get('/api/badges');
 }
 
-export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; hasShared: boolean }> {
+export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; hasShared: boolean; memberLevel: number }> {
   if (USE_MOCK) {
     const progress = getProgress();
     const levelInfo = calcLevel(progress.totalXP);
@@ -326,7 +326,7 @@ export async function saveUserInfo(profile: IUserProfile): Promise<void> {
 // ============================================
 // 分享跟踪
 // ============================================
-export async function recordShare(): Promise<{ hasShared: boolean }> {
+export async function recordShare(): Promise<{ hasShared: boolean; memberLevel: number }> {
   return post('/api/user/share');
 }
 

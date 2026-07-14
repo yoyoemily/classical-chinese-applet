@@ -345,6 +345,8 @@ export interface IUserProfile {
   avatarUrl: string
   nickName: string
   grade: string
+  hasShared?: boolean
+  memberLevel?: number
 }
 
 // ============================================
