@@ -180,8 +180,11 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   },
 
   /** 签订契约并关闭 */
-  onConfirmPact(): void {
+  async onConfirmPact(): Promise<void> {
     if (!this.data.pactChecked) return;
+    try {
+      await recordShare();
+    } catch { /* 网络失败不阻塞 */ }
     this.setData({ showSharePoster: false });
   },
 
@@ -251,7 +254,6 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 进入签订契约阶段二 */
   onConfirmShare(): void {
-    recordShare().catch(() => {});
     this.setData({ shareConfirmed: true });
   },
 

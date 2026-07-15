@@ -340,12 +340,20 @@
 
   &__poster-btn-row-link {
     flex: 1;
-    background: none;
-    color: var(--color-text-hint);
-    font-size: $font-size-sm;
-    padding: $spacing-sm 0;
+    padding: $spacing-md 0;
+    background-color: rgba(74, 106, 94, 0.08);
+    color: var(--color-primary);
+    font-size: $font-size-md;
+    font-weight: 500;
+    border-radius: $radius-base;
     text-align: center;
-    border: none;
+    border: 2rpx solid var(--color-primary);
+    @include active(rgba(74, 106, 94, 0.18));
+
+    &--disabled {
+      opacity: 0.5;
+      background-color: rgba(74, 106, 94, 0.04);
+    }
 
     &::after {
       border: none;
@@ -393,9 +401,10 @@
 
   &__poster-trust-footer {
     margin-top: $spacing-base;
-    font-size: $font-size-xs;
-    color: var(--color-text-hint);
+    font-size: $font-size-sm;
+    color: #b8860b;
     text-align: center;
+    font-weight: 500;
   }
 
   &__poster-trust-check {
@@ -405,6 +414,11 @@
     margin-top: $spacing-base;
     padding: $spacing-sm 0;
     justify-content: center;
+  }
+
+  &__poster-trust-check-finger {
+    font-size: 40rpx;
+    animation: finger-point 0.8s ease-in-out infinite alternate;
   }
 
   &__poster-trust-check-box {
@@ -443,7 +457,7 @@
     color: #ffffff;
     font-size: $font-size-md;
     font-weight: 500;
-    border-radius: 200rpx;
+    border-radius: $radius-base;
     text-align: center;
 
     &--disabled {
@@ -553,6 +567,15 @@
 // ============================================
 // 全局动画
 // ============================================
+@keyframes finger-point {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(8rpx);
+  }
+}
+
 @keyframes nuo-shimmer {
   0%, 100% {
     box-shadow: 0 0 8rpx rgba(212, 161, 42, 0.4), inset 0 1rpx 0 rgba(255, 255, 255, 0.3);

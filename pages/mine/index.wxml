@@ -111,7 +111,12 @@
         <view class="page-mine__poster-actions">
           <view class="page-mine__poster-btn-row">
             <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
-            <button class="page-mine__poster-btn-row-link" bindtap="onConfirmShare">我已保存，签订契约</button>
+            <button
+              wx:if="{{memberLevel < 1}}"
+              class="page-mine__poster-btn-row-link {{posterSaved ? '' : 'page-mine__poster-btn-row-link--disabled'}}"
+              bindtap="onConfirmShare"
+              disabled="{{!posterSaved}}"
+            >分享朋友圈</button>
           </view>
         </view>
       </block>
@@ -123,9 +128,9 @@
         <text class="page-mine__poster-trust-text">君以分享托付文言雀</text>
         <text class="page-mine__poster-trust-text">文言雀亦以赤诚报君</text>
         <text class="page-mine__poster-trust-text page-mine__poster-trust-text--pact">此约既成，金石不渝</text>
-        <text class="page-mine__poster-trust-footer">您已签订契约，永久免费学习</text>
         <!-- 签订契约复选框 -->
         <view class="page-mine__poster-trust-check" bindtap="onTogglePactCheck">
+          <text class="page-mine__poster-trust-check-finger">👉</text>
           <view class="page-mine__poster-trust-check-box {{pactChecked ? 'page-mine__poster-trust-check-box--checked' : ''}}">
             <text wx:if="{{pactChecked}}" class="page-mine__poster-trust-check-mark">✓</text>
           </view>
@@ -135,7 +140,8 @@
           class="page-mine__poster-trust-btn {{pactChecked ? '' : 'page-mine__poster-trust-btn--disabled'}}"
           bindtap="onConfirmPact"
           disabled="{{!pactChecked}}"
-        >君子一诺，签订契约</button>
+        >签订契约</button>
+        <text class="page-mine__poster-trust-footer">契约既签，永久免费学习</text>
       </view>
     </view>
   </view>
