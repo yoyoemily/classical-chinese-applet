@@ -76,52 +76,82 @@
     font-size: $font-size-xl;
     font-weight: 600;
     color: #ffffff;
-    margin-bottom: $spacing-xs;
+    margin-bottom: 2rpx;
   }
 
   &__level-badge {
+    // 已废弃，保留空壳避免编译错误
+  }
+
+  &__level-title {
+    // 已废弃
+  }
+
+  &__level-text {
+    // 已废弃
+  }
+
+  &__level-row {
     display: flex;
     align-items: center;
     gap: $spacing-sm;
   }
 
-  &__level-title {
-    font-size: $font-size-sm;
-    color: var(--color-accent-light);
-    background-color: rgba(255, 255, 255, 0.15);
+  // -------- 契约会员标签 --------
+  &__nuo-badge {
+    display: inline-flex;
+    align-items: center;
     padding: 4rpx 16rpx;
     border-radius: 20rpx;
-  }
-
-  &__level-text {
     font-size: $font-size-xs;
-    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    color: #5c3d0e;
+    background: linear-gradient(135deg, #f5d78c, #e8b84b, #d4a12a);
+    box-shadow: 0 0 16rpx rgba(212, 161, 42, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.4);
+    border: 1rpx solid rgba(200, 150, 50, 0.4);
+    animation: nuo-shimmer 2.5s ease-in-out infinite;
+
+    &--active {
+      opacity: 0.8;
+      transform: scale(0.95);
+    }
   }
 
-  // -------- XP 进度条 --------
-  &__xp-section {
+  // -------- 勋章进度条 --------
+  &__badge-progress {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: $radius-base;
     padding: $spacing-base $spacing-md;
   }
 
-  &__xp-header {
+  &__badge-progress-header {
     @include flex-between;
     margin-bottom: $spacing-sm;
   }
 
-  &__xp-label {
-    font-size: $font-size-xs;
-    color: rgba(255, 255, 255, 0.7);
+  &__badge-progress-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
   }
 
-  &__xp-value {
-    font-size: $font-size-xs;
+  &__badge-progress-icon {
+    font-size: 32rpx;
+    line-height: 1;
+  }
+
+  &__badge-progress-name {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  &__badge-progress-gap {
+    font-size: $font-size-sm;
     color: var(--color-accent-light);
     font-weight: 500;
   }
 
-  &__xp-bar {
+  &__badge-progress-bar {
     width: 100%;
     height: 12rpx;
     border-radius: 6rpx;
@@ -129,7 +159,7 @@
     overflow: hidden;
   }
 
-  &__xp-fill {
+  &__badge-progress-fill {
     height: 100%;
     border-radius: 6rpx;
     background: linear-gradient(90deg, var(--color-accent-light), var(--color-accent));
@@ -229,12 +259,11 @@
   }
 
   &__footer-text {
-    font-size: $font-size-xl;
+    font-size: $font-size-lg;
     font-weight: 700;
     color: #c0403a;
     letter-spacing: 8rpx;
     font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-    font-size: $font-size-xxl;
   }
 
   // -------- 海报弹窗 --------
@@ -309,27 +338,21 @@
     }
   }
 
-  &__poster-share {
+  &__poster-btn-row-link {
     flex: 1;
-    padding: $spacing-md 0;
-    background-color: var(--color-accent);
-    color: #ffffff;
-    font-size: $font-size-md;
-    font-weight: 500;
-    border-radius: $radius-base;
+    background: none;
+    color: var(--color-text-hint);
+    font-size: $font-size-sm;
+    padding: $spacing-sm 0;
     text-align: center;
-    @include active(rgba(201, 169, 110, 0.8));
+    border: none;
 
     &::after {
       border: none;
     }
-
-    &--disabled {
-      opacity: 0.4;
-    }
   }
 
-  // -------- 信任文案（替换海报） --------
+  // -------- 签订契约（替换海报） --------
   &__poster-trust {
     width: 100%;
     min-height: 480rpx;
@@ -360,27 +383,181 @@
     text-align: center;
     line-height: 2;
 
-    &--em {
-      margin-top: $spacing-md;
-      font-weight: 500;
-      color: var(--color-primary);
-      font-size: $font-size-lg;
+    &--pact {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      padding-bottom: $spacing-sm;
+      border-bottom: 2rpx solid rgba(212, 161, 42, 0.4);
     }
   }
 
+  &__poster-trust-footer {
+    margin-top: $spacing-base;
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    text-align: center;
+  }
+
+  &__poster-trust-check {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-base;
+    padding: $spacing-sm 0;
+    justify-content: center;
+  }
+
+  &__poster-trust-check-box {
+    width: 36rpx;
+    height: 36rpx;
+    border-radius: 6rpx;
+    border: 3rpx solid var(--color-text-hint);
+    @include flex-center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &--checked {
+      background-color: #d4a12a;
+      border-color: #d4a12a;
+    }
+  }
+
+  &__poster-trust-check-mark {
+    color: #ffffff;
+    font-size: 28rpx;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__poster-trust-check-label {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
   &__poster-trust-btn {
-    width: 100%;
+    width: 70%;
     margin-top: $spacing-lg;
-    padding: $spacing-md 0;
-    background-color: var(--color-primary);
+    padding: $spacing-sm 0;
+    background: linear-gradient(135deg, #d4a12a, #b8860b);
     color: #ffffff;
     font-size: $font-size-md;
     font-weight: 500;
-    border-radius: $radius-base;
+    border-radius: 200rpx;
     text-align: center;
+
+    &--disabled {
+      opacity: 0.4;
+    }
 
     &::after {
       border: none;
     }
+  }
+
+  // -------- 金石契弹窗 --------
+  &__nuo-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    @include flex-center;
+    padding: $spacing-xl;
+  }
+
+  &__nuo-modal {
+    position: relative;
+    width: 100%;
+    max-width: 560rpx;
+    background-color: var(--color-bg-white);
+    border-radius: $radius-lg;
+    @include flex-column;
+    align-items: center;
+    padding: $spacing-xl $spacing-lg;
+    gap: $spacing-base;
+  }
+
+  &__nuo-modal-close {
+    position: absolute;
+    top: $spacing-md;
+    right: $spacing-md;
+    width: 48rpx;
+    height: 48rpx;
+    border-radius: $radius-round;
+    background-color: rgba(0, 0, 0, 0.06);
+    color: var(--color-text-hint);
+    font-size: $font-size-base;
+    @include flex-center;
+    line-height: 1;
+  }
+
+  &__nuo-modal-icon {
+    font-size: 72rpx;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__nuo-modal-seal {
+    position: absolute;
+    top: 60rpx;
+    right: 80rpx;
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 8rpx;
+    border: 4rpx solid rgba(192, 57, 43, 0.35);
+    color: rgba(192, 57, 43, 0.35);
+    font-size: 64rpx;
+    font-weight: 700;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    @include flex-center;
+    transform: rotate(15deg);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__nuo-modal-title {
+    font-size: $font-size-xxl;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin-bottom: $spacing-md;
+  }
+
+  &__nuo-modal-text {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+    text-align: center;
+    line-height: 2;
+
+    &--pact {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      padding-bottom: $spacing-sm;
+      border-bottom: 2rpx solid rgba(212, 161, 42, 0.4);
+    }
+  }
+
+  &__nuo-modal-footer {
+    margin-top: $spacing-lg;
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    text-align: center;
+  }
+
+}
+
+// ============================================
+// 全局动画
+// ============================================
+@keyframes nuo-shimmer {
+  0%, 100% {
+    box-shadow: 0 0 8rpx rgba(212, 161, 42, 0.4), inset 0 1rpx 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 24rpx rgba(212, 161, 42, 0.7), inset 0 1rpx 0 rgba(255, 255, 255, 0.5);
   }
 }

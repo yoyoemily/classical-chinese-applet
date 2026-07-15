@@ -80,8 +80,6 @@ interface IIndexData {
   nickName: string;
   /** 分享门禁弹窗 */
   showShareGate: boolean;
-  /** 君子一诺弹窗 */
-  showTrustDialog: boolean;
   /** 分享门禁天数（-1 表示关闭） */
   shareGateDays: number;
 }
@@ -113,7 +111,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     hasShared: false,
     memberLevel: 0,
     showShareGate: false,
-    showTrustDialog: false,
     nickName: '',
     shareGateDays: SHARE_GATE_STREAK_DAYS,
   },
@@ -371,16 +368,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   onGoToPoster(): void {
     this.setData({ showShareGate: false });
     wx.switchTab({ url: '/pages/mine/index' });
-  },
-
-  /** 点击"诺"字 → 弹出君子一诺 */
-  onTapNuo(): void {
-    this.setData({ showTrustDialog: true });
-  },
-
-  /** 关闭君子一诺弹窗 */
-  onCloseTrustDialog(): void {
-    this.setData({ showTrustDialog: false });
   },
 
   /** 分享（门禁弹窗的转发按钮 + 右上角菜单） */

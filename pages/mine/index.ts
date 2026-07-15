@@ -3,7 +3,6 @@
 // ============================================
 import { fetchUserProfile, fetchWordBooks, fetchUserInfo, recordShare, fetchBadges } from '../../api/index';
 import { getCurrentBookId } from '../../utils/storage';
-import { getLevelXP, RANK_TITLES, calcLevel } from '../../constants/config';
 
 interface IMenuItem {
   key: string;
@@ -16,13 +15,7 @@ interface IMenuItem {
 interface IMineData {
   avatarUrl: string;
   userName: string;
-  level: number;
-  levelTitle: string;
-  totalXP: number;
-  xpForNextLevel: number;
-  xpProgress: number;
   currentStreak: number;
-  longestStreak: number;
   badgeCount: number;
   totalBadges: number;
   currentBookName: string;
@@ -33,21 +26,23 @@ interface IMineData {
   posterSaved: boolean;
   /** 是否已点击「分享出去」（显示信任文案） */
   shareConfirmed: boolean;
+  /** 会员级别（0=非会员，1=金石契） */
+  memberLevel: number;
+  /** 金石契约窗 */
+  showNuoDialog: boolean;
+  /** 签订契约复选框 */
+  pactChecked: boolean;
+  /** 下一枚勋章信息 */
+  nextBadge: { name: string; icon: string; gap: number; gapLabel: string; percent: number } | null;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   data: {
     avatarUrl: '',
     userName: '学友',
-    level: 1,
-    levelTitle: '童生',
-    totalXP: 0,
-    xpForNextLevel: 100,
-    xpProgress: 0,
     currentStreak: 0,
-    longestStreak: 0,
     badgeCount: 0,
-    totalBadges: 12,
+    totalBadges: 8,
     currentBookName: '',
     menuItems: [
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
@@ -60,6 +55,10 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     showSharePoster: false,
     posterSaved: false,
     shareConfirmed: false,
+    memberLevel: 0,
+    showNuoDialog: false,
+    pactChecked: false,
+    nextBadge: null,
   },
 
   onLoad(): void {
@@ -86,29 +85,17 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
       const displayName = userInfo.nickName || '学友';
 
-      const levelInfo = calcLevel(profileResult.totalXP);
-      const xpForNextLevel = getLevelXP(levelInfo.level);
-      const xpForCurrentLevel = levelInfo.level > 1
-        ? getLevelXP(levelInfo.level - 1)
-        : 0;
-      const xpIntoLevel = profileResult.totalXP - xpForCurrentLevel;
-      const xpProgress = Math.min(Math.round((xpIntoLevel / xpForNextLevel) * 100), 100);
-
       this.setData({
         avatarUrl: userInfo.avatarUrl,
         userName: displayName,
-        level: levelInfo.level,
-        levelTitle: levelInfo.title,
-        totalXP: profileResult.totalXP,
-        xpForNextLevel,
-        xpProgress,
         currentStreak: profileResult.currentStreak,
         currentBookName: bookResult,
         loading: false,
+        memberLevel: profileResult.memberLevel || 0,
       });
 
-      // 勋章数异步加载（不阻塞页面渲染）
-      this.loadBadgeCount();
+      // 勋章数据异步加载（不阻塞页面渲染）
+      this.loadBadges();
     } catch (err) {
       console.error('加载用户信息失败:', err);
       this.setData({ loading: false });
@@ -128,13 +115,47 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     }
   },
 
-  /** 加载勋章数量 */
-  async loadBadgeCount(): Promise<void> {
+  /** 加载勋章数据：数量 + 下一枚勋章进度 */
+  async loadBadges(): Promise<void> {
     try {
       const result = await fetchBadges();
+      const allBadges = result.badges as { id: string; name: string; icon: string; condition: { type: string; value: number } }[];
+      const userBadgeIds = new Set(result.userBadges.map((ub: { badgeId: string }) => ub.badgeId));
+      const earnedCount = result.userBadges.length;
+      const totalCount = allBadges.length;
+      const currentStreak = this.data.currentStreak;
+
+      // 计算下一枚勋章：取 gap 最小的未获得勋章
+      let nextBadge: IMineData['nextBadge'] = null;
+      const unearned = allBadges.filter(b => !userBadgeIds.has(b.id));
+      if (unearned.length > 0) {
+        let bestGap = Infinity;
+        let bestBadge: typeof unearned[0] | null = null;
+        for (const badge of unearned) {
+          const target = badge.condition.value;
+          const gap = Math.max(0, target - currentStreak);
+          if (gap < bestGap) {
+            bestGap = gap;
+            bestBadge = badge;
+          }
+        }
+        if (bestBadge) {
+          const target = bestBadge.condition.value;
+          const rawPercent = target > 0 ? Math.min(Math.round((currentStreak / target) * 100), 100) : 100;
+          nextBadge = {
+            name: bestBadge.name,
+            icon: bestBadge.icon,
+            gap: bestGap,
+            gapLabel: bestGap === 0 ? '即将获得' : '天',
+            percent: rawPercent,
+          };
+        }
+      }
+
       this.setData({
-        badgeCount: result.userBadges.length,
-        totalBadges: result.badges.length,
+        badgeCount: earnedCount,
+        totalBadges: totalCount,
+        nextBadge,
       });
     } catch {
       // 勋章数据加载失败不阻塞页面
@@ -155,7 +176,18 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 打开分享海报弹窗 */
   onTapShare(): void {
-    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false });
+    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false, pactChecked: false });
+  },
+
+  /** 签订契约并关闭 */
+  onConfirmPact(): void {
+    if (!this.data.pactChecked) return;
+    this.setData({ showSharePoster: false });
+  },
+
+  /** 切换契约复选框 */
+  onTogglePactCheck(): void {
+    this.setData({ pactChecked: !this.data.pactChecked });
   },
 
   /** 关闭海报弹窗 */
@@ -217,14 +249,20 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     });
   },
 
-  /** 点击「分享朋友圈」——先检查是否已保存，再记录分享 */
+  /** 进入签订契约阶段二 */
   onConfirmShare(): void {
-    if (!this.data.posterSaved) {
-      wx.showToast({ title: '请先保存图片', icon: 'none' });
-      return;
-    }
     recordShare().catch(() => {});
     this.setData({ shareConfirmed: true });
+  },
+
+  /** 点击「金石契」标签 → 弹出弹窗 */
+  onTapNuoBadge(): void {
+    this.setData({ showNuoDialog: true });
+  },
+
+  /** 关闭诺言会员弹窗 */
+  onCloseNuoDialog(): void {
+    this.setData({ showNuoDialog: false });
   },
 
   /** 分享给微信好友（原生菜单） */

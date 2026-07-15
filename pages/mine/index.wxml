@@ -21,9 +21,13 @@
       <!-- 用户信息 -->
       <view class="page-mine__user-info" data-url="/pages/profile-edit/index" bindtap="onTapMenuItem">
         <text class="page-mine__username">{{userName}}</text>
-        <view class="page-mine__level-badge">
-          <text class="page-mine__level-title">{{levelTitle}}</text>
-          <text class="page-mine__level-text">Lv.{{level}}</text>
+        <view class="page-mine__level-row">
+          <view
+            wx:if="{{memberLevel >= 1}}"
+            class="page-mine__nuo-badge"
+            catch:tap="onTapNuoBadge"
+            hover-class="page-mine__nuo-badge--active"
+          >契约会员</view>
         </view>
       </view>
 
@@ -34,16 +38,22 @@
       </view>
     </view>
 
-    <!-- XP 进度条 -->
-    <view class="page-mine__xp-section">
-      <view class="page-mine__xp-header">
-        <text class="page-mine__xp-label">经验值</text>
-        <text class="page-mine__xp-value">{{totalXP}} / {{xpForNextLevel}}</text>
+    <!-- 勋章进度条 -->
+    <view wx:if="{{nextBadge}}" class="page-mine__badge-progress">
+      <view class="page-mine__badge-progress-header">
+        <view class="page-mine__badge-progress-left">
+          <text class="page-mine__badge-progress-icon">{{nextBadge.icon}}</text>
+          <text class="page-mine__badge-progress-name">{{nextBadge.name}}</text>
+        </view>
+        <text class="page-mine__badge-progress-gap">
+          <block wx:if="{{nextBadge.gap === 0}}">即将获得</block>
+          <block wx:else>还差 {{nextBadge.gap}} 天</block>
+        </text>
       </view>
-      <view class="page-mine__xp-bar">
+      <view class="page-mine__badge-progress-bar">
         <view
-          class="page-mine__xp-fill"
-          style="width: {{xpProgress}}%"
+          class="page-mine__badge-progress-fill"
+          style="width: {{nextBadge.percent}}%;"
         ></view>
       </view>
     </view>
@@ -101,24 +111,46 @@
         <view class="page-mine__poster-actions">
           <view class="page-mine__poster-btn-row">
             <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
-            <button
-              class="page-mine__poster-share {{posterSaved ? '' : 'page-mine__poster-share--disabled'}}"
-              bindtap="onConfirmShare"
-            >分享朋友圈</button>
+            <button class="page-mine__poster-btn-row-link" bindtap="onConfirmShare">我已保存，签订契约</button>
           </view>
         </view>
       </block>
 
-      <!-- 阶段二：信任文案（替换海报） -->
+      <!-- 阶段二：签订契约（替换海报） -->
       <view class="page-mine__poster-trust" wx:else>
-        <text class="page-mine__poster-trust-icon">🤝</text>
-        <text class="page-mine__poster-trust-title">君子一诺</text>
-        <text class="page-mine__poster-trust-text">分享与否，吾等未之察也</text>
-        <text class="page-mine__poster-trust-text">君既信文言雀之助益</text>
-        <text class="page-mine__poster-trust-text">吾等亦信君之必传也</text>
-        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--em">君已永享修习之益</text>
-        <button class="page-mine__poster-trust-btn" bindtap="onCloseShare">朕知道了</button>
+        <text class="page-mine__poster-trust-icon">📜</text>
+        <text class="page-mine__poster-trust-title">金石契</text>
+        <text class="page-mine__poster-trust-text">君以分享托付文言雀</text>
+        <text class="page-mine__poster-trust-text">文言雀亦以赤诚报君</text>
+        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--pact">此约既成，金石不渝</text>
+        <text class="page-mine__poster-trust-footer">您已签订契约，永久免费学习</text>
+        <!-- 签订契约复选框 -->
+        <view class="page-mine__poster-trust-check" bindtap="onTogglePactCheck">
+          <view class="page-mine__poster-trust-check-box {{pactChecked ? 'page-mine__poster-trust-check-box--checked' : ''}}">
+            <text wx:if="{{pactChecked}}" class="page-mine__poster-trust-check-mark">✓</text>
+          </view>
+          <text class="page-mine__poster-trust-check-label">余今签契，行之以诚</text>
+        </view>
+        <button
+          class="page-mine__poster-trust-btn {{pactChecked ? '' : 'page-mine__poster-trust-btn--disabled'}}"
+          bindtap="onConfirmPact"
+          disabled="{{!pactChecked}}"
+        >君子一诺，签订契约</button>
       </view>
+    </view>
+  </view>
+
+  <!-- 契约会员弹窗 -->
+  <view class="page-mine__nuo-overlay" wx:if="{{showNuoDialog}}" bindtap="onCloseNuoDialog">
+    <view class="page-mine__nuo-modal" catchtap="noop">
+      <view class="page-mine__nuo-modal-close" bindtap="onCloseNuoDialog">✕</view>
+      <view class="page-mine__nuo-modal-seal">契</view>
+      <text class="page-mine__nuo-modal-icon">📜</text>
+      <text class="page-mine__nuo-modal-title">金石契</text>
+      <text class="page-mine__nuo-modal-text">君以分享托付文言雀</text>
+      <text class="page-mine__nuo-modal-text">文言雀亦以赤诚报君</text>
+      <text class="page-mine__nuo-modal-text page-mine__nuo-modal-text--pact">此约既成，金石不渝</text>
+      <text class="page-mine__nuo-modal-footer">您已签订契约，永久免费学习</text>
     </view>
   </view>
 </view>
