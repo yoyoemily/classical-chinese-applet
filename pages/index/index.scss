@@ -174,10 +174,25 @@
     font-weight: 600;
     color: var(--color-text-primary);
   }
-  &__book-arrow {
-    font-size: $font-size-xs;
-    color: var(--color-text-hint);
-    margin-left: $spacing-xs;
+  &__book-switch {
+    display: flex;
+    align-items: center;
+    gap: 6rpx;
+    padding: 10rpx 20rpx;
+    border-radius: 12rpx;
+    background: rgba($color-primary, 0.1);
+    border: 2rpx solid var(--color-border);
+    font-size: 24rpx;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+  &__book-switch-icon {
+    font-size: 24rpx;
+    line-height: 1;
+  }
+  &__book-switch-text {
+    font-size: 24rpx;
+    line-height: 1;
   }
 
   // 掌握进度数字

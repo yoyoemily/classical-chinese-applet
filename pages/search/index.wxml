@@ -115,11 +115,17 @@ module.exports = {
         <view class="page-search__result-item">
           <!-- 词头 -->
           <view class="page-search__result-word">
-            <text class="page-search__result-character">{{item.character}}</text>
-            <text
-              wx:if="{{item.pinyin}}"
-              class="page-search__result-pinyin"
-            >{{item.pinyin}}</text>
+            <view class="page-search__result-word-left">
+              <text class="page-search__result-character">{{item.character}}</text>
+              <text
+                wx:if="{{item.pinyin}}"
+                class="page-search__result-pinyin"
+              >{{item.pinyin}}</text>
+            </view>
+            <view
+              wx:if="{{item.wordBookName}}"
+              class="page-search__result-book-tag"
+            >{{item.wordBookName}}</view>
           </view>
 
           <!-- 义项列表 -->

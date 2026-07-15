@@ -62,7 +62,10 @@
         bindtap="onTapBookSelector"
       >
         <text class="page-index__book-name">{{currentBook.name}}</text>
-        <text class="page-index__book-arrow">▼</text>
+        <view class="page-index__book-switch">
+          <text class="page-index__book-switch-text">切换词书</text>
+          <text class="page-index__book-switch-icon">📚</text>
+        </view>
       </view>
 
       <!-- 掌握进度 -->

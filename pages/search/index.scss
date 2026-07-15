@@ -206,10 +206,16 @@
 
   &__result-word {
     display: flex;
-    align-items: baseline;
-    gap: $spacing-sm;
+    justify-content: space-between;
+    align-items: center;
     padding-bottom: $spacing-sm;
     border-bottom: 1rpx solid var(--color-border-light);
+  }
+
+  &__result-word-left {
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-sm;
   }
 
   &__result-character {
@@ -223,6 +229,20 @@
   &__result-pinyin {
     font-size: $font-size-sm;
     color: var(--color-text-hint);
+  }
+
+  &__result-book-tag {
+    flex-shrink: 0;
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    padding: 4rpx 16rpx;
+    border-radius: 8rpx;
+    line-height: 1.5;
+    border: 1rpx solid var(--color-border-light);
+    max-width: 240rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   // -------- 义项列表 --------
