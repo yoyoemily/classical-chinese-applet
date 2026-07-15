@@ -361,6 +361,8 @@ export interface IStudySession {
   completedCount: number
   correctCount: number
   wrongCount: number
+  /** 本次学习获得的总经验值（仅新学词答对计入） */
+  xpGained: number
   startTime: number
 }
 

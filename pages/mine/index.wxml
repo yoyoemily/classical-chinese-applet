@@ -20,7 +20,10 @@
 
       <!-- 用户信息 -->
       <view class="page-mine__user-info" data-url="/pages/profile-edit/index" bindtap="onTapMenuItem">
-        <text class="page-mine__username">{{userName}}</text>
+        <view class="page-mine__name-row">
+          <text class="page-mine__username">{{userName}}</text>
+          <text class="page-mine__level-tag" catch:tap="onTapLevel">Lv.{{level}} {{title}}</text>
+        </view>
         <view class="page-mine__level-row">
           <view
             wx:if="{{memberLevel >= 1}}"

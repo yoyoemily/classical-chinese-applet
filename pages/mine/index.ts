@@ -15,6 +15,8 @@ interface IMenuItem {
 interface IMineData {
   avatarUrl: string;
   userName: string;
+  level: number;
+  title: string;
   currentStreak: number;
   badgeCount: number;
   totalBadges: number;
@@ -40,6 +42,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   data: {
     avatarUrl: '',
     userName: '学友',
+    level: 1,
+    title: '童生',
     currentStreak: 0,
     badgeCount: 0,
     totalBadges: 8,
@@ -87,6 +91,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       this.setData({
         avatarUrl: profileResult.avatarUrl,
         userName: displayName,
+        level: profileResult.level || 1,
+        title: profileResult.title || '童生',
         currentStreak: profileResult.currentStreak,
         currentBookName: bookResult,
         loading: false,
@@ -159,6 +165,11 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     } catch {
       // 勋章数据加载失败不阻塞页面
     }
+  },
+
+  /** 跳转等级体系 */
+  onTapLevel(): void {
+    wx.navigateTo({ url: '/pages/level-system/index' });
   },
 
   /** 跳转勋章墙 */

@@ -1,0 +1,64 @@
+<!-- 等级体系页面 -->
+<view class="page-level-system">
+
+  <!-- 当前等级卡片 -->
+  <view class="page-level-system__header">
+    <view class="page-level-system__current-card">
+      <text class="page-level-system__current-icon">🏆</text>
+      <text class="page-level-system__current-title">当前等级</text>
+      <view class="page-level-system__current-level">
+        <text class="page-level-system__current-lv">Lv.{{level}}</text>
+        <text class="page-level-system__current-name">{{title}}</text>
+      </view>
+      <view class="page-level-system__xp-info">
+        <text class="page-level-system__xp-text">累计经验：{{totalXP}} XP</text>
+        <text class="page-level-system__xp-text">当前等级进度：{{currentLevelXP}} / {{nextLevelXP}} XP</text>
+      </view>
+      <!-- 进度条 -->
+      <view class="page-level-system__progress-bar">
+        <view
+          class="page-level-system__progress-fill"
+          style="width: {{progressPercent}}%;"
+        ></view>
+      </view>
+      <text class="page-level-system__progress-label">{{progressPercent}}% · 距下一级还需 {{nextLevelXP - currentLevelXP}} XP</text>
+    </view>
+  </view>
+
+  <!-- 全部等级表 -->
+  <view class="page-level-system__table">
+    <view class="page-level-system__table-title">全部等级</view>
+    <block wx:for="{{ranks}}" wx:key="lv">
+      <view
+        class="page-level-system__rank-item
+               {{item.isCurrent ? 'page-level-system__rank-item--current' : ''}}
+               {{item.isPassed ? 'page-level-system__rank-item--passed' : ''}}"
+      >
+        <view class="page-level-system__rank-badge">
+          <text wx:if="{{item.isCurrent}}" class="page-level-system__rank-badge-icon">📍</text>
+          <text wx:elif="{{item.isPassed}}" class="page-level-system__rank-badge-icon">✅</text>
+          <text wx:else class="page-level-system__rank-badge-icon page-level-system__rank-badge-icon--dim">○</text>
+        </view>
+        <view class="page-level-system__rank-info">
+          <text class="page-level-system__rank-lv">Lv.{{item.lv}}</text>
+          <text class="page-level-system__rank-title">{{item.title}}</text>
+        </view>
+        <text class="page-level-system__rank-xp">{{item.xpRange}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 经验获取规则 -->
+  <view class="page-level-system__rules">
+    <text class="page-level-system__rules-title">如何获取经验</text>
+    <view class="page-level-system__rule-item">
+      <text class="page-level-system__rule-icon">✅</text>
+      <text class="page-level-system__rule-text">每答对一题（新学词） · +10 XP</text>
+    </view>
+    <view class="page-level-system__rule-item">
+      <text class="page-level-system__rule-icon">🎧</text>
+      <text class="page-level-system__rule-text">听音频，完成学习 · +（10 至 100）XP</text>
+    </view>
+  </view>
+
+</view>

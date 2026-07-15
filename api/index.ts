@@ -106,7 +106,7 @@ export async function submitAnswer(data: {
   return post('/api/study/answer', data, { showLoading: false });
 }
 
-export async function completeStudy(data: { wordBookId: string; correctCount: number; wrongCount: number }): Promise<{ newBadges: IBadge[]; xpGained: number }> {
+export async function completeStudy(data: { wordBookId: string; correctCount: number; wrongCount: number; xpGained: number }): Promise<{ newBadges: IBadge[]; xpGained: number }> {
   if (USE_MOCK) {
     // 一次性读取，避免多次 JSON.parse 阻塞主线程
     const progress = getProgress();
@@ -120,7 +120,7 @@ export async function completeStudy(data: { wordBookId: string; correctCount: nu
     const newBadges = checkNewBadges(existingBadgeIds, progress.currentStreak);
 
     // 经验
-    const xpGained = data.correctCount * 10;
+    const xpGained = data.xpGained || 0;
     progress.totalXP += xpGained;
 
     // 一次性写入：勋章批量写入 + 进度

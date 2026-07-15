@@ -1,0 +1,198 @@
+// ============================================
+// 等级体系页面样式
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-level-system {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom));
+
+  // -------- 当前等级头部 --------
+  &__header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    padding: $spacing-xl $spacing-md;
+  }
+
+  &__current-card {
+    @include flex-column;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__current-icon {
+    font-size: 80rpx;
+    line-height: 1;
+    margin-bottom: 4rpx;
+  }
+
+  &__current-title {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &__current-level {
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-sm;
+  }
+
+  &__current-lv {
+    font-size: 56rpx;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  &__current-name {
+    font-size: $font-size-xl;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  &__xp-info {
+    @include flex-column;
+    align-items: center;
+    gap: 2rpx;
+    margin-top: $spacing-sm;
+  }
+
+  &__xp-text {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  // -------- 进度条 --------
+  &__progress-bar {
+    width: 100%;
+    max-width: 480rpx;
+    height: 14rpx;
+    border-radius: 7rpx;
+    background-color: rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+    margin-top: $spacing-sm;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    border-radius: 7rpx;
+    background: linear-gradient(90deg, #f5d78c, #e8b84b);
+    transition: width 0.4s ease;
+  }
+
+  &__progress-label {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 4rpx;
+  }
+
+  // -------- 全部等级表 --------
+  &__table {
+    @include card;
+    margin: $spacing-md $spacing-base;
+    padding: $spacing-lg $spacing-md;
+  }
+
+  &__table-title {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: $spacing-base;
+    padding-bottom: $spacing-sm;
+    border-bottom: 2rpx solid var(--color-border-light);
+  }
+
+  &__rank-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-sm;
+    border-radius: $radius-base;
+    transition: background-color 0.2s ease;
+
+    & + & {
+      @include hairline('top', var(--color-border-light));
+    }
+
+    &--current {
+      background-color: rgba(74, 106, 94, 0.06);
+      border-radius: $radius-base;
+    }
+
+    &--passed {
+      opacity: 0.6;
+    }
+  }
+
+  &__rank-badge {
+    width: 48rpx;
+    @include flex-center;
+    flex-shrink: 0;
+  }
+
+  &__rank-badge-icon {
+    font-size: 32rpx;
+    line-height: 1;
+
+    &--dim {
+      font-size: 24rpx;
+      color: var(--color-text-hint);
+    }
+  }
+
+  &__rank-info {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-sm;
+  }
+
+  &__rank-lv {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__rank-title {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+  }
+
+  &__rank-xp {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    flex-shrink: 0;
+  }
+
+  // -------- 经验获取规则 --------
+  &__rules {
+    @include card;
+    margin: $spacing-md $spacing-base;
+    padding: $spacing-lg $spacing-md;
+  }
+
+  &__rules-title {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: $spacing-base;
+  }
+
+  &__rule-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm 0;
+  }
+
+  &__rule-icon {
+    font-size: 28rpx;
+    line-height: 1;
+  }
+
+  &__rule-text {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+  }
+}

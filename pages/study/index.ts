@@ -155,7 +155,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       const session: IStudySession = {
         words: allWords, currentWordIndex: 0, currentSentenceIndex: 0,
         mode: task.reviewWords.length > 0 ? 'review' : 'new',
-        completedCount: 0, correctCount: 0, wrongCount: 0, startTime: Date.now(),
+        completedCount: 0, correctCount: 0, wrongCount: 0, xpGained: 0, startTime: Date.now(),
       };
       this._session = session;
       saveSession(session);
@@ -472,14 +472,14 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const correct = s.correctCount;
     const wrong = s.wrongCount;
 
-    // 更新缓存中的 xpGained
+    // 更新缓存中的 xpGained（仅新学词正确计数）
     const summary = getStudySummary();
     if (summary) {
-      summary.xpGained = correct * 10;
+      summary.xpGained = s.xpGained;
       wx.setStorageSync('study_summary', JSON.stringify(summary));
     }
     // 异步通知后端完成学习
-    completeStudy({ wordBookId: getCurrentBookId(), correctCount: correct, wrongCount: wrong })
+    completeStudy({ wordBookId: getCurrentBookId(), correctCount: correct, wrongCount: wrong, xpGained: s.xpGained })
       .catch(() => {});
 
     // 播放完成音效，然后跳转（延迟 0.8s 等音效播完）
@@ -501,11 +501,15 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const correctAnswer = correctIdx >= 0 && correctIdx < options.length
       ? options[correctIdx] : '';
     try {
-      await submitAnswer({
+      const res = await submitAnswer({
         wordBookId: this._bookId, wordId: word.wordId, sentenceId: sent.id,
         selectedOption: selectedIndex, correct: isCorrect,
         correctAnswer, wrongAnswer,
       });
+      // 累加服务端返回的 XP（仅新学词答对时 >0）
+      if (res?.xpGained) {
+        s.xpGained += res.xpGained;
+      }
     } catch { /* ignore */ }
 
     if (isCorrect) {

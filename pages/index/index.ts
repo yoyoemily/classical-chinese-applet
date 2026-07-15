@@ -1,6 +1,6 @@
 import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes, fetchUserProfile, signPact } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
-import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
+import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
 import type { IUserProgress, IBadge } from '../../typings/index.d';
 
 // ============================================
@@ -169,9 +169,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       const distribution = this.computeDistribution(progress, progress.wordsMastered);
       const nextBadge = this.computeNextBadge(badgesData.badges, badgesData.userBadges, progress);
       const mistakeCount = mistakes.length;
-
-      // 兼容 calcLevel 导入（计算用户等级信息供后续扩展使用）
-      void calcLevel;
 
       // 兼容 setCurrentBookId 导入（词书切换在 book-select 页面完成，
       // 此处保留引入以备用）

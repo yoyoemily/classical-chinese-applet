@@ -18,7 +18,8 @@
     "pages/vocabulary/index",
     "pages/classic/index",
     "pages/classic-reader/index",
-    "pages/word-reader/index"
+    "pages/word-reader/index",
+    "pages/level-system/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4a6a5e",

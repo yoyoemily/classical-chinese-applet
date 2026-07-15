@@ -72,6 +72,12 @@
     font-weight: 500;
   }
 
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
   &__username {
     font-size: $font-size-xl;
     font-weight: 600;
@@ -79,16 +85,16 @@
     margin-bottom: 2rpx;
   }
 
-  &__level-badge {
-    // 已废弃，保留空壳避免编译错误
-  }
-
-  &__level-title {
-    // 已废弃
-  }
-
-  &__level-text {
-    // 已废弃
+  // -------- 等级标签 --------
+  &__level-tag {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 4rpx 14rpx;
+    border-radius: 18rpx;
+    font-weight: 500;
+    line-height: 1.4;
+    @include active(rgba(255, 255, 255, 0.25));
   }
 
   &__level-row {

@@ -38,21 +38,19 @@ export const RANK_TITLES: string[] = [
   '童生', '秀才', '举人', '贡士', '进士', '探花', '榜眼', '状元', '翰林'
 ];
 
-/** 每级所需经验 */
-export function getLevelXP(level: number): number {
-  return 100 * level;
-}
+/** 每级最低 XP 门槛（与 RANK_TITLES 一一对应，与后端 UserService.LEVEL_THRESHOLDS 一致） */
+export const LEVEL_THRESHOLDS: number[] = [
+  0, 1000, 2000, 3000, 5000, 10000, 20000, 30000, 50000
+];
 
-/** 根据总 XP 计算等级 */
+/** 根据总 XP 计算等级（查阈值表，从高往低匹配。与后端 UserService.calcLevel 一致） */
 export function calcLevel(totalXP: number): { level: number; title: string } {
-  let remaining = totalXP;
-  let lvl = 1;
-  while (remaining >= getLevelXP(lvl) && lvl < 50) {
-    remaining -= getLevelXP(lvl);
-    lvl++;
+  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (totalXP >= LEVEL_THRESHOLDS[i]) {
+      return { level: i + 1, title: RANK_TITLES[i] };
+    }
   }
-  const titleIndex = Math.min(Math.floor((lvl - 1) / 6), RANK_TITLES.length - 1);
-  return { level: lvl, title: RANK_TITLES[titleIndex] };
+  return { level: 1, title: RANK_TITLES[0] };
 }
 
 // ============================================

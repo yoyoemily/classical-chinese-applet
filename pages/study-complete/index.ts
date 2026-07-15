@@ -1,5 +1,4 @@
 import { getStudySummary } from '../../utils/storage';
-import { XP_PER_CORRECT } from '../../constants/config';
 import { randomPick } from '../../utils/util';
 import { ENCOURAGEMENT_POEMS } from '../../constants/config';
 
@@ -25,7 +24,7 @@ Page<IStudyCompleteData, WechatMiniprogram.Page.CustomOption>({
     const wrong = summary?.wrongCount ?? 0;
     const total = correct + wrong;
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
-    const xpGained = summary?.xpGained ?? correct * XP_PER_CORRECT;
+    const xpGained = summary?.xpGained ?? 0;
     const poem = randomPick(ENCOURAGEMENT_POEMS);
 
     this.setData({
