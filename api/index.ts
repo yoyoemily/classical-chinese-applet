@@ -251,11 +251,11 @@ export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUs
   return get('/api/badges');
 }
 
-export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; hasShared: boolean; memberLevel: number; nickName: string }> {
+export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; memberLevel: number; nickName: string; avatarUrl: string }> {
   if (USE_MOCK) {
     const progress = getProgress();
     const levelInfo = calcLevel(progress.totalXP);
-    return { ...levelInfo, totalXP: progress.totalXP, currentStreak: progress.currentStreak };
+    return { ...levelInfo, totalXP: progress.totalXP, currentStreak: progress.currentStreak, avatarUrl: '', nickName: '', memberLevel: 0 };
   }
   return get('/api/user/profile');
 }
@@ -326,7 +326,7 @@ export async function saveUserInfo(profile: IUserProfile): Promise<void> {
 // ============================================
 // 分享跟踪
 // ============================================
-export async function recordShare(): Promise<{ hasShared: boolean; memberLevel: number }> {
+export async function recordShare(): Promise<{ memberLevel: number }> {
   return post('/api/user/share');
 }
 

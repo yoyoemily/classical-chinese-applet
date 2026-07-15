@@ -72,8 +72,6 @@ interface IIndexData {
   mistakeCount: number;
   /** 下一个可获得的勋章 */
   nextBadge: INextBadge | null;
-  /** 用户是否已分享 */
-  hasShared: boolean;
   /** 会员级别 */
   memberLevel: number;
   /** 用户昵称 */
@@ -108,7 +106,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     loading: true,
     mistakeCount: 0,
     nextBadge: null,
-    hasShared: false,
     memberLevel: 0,
     showShareGate: false,
     nickName: '',
@@ -199,7 +196,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         loading: false,
         mistakeCount,
         nextBadge,
-        hasShared: profile.hasShared,
         memberLevel: profile.memberLevel,
         nickName: profile.nickName || '',
       });
@@ -318,7 +314,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       return;
     }
     // 打卡满10天 → 进入第11天，必须分享过
-    if (SHARE_GATE_STREAK_DAYS !== -1 && this.data.streak >= SHARE_GATE_STREAK_DAYS && !this.data.hasShared) {
+    if (SHARE_GATE_STREAK_DAYS !== -1 && this.data.streak >= SHARE_GATE_STREAK_DAYS && this.data.memberLevel < 1) {
       this.setData({ showShareGate: true });
       return;
     }

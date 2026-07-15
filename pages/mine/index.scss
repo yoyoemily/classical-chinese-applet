@@ -341,18 +341,19 @@
   &__poster-btn-row-link {
     flex: 1;
     padding: $spacing-md 0;
-    background-color: rgba(74, 106, 94, 0.08);
-    color: var(--color-primary);
+    background-color: var(--color-accent);
+    color: #ffffff;
     font-size: $font-size-md;
     font-weight: 500;
     border-radius: $radius-base;
     text-align: center;
-    border: 2rpx solid var(--color-primary);
-    @include active(rgba(74, 106, 94, 0.18));
+    @include active(rgba(201, 169, 110, 0.8));
 
     &--disabled {
       opacity: 0.5;
       background-color: rgba(74, 106, 94, 0.04);
+      color: var(--color-primary);
+      border: 2rpx solid var(--color-primary);
     }
 
     &::after {
@@ -557,8 +558,8 @@
 
   &__nuo-modal-footer {
     margin-top: $spacing-lg;
-    font-size: $font-size-xs;
-    color: var(--color-text-hint);
+    font-size: $font-size-sm;
+    color: #b8860b;
     text-align: center;
   }
 

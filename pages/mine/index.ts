@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchWordBooks, fetchUserInfo, recordShare, fetchBadges } from '../../api/index';
+import { fetchUserProfile, fetchWordBooks, recordShare, fetchBadges } from '../../api/index';
 import { getCurrentBookId } from '../../utils/storage';
 
 interface IMenuItem {
@@ -77,16 +77,15 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
     try {
       // 加载个人信息
-      const [profileResult, bookResult, userInfo] = await Promise.all([
+      const [profileResult, bookResult] = await Promise.all([
         fetchUserProfile(),
         this.getCurrentBookName(),
-        fetchUserInfo(),
       ]);
 
-      const displayName = userInfo.nickName || '学友';
+      const displayName = profileResult.nickName || '学友';
 
       this.setData({
-        avatarUrl: userInfo.avatarUrl,
+        avatarUrl: profileResult.avatarUrl,
         userName: displayName,
         currentStreak: profileResult.currentStreak,
         currentBookName: bookResult,
@@ -186,6 +185,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       await recordShare();
     } catch { /* 网络失败不阻塞 */ }
     this.setData({ showSharePoster: false });
+    this.loadProfile();
   },
 
   /** 切换契约复选框 */

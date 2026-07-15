@@ -113,9 +113,8 @@
             <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
             <button
               wx:if="{{memberLevel < 1}}"
-              class="page-mine__poster-btn-row-link {{posterSaved ? '' : 'page-mine__poster-btn-row-link--disabled'}}"
+              class="page-mine__poster-btn-row-link"
               bindtap="onConfirmShare"
-              disabled="{{!posterSaved}}"
             >分享朋友圈</button>
           </view>
         </view>
