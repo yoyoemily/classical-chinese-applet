@@ -22,9 +22,9 @@
       <view class="page-mine__user-info" data-url="/pages/profile-edit/index" bindtap="onTapMenuItem">
         <view class="page-mine__name-row">
           <text class="page-mine__username">{{userName}}</text>
-          <text class="page-mine__level-tag" catch:tap="onTapLevel">Lv.{{level}} {{title}}</text>
         </view>
         <view class="page-mine__level-row">
+          <text class="page-mine__level-tag" catch:tap="onTapLevel">Lv.{{level}} {{title}}</text>
           <view
             wx:if="{{memberLevel >= 1}}"
             class="page-mine__nuo-badge"

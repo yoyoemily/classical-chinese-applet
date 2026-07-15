@@ -57,7 +57,7 @@
     </view>
     <view class="page-level-system__rule-item">
       <text class="page-level-system__rule-icon">🎧</text>
-      <text class="page-level-system__rule-text">听音频，完成学习 · +（10 至 100）XP</text>
+      <text class="page-level-system__rule-text">选篇/经典，听完整音频 · +（10 至 100）XP</text>
     </view>
   </view>
 

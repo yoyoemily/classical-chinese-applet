@@ -54,20 +54,20 @@
   &__badge-entry {
     display: flex;
     align-items: center;
-    gap: 6rpx;
-    padding: 8rpx 20rpx;
-    border-radius: 24rpx;
+    gap: 8rpx;
+    padding: 12rpx 24rpx;
+    border-radius: 28rpx;
     background-color: rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
   }
 
   &__badge-icon {
-    font-size: 28rpx;
+    font-size: 32rpx;
     line-height: 1;
   }
 
   &__badge-count {
-    font-size: 22rpx;
+    font-size: 24rpx;
     color: rgba(255, 255, 255, 0.85);
     font-weight: 500;
   }
@@ -87,12 +87,15 @@
 
   // -------- 等级标签 --------
   &__level-tag {
+    display: inline-flex;
+    align-items: center;
     font-size: $font-size-xs;
     color: rgba(255, 255, 255, 0.75);
     background-color: rgba(255, 255, 255, 0.15);
-    padding: 4rpx 14rpx;
-    border-radius: 18rpx;
-    font-weight: 500;
+    padding: 4rpx 16rpx;
+    border-radius: 20rpx;
+    border: 1rpx solid rgba(255, 255, 255, 0.2);
+    font-weight: 600;
     line-height: 1.4;
     @include active(rgba(255, 255, 255, 0.25));
   }
@@ -113,9 +116,8 @@
     font-weight: 600;
     color: #5c3d0e;
     background: linear-gradient(135deg, #f5d78c, #e8b84b, #d4a12a);
-    box-shadow: 0 0 16rpx rgba(212, 161, 42, 0.5), inset 0 1rpx 0 rgba(255, 255, 255, 0.4);
+    box-shadow: none;
     border: 1rpx solid rgba(200, 150, 50, 0.4);
-    animation: nuo-shimmer 2.5s ease-in-out infinite;
 
     &--active {
       opacity: 0.8;
