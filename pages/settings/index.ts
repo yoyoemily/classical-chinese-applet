@@ -59,7 +59,7 @@ Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
   },
   onClearData(): void {
     wx.showModal({
-      title: '确认清除', content: '将清除所有学习进度、打卡记录和勋章数据，此操作不可恢复。',
+      title: '确认清除', content: '该操作会清除所有历史数据，包括学习记录、错题本、等级勋章等。',
       confirmText: '确定清除', confirmColor: '#ff4d4f',
       success: (res) => {
         if (res.confirm) {

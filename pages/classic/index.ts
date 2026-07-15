@@ -154,7 +154,7 @@ Page<IClassicData, WechatMiniprogram.Page.CustomOption>({
   onTapTip(): void {
     wx.showModal({
       title: '经典阅读',
-      content: '五十余部传世典籍，涵盖经史子集四部，上起商周、下至明清。已完成的经典可直接阅读，其余正在逐步整理中，敬请期待。',
+      content: '五十二部传世典籍，按经、史、子、集四部分类，上起商周、下至明清。每部经典附原文、译文、典故注释与生僻字拼音旁注，支持语音播报，助你无障碍通读原典。',
       showCancel: false,
       confirmText: '我知道了',
     });
