@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchWordBooks, recordShare, fetchBadges } from '../../api/index';
+import { fetchUserProfile, fetchWordBooks, signPact, fetchBadges } from '../../api/index';
 import { getCurrentBookId } from '../../utils/storage';
 
 interface IMenuItem {
@@ -182,7 +182,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   async onConfirmPact(): Promise<void> {
     if (!this.data.pactChecked) return;
     try {
-      await recordShare();
+      await signPact();
     } catch { /* 网络失败不阻塞 */ }
     this.setData({ showSharePoster: false });
     this.loadProfile();

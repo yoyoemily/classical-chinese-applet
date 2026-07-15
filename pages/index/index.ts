@@ -1,4 +1,4 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes, fetchUserProfile, recordShare } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes, fetchUserProfile, signPact } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { calcLevel, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
 import type { IUserProgress, IBadge } from '../../typings/index.d';
@@ -368,7 +368,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
 
   /** 分享（门禁弹窗的转发按钮 + 右上角菜单） */
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
-    recordShare().catch(() => {});
+    signPact().catch(() => {});
     return {
       title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
       path: '/pages/index/index',

@@ -324,10 +324,10 @@ export async function saveUserInfo(profile: IUserProfile): Promise<void> {
 }
 
 // ============================================
-// 分享跟踪
+// 签订契约
 // ============================================
-export async function recordShare(): Promise<{ memberLevel: number }> {
-  return post('/api/user/share');
+export async function signPact(): Promise<{ memberLevel: number }> {
+  return post('/api/user/pact');
 }
 
 // ============================================
