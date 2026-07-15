@@ -119,9 +119,8 @@ export async function completeStudy(data: { wordBookId: string; correctCount: nu
     // 检查新勋章（全部为累计学习天数维度）
     const newBadges = checkNewBadges(existingBadgeIds, progress.currentStreak);
 
-    // 经验
+    // XP 已在 completeWord 中逐词写入，此处仅回传前端用于展示
     const xpGained = data.xpGained || 0;
-    progress.totalXP += xpGained;
 
     // 一次性写入：勋章批量写入 + 进度
     addUserBadges(newBadges.map(b => b.id));
@@ -130,6 +129,25 @@ export async function completeStudy(data: { wordBookId: string; correctCount: nu
     return { newBadges, xpGained };
   }
   return post('/api/study/complete', data, { showLoading: false });
+}
+
+/**
+ * 完成单个字词学习（所有句子答完后，进入字总结页时调用）。
+ * 仅新学词返回 xpGained=10，复习词返回 0。
+ */
+export async function completeWord(data: { wordBookId: string; wordId: string }): Promise<{ xpGained: number }> {
+  if (USE_MOCK) {
+    const progress = getProgress();
+    const wp = progress.wordProgresses[data.wordId];
+    // mock: 无进度记录说明是新学词
+    const isNew = !wp;
+    if (isNew) {
+      progress.totalXP += 10;
+      saveProgress(progress);
+    }
+    return { xpGained: isNew ? 10 : 0 };
+  }
+  return post('/api/study/word-complete', data, { showLoading: false });
 }
 
 // ============================================

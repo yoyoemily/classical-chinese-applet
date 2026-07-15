@@ -16,6 +16,7 @@ interface IWordSummaryData {
   examFrequency: string;
   meaningItems: IMeaningItem[];
   loading: boolean;
+  xpGained: number;
 }
 
 Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
@@ -24,9 +25,12 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
     oracleForm: '', examFrequency: '',
     meaningItems: [],
     loading: true,
+    xpGained: 0,
   },
   onLoad(options: Record<string, string | undefined>): void {
     const wordId = options.wordId || '';
+    const xpGained = parseInt(options.xpGained || '0', 10) || 0;
+    this.setData({ xpGained });
     if (wordId) this.loadWord(wordId);
     else this.setData({ loading: false });
   },

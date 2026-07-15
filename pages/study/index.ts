@@ -1,5 +1,5 @@
 import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold, initStudySummary, incrementStudySummary, getStudySummary } from '../../utils/storage';
-import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback, completeStudy } from '../../api/index';
+import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { playCorrectSound, playWrongSound, playCompleteSound, destroyAudioContext } from '../../utils/audio-feedback';
@@ -441,11 +441,19 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     }
   },
 
-  goToWordSummary(wordId: string): void {
+  async goToWordSummary(wordId: string): Promise<void> {
     const s = this._session!;
     s.currentWordIndex++;
     s.currentSentenceIndex = 0;
     s.completedCount = s.currentWordIndex;
+
+    // 通知后端字词完成，获取 XP（await 确保 XP 累加到 session 后再推进）
+    let xpGained = 0;
+    try {
+      const res = await completeWord({ wordBookId: this._bookId, wordId });
+      xpGained = res?.xpGained || 0;
+      if (xpGained) s.xpGained += xpGained;
+    } catch { /* ignore */ }
 
     // 最后一个字：跳过字总结，直接完成
     if (s.currentWordIndex >= s.words.length) {
@@ -463,7 +471,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       completedWords: s.currentWordIndex,
       modeLabel: s.mode === 'review' ? '复习' : '新学',
     });
-    wx.navigateTo({ url: `/pages/word-summary/index?wordId=${wordId}` });
+
+    wx.navigateTo({ url: `/pages/word-summary/index?wordId=${wordId}&xpGained=${xpGained}` });
     this._needResume = true;
   },
 
@@ -501,15 +510,12 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const correctAnswer = correctIdx >= 0 && correctIdx < options.length
       ? options[correctIdx] : '';
     try {
-      const res = await submitAnswer({
+      await submitAnswer({
         wordBookId: this._bookId, wordId: word.wordId, sentenceId: sent.id,
         selectedOption: selectedIndex, correct: isCorrect,
         correctAnswer, wrongAnswer,
       });
-      // 累加服务端返回的 XP（仅新学词答对时 >0）
-      if (res?.xpGained) {
-        s.xpGained += res.xpGained;
-      }
+      // XP 在 completeWord 中发放，不再在 submitAnswer 中累加
     } catch { /* ignore */ }
 
     if (isCorrect) {

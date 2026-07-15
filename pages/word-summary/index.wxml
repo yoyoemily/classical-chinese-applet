@@ -16,6 +16,7 @@
         </view>
         <text class="page-word-summary__character">{{character}}</text>
         <text class="page-word-summary__explanation" wx:if="{{explanation}}">{{explanation}}</text>
+        <view class="page-word-summary__xp" wx:if="{{xpGained > 0}}">+{{xpGained}} XP</view>
         <image class="page-word-summary__ancient" wx:if="{{oracleForm}}" src="{{oracleForm}}" mode="widthFix" />
       </view>
 
