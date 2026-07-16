@@ -212,34 +212,34 @@
   // 生词高亮文本
   &__vocab-word {
     color: var(--color-primary, #4a6a5e);
-    border-bottom: 2rpx solid var(--color-primary, #4a6a5e);
-    padding-bottom: 2rpx;
-    transition: background 0.15s ease;
+    // 用 background-image 模拟下划线，比文字略短（两侧各缩 3rpx），
+    // 这样相邻不同 word 的下划线之间自然有 6rpx 间隙，不拉大字间距。
+    background-image: linear-gradient(to right, currentColor, currentColor);
+    background-size: calc(100% - 6rpx) 2rpx;
+    background-position: center bottom 2rpx;
+    background-repeat: no-repeat;
+    transition: background-size 0.15s ease;
+    padding-bottom: 4rpx;
 
     // ---- wordType 颜色变体 ----
     &--shi {
       color: var(--color-wordtype-shi, #4a6a5e);
-      border-bottom-color: var(--color-wordtype-shi, #4a6a5e);
     }
     &--xu {
       color: var(--color-wordtype-xu, #8b7355);
-      border-bottom-color: var(--color-wordtype-xu, #8b7355);
     }
     &--tongjia {
       color: var(--color-wordtype-tongjia, #b85450);
-      border-bottom-color: var(--color-wordtype-tongjia, #b85450);
     }
     &--gujinyi {
       color: var(--color-wordtype-gujinyi, #2980b9);
-      border-bottom-color: var(--color-wordtype-gujinyi, #2980b9);
     }
     &--huoyong {
       color: var(--color-wordtype-huoyong, #9b6db5);
-      border-bottom-color: var(--color-wordtype-huoyong, #9b6db5);
     }
 
     &--hover {
-      background: rgba(74, 106, 94, 0.08);
+      opacity: 0.6;
     }
   }
 

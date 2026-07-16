@@ -231,7 +231,22 @@
 	          }
 	        }
 	      }
-	      return segments;
+	      // 合并属于同一 word 的连续 keyword 字符，
+	      // 使多字词（如"明年"）渲染为一条完整下划线，
+	      // 而不同 word 的相邻字符保持独立、视觉上自然区分。
+	      const merged: IVocabSegment[] = [];
+	      for (let idx = 0; idx < segments.length; idx++) {
+	        const cur = segments[idx];
+	        if (cur.isKeyword && merged.length > 0) {
+	          const prev = merged[merged.length - 1];
+	          if (prev.isKeyword && prev.word === cur.word) {
+	            prev.text += cur.text;
+	            continue;
+	          }
+	        }
+	        merged.push({ ...cur });
+	      }
+	      return merged;
 	    });
 	  },
 
@@ -339,7 +354,22 @@
 	          }
 	        }
 	      }
-	      return segments;
+	      // 合并属于同一 word 的连续 keyword 字符，
+	      // 使多字词（如"明年"）渲染为一条完整下划线，
+	      // 而不同 word 的相邻字符保持独立、视觉上自然区分。
+	      const merged: IVocabSegment[] = [];
+	      for (let idx = 0; idx < segments.length; idx++) {
+	        const cur = segments[idx];
+	        if (cur.isKeyword && merged.length > 0) {
+	          const prev = merged[merged.length - 1];
+	          if (prev.isKeyword && prev.word === cur.word) {
+	            prev.text += cur.text;
+	            continue;
+	          }
+	        }
+	        merged.push({ ...cur });
+	      }
+	      return merged;
 	    });
 	  },
 
