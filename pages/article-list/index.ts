@@ -65,7 +65,7 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
       const displayArticles: IArticleDisplay[] = articles.map((article) => ({
         ...article,
         progress: 0,
-        keywordCount: article.relatedWordIds?.length ?? 0,
+        keywordCount: article.keywordCount ?? 0,
       }));
 
       this.setData({

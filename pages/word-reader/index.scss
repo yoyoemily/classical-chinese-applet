@@ -82,10 +82,10 @@
     display: flex; align-items: flex-start; padding: 4rpx 0;
   }
   &__usage-detail-label {
-    font-size: $font-size-sm; color: $color-text-hint; flex-shrink: 0;
+    font-size: $font-size-base; color: $color-text-hint; flex-shrink: 0;
   }
   &__usage-detail-text {
-    font-size: $font-size-sm; color: $color-text-secondary; line-height: 1.6;
+    font-size: $font-size-base; color: $color-text-secondary; line-height: 1.6;
   }
 
   &__bottom-placeholder { height: 80rpx; }

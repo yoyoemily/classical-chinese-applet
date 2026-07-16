@@ -205,7 +205,7 @@ export interface IArticle {
   background?: string
   fullTextAudioUrl?: string
   sentences: IArticleSentence[]
-  relatedWordIds: string[]
+  keywordCount: number
 }
 
 export type ArticleMastery = 'none' | 'read' | 'understood' | 'memorized'

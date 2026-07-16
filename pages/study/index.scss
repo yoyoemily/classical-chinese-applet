@@ -54,7 +54,7 @@
   &__sentence-area { @include flex-column; align-items: center; width: 100%; margin-bottom: $spacing-md; }
   &__sentence-text { font-size: 40rpx; font-weight: 600; color: var(--color-text-primary); text-align: center; line-height: 1.8; font-family: 'STKaiti','KaiTi','楷体',serif; padding: $spacing-sm 0; display: block; }
   &__sentence-target { color: var(--color-accent); border-bottom: 6rpx solid var(--color-accent); padding-bottom: 4rpx; }
-  &__sentence-source { font-size: $font-size-xs; color: var(--color-text-hint); font-style: italic; text-align: right; max-width: 60%;
+  &__sentence-source { font-size: 24rpx; color: var(--color-text-hint); font-style: italic; text-align: right; max-width: 60%;
     &--link { .page-study__sentence-source-text { color: var(--color-accent); font-style: normal; font-weight: 500; text-decoration: underline; text-underline-offset: 4rpx;
         &:active { color: darken($color-accent, 10%); }
       }

@@ -135,17 +135,17 @@ export const mockArticles: IArticle[] = [
   {
     id: 'art_001', title: '岳阳楼记', author: '范仲淹', dynasty: '北宋', category: 'prose', textbook: 'grade9a',
     sentences: art_001_sentences,
-    relatedWordIds: ['wb_mid_001_01', 'wb_mid_001_03', 'wb_mid_001_09', 'wb_tjia_002_05'],
+    keywordCount: 14,
   },
   {
     id: 'art_002', title: '论语四则', author: '孔子', dynasty: '春秋', category: 'argument', textbook: 'grade7a',
     sentences: art_002_sentences,
-    relatedWordIds: ['wb_mid_001_01', 'wb_mid_001_02', 'wb_mid_001_05', 'wb_mid_001_07', 'wb_mid_001_09', 'wb_tjia_002_01'],
+    keywordCount: 10,
   },
   {
     id: 'art_003', title: '望岳', author: '杜甫', dynasty: '唐代', category: 'poem', textbook: 'grade7b',
     sentences: art_003_sentences,
-    relatedWordIds: ['wb_tjia_002_06'],
+    keywordCount: 12,
   },
   {
     id: 'art_004', title: '滕王阁序（节选）', author: '王勃', dynasty: '唐代', category: 'verse', textbook: 'grade8b',
@@ -161,7 +161,7 @@ export const mockArticles: IArticle[] = [
         keyWords: [{ word: '失路', definition: '迷失道路，比喻仕途不得志' }, { word: '萍水相逢', definition: '像浮萍随水漂泊，偶然相遇' }],
       },
     ],
-    relatedWordIds: [],
+    keywordCount: 4,
   },
 ];
 
