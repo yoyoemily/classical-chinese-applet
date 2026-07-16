@@ -123,6 +123,45 @@
   // ==========================================
   // 模式一：通篇阅读 — 原文段落可展开译文，生词高亮可点击
   // ==========================================
+
+  // ---- wordType 色标图例（与正文高亮样式一致） ----
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12rpx 32rpx;
+    padding: $spacing-sm $spacing-base;
+    margin: 0 $spacing-base $spacing-sm;
+    background: var(--color-bg-card, #fafaf8);
+    border-radius: $radius-sm;
+    border: 1rpx solid var(--color-border-light, #f0f0f0);
+  }
+  &__legend-label {
+    font-size: 22rpx;
+    padding-bottom: 2rpx;
+    border-bottom: 2rpx solid;
+    &--shi {
+      color: var(--color-wordtype-shi, #4a6a5e);
+      border-bottom-color: var(--color-wordtype-shi, #4a6a5e);
+    }
+    &--xu {
+      color: var(--color-wordtype-xu, #8b7355);
+      border-bottom-color: var(--color-wordtype-xu, #8b7355);
+    }
+    &--tongjia {
+      color: var(--color-wordtype-tongjia, #b85450);
+      border-bottom-color: var(--color-wordtype-tongjia, #b85450);
+    }
+    &--gujinyi {
+      color: var(--color-wordtype-gujinyi, #2980b9);
+      border-bottom-color: var(--color-wordtype-gujinyi, #2980b9);
+    }
+    &--huoyong {
+      color: var(--color-wordtype-huoyong, #9b6db5);
+      border-bottom-color: var(--color-wordtype-huoyong, #9b6db5);
+    }
+  }
+
   &__plain-para {
     display: flex;
     align-items: flex-start;
@@ -176,8 +215,31 @@
     border-bottom: 2rpx solid var(--color-primary, #4a6a5e);
     padding-bottom: 2rpx;
     transition: background 0.15s ease;
+
+    // ---- wordType 颜色变体 ----
+    &--shi {
+      color: var(--color-wordtype-shi, #4a6a5e);
+      border-bottom-color: var(--color-wordtype-shi, #4a6a5e);
+    }
+    &--xu {
+      color: var(--color-wordtype-xu, #8b7355);
+      border-bottom-color: var(--color-wordtype-xu, #8b7355);
+    }
+    &--tongjia {
+      color: var(--color-wordtype-tongjia, #b85450);
+      border-bottom-color: var(--color-wordtype-tongjia, #b85450);
+    }
+    &--gujinyi {
+      color: var(--color-wordtype-gujinyi, #2980b9);
+      border-bottom-color: var(--color-wordtype-gujinyi, #2980b9);
+    }
+    &--huoyong {
+      color: var(--color-wordtype-huoyong, #9b6db5);
+      border-bottom-color: var(--color-wordtype-huoyong, #9b6db5);
+    }
+
     &--hover {
-      background: rgba(74, 106, 94, 0.1);
+      background: rgba(74, 106, 94, 0.08);
     }
   }
 

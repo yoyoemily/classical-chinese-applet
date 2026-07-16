@@ -26,6 +26,13 @@ $color-warning: #faad14;
 $color-error: #ff4d4f;
 $color-info: #1890ff;
 
+// ---------- WordType 高亮颜色（通篇阅读内联生词分色标注） ----------
+$color-wordtype-shi: #4a6a5e;
+$color-wordtype-xu: #8b7355;
+$color-wordtype-tongjia: #b85450;
+$color-wordtype-gujinyi: #2980b9;
+$color-wordtype-huoyong: #9b6db5;
+
 // ---------- 字号 ----------
 $font-size-xs: 20rpx;
 $font-size-sm: 24rpx;
@@ -78,5 +85,10 @@ page {
   --color-warning: #{$color-warning};
   --color-error: #{$color-error};
   --color-info: #{$color-info};
+  --color-wordtype-shi: #{$color-wordtype-shi};
+  --color-wordtype-xu: #{$color-wordtype-xu};
+  --color-wordtype-tongjia: #{$color-wordtype-tongjia};
+  --color-wordtype-gujinyi: #{$color-wordtype-gujinyi};
+  --color-wordtype-huoyong: #{$color-wordtype-huoyong};
   --safe-area-bottom: #{$safe-area-bottom};
 }

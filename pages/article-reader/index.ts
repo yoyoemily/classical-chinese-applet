@@ -2,6 +2,7 @@
 	import { fetchArticleDetail, submitFeedback } from '../../api/index';
 	import { getTTSPlayer } from '../../utils/tts';
 	import { splitByRareChar } from '../../utils/util';
+		import type { WordTypeCode } from '../../utils/wordType';
 
 	/** 阅读模式 */
 	type ReadingMode = 'plain' | 'sentence' | 'glossary';
@@ -22,6 +23,8 @@
 	  definition?: string;
 	  /** 生僻字拼音 */
 	  pinyin?: string;
+	  /** 生词类型：shi/xu/tongjia/gujinyi/huoyong */
+	  wordType?: WordTypeCode;
 	}
 
 	/** 典故注释：段切分结构 */
@@ -302,6 +305,7 @@
 	                isKeyword: isKeywordChar,
 	                word: isKeywordChar ? kw.word : undefined,
 	                definition: isKeywordChar ? kw.definition : undefined,
+	                wordType: isKeywordChar ? (kw.wordType as WordTypeCode | undefined) : undefined,
 	                pinyin: s.rareCharPinyin?.[ch],
 	              });
 	            }

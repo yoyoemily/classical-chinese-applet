@@ -68,6 +68,14 @@
       class="page-article-reader__body"
       scroll-y enhanced show-scrollbar="{{false}}"
     >
+      <!-- wordType 色标图例 -->
+      <view class="page-article-reader__legend">
+        <text class="page-article-reader__legend-label page-article-reader__legend-label--shi">实词</text>
+        <text class="page-article-reader__legend-label page-article-reader__legend-label--xu">虚词</text>
+        <text class="page-article-reader__legend-label page-article-reader__legend-label--gujinyi">古今异义</text>
+        <text class="page-article-reader__legend-label page-article-reader__legend-label--huoyong">词类活用</text>
+        <text class="page-article-reader__legend-label page-article-reader__legend-label--tongjia">通假字</text>
+      </view>
       <block wx:for="{{article.sentences}}" wx:key="*this" wx:for-item="s" wx:for-index="si">
         <!-- 原文段落：可点击展开/收起 -->
         <view
@@ -81,7 +89,7 @@
               <!-- 生词：高亮可点击 -->
               <text
                 wx:if="{{seg.isKeyword}}"
-                class="page-article-reader__vocab-word"
+                class="page-article-reader__vocab-word {{seg.wordType ? 'page-article-reader__vocab-word--' + seg.wordType : ''}}"
                 data-word="{{seg.word}}"
                 data-definition="{{seg.definition}}"
                 catchtap="onTapVocabWord"
