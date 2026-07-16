@@ -128,6 +128,8 @@ export interface IArticleKeyWord {
   definition: string
   wordBookId?: string
   masteryLevel?: MasteryLevel
+  /** 消歧用：多字上下文片段，用于定位句中具体出现位置；前端匹配时用 matchWord，弹窗展示时用 word */
+  matchWord?: string
 }
 
 /** 典故注释：句中的文化背景词条 */

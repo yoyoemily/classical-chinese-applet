@@ -272,29 +272,40 @@
 	  /**
 	   * 对一条句子的文本按 keyWords 做最长匹配切分，生成 segment 数组。
 	   * 每个 segment 要么是普通文本，要么是匹配到的生词（带释义）。
+	   * 消歧 keyWord 有 matchWord 字段时用 matchWord 定位句中出现位置，
+	   * 但仅 word 中的字符标记为生词（高亮可点击），上下文字符渲染为普通文本。
 	   */
 	  buildVocabSegments(article: IArticle): IVocabSegment[][] {
 	    return article.sentences.map(s => {
 	      const segments: IVocabSegment[] = [];
-	      // 按 word 长度降序排列，保证最长匹配优先
-	      const sortedKeywords = [...s.keyWords].sort((a, b) => b.word.length - a.word.length);
+	      // 按 matchWord ?? word 长度降序排列，保证最长匹配优先
+	      const sortedKeywords = [...s.keyWords].sort(
+	        (a, b) => (b.matchWord || b.word).length - (a.matchWord || a.word).length
+	      );
 	      let i = 0;
 	      const text = s.text;
 	      while (i < text.length) {
 	        let matched = false;
 	        for (const kw of sortedKeywords) {
-	          if (text.startsWith(kw.word, i)) {
-	            // 多字 keyword 词拆成单字段，每个带独立拼音
-	            for (const ch of kw.word) {
+	          const matchKey = kw.matchWord || kw.word;
+	          if (text.startsWith(matchKey, i)) {
+	            // matchKey 中 word 的起始偏移
+	            const wordStart = matchKey.indexOf(kw.word);
+	            // 逐字符处理 matchKey
+	            for (let k = 0; k < matchKey.length; k++) {
+	              const ch = matchKey[k];
+	              const isKeywordChar = wordStart !== -1
+	                && k >= wordStart
+	                && k < wordStart + kw.word.length;
 	              segments.push({
 	                text: ch,
-	                isKeyword: true,
-	                word: kw.word,
-	                definition: kw.definition,
+	                isKeyword: isKeywordChar,
+	                word: isKeywordChar ? kw.word : undefined,
+	                definition: isKeywordChar ? kw.definition : undefined,
 	                pinyin: s.rareCharPinyin?.[ch],
 	              });
 	            }
-	            i += kw.word.length;
+	            i += matchKey.length;
 	            matched = true;
 	            break;
 	          }
@@ -307,7 +318,7 @@
 	          while (i < text.length) {
 	            let hit = false;
 	            for (const kw of sortedKeywords) {
-	              if (text.startsWith(kw.word, i)) { hit = true; break; }
+	              if (text.startsWith(kw.matchWord || kw.word, i)) { hit = true; break; }
 	            }
 	            if (hit) break;
 	            i++;
