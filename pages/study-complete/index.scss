@@ -19,5 +19,107 @@
     &--primary { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); color: #fff; box-shadow: 0 4rpx 16rpx rgba(74,106,94,0.3); }
     &--secondary { background: var(--color-bg-page); color: var(--color-text-primary); border: 1rpx solid var(--color-border); }
   }
+
+  // ============================================
+  // 新勋章庆祝弹窗
+  // ============================================
+  &__badge-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    @include flex-center;
+    animation: fade-in 0.3s ease;
+  }
+
+  &__badge-modal {
+    position: relative;
+    width: 560rpx;
+    background: linear-gradient(180deg, #fffef9, #fffdf0, #fff);
+    border-radius: $radius-lg;
+    @include flex-column;
+    align-items: center;
+    padding: 60rpx $spacing-lg $spacing-xl;
+    box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.2), 0 0 0 1rpx rgba(201,169,110,0.3);
+    animation: badge-pop-in 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  // 四周闪烁粒子
+  &__badge-sparkle {
+    position: absolute;
+    font-size: 28rpx;
+    color: #c9a96e;
+    animation: sparkle-pulse 1.5s ease-in-out infinite;
+    &--1 { top: 30rpx; left: 50rpx; animation-delay: 0s; }
+    &--2 { top: 24rpx; right: 56rpx; animation-delay: 0.4s; }
+    &--3 { bottom: 140rpx; left: 40rpx; animation-delay: 0.8s; }
+    &--4 { bottom: 130rpx; right: 48rpx; animation-delay: 1.2s; }
+  }
+
+  // 勋章图标区域
+  &__badge-icon-wrap {
+    margin-bottom: 28rpx;
+  }
+  &__badge-icon-ring {
+    width: 180rpx; height: 180rpx;
+    border-radius: 50%;
+    @include flex-center;
+    background: linear-gradient(135deg, #f5eedf, #c9a96e, #9a7b45);
+    box-shadow: 0 0 0 12rpx rgba(201,169,110,0.15), 0 0 40rpx rgba(201,169,110,0.4), 0 12rpx 32rpx rgba(0,0,0,0.15);
+    animation: badge-ring-pulse 2s ease-in-out infinite;
+  }
+  &__badge-icon {
+    font-size: 96rpx;
+    line-height: 1;
+  }
+
+  // 文字区
+  &__badge-congrats {
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    margin-bottom: $spacing-sm;
+    letter-spacing: 2rpx;
+  }
+  &__badge-name {
+    font-size: 44rpx;
+    font-weight: 800;
+    background: linear-gradient(135deg, #c9a96e, #8b6914);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: $spacing-sm;
+    letter-spacing: 4rpx;
+  }
+  &__badge-desc {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    margin-bottom: $spacing-xl;
+  }
+
+  // 关闭按钮
+  &__badge-btn {
+    width: 360rpx;
+    height: 80rpx;
+    @include flex-center;
+    border-radius: $radius-round;
+    background: linear-gradient(135deg, #c9a96e, #9a7b45);
+    color: #fff;
+    font-size: $font-size-base;
+    font-weight: 600;
+    letter-spacing: 2rpx;
+    box-shadow: 0 6rpx 20rpx rgba(201,169,110,0.4);
+    transition: transform 0.15s ease;
+    &:active { transform: scale(0.96); }
+  }
 }
+
 @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12rpx); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes badge-pop-in { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes badge-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 12rpx rgba(201,169,110,0.15), 0 0 40rpx rgba(201,169,110,0.4), 0 12rpx 32rpx rgba(0,0,0,0.15); }
+  50% { box-shadow: 0 0 0 18rpx rgba(201,169,110,0.25), 0 0 60rpx rgba(201,169,110,0.6), 0 12rpx 36rpx rgba(0,0,0,0.18); }
+}
+@keyframes sparkle-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.3); }
+}

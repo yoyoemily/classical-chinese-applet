@@ -20,4 +20,30 @@
     <button class="page-study-complete__btn page-study-complete__btn--secondary" bindtap="onTapHome">↺ 返回首页</button>
     <button class="page-study-complete__btn page-study-complete__btn--primary" bindtap="onTapMistake">📝 查看错题本</button>
   </view>
+
+  <!-- 新勋章庆祝弹窗 -->
+  <view class="page-study-complete__badge-overlay" wx:if="{{showBadgeModal}}" bindtap="onCloseBadgeModal">
+    <view class="page-study-complete__badge-modal" catchtap="noop">
+      <!-- 顶部光芒 -->
+      <view class="page-study-complete__badge-sparkle page-study-complete__badge-sparkle--1">✦</view>
+      <view class="page-study-complete__badge-sparkle page-study-complete__badge-sparkle--2">✦</view>
+      <view class="page-study-complete__badge-sparkle page-study-complete__badge-sparkle--3">✦</view>
+      <view class="page-study-complete__badge-sparkle page-study-complete__badge-sparkle--4">✦</view>
+
+      <!-- 勋章 -->
+      <view class="page-study-complete__badge-icon-wrap">
+        <view class="page-study-complete__badge-icon-ring">
+          <text class="page-study-complete__badge-icon">{{newBadge.icon}}</text>
+        </view>
+      </view>
+
+      <!-- 文字 -->
+      <text class="page-study-complete__badge-congrats">🎉 获得新勋章！</text>
+      <text class="page-study-complete__badge-name">{{newBadge.name}}</text>
+      <text class="page-study-complete__badge-desc">{{newBadge.description}}</text>
+
+      <!-- 关闭按钮 -->
+      <view class="page-study-complete__badge-btn" bindtap="onCloseBadgeModal">太棒了！</view>
+    </view>
+  </view>
 </view>

@@ -11,7 +11,7 @@ interface ISettingsData {
   newWordsRange: number[]; reviewWordsRange: number[]; studyOrderOptions: string[];
 }
 
-const NEW_WORDS_RANGE = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+const NEW_WORDS_RANGE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 Page<ISettingsData, WechatMiniprogram.Page.CustomOption>({
   data: {

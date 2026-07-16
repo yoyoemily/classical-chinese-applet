@@ -416,6 +416,7 @@ export interface IStudySummary {
   correctCount: number
   wrongCount: number
   xpGained: number
+  newBadge?: IBadge | null
 }
 
 // ============================================

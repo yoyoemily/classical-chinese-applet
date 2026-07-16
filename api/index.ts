@@ -11,9 +11,9 @@ import type {
 import { wordTypeToGroupKey, QUICK_GROUP_ORDER } from '../utils/wordType';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
-import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadges, getUserBadges, _applyCheckin, getUserProfile, saveUserProfile } from '../utils/storage';
+import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadge, getUserBadges, _applyCheckin, getUserProfile, saveUserProfile } from '../utils/storage';
 import { generateTodayTask, updateWordProgress } from '../utils/ebbinghaus';
-import { mockBadges, checkNewBadges } from '../mock/badges';
+import { mockBadges, checkNewBadge } from '../mock/badges';
 import { mockArticles } from '../mock/articles';
 import { calcLevel } from '../constants/config';
 
@@ -106,27 +106,26 @@ export async function submitAnswer(data: {
   return post('/api/study/answer', data, { showLoading: false });
 }
 
-export async function completeStudy(data: { wordBookId: string; correctCount: number; wrongCount: number; xpGained: number }): Promise<{ newBadges: IBadge[]; xpGained: number }> {
+export async function completeStudy(data: { wordBookId: string; correctCount: number; wrongCount: number; xpGained: number }): Promise<{ newBadge: IBadge | null; xpGained: number }> {
   if (USE_MOCK) {
-    // 一次性读取，避免多次 JSON.parse 阻塞主线程
     const progress = getProgress();
-    const existingBadges = getUserBadges();
-    const existingBadgeIds = existingBadges.map(b => b.badgeId);
+    const existingBadgeIds = getUserBadges().map(b => b.badgeId);
 
     // 打卡
     _applyCheckin(progress);
 
-    // 检查新勋章（全部为累计学习天数维度）
-    const newBadges = checkNewBadges(existingBadgeIds, progress.currentStreak);
+    // 检查新勋章（每天最多一枚）
+    const newBadge = checkNewBadge(existingBadgeIds, progress.currentStreak);
 
-    // XP 已在 completeWord 中逐词写入，此处仅回传前端用于展示
+    // XP 已在 completeWord 中逐词写入
     const xpGained = data.xpGained || 0;
 
-    // 一次性写入：勋章批量写入 + 进度
-    addUserBadges(newBadges.map(b => b.id));
+    if (newBadge) {
+      addUserBadge(newBadge.id);
+    }
     saveProgress(progress);
 
-    return { newBadges, xpGained };
+    return { newBadge, xpGained };
   }
   return post('/api/study/complete', data, { showLoading: false });
 }

@@ -476,7 +476,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     this._needResume = true;
   },
 
-  finishStudy(): void {
+  async finishStudy(): Promise<void> {
     const s = this._session!;
     const correct = s.correctCount;
     const wrong = s.wrongCount;
@@ -485,11 +485,17 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     const summary = getStudySummary();
     if (summary) {
       summary.xpGained = s.xpGained;
+    }
+    // 异步通知后端完成学习，await 以便拿到新勋章
+    try {
+      const result = await completeStudy({ wordBookId: getCurrentBookId(), correctCount: correct, wrongCount: wrong, xpGained: s.xpGained });
+      if (summary && result.newBadge) {
+        summary.newBadge = result.newBadge;
+      }
+    } catch { /* 网络异常不阻塞跳转 */ }
+    if (summary) {
       wx.setStorageSync('study_summary', JSON.stringify(summary));
     }
-    // 异步通知后端完成学习
-    completeStudy({ wordBookId: getCurrentBookId(), correctCount: correct, wrongCount: wrong, xpGained: s.xpGained })
-      .catch(() => {});
 
     // 播放完成音效，然后跳转（延迟 0.8s 等音效播完）
     if (this._answerSound) playCompleteSound();
