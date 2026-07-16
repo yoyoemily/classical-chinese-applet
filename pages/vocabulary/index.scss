@@ -169,7 +169,7 @@
   }
 
   &__book-name {
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     color: var(--color-text-hint);
     margin-top: 4rpx;
     @include text-ellipsis;
