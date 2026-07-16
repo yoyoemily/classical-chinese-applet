@@ -128,8 +128,8 @@
         </view>
       </view>
 
-      <!-- 不知道按钮 —— 卡片化，鼓励用户诚实选择 -->
-      <view class="page-study__dont-know-card {{showResult ? 'page-study__dont-know-card--hidden' : ''}}" bindtap="onTapDontKnow" hover-class="page-study__dont-know-card--hover">
+      <!-- 不知道按钮 —— 始终显示 -->
+      <view class="page-study__dont-know-card" bindtap="onTapDontKnow" hover-class="page-study__dont-know-card--hover">
         <view class="page-study__dont-know-icon">🤔</view>
         <view class="page-study__dont-know-body">
           <text class="page-study__dont-know-title">不知道</text>
@@ -137,26 +137,20 @@
         </view>
       </view>
 
-      <!-- 揭晓后：记忆口诀（仅答错） + 继续 + 反馈 -->
-      <block wx:if="{{showResult}}">
-        <view class="page-study__result-mnemonic" wx:if="{{mnemonic && selectedIndex !== correctIndex}}">
-          <view class="page-study__result-mnemonic-header">
-            <text>💡</text>
-            <text>记忆提示</text>
-          </view>
-          <text class="page-study__result-mnemonic-text">{{mnemonic}}</text>
+      <!-- 继续按钮（始终显示，答题前禁用） -->
+      <view class="page-study__result-actions">
+        <view
+          class="page-study__result-btn {{showResult ? '' : 'page-study__result-btn--disabled'}}"
+          bindtap="{{showResult ? 'onContinue' : ''}}"
+          hover-class="{{showResult ? 'page-study__result-btn--hover' : ''}}"
+        >
+          <text>继续</text>
         </view>
+      </view>
 
-        <view class="page-study__result-actions">
-          <view class="page-study__result-btn" bindtap="onContinue" hover-class="page-study__result-btn--hover">
-            <text>继续</text>
-          </view>
-        </view>
-
-        <view class="page-study__feedback-entry" wx:if="{{selectedIndex !== correctIndex}}" bindtap="onTapFeedback">
+      <view class="page-study__feedback-entry" wx:if="{{showResult && selectedIndex !== correctIndex}}" bindtap="onTapFeedback">
           <text>⚠️ 内容有误？我要反馈</text>
         </view>
-      </block>
     </view>
 
   </block>
