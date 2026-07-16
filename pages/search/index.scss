@@ -233,7 +233,7 @@
 
   &__result-book-tag {
     flex-shrink: 0;
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     color: var(--color-text-hint);
     padding: 4rpx 16rpx;
     border-radius: 8rpx;
@@ -305,7 +305,7 @@
 
   &__meaning-source {
     display: block;
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     color: var(--color-text-hint);
     margin-top: 8rpx;
     padding-left: 52rpx;

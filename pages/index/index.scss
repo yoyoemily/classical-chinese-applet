@@ -158,56 +158,61 @@
     }
   }
 
-  // 词书标题行（可点击切换词书）
+  // 词书标题行
   &__book-header {
-    @include flex-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: $spacing-xs 0 $spacing-sm;
     margin-bottom: $spacing-sm;
     @include hairline('bottom', var(--color-border-light));
+  }
+  &__book-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 10rpx 20rpx;
+    border-radius: 12rpx;
+    background-color: rgba($color-primary, 0.08);
+    border: 2rpx solid rgba($color-primary, 0.25);
 
-    &--active {
-      opacity: 0.6;
+    &--hover {
+      background-color: rgba($color-primary, 0.15);
+      border-color: rgba($color-primary, 0.45);
+      transform: scale(0.97);
     }
+  }
+  &__book-icon {
+    font-size: 32rpx;
+    line-height: 1;
+    flex-shrink: 0;
   }
   &__book-name {
     font-size: $font-size-md;
     font-weight: 600;
-    color: var(--color-text-primary);
-  }
-  &__book-switch {
-    display: flex;
-    align-items: center;
-    gap: 6rpx;
-    padding: 10rpx 20rpx;
-    border-radius: 12rpx;
-    background: rgba($color-primary, 0.1);
-    border: 2rpx solid var(--color-border);
-    font-size: 24rpx;
     color: var(--color-primary);
-    flex-shrink: 0;
   }
-  &__book-switch-icon {
-    font-size: 24rpx;
+  &__book-arrow {
+    font-size: 36rpx;
+    font-weight: 300;
+    color: var(--color-primary);
     line-height: 1;
-  }
-  &__book-switch-text {
-    font-size: 24rpx;
-    line-height: 1;
+    margin-left: 2rpx;
   }
 
-  // 掌握进度数字
+  // 掌握进度
   &__book-stats {
     display: flex;
     align-items: baseline;
-    margin-bottom: $spacing-sm;
+    flex-shrink: 0;
+    gap: $spacing-xs;
   }
   &__book-stats-label {
     font-size: $font-size-sm;
     color: var(--color-text-secondary);
-    margin-right: $spacing-xs;
   }
   &__book-stats-value {
-    font-size: $font-size-base;
+    font-size: $font-size-sm;
     font-weight: 600;
     color: var(--color-primary);
   }

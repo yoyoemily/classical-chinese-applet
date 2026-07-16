@@ -161,6 +161,19 @@ export async function fetchProgress(wordBookId: string): Promise<IUserProgress> 
 // ============================================
 // 错题本
 // ============================================
+export async function fetchMistakeCount(wordBookId?: string): Promise<number> {
+  if (USE_MOCK) {
+    const { getMistakes } = require('../utils/storage');
+    const allMistakes = getMistakes() as IMistakeRecord[];
+    const filtered = wordBookId ? allMistakes.filter(m => m.entryId.startsWith(wordBookId)) : allMistakes;
+    return filtered.length;
+  }
+  const params: Record<string, string> = {};
+  if (wordBookId) params.wordBookId = wordBookId;
+  const res = await get<{ count: number }>('/api/study/mistakes/count', params);
+  return res.count;
+}
+
 export async function fetchMistakes(wordBookId?: string): Promise<IMistakeRecord[]> {
   if (USE_MOCK) {
     const { getMistakes } = require('../utils/storage');

@@ -1,7 +1,7 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchBadges, fetchMistakes, fetchUserProfile, signPact } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, signPact } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
-import type { IUserProgress, IBadge } from '../../typings/index.d';
+import type { IUserProgress } from '../../typings/index.d';
 
 // ============================================
 // 本地类型定义
@@ -22,18 +22,6 @@ interface IDistributionItem {
   key: string;
   label: string;
   count: number;
-}
-
-/** 距离最近的下一个未获得勋章 */
-interface INextBadge {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  /** 还差多少（天数/题数等，由 condition type 决定） */
-  gap: number;
-  /** gap 的说明文本，如 "天"、"题" */
-  gapUnit: string;
 }
 
 /** 首页 data 类型 */
@@ -70,8 +58,15 @@ interface IIndexData {
   loading: boolean;
   /** 错题数量 */
   mistakeCount: number;
-  /** 下一个可获得的勋章 */
-  nextBadge: INextBadge | null;
+  /** 下一个可获得的勋章（后端计算） */
+  nextBadge: {
+    id: string;
+    name: string;
+    icon: string;
+    description: string;
+    gap: number;
+    gapUnit: string;
+  } | null;
   /** 会员级别 */
   memberLevel: number;
   /** 用户昵称 */
@@ -149,12 +144,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       }
 
       // 并行拉取词书列表、进度、今日任务、勋章、错题数、用户信息
-      const [books, progress, task, badgesData, mistakes, profile] = await Promise.all([
+      const [books, progress, task, mistakesCount, profile] = await Promise.all([
         fetchWordBooks(),
         fetchProgress(bookId),
         fetchTodayTask(bookId, dailyNew, dailyReview),
-        fetchBadges(),
-        fetchMistakes(),
+        fetchMistakeCount(),
         fetchUserProfile(),
       ]);
 
@@ -167,8 +161,8 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
           ? Math.round((progress.wordsMastered / totalWords) * 100)
           : 0;
       const distribution = this.computeDistribution(progress, progress.wordsMastered);
-      const nextBadge = this.computeNextBadge(badgesData.badges, badgesData.userBadges, progress);
-      const mistakeCount = mistakes.length;
+      const nextBadge = progress.nextBadge || null;
+      const mistakeCount = mistakesCount;
 
       // 兼容 setCurrentBookId 导入（词书切换在 book-select 页面完成，
       // 此处保留引入以备用）
@@ -256,42 +250,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       label: labelMap[key],
       count: counts[key],
     }));
-  },
-
-  /**
-   * 计算下一个可获得的勋章
-   * 全部勋章均为累计学习天数维度，取 gap 最小的未获得勋章
-   */
-  computeNextBadge(
-    allBadges: IBadge[],
-    userBadges: { badgeId: string }[],
-    progress: IUserProgress,
-  ): INextBadge | null {
-    const earnedIds = new Set(userBadges.map((b) => b.badgeId));
-    const unearned = allBadges.filter((b) => !earnedIds.has(b.id));
-    if (unearned.length === 0) return null;
-
-    const currentStreak = progress.currentStreak;
-
-    let best: INextBadge | null = null;
-
-    for (const badge of unearned) {
-      const target = badge.condition.value;
-      const gap = Math.max(0, target - currentStreak);
-
-      if (!best || gap < best.gap) {
-        best = {
-          id: badge.id,
-          name: badge.name,
-          icon: badge.icon,
-          description: badge.description,
-          gap,
-          gapUnit: '天',
-        };
-      }
-    }
-
-    return best;
   },
 
   // ==========================================

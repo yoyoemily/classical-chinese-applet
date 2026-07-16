@@ -55,24 +55,22 @@
 
     <!-- -------- 词书切换卡片 -------- -->
     <view wx:if="{{currentBook}}" class="page-index__book-card">
-      <!-- 标题行（可点击切换词书） -->
-      <view
-        class="page-index__book-header"
-        hover-class="page-index__book-header--active"
-        bindtap="onTapBookSelector"
-      >
-        <text class="page-index__book-name">{{currentBook.name}}</text>
-        <view class="page-index__book-switch">
-          <text class="page-index__book-switch-text">切换词书</text>
-          <text class="page-index__book-switch-icon">📚</text>
+      <!-- 标题行（词书+进度同行） -->
+      <view class="page-index__book-header">
+        <view
+          class="page-index__book-selector"
+          hover-class="page-index__book-selector--hover"
+          bindtap="onTapBookSelector"
+        >
+          <text class="page-index__book-icon">📚</text>
+          <text class="page-index__book-name">{{currentBook.name}}</text>
+          <text class="page-index__book-arrow">›</text>
         </view>
-      </view>
-
-      <!-- 掌握进度 -->
-      <view class="page-index__book-stats">
-        <text class="page-index__book-stats-label">已掌握</text>
-        <text class="page-index__book-stats-value">{{progress.mastered}} / {{progress.total}}</text>
-        <text class="page-index__book-stats-percent">{{progress.percent}}%</text>
+        <view class="page-index__book-stats">
+          <text class="page-index__book-stats-label">已掌握</text>
+          <text class="page-index__book-stats-value">{{progress.mastered}} / {{progress.total}}</text>
+          <text class="page-index__book-stats-percent">{{progress.percent}}%</text>
+        </view>
       </view>
 
       <!-- 进度条 -->
