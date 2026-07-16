@@ -27,6 +27,7 @@
           <view class="page-mistake-book__word-main">
             <text class="page-mistake-book__character">{{item.character}}</text>
             <text class="page-mistake-book__pinyin">{{item.pinyin}}</text>
+            <text class="page-mistake-book__book-name">{{item.wordBookName}}</text>
           </view>
           <view class="page-mistake-book__meta">
             <text class="page-mistake-book__error-count">错{{item.totalErrors}}次</text>

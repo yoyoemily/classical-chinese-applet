@@ -307,6 +307,8 @@ export interface IMistakeRecord {
   wordId: string
   character: string
   pinyin: string
+  /** 所属词书名称 */
+  wordBookName: string
   /** 所有句子的错误次数之和（冗余字段，避免页面遍历计算） */
   totalErrors: number
   /** 最近一次答错时间 */
