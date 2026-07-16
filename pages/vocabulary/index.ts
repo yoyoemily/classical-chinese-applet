@@ -20,7 +20,7 @@ interface IVocabTabItem {
 
 /** 生词本列表项 */
 interface IVocabWord {
-  wordId: string;
+  entryId: string;
   character: string;
   pinyin: string;
   firstMeaning: string;
@@ -110,19 +110,19 @@ Page<IVocabularyData, WechatMiniprogram.Page.CustomOption>({
         if (!result) continue;
         const { book, progress, detail } = result;
 
-        // 建立 wordId → IWord 索引
-        const wordMap = new Map(detail.words.map((w) => [w.id, w]));
+        // 建立 entryId → IWordEntry 索引
+        const wordMap = new Map(detail.wordEntries.map((w) => [w.id, w]));
 
-        for (const [wordId, wp] of Object.entries(progress.wordProgresses)) {
-          const word = wordMap.get(wordId);
+        for (const [entryId, wp] of Object.entries(progress.wordProgresses)) {
+          const word = wordMap.get(entryId);
           if (!word) continue;
 
           const classification = classifyWord(wp);
           allVocabWords.push({
-            wordId,
+            entryId,
             character: word.character,
             pinyin: word.pinyin,
-            firstMeaning: word.meanings[0]?.definition || '',
+            firstMeaning: word.keyWordRefs[0]?.definition || '',
             wordBookName: book.name,
             wordBookId: book.id,
             classification,
@@ -170,8 +170,8 @@ Page<IVocabularyData, WechatMiniprogram.Page.CustomOption>({
 
   /** 点击词条 → 字总结页 */
   onTapWord(e: WechatMiniprogram.BaseEvent): void {
-    const wordId = e.currentTarget.dataset.wordId as string;
-    if (!wordId) return;
-    wx.navigateTo({ url: `/pages/word-summary/index?wordId=${wordId}` });
+    const entryId = e.currentTarget.dataset.entryId as string;
+    if (!entryId) return;
+    wx.navigateTo({ url: `/pages/word-summary/index?entryId=${entryId}` });
   },
 });

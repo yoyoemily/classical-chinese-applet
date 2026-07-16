@@ -9,7 +9,7 @@ interface IMistakeBookData {
   activeFilter: MistakeFilter;
   filters: { key: string; label: string }[];
   mistakes: IMistakeRecord[];
-  expandedWordId: string;
+  expandedEntryId: string;
   loading: boolean;
   isEmpty: boolean;
 }
@@ -19,7 +19,7 @@ Page<IMistakeBookData, WechatMiniprogram.Page.CustomOption>({
     activeFilter: 'all',
     filters: MISTAKE_FILTERS as unknown as { key: string; label: string }[],
     mistakes: [],
-    expandedWordId: '',
+    expandedEntryId: '',
     loading: false,
     isEmpty: false,
   },
@@ -81,8 +81,8 @@ Page<IMistakeBookData, WechatMiniprogram.Page.CustomOption>({
 
   /** 点击词条展开/收起详情 */
   onTapWord(e: WechatMiniprogram.BaseEvent): void {
-    const wordId = e.currentTarget.dataset.wordId as string;
-    const current = this.data.expandedWordId;
-    this.setData({ expandedWordId: current === wordId ? '' : wordId });
+    const entryId = e.currentTarget.dataset.entryId as string;
+    const current = this.data.expandedEntryId;
+    this.setData({ expandedEntryId: current === entryId ? '' : entryId });
   },
 });

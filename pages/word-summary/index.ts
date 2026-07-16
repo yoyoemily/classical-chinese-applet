@@ -1,13 +1,20 @@
-import type { IWord, IMeaning } from '../../typings/index.d';
+import type { IWordEntry, IKeyWordRef } from '../../typings/index.d';
 import { fetchWordDetail } from '../../api/index';
 import { wordTypeLabel } from '../../utils/wordType';
 
-interface IMeaningItem extends IMeaning {
-  expanded: boolean;
+interface IMeaningItem {
+  kid: string
+  word?: string
+  definition?: string
+  sentenceText?: string
+  sentenceTranslation?: string
+  articleId?: string
+  articleTitle?: string
+  expanded: boolean
 }
 
 interface IWordSummaryData {
-  word: IWord | null;
+  word: IWordEntry | null;
   character: string;
   wordType: string;
   characterType: string;
@@ -28,17 +35,30 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
     xpGained: 0,
   },
   onLoad(options: Record<string, string | undefined>): void {
-    const wordId = options.wordId || '';
+    const entryId = options.entryId || options.wordId || '';
     const xpGained = parseInt(options.xpGained || '0', 10) || 0;
     this.setData({ xpGained });
-    if (wordId) this.loadWord(wordId);
+    if (entryId) this.loadWord(entryId);
     else this.setData({ loading: false });
   },
-  async loadWord(wordId: string): Promise<void> {
+  async loadWord(entryId: string): Promise<void> {
     try {
-      const word = await fetchWordDetail(wordId);
+      const word = await fetchWordDetail(entryId);
       if (!word) { this.setData({ loading: false }); return; }
-      const meaningItems: IMeaningItem[] = (word.meanings || []).map(m => ({ ...m, expanded: false }));
+      // Adapt: fetchWordDetail may return IWord (old) or IWordEntry (new).
+      // keyWordRefs is on IWordEntry; meanings is on old IWord.
+      const rawWord = word as unknown as Record<string, unknown>;
+      const keyWordRefs = (rawWord.keyWordRefs || rawWord.meanings || []) as IKeyWordRef[];
+      const meaningItems: IMeaningItem[] = keyWordRefs.map(m => ({
+        kid: m.kid || '',
+        word: m.word || '',
+        definition: m.definition || (m as unknown as { definition?: string }).definition || '',
+        sentenceText: m.sentenceText || (m as unknown as { example?: string }).example || '',
+        sentenceTranslation: m.sentenceTranslation || (m as unknown as { translation?: string }).translation || '',
+        articleId: m.articleId || '',
+        articleTitle: m.articleTitle || (m as unknown as { source?: string }).source || '',
+        expanded: false,
+      }));
       this.setData({
         word, character: word.character,
         wordType: wordTypeLabel(word.wordType || ''),

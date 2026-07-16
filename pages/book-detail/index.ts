@@ -8,9 +8,9 @@ Page<IBookDetailData, WechatMiniprogram.Page.CustomOption>({
     try {
       const book = await fetchWordBookDetail(id);
       const p = await fetchProgress(id);
-      const learned = book ? Object.values(p.wordProgresses).filter(wp => book.words.some(w => w.id === wp.wordId)).length : 0;
-      const mastered = book ? Object.values(p.wordProgresses).filter(wp => wp.stage === 'done' && book.words.some(w => w.id === wp.wordId)).length : 0;
-      this.setData({ book, learned, mastered, total: book?.words.length || 0, loading: false });
+      const learned = book ? Object.values(p.wordProgresses).filter(wp => book.wordEntries.some(w => w.id === wp.entryId)).length : 0;
+      const mastered = book ? Object.values(p.wordProgresses).filter(wp => wp.stage === 'done' && book.wordEntries.some(w => w.id === wp.entryId)).length : 0;
+      this.setData({ book, learned, mastered, total: book?.wordEntries.length || 0, loading: false });
     } catch {
       this.setData({ loading: false });
     }

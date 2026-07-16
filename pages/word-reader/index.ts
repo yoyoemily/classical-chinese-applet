@@ -1,11 +1,11 @@
 import { fetchWordBookDetail } from '../../api/index';
-import type { IWord, IMeaning } from '../../typings/index.d';
+import type { IWordEntry, IWordUsage } from '../../typings/index.d';
 
-interface IUsageItem extends IMeaning {
+interface IUsageItem extends IWordUsage {
   expanded: boolean;
 }
 
-interface IWordEntry {
+interface IWordReaderEntry {
   id: string;
   character: string;
   pinyin: string;
@@ -16,7 +16,7 @@ interface IWordEntry {
 interface IWordReaderData {
   bookName: string;
   bookDescription: string;
-  words: IWordEntry[];
+  words: IWordReaderEntry[];
   loading: boolean;
 }
 
@@ -34,16 +34,16 @@ Page<IWordReaderData, WechatMiniprogram.Page.CustomOption>({
   async loadBook(bookId: string): Promise<void> {
     try {
       const book = await fetchWordBookDetail(bookId);
-      if (!book || !book.words) {
+      if (!book || !book.wordEntries) {
         this.setData({ loading: false });
         wx.showToast({ title: '词书数据为空', icon: 'none' });
         return;
       }
-      const entries: IWordEntry[] = book.words.map((w: IWord) => ({
+      const entries: IWordReaderEntry[] = book.wordEntries.map((w: IWordEntry) => ({
         id: w.id,
         character: w.character,
         pinyin: w.pinyin || '',
-        usages: (w.meanings || []).map((m: IMeaning) => ({ ...m, expanded: false })),
+        usages: (w.usages || []).map((m: IWordUsage) => ({ ...m, expanded: false })),
         allExpanded: false,
       }));
       this.setData({

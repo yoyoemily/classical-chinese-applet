@@ -58,7 +58,7 @@ module.exports = {
           class="page-search__type-chips"
           wx:if="{{expandedCategories[category] && quickGroups[category] && quickGroups[category].length > 0}}"
         >
-          <block wx:for="{{quickGroups[category]}}" wx:key="wordId">
+          <block wx:for="{{quickGroups[category]}}" wx:key="entryId">
             <view
               class="page-search__type-chip"
               data-character="{{item.character}}"
@@ -111,7 +111,7 @@ module.exports = {
     <!-- 结果列表 -->
     <view class="page-search__result-list" wx:if="{{results.length > 0}}">
       <view class="page-search__result-count">共找到 {{results.length}} 个结果</view>
-      <block wx:for="{{results}}" wx:key="wordId">
+      <block wx:for="{{results}}" wx:key="entryId">
         <view class="page-search__result-item">
           <!-- 词头 -->
           <view class="page-search__result-word">

@@ -15,12 +15,12 @@
 
   <!-- 错题列表 -->
   <view class="page-mistake-book__list" wx:if="{{!isEmpty}}">
-    <block wx:for="{{mistakes}}" wx:key="wordId">
+    <block wx:for="{{mistakes}}" wx:key="entryId">
       <view class="page-mistake-book__card">
         <!-- 词条头部（可点击展开） -->
         <view
           class="page-mistake-book__card-header"
-          data-word-id="{{item.wordId}}"
+          data-entry-id="{{item.entryId}}"
           bindtap="onTapWord"
           hover-class="page-mistake-book__card-header--hover"
         >
@@ -31,13 +31,13 @@
           </view>
           <view class="page-mistake-book__meta">
             <text class="page-mistake-book__error-count">错{{item.totalErrors}}次</text>
-            <text class="page-mistake-book__arrow">{{expandedWordId === item.wordId ? '▼' : '▶'}}</text>
+            <text class="page-mistake-book__arrow">{{expandedEntryId === item.entryId ? '▼' : '▶'}}</text>
           </view>
         </view>
 
         <!-- 展开的详情 -->
-        <view class="page-mistake-book__card-detail" wx:if="{{expandedWordId === item.wordId}}">
-          <block wx:for="{{item.sentences}}" wx:key="sentenceId" wx:for-item="sent">
+        <view class="page-mistake-book__card-detail" wx:if="{{expandedEntryId === item.entryId}}">
+          <block wx:for="{{item.sentences}}" wx:key="quizItemId" wx:for-item="sent">
             <view class="page-mistake-book__sentence-block">
               <view class="page-mistake-book__detail-row">
                 <text class="page-mistake-book__detail-label">原句</text>

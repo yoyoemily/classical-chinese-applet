@@ -2,7 +2,7 @@
 // 艾宾浩斯复习调度引擎
 // ============================================
 import { EBBINGHAUS_INTERVALS, STORAGE_KEYS } from '../constants/config';
-import type { IWordProgress, ReviewStage, ITodayWord, ITodayTask, ISentence } from '../typings/index.d';
+import type { IWordProgress, ReviewStage, ITodayWord, ITodayTask, IQuizItem } from '../typings/index.d';
 import { getProgress, loadWordBookData } from './storage';
 import { formatDate, shuffle } from './util';
 
@@ -33,7 +33,7 @@ export function updateWordProgress(
   const updated: IWordProgress = {
     ...progress,
     history: [...(progress.history || []), {
-      sentenceId: '',
+      quizItemId: '',
       selectedOption: isCorrect ? 0 : -1,
       correct: isCorrect,
       timestamp,
@@ -92,11 +92,11 @@ export function generateTodayTask(wordBookId: string): ITodayTask | null {
 
     if (isDueForReview(wp) && wp.nextReviewDate <= today) {
       reviewWords.push({
-        wordId: word.id,
+        entryId: word.id,
         character: word.character,
         isReview: true,
         reviewStage: wp.stage,
-        sentences: word.sentences.slice(0, 1), // 复习只出 1 题
+        quizItems: word.quizItems.slice(0, 1), // 复习只出 1 题
       });
     }
   }
@@ -107,10 +107,10 @@ export function generateTodayTask(wordBookId: string): ITodayTask | null {
   for (let i = 0; i < Math.min(dailyNew, unlearnedWords.length); i++) {
     const word = unlearnedWords[i];
     newWords.push({
-      wordId: word.id,
+      entryId: word.id,
       character: word.character,
       isReview: false,
-      sentences: word.sentences.slice(0, 3), // 新学出 2~3 题
+      quizItems: word.quizItems.slice(0, 3), // 新学出 2~3 题
     });
   }
 

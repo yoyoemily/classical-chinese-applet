@@ -50,7 +50,7 @@ export interface IWordBook {
   category: WordBookCategory
   coverColor: string
   totalWords: number
-  words: IWord[]
+  wordEntries: IWordEntry[]
   /** 学习模式：standard = 直接选题，identify_first = 先识别目标字再选题，readonly = 纯阅读浏览 */
   studyMode?: 'standard' | 'identify_first' | 'readonly'
   /** 前置步骤提示文案（仅 identify_first 模式有效，兜底按 category 自动生成） */
@@ -61,59 +61,76 @@ export interface IWordBook {
   initialized?: boolean
 }
 
-export interface IMeaning {
-  definition: string
-  /** 本义项的读音（多音字时区分），如 "zhì" */
-  pinyin?: string
-  /** 例句原文 */
-  example: string
-  /** 例句翻译 */
-  translation?: string
-  /** 例句出处，如 "《出师表》" */
-  source?: string
-}
-
-export type SentenceDifficulty = 'basic' | 'medium' | 'hard'
-
-export interface ISentence {
-  id: string
-  text: string
-  source: string
-  translation: string
-  targetWord: string
-  correctMeaningIndex: number
-  difficulty: SentenceDifficulty
-  distractors: string[]
-  /** 句子所属名篇 id，有则可在学习页点击跳转到名篇阅读页 */
-  articleId?: string
-  /** 句子预录音频 URL，有则优先使用，无则走 TTS 合成 */
-  audioUrl?: string
-}
-
-export interface IWord {
+// ---- 词条（替代旧 IWord） ----
+export interface IWordEntry {
   id: string
   character: string
   pinyin: string
-  meanings: IMeaning[]
-  sentences: ISentence[]
-  similarHomophones: string[]
-  similarShapes: string[]
-
-  // ---- 字总结页展示字段 ----
-  /** 字型：象形字 / 指事字 / 会意字 / 形声字 */
-  characterType?: string
-  /** 字形解释 */
-  explanation?: string
-  /** 甲骨文图片 URL */
-  oracleForm?: string
-  /** 考试频次，如 "5年3考" */
-  examFrequency?: string
-
-  /** 记忆口诀 */
-  mnemonic?: string
   /** 字词类型：shi / xu / tongjia / gujinyi / huoyong */
   wordType?: 'shi' | 'xu' | 'tongjia' | 'gujinyi' | 'huoyong'
+  // 教学元数据
+  characterType?: string
+  explanation?: string
+  oracleForm?: string
+  examFrequency?: string
+  mnemonic?: string
+  similarHomophones: string[]
+  similarShapes: string[]
+  // kid 引用（替代旧 meanings）
+  keyWordRefs: IKeyWordRef[]
+  // 答题项（替代旧 sentences）
+  quizItems?: IQuizItem[]
+  // 虚词用法（readonly 词书专用）
+  usages?: IWordUsage[]
 }
+
+export interface IKeyWordRef {
+  kid: string
+  /** 从 article_keyword 解析的 word_text */
+  word?: string
+  /** 从 article_keyword 解析的 definition */
+  definition?: string
+  /** 所在句子原文（从 article_sentence 解析） */
+  sentenceText?: string
+  /** 所在句子译文 */
+  sentenceTranslation?: string
+  /** 所在文章 ID */
+  articleId?: string
+  /** 所在文章标题 */
+  articleTitle?: string
+}
+
+export interface IQuizItem {
+  id: string
+  kidRef: string
+  /** 考查的目标字（identify_first 模式用） */
+  targetWord: string
+  /** 正确答案 = article_keyword.definition（不再需要 correctMeaningIndex 桥接） */
+  definition: string
+  difficulty: SentenceDifficulty
+  distractors: string[]
+  // 以下字段由后端 join article_sentence + article 填充
+  /** 句子原文（从 article_sentence 解析） */
+  sentenceText?: string
+  /** 句子译文 */
+  sentenceTranslation?: string
+  /** 句子出处（文章标题） */
+  sentenceSource?: string
+  /** 句子所属名篇 id */
+  articleId?: string
+  /** 句子预录音频 URL */
+  audioUrl?: string
+}
+
+export interface IWordUsage {
+  usageType: string
+  definition: string
+  exampleSentence: string
+  exampleTranslation: string
+  exampleSource: string
+}
+
+export type SentenceDifficulty = 'basic' | 'medium' | 'hard'
 
 // ============================================
 // 名篇
@@ -132,6 +149,8 @@ export interface IArticleKeyWord {
   matchWord?: string
   /** 生词类型：shi/xu/tongjia/gujinyi/huoyong */
   wordType?: 'shi' | 'xu' | 'tongjia' | 'gujinyi' | 'huoyong'
+  /** 全局唯一标识（词书架构 v2） */
+  kid?: string
 }
 
 /** 典故注释：句中的文化背景词条 */
@@ -207,14 +226,14 @@ export type MasteryLevel = 'new' | 'difficult' | 'unclear' | 'familiar' | 'maste
 export type ReviewStage = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 'done'
 
 export interface IAnswerRecord {
-  sentenceId: string
+  quizItemId: string
   selectedOption: number
   correct: boolean
   timestamp: number
 }
 
 export interface IWordProgress {
-  wordId: string
+  entryId: string
   stage: ReviewStage
   nextReviewDate: string
   correctCount: number
@@ -271,11 +290,11 @@ export interface ILevelInfo {
 // 学习任务
 // ============================================
 export interface ITodayWord {
-  wordId: string
+  entryId: string
   character: string
   isReview: boolean
   reviewStage?: ReviewStage
-  sentences: ISentence[]
+  quizItems: IQuizItem[]
 }
 
 export interface ITodayTask {
@@ -295,29 +314,21 @@ export type MistakeFilter = 'all' | 'frequent' | 'recent'
 
 /** 错题本中单个句子的记录 */
 export interface IMistakeSentence {
-  sentenceId: string
+  quizItemId: string
   sentenceText: string
-  /** 用户选择了什么 */
   wrongAnswer: string
-  /** 正确答案 */
   correctAnswer: string
-  /** 该句子的累计错误次数 */
   errorCount: number
-  /** 该句子的连续答对次数（达到阈值自动移出） */
   consecutiveCorrect: number
 }
 
 export interface IMistakeRecord {
-  wordId: string
+  entryId: string
   character: string
   pinyin: string
-  /** 所属词书名称 */
   wordBookName: string
-  /** 所有句子的错误次数之和（冗余字段，避免页面遍历计算） */
   totalErrors: number
-  /** 最近一次答错时间 */
   lastErrorTime: string
-  /** 各句子的错题记录 */
   sentences: IMistakeSentence[]
 }
 
@@ -325,7 +336,7 @@ export interface IMistakeRecord {
 // 快捷搜索（按词类分组）
 // ============================================
 export interface IWordQuickItem {
-  wordId: string
+  entryId: string
   character: string
   pinyin: string
 }
@@ -334,10 +345,10 @@ export interface IWordQuickItem {
 // 全局搜索
 // ============================================
 export interface IWordSearchResult {
-  wordId: string
+  entryId: string
   character: string
   pinyin: string
-  /** 该词的所有义项 */
+  /** 该词的所有义项（来自 quizItem.definition 聚合） */
   meanings: { definition: string; example: string; translation?: string; source?: string }[]
   /** 所属词书名称 */
   wordBookName: string

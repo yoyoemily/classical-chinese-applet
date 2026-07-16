@@ -55,17 +55,17 @@ export function saveProgress(progress: IUserProgress): void {
 /**
  * 获取单字进度
  */
-export function getWordProgress(wordId: string): IWordProgress | undefined {
-  return getProgress().wordProgresses[wordId];
+export function getWordProgress(entryId: string): IWordProgress | undefined {
+  return getProgress().wordProgresses[entryId];
 }
 
 /**
  * 更新单字进度
  */
-export function setWordProgress(wordId: string, wp: IWordProgress): void {
+export function setWordProgress(entryId: string, wp: IWordProgress): void {
   const progress = getProgress();
-  const existed = progress.wordProgresses[wordId];
-  progress.wordProgresses[wordId] = wp;
+  const existed = progress.wordProgresses[entryId];
+  progress.wordProgresses[entryId] = wp;
 
   // 更新计数
   if (!existed && wp.stage !== 'done') {
@@ -194,10 +194,10 @@ export function loadWordBookData(bookId: string) {
   return mockWordBooks.find(wb => wb.id === bookId) ?? null;
 }
 
-export function getWordById(bookId: string, wordId: string) {
+export function getWordById(bookId: string, entryId: string) {
   const book = loadWordBookData(bookId);
   if (!book) return null;
-  return book.words.find(w => w.id === wordId) ?? null;
+  return book.words.find(w => w.id === entryId) ?? null;
 }
 
 // ============================================
@@ -292,13 +292,13 @@ export function getMistakes(): IMistakeRecord[] {
     // 旧格式：将扁平字段转为单个句子的数组
     const errorCount = (m as Record<string, unknown>).errorCount as number || 0;
     return {
-      wordId: m.wordId,
+      entryId: m.entryId,
       character: m.character,
       pinyin: m.pinyin,
       totalErrors: errorCount,
       lastErrorTime: m.lastErrorTime,
       sentences: [{
-        sentenceId: (m as Record<string, unknown>).sentenceId as string || '',
+        quizItemId: (m as Record<string, unknown>).quizItemId as string || '',
         sentenceText: (m as Record<string, unknown>).sentenceText as string || '',
         wrongAnswer: (m as Record<string, unknown>).wrongAnswer as string || '',
         correctAnswer: (m as Record<string, unknown>).correctAnswer as string || '',
@@ -315,7 +315,7 @@ export function saveMistakes(mistakes: IMistakeRecord[]): void {
 
 export function addMistake(record: IMistakeRecord): void {
   const mistakes = getMistakes();
-  const idx = mistakes.findIndex(m => m.wordId === record.wordId);
+  const idx = mistakes.findIndex(m => m.entryId === record.entryId);
   if (idx >= 0) {
     mistakes[idx] = record;
   } else {
@@ -324,8 +324,8 @@ export function addMistake(record: IMistakeRecord): void {
   saveMistakes(mistakes);
 }
 
-export function removeMistake(wordId: string): void {
-  const mistakes = getMistakes().filter(m => m.wordId !== wordId);
+export function removeMistake(entryId: string): void {
+  const mistakes = getMistakes().filter(m => m.entryId !== entryId);
   saveMistakes(mistakes);
 }
 

@@ -35,25 +35,23 @@
             <view class="page-word-summary__meaning-row">
               <text class="page-word-summary__meaning-number">{{index + 1}}</text>
               <view class="page-word-summary__meaning-summary">
-                <text class="page-word-summary__meaning-pinyin-line" wx:if="{{item.pinyin}}">{{item.pinyin}}</text>
-                <text> · </text>
                 <text class="page-word-summary__meaning-def-text">{{item.definition}}</text>
               </view>
               <text class="page-word-summary__meaning-arrow {{item.expanded ? 'page-word-summary__meaning-arrow--up' : ''}}">▶</text>
             </view>
             <!-- 展开详情 -->
             <view class="page-word-summary__meaning-detail" wx:if="{{item.expanded}}">
-              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.example}}">
+              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.sentenceText}}">
                 <text class="page-word-summary__meaning-detail-label">📖 例：</text>
-                <text class="page-word-summary__meaning-detail-text">{{item.example}}</text>
+                <text class="page-word-summary__meaning-detail-text">{{item.sentenceText}}</text>
               </view>
-              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.translation}}">
+              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.sentenceTranslation}}">
                 <text class="page-word-summary__meaning-detail-label">📝 译：</text>
-                <text class="page-word-summary__meaning-detail-text">{{item.translation}}</text>
+                <text class="page-word-summary__meaning-detail-text">{{item.sentenceTranslation}}</text>
               </view>
-              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.source}}">
+              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.articleTitle}}">
                 <text class="page-word-summary__meaning-detail-label">📚 出处：</text>
-                <text class="page-word-summary__meaning-detail-text">{{item.source}}</text>
+                <text class="page-word-summary__meaning-detail-text">{{item.articleTitle}}</text>
               </view>
             </view>
           </view>

@@ -3,7 +3,7 @@
 // ============================================
 import { get, post, put, del } from '../utils/request';
 import type {
-  IWordBook, IWord, ITodayTask, IArticle, IApiResponse,
+  IWordBook, IWordEntry, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
   IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
   IClassicBook, IClassicMeta, IContentBlock, IWordQuickItem,
@@ -71,14 +71,14 @@ export async function fetchTodayTask(
 }
 
 export async function submitAnswer(data: {
-  wordBookId: string; wordId: string; sentenceId: string;
+  wordBookId: string; entryId: string; quizItemId: string;
   selectedOption: number; correct: boolean;
   correctAnswer?: string; wrongAnswer?: string;
 }): Promise<{ updatedProgress: { stage: number | string; nextReviewDate: string; correctCount: number; wrongCount: number } }> {
   if (USE_MOCK) {
     const progress = getProgress();
-    const wp = progress.wordProgresses[data.wordId] || {
-      wordId: data.wordId,
+    const wp = progress.wordProgresses[data.entryId] || {
+      entryId: data.entryId,
       stage: 0 as const,
       nextReviewDate: '',
       correctCount: 0,
@@ -87,13 +87,13 @@ export async function submitAnswer(data: {
       history: [],
     };
     wp.history.push({
-      sentenceId: data.sentenceId,
+      quizItemId: data.quizItemId,
       selectedOption: data.selectedOption,
       correct: data.correct,
       timestamp: Date.now(),
     });
     const updated = updateWordProgress(wp, data.correct);
-    setWordProgress(data.wordId, updated);
+    setWordProgress(data.entryId, updated);
     return {
       updatedProgress: {
         stage: updated.stage,
@@ -134,11 +134,10 @@ export async function completeStudy(data: { wordBookId: string; correctCount: nu
  * 完成单个字词学习（所有句子答完后，进入字总结页时调用）。
  * 仅新学词返回 xpGained=10，复习词返回 0。
  */
-export async function completeWord(data: { wordBookId: string; wordId: string }): Promise<{ xpGained: number }> {
+export async function completeWord(data: { wordBookId: string; entryId: string }): Promise<{ xpGained: number }> {
   if (USE_MOCK) {
     const progress = getProgress();
-    const wp = progress.wordProgresses[data.wordId];
-    // mock: 无进度记录说明是新学词
+    const wp = progress.wordProgresses[data.entryId];
     const isNew = !wp;
     if (isNew) {
       progress.totalXP += 10;
@@ -166,19 +165,19 @@ export async function fetchMistakes(wordBookId?: string): Promise<IMistakeRecord
   if (USE_MOCK) {
     const { getMistakes } = require('../utils/storage');
     const allMistakes = getMistakes() as IMistakeRecord[];
-    return wordBookId ? allMistakes.filter(m => m.wordId.startsWith(wordBookId)) : allMistakes;
+    return wordBookId ? allMistakes.filter(m => m.entryId.startsWith(wordBookId)) : allMistakes;
   }
   const params: Record<string, string> = {};
   if (wordBookId) params.wordBookId = wordBookId;
   return get('/api/study/mistakes', params);
 }
 
-export async function removeMistakeApi(wordId: string): Promise<void> {
+export async function removeMistakeApi(entryId: string): Promise<void> {
   if (USE_MOCK) {
-    require('../utils/storage').removeMistake(wordId);
+    require('../utils/storage').removeMistake(entryId);
     return;
   }
-  return del(`/api/study/mistakes/${wordId}`);
+  return del(`/api/study/mistakes/${entryId}`);
 }
 
 // ============================================
@@ -192,17 +191,17 @@ export async function searchWords(keyword: string): Promise<IWordSearchResult[]>
     for (const book of books) {
       const full = loadWordBookData(book.id);
       if (full) {
-        for (const word of full.words) {
+        for (const word of full.wordEntries) {
           if (word.character.includes(keyword)) {
             results.push({
-              wordId: word.id,
+              entryId: word.id,
               character: word.character,
               pinyin: word.pinyin,
-              meanings: word.meanings.map(m => ({
-                definition: m.definition,
-                example: m.example,
-                translation: m.translation,
-                source: m.source,
+              meanings: (word.keyWordRefs || []).map(r => ({
+                definition: r.definition || '',
+                example: r.sentenceText || '',
+                translation: r.sentenceTranslation || '',
+                source: r.articleTitle || '',
               })),
               wordBookName: book.name,
               wordBookId: book.id,
@@ -228,15 +227,15 @@ export async function fetchWordsByType(): Promise<Record<string, IWordQuickItem[
     }
     for (const book of books) {
       const full = loadWordBookData(book.id);
-      if (full && full.words.length > 0) {
-        // 取第一个词的 wordType 推导分组（同一词书下的 word 类型相同）
-        const key = wordTypeToGroupKey(full.words[0]?.wordType);
+      if (full && full.wordEntries.length > 0) {
+        // 取第一个词的 wordType 推导分组（同一词书下的 entry 类型相同）
+        const key = wordTypeToGroupKey(full.wordEntries[0]?.wordType);
         if (!key) continue;
-        for (const word of full.words) {
+        for (const entry of full.wordEntries) {
           result[key].push({
-            wordId: word.id,
-            character: word.character,
-            pinyin: word.pinyin,
+            entryId: entry.id,
+            character: entry.character,
+            pinyin: entry.pinyin,
           });
         }
       }
@@ -306,20 +305,20 @@ export async function fetchArticleDetail(articleId: string): Promise<IArticle> {
 // ============================================
 // 内容
 // ============================================
-export async function fetchWordDetail(wordId: string): Promise<IWord | null> {
+export async function fetchWordDetail(entryId: string): Promise<IWordEntry | null> {
   if (USE_MOCK) {
     // 遍历所有词书查找
     const books = loadWordBooks();
     for (const book of books) {
       const full = loadWordBookData(book.id);
       if (full) {
-        const word = full.words.find(w => w.id === wordId);
+        const word = full.wordEntries?.find(w => w.id === entryId);
         if (word) return word;
       }
     }
     return null;
   }
-  return get(`/api/words/${wordId}`);
+  return get(`/api/words/${entryId}`);
 }
 
 // ============================================

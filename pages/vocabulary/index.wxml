@@ -17,10 +17,10 @@
 
   <!-- 词列表 -->
   <view class="page-vocabulary__list" wx:if="{{words.length > 0}}">
-    <block wx:for="{{words}}" wx:key="wordId">
+    <block wx:for="{{words}}" wx:key="entryId">
       <view
         class="page-vocabulary__card"
-        data-word-id="{{item.wordId}}"
+        data-entry-id="{{item.entryId}}"
         bindtap="onTapWord"
         hover-class="page-vocabulary__card--active"
       >
