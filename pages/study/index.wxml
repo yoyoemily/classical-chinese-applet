@@ -26,11 +26,7 @@
         <text
           wx:for="{{sentenceChars}}"
           wx:key="index"
-          class="page-study__sentence-char
-            {{item.isPunct ? 'page-study__sentence-char--punct' : ''}}
-            {{item.selected ? 'page-study__sentence-char--selected' : ''}}
-            {{showPreStepCorrect && item.correct ? 'page-study__sentence-char--correct' : ''}}
-            {{showPreStepWrong && item.selected && !item.correct ? 'page-study__sentence-char--wrong' : ''}}"
+          class="page-study__sentence-char {{item.isPunct ? 'page-study__sentence-char--punct' : ''}} {{item.selected ? 'page-study__sentence-char--selected' : ''}} {{showPreStepCorrect && item.correct ? 'page-study__sentence-char--correct' : ''}} {{showPreStepWrong && item.selected && !item.correct ? 'page-study__sentence-char--wrong' : ''}}"
           data-index="{{item.index}}"
           data-ispunct="{{item.isPunct}}"
           bindtap="onTapSentenceChar"

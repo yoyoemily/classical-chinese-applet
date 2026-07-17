@@ -26,10 +26,10 @@ function getBaseUrl(): string {
   try {
     const { envVersion } = wx.getAccountInfoSync().miniProgram;
     return envVersion === 'release'
-      ? 'https://wyq.yinque-ai.com'
-      : 'http://localhost:8080';
+      ? 'https://wyq.yinqueai.com'
+      : 'https://wyq.yinqueai.com';
   } catch {
-    return 'http://localhost:8080';
+    return 'https://wyq.yinqueai.com';
   }
 }
 

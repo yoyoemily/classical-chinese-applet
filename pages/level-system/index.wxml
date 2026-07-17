@@ -29,11 +29,7 @@
   <view class="page-level-system__table">
     <view class="page-level-system__table-title">全部等级</view>
     <block wx:for="{{ranks}}" wx:key="lv">
-      <view
-        class="page-level-system__rank-item
-               {{item.isCurrent ? 'page-level-system__rank-item--current' : ''}}
-               {{item.isPassed ? 'page-level-system__rank-item--passed' : ''}}"
-      >
+      <view class="page-level-system__rank-item {{item.isCurrent ? 'page-level-system__rank-item--current' : ''}} {{item.isPassed ? 'page-level-system__rank-item--passed' : ''}}">
         <view class="page-level-system__rank-badge">
           <text wx:if="{{item.isCurrent}}" class="page-level-system__rank-badge-icon">📍</text>
           <text wx:elif="{{item.isPassed}}" class="page-level-system__rank-badge-icon">✅</text>

@@ -5,6 +5,22 @@
       {
         "value": ".eslintrc.js",
         "type": "file"
+      },
+      {
+        "value": "assets/share-poster.png",
+        "type": "file"
+      },
+      {
+        "value": "assets/share-poster-bg.png",
+        "type": "file"
+      },
+      {
+        "value": "temp",
+        "type": "folder"
+      },
+      {
+        "value": "tools",
+        "type": "folder"
       }
     ],
     "include": []
