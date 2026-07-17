@@ -98,6 +98,7 @@ class TTSPlayer {
   /** 创建新 InnerAudioContext（会先销毁旧实例） */
   private _createCtx(): WechatMiniprogram.InnerAudioContext {
     this._destroyCtx();
+    wx.setInnerAudioOption({ obeyMuteSwitch: false });
     const ctx = wx.createInnerAudioContext();
     ctx.obeyMuteSwitch = false;
     ctx.playbackRate = PLAYBACK_RATE;
