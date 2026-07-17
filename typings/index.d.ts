@@ -219,15 +219,6 @@ export interface IUserProgress {
   longestStreak: number
   totalXP: number
   wordProgresses: Record<string, IWordProgress>
-  /** 下一个可获得的勋章（后端计算），全部获得后为 null */
-  nextBadge: {
-    id: string
-    name: string
-    icon: string
-    description: string
-    gap: number
-    gapUnit: string
-  } | null
 }
 
 // ============================================

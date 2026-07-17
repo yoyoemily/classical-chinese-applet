@@ -1,8 +1,9 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchWordBooks, signPact, fetchBadges } from '../../api/index';
-import { getCurrentBookId } from '../../utils/storage';
+import { fetchUserProfile, signPact, fetchBadges } from '../../api/index';
+import { computeNextBadge } from '../../utils/badge';
+import type { NextBadgeInfo } from '../../utils/badge';
 
 interface IMenuItem {
   key: string;
@@ -20,7 +21,6 @@ interface IMineData {
   currentStreak: number;
   badgeCount: number;
   totalBadges: number;
-  currentBookName: string;
   menuItems: IMenuItem[];
   loading: boolean;
   showSharePoster: boolean;
@@ -35,7 +35,7 @@ interface IMineData {
   /** 签订契约复选框 */
   pactChecked: boolean;
   /** 下一枚勋章信息 */
-  nextBadge: { name: string; icon: string; gap: number; gapLabel: string; percent: number } | null;
+  nextBadge: NextBadgeInfo | null;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -47,7 +47,6 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     currentStreak: 0,
     badgeCount: 0,
     totalBadges: 8,
-    currentBookName: '',
     menuItems: [
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
       { key: 'mistake', icon: '📝', label: '错题本', url: '/pages/mistake-book/index' },
@@ -65,9 +64,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     nextBadge: null,
   },
 
-  onLoad(): void {
-    this.loadProfile();
-  },
+  onLoad(): void {},
 
   onShow(): void {
     // 从其他页面返回时刷新数据，并重置海报弹窗状态
@@ -80,11 +77,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ loading: true });
 
     try {
-      // 加载个人信息
-      const [profileResult, bookResult] = await Promise.all([
-        fetchUserProfile(),
-        this.getCurrentBookName(),
-      ]);
+      const profileResult = await fetchUserProfile();
 
       const displayName = profileResult.nickName || '学友';
 
@@ -94,7 +87,6 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
         level: profileResult.level || 1,
         title: profileResult.title || '童生',
         currentStreak: profileResult.currentStreak,
-        currentBookName: bookResult,
         loading: false,
         memberLevel: profileResult.memberLevel || 0,
       });
@@ -108,54 +100,14 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     }
   },
 
-  /** 获取当前词书名称 */
-  async getCurrentBookName(): Promise<string> {
-    try {
-      const books = await fetchWordBooks();
-      const currentId = getCurrentBookId();
-      const currentBook = books.find(b => b.id === currentId);
-      return currentBook?.name ?? '未知';
-    } catch {
-      return '未知';
-    }
-  },
-
   /** 加载勋章数据：数量 + 下一枚勋章进度 */
   async loadBadges(): Promise<void> {
     try {
       const result = await fetchBadges();
-      const allBadges = result.badges as { id: string; name: string; icon: string; condition: { type: string; value: number } }[];
-      const userBadgeIds = new Set(result.userBadges.map((ub: { badgeId: string }) => ub.badgeId));
+      const userBadgeIds = new Set(result.userBadges.map(ub => ub.badgeId));
       const earnedCount = result.userBadges.length;
-      const totalCount = allBadges.length;
-      const currentStreak = this.data.currentStreak;
-
-      // 计算下一枚勋章：取 gap 最小的未获得勋章
-      let nextBadge: IMineData['nextBadge'] = null;
-      const unearned = allBadges.filter(b => !userBadgeIds.has(b.id));
-      if (unearned.length > 0) {
-        let bestGap = Infinity;
-        let bestBadge: typeof unearned[0] | null = null;
-        for (const badge of unearned) {
-          const target = badge.condition.value;
-          const gap = Math.max(0, target - currentStreak);
-          if (gap < bestGap) {
-            bestGap = gap;
-            bestBadge = badge;
-          }
-        }
-        if (bestBadge) {
-          const target = bestBadge.condition.value;
-          const rawPercent = target > 0 ? Math.min(Math.round((currentStreak / target) * 100), 100) : 100;
-          nextBadge = {
-            name: bestBadge.name,
-            icon: bestBadge.icon,
-            gap: bestGap,
-            gapLabel: bestGap === 0 ? '即将获得' : '天',
-            percent: rawPercent,
-          };
-        }
-      }
+      const totalCount = result.badges.length;
+      const nextBadge = computeNextBadge(this.data.currentStreak, result.badges, userBadgeIds);
 
       this.setData({
         badgeCount: earnedCount,

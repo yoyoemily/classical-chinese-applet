@@ -31,7 +31,10 @@
           <text class="page-index__next-badge-icon">{{nextBadge.icon}}</text>
           <view class="page-index__next-badge-info">
             <text class="page-index__next-badge-name">{{nextBadge.name}}</text>
-            <text class="page-index__next-badge-gap">还差{{nextBadge.gap}}{{nextBadge.gapUnit}}</text>
+            <text class="page-index__next-badge-gap">
+              <block wx:if="{{nextBadge.gap === 0}}">即将获得</block>
+              <block wx:else>还差{{nextBadge.gap}}{{nextBadge.gapLabel}}</block>
+            </text>
           </view>
         </view>
         <view

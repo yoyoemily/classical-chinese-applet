@@ -1,7 +1,8 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, signPact } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges, signPact } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
-import type { IUserProgress } from '../../typings/index.d';
+import { computeNextBadge } from '../../utils/badge';
+import type { NextBadgeInfo } from '../../utils/badge';
 
 // ============================================
 // 本地类型定义
@@ -58,15 +59,8 @@ interface IIndexData {
   loading: boolean;
   /** 错题数量 */
   mistakeCount: number;
-  /** 下一个可获得的勋章（后端计算） */
-  nextBadge: {
-    id: string;
-    name: string;
-    icon: string;
-    description: string;
-    gap: number;
-    gapUnit: string;
-  } | null;
+  /** 下一个可获得的勋章 */
+  nextBadge: NextBadgeInfo | null;
   /** 会员级别 */
   memberLevel: number;
   /** 用户昵称 */
@@ -112,17 +106,30 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   // ==========================================
 
   onLoad(): void {
-    this.loadData();
+    this.initBooks();
   },
 
   onShow(): void {
-    // 从其他页面返回时刷新数据（用户可能切换了词书）
+    // 从其他页面返回时刷新数据（用户可能切换了词书、完成了学习）
     this.loadData();
   },
 
   // ==========================================
   // 数据加载
   // ==========================================
+
+  /** 词书列表缓存（一次拉取，后续复用） */
+  _booksCache: null as IBookInfo[] | null,
+
+  /** 首次加载时拉取词书列表 */
+  async initBooks(): Promise<void> {
+    try {
+      const books = await fetchWordBooks();
+      this._booksCache = books;
+    } catch {
+      this._booksCache = [];
+    }
+  },
 
   /** 加载首页所有数据 */
   async loadData(): Promise<void> {
@@ -143,15 +150,16 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         } catch { /* use defaults */ }
       }
 
-      // 并行拉取词书列表、进度、今日任务、勋章、错题数、用户信息
-      const [books, progress, task, mistakesCount, profile] = await Promise.all([
-        fetchWordBooks(),
+      // 并行拉取进度、今日任务、勋章、错题数、用户信息（词书列表已缓存）
+      const [progress, task, badgeResult, mistakesCount, profile] = await Promise.all([
         fetchProgress(bookId),
         fetchTodayTask(bookId, dailyNew, dailyReview),
+        fetchBadges(),
         fetchMistakeCount(),
         fetchUserProfile(),
       ]);
 
+      const books = this._booksCache || [];
       const currentBook = books.find((b) => b.id === bookId) ?? null;
       const today = this.formatToday();
       const checkedIn = isCheckedInToday();
@@ -161,7 +169,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
           ? Math.round((progress.wordsMastered / totalWords) * 100)
           : 0;
       const distribution = this.computeDistribution(progress, progress.wordsMastered);
-      const nextBadge = progress.nextBadge || null;
+
+      // 前端计算下一枚勋章
+      const userBadgeIds = new Set(badgeResult.userBadges.map(ub => ub.badgeId));
+      const nextBadge = computeNextBadge(profile.currentStreak, badgeResult.badges, userBadgeIds);
+
       const mistakeCount = mistakesCount;
 
       // 兼容 setCurrentBookId 导入（词书切换在 book-select 页面完成，

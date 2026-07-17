@@ -34,9 +34,7 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
     this.loadArticles();
   },
 
-  onShow(): void {
-    this.loadArticles(this.data.activeCategory);
-  },
+  onShow(): void {},
 
   onReady(): void {},
 
