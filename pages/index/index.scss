@@ -183,17 +183,17 @@
     }
   }
   &__book-icon {
-    font-size: 32rpx;
+    font-size: 28rpx;
     line-height: 1;
     flex-shrink: 0;
   }
   &__book-name {
-    font-size: $font-size-md;
+    font-size: $font-size-base;
     font-weight: 600;
     color: var(--color-primary);
   }
   &__book-arrow {
-    font-size: 36rpx;
+    font-size: 32rpx;
     font-weight: 300;
     color: var(--color-primary);
     line-height: 1;

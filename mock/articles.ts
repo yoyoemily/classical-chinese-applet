@@ -9,8 +9,8 @@ const art_001_sentences = [
     text: '庆历四年春，滕子京谪守巴陵郡。越明年，政通人和，百废具兴，乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上，属予作文以记之。',
     translation: '庆历四年的春天，滕子京被贬官到巴陵郡做太守。到了第二年，政事顺利，百姓和乐，各种荒废的事业都兴办起来了，于是重新修建岳阳楼，扩大它原有的规模，在上面镌刻唐代名家和当代文人的诗赋，嘱托我写一篇文章来记述这件事。',
     keyWords: [
-      { word: '谪', definition: '贬官降职，被流放或降职外调', wordBookId: 'wb_mid_001_01' },
-      { word: '属', definition: '通"嘱"，嘱托、嘱咐', wordBookId: 'wb_tjia_002_05' },
+      { word: '谪', definition: '贬官降职，被流放或降职外调' },
+      { word: '属', definition: '通"嘱"，嘱托、嘱咐' },
     ],
     glossary: [
       { word: '庆历', definition: '宋仁宗赵祯的年号（1041-1048年）。范仲淹此文作于庆历六年（1046年）' },
@@ -26,7 +26,7 @@ const art_001_sentences = [
     keyWords: [
       { word: '胜状', definition: '胜景，美景，壮丽的景色' },
       { word: '汤汤', definition: '（shāng shāng）水势浩大壮阔的样子' },
-      { word: '则', definition: '就，便（表示承接）', wordBookId: 'wb_mid_001_09' },
+      { word: '则', definition: '就，便（表示承接）' },
     ],
     glossary: [
       { word: '洞庭', definition: '洞庭湖，位于湖南省北部，中国第二大淡水湖，古称"云梦泽"。岳阳楼建于洞庭湖东岸，登楼可俯瞰湖光山色' },
@@ -64,9 +64,9 @@ const art_001_sentences = [
     text: '嗟夫！予尝求古仁人之心，或异二者之为，何哉？不以物喜，不以己悲，居庙堂之高则忧其民，处江湖之远则忧其君。是进亦忧，退亦忧。然则何时而乐耶？其必曰"先天下之忧而忧，后天下之乐而乐"乎！噫！微斯人，吾谁与归？',
     translation: '唉！我曾经探求古代品德高尚的人的心思，或许与上面两种表现不同，为什么呢？他们不因外物好坏和自己得失而或喜或悲，在朝廷做官就为百姓担忧，处在偏远的江湖就为君主担忧。这样看来，做官也担忧，退隐也担忧。既然这样，那么什么时候才快乐呢？他们一定会说"在天下人忧愁之前就忧愁，在天下人快乐之后才快乐"吧！唉！如果没有这种人，我同谁一道呢？',
     keyWords: [
-      { word: '以', definition: '因为', wordBookId: 'wb_mid_001_03' },
+      { word: '以', definition: '因为' },
       { word: '庙堂', definition: '指朝廷，帝王处理政事的地方' },
-      { word: '则', definition: '就，便（承接）', wordBookId: 'wb_mid_001_09' },
+      { word: '则', definition: '就，便（承接）' },
       { word: '微', definition: '如果没有，用于假设否定' },
     ],
     glossary: [
@@ -84,26 +84,26 @@ const art_002_sentences = [
     text: '子曰："学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？"',
     translation: '孔子说："学习了知识，然后按时温习它，不也是很愉快吗？有志同道合的人从远方来，不也是很快乐吗？别人不了解我，我却不恼怒，不也是有才德的人吗？"',
     keyWords: [
-      { word: '而', definition: '连词，表示承接，然后', wordBookId: 'wb_mid_001_01' },
-      { word: '之', definition: '代词，它', wordBookId: 'wb_mid_001_02' },
-      { word: '说', definition: '通"悦"，愉快', wordBookId: 'wb_tjia_002_01' },
+      { word: '而', definition: '连词，表示承接，然后' },
+      { word: '之', definition: '代词，它' },
+      { word: '说', definition: '通"悦"，愉快' },
     ],
   },
   {
     text: '子曰："温故而知新，可以为师矣。"',
     translation: '孔子说："温习学过的知识，可以得到新的理解和体会，凭借这一点就可以做老师了。"',
     keyWords: [
-      { word: '而', definition: '连词，表示承接', wordBookId: 'wb_mid_001_01' },
-      { word: '故', definition: '旧的知识', wordBookId: 'wb_mid_001_07' },
-      { word: '为', definition: '做，成为', wordBookId: 'wb_mid_001_05' },
+      { word: '而', definition: '连词，表示承接' },
+      { word: '故', definition: '旧的知识' },
+      { word: '为', definition: '做，成为' },
     ],
   },
   {
     text: '子曰："学而不思则罔，思而不学则殆。"',
     translation: '孔子说："只是读书却不思考，就会迷惑而无所得；只是空想却不读书，就会疑惑而无所得。"',
     keyWords: [
-      { word: '而', definition: '却（表转折）', wordBookId: 'wb_mid_001_01' },
-      { word: '则', definition: '就，便', wordBookId: 'wb_mid_001_09' },
+      { word: '而', definition: '却（表转折）' },
+      { word: '则', definition: '就，便' },
     ],
   },
   {
@@ -121,7 +121,7 @@ const art_003_sentences = [
   { text: '齐鲁青未了。', translation: '走出齐鲁大地，那苍翠的山色依然没有穷尽。', keyWords: [{ word: '青', definition: '指山色苍翠，郁郁葱葱' }] },
   { text: '造化钟神秀，', translation: '大自然把神奇和秀美都聚集在泰山之上。', keyWords: [{ word: '造化', definition: '指大自然，天地' }, { word: '钟', definition: '聚集，汇集' }] },
   { text: '阴阳割昏晓。', translation: '山南山北因高峻而分割出黄昏和拂晓。', keyWords: [{ word: '阴阳', definition: '山北为阴，山南为阳' }, { word: '割', definition: '分割、分开，极写泰山之高峻' }] },
-  { text: '荡胸生曾云，', translation: '望见山中层层升腾的云气，令人心胸激荡。', keyWords: [{ word: '曾', definition: '通"层"，层层叠叠', wordBookId: 'wb_tjia_002_06' }] },
+  { text: '荡胸生曾云，', translation: '望见山中层层升腾的云气，令人心胸激荡。', keyWords: [{ word: '曾', definition: '通"层"，层层叠叠' }] },
   { text: '决眦入归鸟。', translation: '睁大眼睛极目远望，目送归巢的飞鸟没入山林。', keyWords: [{ word: '决眦', definition: '睁裂眼眶，形容极力张大眼睛远望' }] },
   { text: '会当凌绝顶，', translation: '一定要登上泰山的最高峰。', keyWords: [{ word: '会当', definition: '终当，一定要，应当' }, { word: '凌', definition: '登上，升到高处' }] },
   { text: '一览众山小。', translation: '到那时再看，周围的群山都显得那样矮小了。', keyWords: [{ word: '览', definition: '看，观望，俯瞰' }, { word: '小', definition: '以……为小，觉得……渺小' }] },

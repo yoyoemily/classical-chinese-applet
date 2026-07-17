@@ -143,7 +143,6 @@ export type EducationStage = 'all' | 'junior' | 'senior' | 'other'
 export interface IArticleKeyWord {
   word: string
   definition: string
-  wordBookId?: string
   masteryLevel?: MasteryLevel
   /** 消歧用：多字上下文片段，用于定位句中具体出现位置；前端匹配时用 matchWord，弹窗展示时用 word */
   matchWord?: string

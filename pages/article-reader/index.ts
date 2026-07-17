@@ -272,18 +272,6 @@
 	  },
 
 	  // ==========================================
-	  // 重点字词跳转
-	  // ==========================================
-
-	  onTapKeyword(e: WechatMiniprogram.BaseEvent): void {
-	    const wordBookId = e.currentTarget.dataset.wordBookId as string | undefined;
-	    const word = e.currentTarget.dataset.word as string | undefined;
-	    if (wordBookId) {
-	      wx.navigateTo({ url: `/pages/word-summary/index?wordId=${encodeURIComponent(word || '')}` });
-	    }
-	  },
-
-	  // ==========================================
 	  // 内联生词链接 — 将句子按 keyWords 切分为普通文本/生词片段
 	  // ==========================================
 
