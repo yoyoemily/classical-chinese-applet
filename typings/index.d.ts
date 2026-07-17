@@ -185,16 +185,7 @@ export interface IArticle {
   keywordCount: number
 }
 
-export type ArticleMastery = 'none' | 'read' | 'understood' | 'memorized'
 
-export interface IArticleProgress {
-  articleId: string
-  /** 已点击阅读的句子数 */
-  readProgress: number
-  /** 掌握程度 */
-  mastery: ArticleMastery
-  lastReadDate?: string
-}
 
 // ============================================
 // 学习进度
@@ -228,7 +219,6 @@ export interface IUserProgress {
   longestStreak: number
   totalXP: number
   wordProgresses: Record<string, IWordProgress>
-  articleProgresses: Record<string, IArticleProgress>
   /** 下一个可获得的勋章（后端计算），全部获得后为 null */
   nextBadge: {
     id: string

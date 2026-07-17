@@ -3,7 +3,7 @@
 // ============================================
 import type {
   IUserProgress, IWordProgress, IUserBadge,
-  ITodayTask, IArticleProgress, IUserProfile, IMistakeRecord, IStudySummary
+  ITodayTask, IUserProfile, IMistakeRecord, IStudySummary
 } from '../typings/index.d';
 import { STORAGE_KEYS, DEFAULT_MISTAKE_REMOVE_THRESHOLD } from '../constants/config';
 import { safeJSONParse } from './util';
@@ -24,7 +24,6 @@ export function getProgress(): IUserProgress {
       ...createDefaultProgress(),
       ...saved,
       wordProgresses: saved.wordProgresses || {},
-      articleProgresses: saved.articleProgresses || {},
     };
   } catch {
     return createDefaultProgress();
@@ -41,7 +40,6 @@ function createDefaultProgress(): IUserProgress {
     longestStreak: 0,
     totalXP: 0,
     wordProgresses: {},
-    articleProgresses: {},
   };
 }
 
@@ -78,21 +76,7 @@ export function setWordProgress(entryId: string, wp: IWordProgress): void {
   saveProgress(progress);
 }
 
-/**
- * 获取名篇阅读进度
- */
-export function getArticleProgress(articleId: string): IArticleProgress | undefined {
-  return getProgress().articleProgresses[articleId];
-}
 
-/**
- * 更新名篇阅读进度
- */
-export function setArticleProgress(articleId: string, ap: IArticleProgress): void {
-  const progress = getProgress();
-  progress.articleProgresses[articleId] = ap;
-  saveProgress(progress);
-}
 
 /**
  * 获取用户勋章
