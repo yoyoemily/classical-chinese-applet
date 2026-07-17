@@ -236,7 +236,7 @@
         <view class="page-article-reader__feedback-label">错误类型</view>
         <view class="page-article-reader__feedback-categories">
           <view
-            wx:for="{{['sentence_text','translation','annotation','article_info','other']}}"
+            wx:for="{{['sentence_text','translation','annotation','other']}}"
             wx:key="*this"
             wx:for-item="cat"
             class="page-article-reader__feedback-cat {{feedbackCategory === cat ? 'page-article-reader__feedback-cat--active' : ''}}"
@@ -246,7 +246,6 @@
             <text wx:if="{{cat === 'sentence_text'}}">原文有误</text>
             <text wx:elif="{{cat === 'translation'}}">译文有误</text>
             <text wx:elif="{{cat === 'annotation'}}">标注有误</text>
-            <text wx:elif="{{cat === 'article_info'}}">文章信息有误</text>
             <text wx:else>其他</text>
           </view>
         </view>

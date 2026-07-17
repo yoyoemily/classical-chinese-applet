@@ -170,7 +170,7 @@
       <view class="page-study__feedback-label">错误类型</view>
       <view class="page-study__feedback-categories">
         <view
-          wx:for="{{['sentence_text','translation','definition','source','other']}}"
+          wx:for="{{['sentence_text','translation','definition','other']}}"
           wx:key="*this"
           wx:for-item="cat"
           class="page-study__feedback-cat {{feedbackCategory === cat ? 'page-study__feedback-cat--active' : ''}}"
@@ -180,7 +180,6 @@
           <text wx:if="{{cat === 'sentence_text'}}">原文有误</text>
           <text wx:elif="{{cat === 'translation'}}">译文有误</text>
           <text wx:elif="{{cat === 'definition'}}">释义有误</text>
-          <text wx:elif="{{cat === 'source'}}">出处有误</text>
           <text wx:else>其他</text>
         </view>
       </view>

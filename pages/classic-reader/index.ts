@@ -468,15 +468,19 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ feedbackSubmitting: true });
 
     try {
-      await submitFeedback({
-        category: this.data.feedbackCategory as FeedbackCategory,
-        source: 'classic_reader',
-        description: this.data.feedbackDescription,
-        context: {
-          classicId: this.data.meta?.id,
-        },
-      });
-      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
+	      await submitFeedback({
+	        category: this.data.feedbackCategory as FeedbackCategory,
+	        source: 'classic_reader',
+	        description: this.data.feedbackDescription,
+	        context: {
+	          classicId: this.data.meta?.id,
+	          nodeId: this.data.currentNodeId,
+	          nodeTitle: this.data.currentContent?.title,
+	          className: this.data.meta?.name,
+	        },
+		      });
+	      wx.showToast({ title: '感谢反馈', icon: 'success' });
+	      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
     } catch {
       wx.showToast({ title: '提交失败，请重试', icon: 'none' });
       this.setData({ feedbackSubmitting: false });

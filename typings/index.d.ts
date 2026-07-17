@@ -390,6 +390,15 @@ export interface IFeedback {
     wordId?: string
     articleId?: string
     readingMode?: string
+    classicId?: number
+    nodeId?: string | number
+    nodeTitle?: string
+    /** 句子原文（学习板块） */
+    sentenceText?: string
+    /** 选篇标题（学习板块的出处 / 选篇板块的文章标题） */
+    articleTitle?: string
+    /** 经典名称 */
+    className?: string
   }
   timestamp: number
 }

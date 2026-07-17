@@ -59,7 +59,6 @@ const FEEDBACK_CATEGORIES: { key: FeedbackCategory; label: string }[] = [
   { key: 'sentence_text', label: '原文有误' },
   { key: 'translation', label: '译文有误' },
   { key: 'definition', label: '释义有误' },
-  { key: 'source', label: '出处有误' },
   { key: 'other', label: '其他' },
 ];
 
@@ -683,6 +682,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
           sentenceId: this.data.currentSentence?.id,
           wordId: word?.entryId,
           articleId: this.data.currentSentence?.articleId,
+          sentenceText: this.data.currentSentence?.text,
+          articleTitle: this.data.currentSentence?.source,
         },
       });
       this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });

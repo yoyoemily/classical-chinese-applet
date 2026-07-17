@@ -474,14 +474,22 @@
 	  },
 
 	  async onSubmitFeedback(): Promise<void> {
+	    if (!this.data.feedbackCategory) {
+	      wx.showToast({ title: '请选择错误类型', icon: 'none' });
+	      return;
+	    }
 	    if (this.data.feedbackSubmitting) return;
 	    this.setData({ feedbackSubmitting: true });
 	    try {
 	      await submitFeedback({
-	        articleId: this._articleId,
-	        readingMode: this.data.readingMode,
 	        category: this.data.feedbackCategory as FeedbackCategory,
+	        source: 'article_reader',
 	        description: this.data.feedbackDescription,
+	        context: {
+	          articleId: this._articleId,
+	          readingMode: this.data.readingMode,
+	          articleTitle: this.data.article?.title,
+	        },
 	      });
 	      wx.showToast({ title: '感谢反馈', icon: 'success' });
 	      this.setData({ showFeedbackPanel: false, feedbackDescription: '' });
