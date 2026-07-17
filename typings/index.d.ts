@@ -161,24 +161,6 @@ export interface IGlossaryItem {
   definition: string
 }
 
-/**
- * 逐字标注角色（已废弃，保留兼容）
- * @deprecated 典故注释模式已改用 glossary 字段
- */
-export type CharRole = 'content' | 'function' | 'punct' | 'plain'
-
-/**
- * @deprecated 典故注释模式已改用 IGlossaryItem
- */
-export interface ICharAnnotation {
-  /** 单个汉字或标点 */
-  char: string
-  /** content=实词, function=虚词, punct=标点, plain=无需标注 */
-  role: CharRole
-  /** 释义（实词必填，虚词可选，标点/plain 无） */
-  definition?: string
-}
-
 export interface IArticleSentence {
   text: string
   translation: string
@@ -186,11 +168,6 @@ export interface IArticleSentence {
   audioUrl?: string
   /** 典故注释：句中文化背景词条，用于典故注释模式 */
   glossary?: IGlossaryItem[]
-  /**
-   * 逐字标注（已废弃，保留兼容）
-   * @deprecated 典故注释模式已改用 glossary 字段
-   */
-  charAnnotations?: ICharAnnotation[]
   /** 生僻字拼音映射 { "字": "拼音" } */
   rareCharPinyin?: Record<string, string>
 }

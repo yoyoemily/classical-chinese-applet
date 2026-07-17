@@ -1047,7 +1047,6 @@ HTTP/1.1 200 OK
 | `translation` | String | 句子翻译 |
 | `keyWords` | Array\<KeyWord\> | 内联生词列表 |
 | `audioUrl` | String | 句子音频 URL (Optional) |
-| `charAnnotations` | Array\<CharAnnotation\> | 逐字标注数据 (已废弃，保留兼容) (Optional) |
 | `glossary` | Array\<GlossaryItem\> | 典故注释数据 (Optional) |
 
 **KeyWord 对象：**
@@ -1058,14 +1057,6 @@ HTTP/1.1 200 OK
 | `definition` | String | 释义 |
 | `wordBookId` | String | 所属词书 ID (Optional) |
 | `masteryLevel` | String | 用户对该词的掌握程度 (Optional) |
-
-**CharAnnotation 对象（已废弃）：**
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `char` | String | 单个汉字或标点 |
-| `role` | String | 角色：`content`(实词) / `function`(虚词) / `punct`(标点) |
-| `definition` | String | 释义，实词必填，虚词可选，标点无 (Optional) |
 
 **GlossaryItem 对象：**
 

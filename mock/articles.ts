@@ -3,10 +3,6 @@
 // ============================================
 import type { IArticle, ArticleCategory, IGlossaryItem } from '../typings/index.d';
 
-/**
- * 根据文本和 glossary 列表构建段切分
- * @deprecated 典故注释模式不再需要 buildCharAnnotations，直接使用 glossary 数据
- */
 
 const art_001_sentences = [
   {
