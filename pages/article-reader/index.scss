@@ -544,6 +544,28 @@
     &:active { opacity: 0.85; }
     &--loading { opacity: 0.6; pointer-events: none; }
   }
+
+  // +XP 动效
+  &__xp-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    pointer-events: auto;
+  }
+  &__xp-animation-text {
+    display: inline-block;
+    padding: 20rpx 36rpx;
+    background: linear-gradient(135deg, #4a6a5e, #2d4a3e);
+    color: #fff;
+    font-size: 36rpx;
+    font-weight: 600;
+    border-radius: 40rpx;
+    box-shadow: 0 8rpx 32rpx rgba(74, 106, 94, 0.4);
+    animation: xpBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               xpFadeUp 1.6s 0.6s ease-out forwards;
+  }
 }
 
 @keyframes fadeIn {
@@ -562,4 +584,16 @@
 @keyframes vocabSlideUp {
   from { opacity: 0; transform: translateY(40rpx); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+// XP 动效（在 .page-article-reader 块外定义 keyframes，选择器通过 &__ 已嵌套在内）
+@keyframes xpBounce {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes xpFadeUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-160rpx); opacity: 0; }
 }

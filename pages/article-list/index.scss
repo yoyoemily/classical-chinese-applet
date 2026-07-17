@@ -211,6 +211,15 @@
     color: var(--color-text-primary);
     margin-bottom: $spacing-xs;
     @include text-ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-xs;
   }
 
   &__card-meta {
@@ -228,5 +237,14 @@
   // -------- 底部安全区 --------
   &__safe-bottom {
     height: var(--safe-area-bottom);
+  }
+
+  // -------- 已读标记 --------
+  &__card-listened {
+    color: #4a6a5e;
+    font-size: 20rpx;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-left: 12rpx;
   }
 }

@@ -68,6 +68,7 @@
           bindtap="onTapStripNode"
         >
           <text>{{item.title}}</text>
+          <text wx:if="{{item.isLeaf}}" class="page-classic-reader__toc-dot {{listenedNodeIds[item.id] ? 'page-classic-reader__toc-dot--listened' : 'page-classic-reader__toc-dot--fresh'}}">{{listenedNodeIds[item.id] ? '●' : '○'}}</text>
         </view>
       </block>
     </scroll-view>
@@ -270,6 +271,7 @@
               hover-class="page-classic-reader__toc-item--hover"
             >
               <text class="page-classic-reader__toc-item-text">{{item.title}}</text>
+              <text class="page-classic-reader__toc-dot {{listenedNodeIds[item.id] ? 'page-classic-reader__toc-dot--listened' : 'page-classic-reader__toc-dot--fresh'}}">{{listenedNodeIds[item.id] ? '●' : '○'}}</text>
             </view>
           </block>
         </block>
@@ -297,6 +299,7 @@
                   bindtap="onTapTocNode"
                 >
                   <text>{{child.title}}</text>
+                  <text class="page-classic-reader__toc-dot {{listenedNodeIds[child.id] ? 'page-classic-reader__toc-dot--listened' : 'page-classic-reader__toc-dot--fresh'}}">{{listenedNodeIds[child.id] ? '●' : '○'}}</text>
                 </view>
               </block>
             </view>
@@ -310,7 +313,8 @@
               bindtap="onTapTocNode"
             >
               <text class="page-classic-reader__toc-item-text">{{item.title}}</text>
-              <text wx:if="{{!item.isLeaf}}" class="page-classic-reader__toc-item-hint">整理中</text>
+              <text wx:if="{{item.isLeaf}}" class="page-classic-reader__toc-dot {{listenedNodeIds[item.id] ? 'page-classic-reader__toc-dot--listened' : 'page-classic-reader__toc-dot--fresh'}}">{{listenedNodeIds[item.id] ? '●' : '○'}}</text>
+              <text wx:elif="{{!item.isLeaf}}" class="page-classic-reader__toc-item-hint">整理中</text>
             </view>
           </block>
         </block>
@@ -385,4 +389,9 @@
       </view>
     </view>
   </block>
+
+  <!-- +XP 动效 -->
+  <view wx:if="{{xpAnimation}}" class="page-classic-reader__xp-animation" bindtap="onDismissXpAnimation">
+    <text class="page-classic-reader__xp-animation-text">+{{xpAnimation.xp}} XP 🎧</text>
+  </view>
 </view>

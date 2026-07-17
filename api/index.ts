@@ -11,11 +11,12 @@ import type {
 import { wordTypeToGroupKey, QUICK_GROUP_ORDER } from '../utils/wordType';
 
 // Mock 依赖 — 静态导入（避免小程序环境动态 import 问题）
-import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadge, getUserBadges, _applyCheckin, getUserProfile, saveUserProfile } from '../utils/storage';
+import { loadWordBooks, loadWordBookData, getProgress, setWordProgress, saveProgress, addUserBadge, getUserBadges, _applyCheckin, getUserProfile, saveUserProfile, markAudioListened, isAudioListened } from '../utils/storage';
 import { generateTodayTask, updateWordProgress } from '../utils/ebbinghaus';
 import { mockBadges, checkNewBadge } from '../mock/badges';
 import { mockArticles } from '../mock/articles';
 import { calcLevel } from '../constants/config';
+import { calcAudioXP } from '../constants/config';
 
 // 当前使用 Mock 还是真实 API
 const USE_MOCK = false;
@@ -146,6 +147,25 @@ export async function completeWord(data: { wordBookId: string; entryId: string }
     return { xpGained: isNew ? 10 : 0 };
   }
   return post('/api/study/word-complete', data, { showLoading: false });
+}
+
+/**
+ * 音频完整播放完成（选篇/经典听读 XP）。
+ * 去重：同一内容只给一次 XP。后端根据 contentId 自己查原文统计汉字。
+ */
+export async function completeAudioListen(data: {
+  contentType: 'article' | 'classic_chapter';
+  contentId: string;
+}): Promise<{ xpGained: number }> {
+  if (USE_MOCK) {
+    const key = `audio_${data.contentType}_${data.contentId}`;
+    if (isAudioListened(key)) return { xpGained: 0 };
+    // Mock 模式用 calcAudioXP 估算（无法查后端原文）
+    const xp = 0; // Mock 不做真实的 XP 统计
+    markAudioListened(key);
+    return { xpGained: xp };
+  }
+  return post('/api/study/audio-complete', data, { showLoading: false });
 }
 
 // ============================================

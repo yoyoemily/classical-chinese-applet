@@ -1,8 +1,9 @@
-	import type { IArticle, IArticleSentence, IGlossaryItem, FeedbackCategory } from '../../typings/index.d';
-	import { fetchArticleDetail, submitFeedback } from '../../api/index';
-	import { getTTSPlayer } from '../../utils/tts';
-	import { splitByRareChar } from '../../utils/util';
-		import type { WordTypeCode } from '../../utils/wordType';
+import type { IArticle, IArticleSentence, IGlossaryItem, FeedbackCategory } from '../../typings/index.d';
+import { fetchArticleDetail, submitFeedback, completeAudioListen } from '../../api/index';
+import { getTTSPlayer } from '../../utils/tts';
+import { splitByRareChar } from '../../utils/util';
+import { calcAudioXP } from '../../constants/config';
+import type { WordTypeCode } from '../../utils/wordType';
 
 	/** 阅读模式 */
 	type ReadingMode = 'plain' | 'sentence' | 'glossary';
@@ -65,6 +66,8 @@
 	  feedbackCategory: string;
 	  feedbackDescription: string;
 	  feedbackSubmitting: boolean;
+	  /** +XP 动效 */
+	  xpAnimation: { xp: number } | null;
 	}
 
 	Page<IArticleReaderData, WechatMiniprogram.Page.CustomOption>({
@@ -86,6 +89,7 @@
 	    feedbackCategory: 'sentence_text',
 	    feedbackDescription: '',
 	    feedbackSubmitting: false,
+	    xpAnimation: null,
 	  },
 
 	  _tts: null as ReturnType<typeof getTTSPlayer> | null,
@@ -437,7 +441,28 @@
 	          audioPlaying: status === 'playing',
 	        });
 	      },
+	      onEnded: () => {
+	        this._onAudioEnded(article);
+	      },
 	    });
+	  },
+
+	  _onAudioEnded(article: IArticle): void {
+	    completeAudioListen({
+	      contentType: 'article',
+	      contentId: article.id,
+	    }).then(res => {
+	      if (res.xpGained > 0) {
+	        this.setData({ xpAnimation: { xp: res.xpGained } });
+	        setTimeout(() => {
+	          if (this.data.xpAnimation) this.setData({ xpAnimation: null });
+	        }, 2200);
+	      }
+	    }).catch(() => {}); // 静默失败，不影响阅读体验
+	  },
+
+	  onDismissXpAnimation(): void {
+	    this.setData({ xpAnimation: null });
 	  },
 
 	  // ==========================================

@@ -267,4 +267,9 @@
       </view>
     </view>
   </block>
+
+  <!-- +XP 动效 -->
+  <view wx:if="{{xpAnimation}}" class="page-article-reader__xp-animation" bindtap="onDismissXpAnimation">
+    <text class="page-article-reader__xp-animation-text">+{{xpAnimation.xp}} XP 🎧</text>
+  </view>
 </view>

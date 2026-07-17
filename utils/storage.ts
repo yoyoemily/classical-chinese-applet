@@ -354,3 +354,23 @@ export function getStudySummary(): IStudySummary | null {
 export function clearStudySummary(): void {
   wx.removeStorageSync(STUDY_SUMMARY_KEY);
 }
+
+// ============================================
+// 音频听读记录（Mock 用，去重）
+// ============================================
+const AUDIO_LISTENED_KEY = 'audioListened';
+
+export function getAudioListened(): Record<string, boolean> {
+  const raw = wx.getStorageSync(AUDIO_LISTENED_KEY);
+  return safeJSONParse<Record<string, boolean>>(raw, {} as Record<string, boolean>);
+}
+
+export function isAudioListened(key: string): boolean {
+  return !!getAudioListened()[key];
+}
+
+export function markAudioListened(key: string): void {
+  const listened = getAudioListened();
+  listened[key] = true;
+  wx.setStorageSync(AUDIO_LISTENED_KEY, JSON.stringify(listened));
+}

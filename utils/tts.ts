@@ -20,6 +20,8 @@ type AudioStatus = 'idle' | 'loading' | 'playing' | 'stopped';
 
 interface TTSCallbacks {
   onStatusChange?: (status: AudioStatus) => void;
+  /** 仅自然播放完成时触发（非 stop/error/playId 过期） */
+  onEnded?: () => void;
 }
 
 class TTSPlayer {
@@ -136,6 +138,7 @@ class TTSPlayer {
       if (this._ctx === ctx) {
         this._destroyCtx();
       }
+      this._callbacks.onEnded?.();
     });
     ctx.onStop(() => {
       if (this._playId !== playId) return;
@@ -231,6 +234,7 @@ class TTSPlayer {
         if (this._ctx === ctx) {
           this._destroyCtx();
         }
+        this._callbacks.onEnded?.();
         return;
       }
       ctx.src = filenames[index++];

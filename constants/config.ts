@@ -34,6 +34,15 @@ export const XP_PER_CHECKIN = 20;
 export const XP_STREAK_7_BONUS = 50;
 export const XP_BADGE_BONUS = 100;
 
+/** 音频听读 XP：10 个汉字 = 1 XP */
+export const AUDIO_XP_CHARS_PER_POINT = 10;
+
+/** 根据纯汉字字数计算音频听读 XP（仅统计 CJK 汉字，去标点/空白） */
+export function calcAudioXP(text: string): number {
+  const chars = text.replace(/[^一-龥]/g, '');
+  return Math.floor(chars.length / AUDIO_XP_CHARS_PER_POINT);
+}
+
 export const RANK_TITLES: string[] = [
   '童生', '秀才', '举人', '贡士', '进士', '探花', '榜眼', '状元', '翰林'
 ];

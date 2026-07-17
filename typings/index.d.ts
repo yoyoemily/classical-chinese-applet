@@ -182,6 +182,8 @@ export interface IArticle {
   fullTextAudioUrl?: string
   sentences: IArticleSentence[]
   keywordCount: number
+  /** 当前用户是否已听读（来自 user_audio_listen_log） */
+  listened?: boolean
 }
 
 
@@ -469,6 +471,8 @@ export interface IClassicMeta {
   navMode: NavMode
   /** 目录树（轻量，仅标题不含内容） */
   toc: ITocNode[]
+  /** 当前用户已听读的叶子节点 ID 列表 */
+  listenedNodeIds?: string[]
 }
 
 /** 内容块（按需加载的叶子节点内容） */

@@ -19,6 +19,8 @@ interface IArticleListData {
 }
 
 Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
+  _loading: false,
+
   data: {
     activeCategory: 'all',
     activeTextbook: 'all',
@@ -34,7 +36,9 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
     this.loadArticles();
   },
 
-  onShow(): void {},
+  onShow(): void {
+    this.loadArticles();
+  },
 
   onReady(): void {},
 
@@ -50,8 +54,10 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
   },
 
   async loadArticles(category?: string): Promise<void> {
+    if (this._loading) return;
     const cat = category ?? this.data.activeCategory;
     const textbook = this.data.activeTextbook;
+    this._loading = true;
     this.setData({ loading: true });
 
     try {
@@ -74,6 +80,8 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
       console.error('Failed to fetch articles:', err);
       wx.showToast({ title: '加载失败，请重试', icon: 'none' });
       this.setData({ loading: false });
+    } finally {
+      this._loading = false;
     }
   },
 
