@@ -69,6 +69,8 @@ interface IIndexData {
   showShareGate: boolean;
   /** 分享门禁天数（-1 表示关闭） */
   shareGateDays: number;
+  /** 数据清除恢复截止时间 */
+  recoveryDeadline?: string;
 }
 
 // ============================================
@@ -202,6 +204,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         memberLevel: profile.memberLevel,
         nickName: profile.nickName || '',
       });
+
+      // 检测是否处于数据清除恢复期内
+      if (profile.recoveryDeadline) {
+        this.setData({ recoveryDeadline: profile.recoveryDeadline });
+      }
     } catch (err) {
       console.error('加载首页数据失败:', err);
       wx.showToast({ title: '加载失败，请下拉重试', icon: 'none' });

@@ -300,7 +300,7 @@ export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUs
   return get('/api/badges');
 }
 
-export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; memberLevel: number; nickName: string; avatarUrl: string }> {
+export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; memberLevel: number; nickName: string; avatarUrl: string; recoveryDeadline?: string }> {
   if (USE_MOCK) {
     const progress = getProgress();
     const levelInfo = calcLevel(progress.totalXP);
@@ -377,6 +377,17 @@ export async function saveUserInfo(profile: IUserProfile): Promise<void> {
 // ============================================
 export async function signPact(): Promise<{ memberLevel: number }> {
   return post('/api/user/pact');
+}
+
+// ============================================
+// 清除学习数据 & 恢复
+// ============================================
+export async function clearUserData(): Promise<{ token: string; userId: number; recoveryDeadline: string }> {
+  return post('/api/user/clear-data');
+}
+
+export async function recoverUserData(): Promise<{ token: string; userId: number }> {
+  return post('/api/user/recover-data');
 }
 
 // ============================================

@@ -20,5 +20,26 @@
   <view class="page-settings__section"><view class="page-settings__section-title">关于</view>
     <view class="page-settings__card"><view class="page-settings__row"><text class="page-settings__label">版本</text><text class="page-settings__value">v{{version}}</text></view></view>
   </view>
+
+  <!-- 恢复数据区域（暂时隐藏，后续开放）
+  <view class="page-settings__recover" wx:if="{{recoveryDeadline}}">
+    <view class="page-settings__recover-card">
+      <view class="page-settings__recover-icon">📋</view>
+      <view class="page-settings__recover-text">
+        <text class="page-settings__recover-title">数据已清除，如需回退可恢复</text>
+      </view>
+      <button class="page-settings__recover-btn" bindtap="onRecoverData">恢复数据</button>
+    </view>
+  </view>
+  -->
+
   <view class="page-settings__danger"><button class="page-settings__danger-btn" bindtap="onClearData">清除学习数据</button></view>
+
+  <view class="page-settings__overlay" wx:if="{{clearing}}">
+    <view class="page-settings__overlay-mask"></view>
+    <view class="page-settings__overlay-content">
+      <view class="page-settings__overlay-spinner"></view>
+      <text class="page-settings__overlay-text">处理中...</text>
+    </view>
+  </view>
 </view>

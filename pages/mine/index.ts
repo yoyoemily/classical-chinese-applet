@@ -36,6 +36,8 @@ interface IMineData {
   pactChecked: boolean;
   /** 下一枚勋章信息 */
   nextBadge: NextBadgeInfo | null;
+  /** 数据清除恢复截止时间 */
+  recoveryDeadline?: string;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -89,6 +91,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
         currentStreak: profileResult.currentStreak,
         loading: false,
         memberLevel: profileResult.memberLevel || 0,
+        recoveryDeadline: profileResult.recoveryDeadline || '',
       });
 
       // 勋章数据异步加载（不阻塞页面渲染）

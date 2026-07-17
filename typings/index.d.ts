@@ -331,6 +331,7 @@ export interface IUserProfile {
   nickName: string
   grade: string
   memberLevel?: number
+  recoveryDeadline?: string
 }
 
 // ============================================
