@@ -10,6 +10,7 @@
   <block wx:elif="{{meta}}">
     <!-- 顶部标题区 -->
     <view class="page-classic-reader__header">
+      <!-- 第一行：左喇叭 · 中书/篇名 · 右纠错 -->
       <view class="page-classic-reader__header-top">
         <!-- 左：喇叭 -->
         <view
@@ -31,26 +32,26 @@
           <!-- 章节型：无篇章作者时显示书名（保持现状） -->
           <text wx:else>《{{meta.name}}》</text>
         </view>
-        <!-- 目录按钮 -->
-        <view class="page-classic-reader__toc-btn" bindtap="onToggleToc">
-          <text>☰</text>
-        </view>
         <!-- 右：纠错 -->
         <view class="page-classic-reader__feedback-icon" bindtap="onTapFeedback">
           <text>⚠️</text>
         </view>
       </view>
-      <view class="page-classic-reader__meta">
-        <!-- 选集型：有篇章作者时显示朝代·篇章作者 -->
+      <!-- 第二行：左章节导航 · 中作者朝代 · 右占位（对齐第一行纠错图标） -->
+      <view class="page-classic-reader__header-meta">
+        <!-- 左：章节导航 -->
+        <view class="page-classic-reader__toc-btn" bindtap="onToggleToc">
+          <text>☰</text>
+        </view>
+        <!-- 中：作者 · 朝代 -->
         <block wx:if="{{chapterAuthor}}">
-          <text>{{chapterEra}}</text>
-          <text> · {{chapterAuthor}}</text>
+          <text class="page-classic-reader__meta-text">{{chapterEra}} · {{chapterAuthor}}</text>
         </block>
-        <!-- 章节型：无篇章作者时显示全书编者·朝代（保持现状） -->
         <block wx:else>
-          <text>{{meta.author}}</text>
-          <text> · {{meta.era}}</text>
+          <text class="page-classic-reader__meta-text">{{meta.author}} · {{meta.era}}</text>
         </block>
+        <!-- 右：占位（保持左中右三栏对齐） -->
+        <view class="page-classic-reader__meta-spacer"></view>
       </view>
     </view>
 

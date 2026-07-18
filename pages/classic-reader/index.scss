@@ -46,7 +46,7 @@ $light-ink: #8a7a60;
   &__header {
     @include flex-column;
     align-items: center;
-    padding: $spacing-xl $spacing-lg $spacing-base;
+    padding: 30rpx 28rpx $spacing-base;
     background: linear-gradient(180deg, var(--color-primary), rgba(74, 106, 94, 0.75));
     position: sticky;
     top: 0;
@@ -95,12 +95,19 @@ $light-ink: #8a7a60;
   }
   &__toc-btn {
     @include flex-center;
-    width: 60rpx;
-    height: 60rpx;
-    border-radius: 50%;
+    width: 54rpx;
+    height: 54rpx;
+    border-radius: $radius-sm;
     background: rgba(255, 255, 255, 0.2);
     flex-shrink: 0;
-    & text { font-size: 28rpx; color: #fff; font-weight: 700; }
+    margin-left: 4rpx;
+    & text {
+      font-size: 36rpx;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 700;
+      line-height: 36rpx;
+      transform: translateY(-5rpx);
+    }
     &:active { background: rgba(255, 255, 255, 0.35); }
   }
   &__feedback-icon {
@@ -113,14 +120,24 @@ $light-ink: #8a7a60;
     & text { font-size: 28rpx; }
     &:active { background: rgba(255, 255, 255, 0.35); }
   }
-  &__meta {
+  &__header-meta {
     display: flex;
-    gap: 2rpx;
+    align-items: center;
+    width: 100%;
     margin-top: $spacing-base;
+    gap: $spacing-sm;
     font-size: $font-size-base;
     color: rgba(255, 255, 255, 0.85);
     font-family: 'STKaiti', 'KaiTi', '楷体', serif;
     letter-spacing: 2rpx;
+  }
+  &__meta-text {
+    flex: 1;
+    text-align: center;
+  }
+  &__meta-spacer {
+    width: 54rpx;
+    flex-shrink: 0;
   }
 
   // ---------- 横向导航条 (strip) ----------
