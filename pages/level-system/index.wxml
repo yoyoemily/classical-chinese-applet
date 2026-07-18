@@ -5,14 +5,13 @@
   <view class="page-level-system__header">
     <view class="page-level-system__current-card">
       <text class="page-level-system__current-icon">🏆</text>
-      <text class="page-level-system__current-title">当前等级</text>
+
       <view class="page-level-system__current-level">
         <text class="page-level-system__current-lv">Lv.{{level}}</text>
         <text class="page-level-system__current-name">{{title}}</text>
       </view>
       <view class="page-level-system__xp-info">
         <text class="page-level-system__xp-text">累计经验：{{totalXP}} XP</text>
-        <text class="page-level-system__xp-text">当前等级进度：{{currentLevelXP}} / {{nextLevelXP}} XP</text>
       </view>
       <!-- 进度条 -->
       <view class="page-level-system__progress-bar">
