@@ -171,7 +171,7 @@ $light-ink: #8a7a60;
 
   // ---------- 正文滚动区 ----------
   &__scroll-body {
-    padding: $spacing-lg $spacing-lg 0;
+    padding: 0 $spacing-lg 0;
     height: calc(100vh - 180rpx);
     box-sizing: border-box;
   }
