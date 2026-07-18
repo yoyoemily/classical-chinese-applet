@@ -128,25 +128,29 @@ module.exports = {
             >{{item.wordBookName}}</view>
           </view>
 
-          <!-- 义项列表 -->
+          <!-- 义项列表（按义项分组，例句折叠展开） -->
           <view class="page-search__result-meanings">
-            <block wx:for="{{item.meanings}}" wx:key="index" wx:for-item="meaning">
+            <block wx:for="{{item.groupedMeanings}}" wx:key="index" wx:for-item="group">
               <view class="page-search__meaning-item">
                 <view class="page-search__meaning-header">
                   <text class="page-search__meaning-index">{{index + 1}}</text>
-                  <text class="page-search__meaning-definition">{{meaning.definition}}</text>
+                  <text class="page-search__meaning-definition">{{group.definition}}</text>
                 </view>
-                <view class="page-search__meaning-body">
-                  <text class="page-search__meaning-example">"{{meaning.example}}"</text>
-                  <text
-                    wx:if="{{meaning.translation}}"
-                    class="page-search__meaning-translation"
-                  >{{meaning.translation}}</text>
-                </view>
-                <text
-                  wx:if="{{meaning.source}}"
-                  class="page-search__meaning-source"
-                >—— {{meaning.source}}</text>
+                <block wx:for="{{group.examples}}" wx:key="index" wx:for-item="ex">
+                  <view class="page-search__meaning-example-block">
+                    <view class="page-search__meaning-body">
+                      <text class="page-search__meaning-example">"{{ex.example}}"</text>
+                      <text
+                        wx:if="{{ex.translation}}"
+                        class="page-search__meaning-translation"
+                      >{{ex.translation}}</text>
+                    </view>
+                    <text
+                      wx:if="{{ex.source}}"
+                      class="page-search__meaning-source"
+                    >—— {{ex.source}}</text>
+                  </view>
+                </block>
               </view>
             </block>
           </view>

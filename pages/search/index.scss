@@ -282,6 +282,13 @@
     line-height: 1.6;
   }
 
+  &__meaning-example-block {
+    &:not(:first-child) {
+      margin-top: $spacing-sm; padding-top: $spacing-sm;
+      border-top: 1rpx dashed var(--color-border);
+    }
+  }
+
   &__meaning-body {
     margin-top: $spacing-sm;
     padding-left: 52rpx;

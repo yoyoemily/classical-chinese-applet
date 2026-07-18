@@ -96,6 +96,12 @@
     margin-top: $spacing-sm; padding: $spacing-sm $spacing-base;
     background: $color-bg-card; border-radius: $radius-base;
   }
+  &__sentence-block {
+    &:not(:first-child) {
+      margin-top: $spacing-sm; padding-top: $spacing-sm;
+      border-top: 1rpx dashed $color-border;
+    }
+  }
   &__meaning-detail-item {
     display: flex; align-items: flex-start; padding: 4rpx 0;
   }

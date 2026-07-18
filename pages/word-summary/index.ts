@@ -2,14 +2,16 @@ import type { IWordEntry, IKeyWordRef } from '../../typings/index.d';
 import { fetchWordDetail } from '../../api/index';
 import { wordTypeLabel } from '../../utils/wordType';
 
-interface IMeaningItem {
-  kid: string
-  word?: string
-  definition?: string
+interface ISentenceItem {
   sentenceText?: string
   sentenceTranslation?: string
   articleId?: string
   articleTitle?: string
+}
+
+interface IMeaningItem {
+  definition?: string
+  sentences: ISentenceItem[]
   expanded: boolean
 }
 
@@ -49,14 +51,22 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
       // keyWordRefs is on IWordEntry; meanings is on old IWord.
       const rawWord = word as unknown as Record<string, unknown>;
       const keyWordRefs = (rawWord.keyWordRefs || rawWord.meanings || []) as IKeyWordRef[];
-      const meaningItems: IMeaningItem[] = keyWordRefs.map(m => ({
-        kid: m.kid || '',
-        word: m.word || '',
-        definition: m.definition || (m as unknown as { definition?: string }).definition || '',
-        sentenceText: m.sentenceText || (m as unknown as { example?: string }).example || '',
-        sentenceTranslation: m.sentenceTranslation || (m as unknown as { translation?: string }).translation || '',
-        articleId: m.articleId || '',
-        articleTitle: m.articleTitle || (m as unknown as { source?: string }).source || '',
+      // Group by definition — same definition aggregates sentences
+      const groupMap = new Map<string, IKeyWordRef[]>();
+      keyWordRefs.forEach(m => {
+        const def = (m.definition || '').trim();
+        const key = def || `__empty_${m.kid || ''}`;
+        if (!groupMap.has(key)) groupMap.set(key, []);
+        groupMap.get(key)!.push(m);
+      });
+      const meaningItems: IMeaningItem[] = Array.from(groupMap.entries()).map(([def, refs]) => ({
+        definition: def.startsWith('__empty_') ? '' : def,
+        sentences: refs.map(m => ({
+          sentenceText: m.sentenceText || '',
+          sentenceTranslation: m.sentenceTranslation || '',
+          articleId: m.articleId || '',
+          articleTitle: m.articleTitle || '',
+        })),
         expanded: false,
       }));
       this.setData({

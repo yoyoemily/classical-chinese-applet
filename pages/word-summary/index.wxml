@@ -39,20 +39,24 @@
               </view>
               <text class="page-word-summary__meaning-arrow {{item.expanded ? 'page-word-summary__meaning-arrow--up' : ''}}">▶</text>
             </view>
-            <!-- 展开详情 -->
+            <!-- 展开详情：多条例句 -->
             <view class="page-word-summary__meaning-detail" wx:if="{{item.expanded}}">
-              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.sentenceText}}">
-                <text class="page-word-summary__meaning-detail-label">📖 例：</text>
-                <text class="page-word-summary__meaning-detail-text">{{item.sentenceText}}</text>
-              </view>
-              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.sentenceTranslation}}">
-                <text class="page-word-summary__meaning-detail-label">📝 译：</text>
-                <text class="page-word-summary__meaning-detail-text">{{item.sentenceTranslation}}</text>
-              </view>
-              <view class="page-word-summary__meaning-detail-item" wx:if="{{item.articleTitle}}">
-                <text class="page-word-summary__meaning-detail-label">📚 出处：</text>
-                <text class="page-word-summary__meaning-detail-text">{{item.articleTitle}}</text>
-              </view>
+              <block wx:for="{{item.sentences}}" wx:key="index" wx:for-item="s">
+                <view class="page-word-summary__sentence-block">
+                  <view class="page-word-summary__meaning-detail-item" wx:if="{{s.sentenceText}}">
+                    <text class="page-word-summary__meaning-detail-label">📖 例句：</text>
+                    <text class="page-word-summary__meaning-detail-text">{{s.sentenceText}}</text>
+                  </view>
+                  <view class="page-word-summary__meaning-detail-item" wx:if="{{s.sentenceTranslation}}">
+                    <text class="page-word-summary__meaning-detail-label">📝 译文：</text>
+                    <text class="page-word-summary__meaning-detail-text">{{s.sentenceTranslation}}</text>
+                  </view>
+                  <view class="page-word-summary__meaning-detail-item" wx:if="{{s.articleTitle}}">
+                    <text class="page-word-summary__meaning-detail-label">📚 出处：</text>
+                    <text class="page-word-summary__meaning-detail-text">{{s.articleTitle}}</text>
+                  </view>
+                </view>
+              </block>
             </view>
           </view>
         </view>

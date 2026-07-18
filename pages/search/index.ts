@@ -5,9 +5,25 @@ import type { IWordSearchResult, IWordQuickItem } from '../../typings/index.d';
 import { searchWords, fetchWordsByType } from '../../api/index';
 import { QUICK_GROUP_ORDER, groupLabel, groupIcon, type QuickGroupKey } from '../../utils/wordType';
 
+interface IMeaningExample {
+  example: string
+  translation?: string
+  source?: string
+}
+
+interface IGroupedMeaning {
+  definition: string
+  examples: IMeaningExample[]
+}
+
+/** 搜索结果项，在 IWordSearchResult 基础上增加按义项分组的例句 */
+interface ISearchResultItem extends IWordSearchResult {
+  groupedMeanings: IGroupedMeaning[]
+}
+
 interface ISearchData {
   keyword: string;
-  results: IWordSearchResult[];
+  results: ISearchResultItem[];
   searched: boolean;
   loading: boolean;
   history: string[];
@@ -105,7 +121,21 @@ Page<ISearchData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ loading: true, showHistory: false });
 
     try {
-      const results = await searchWords(keyword);
+      const rawResults = await searchWords(keyword);
+      // Group meanings by definition — same definition aggregates examples
+      const results: ISearchResultItem[] = rawResults.map(r => {
+        const groupMap = new Map<string, IMeaningExample[]>();
+        r.meanings.forEach(m => {
+          const def = (m.definition || '').trim();
+          if (!groupMap.has(def)) groupMap.set(def, []);
+          groupMap.get(def)!.push({ example: m.example, translation: m.translation, source: m.source });
+        });
+        const groupedMeanings: IGroupedMeaning[] = Array.from(groupMap.entries()).map(([def, examples]) => ({
+          definition: def,
+          examples,
+        }));
+        return { ...r, groupedMeanings };
+      });
       this.setData({
         results,
         searched: true,
