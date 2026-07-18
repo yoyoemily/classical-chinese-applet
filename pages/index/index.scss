@@ -324,27 +324,31 @@
   &__task-stat {
     flex: 1;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     padding: $spacing-sm;
     background-color: var(--color-bg-card);
     border-radius: $radius-base;
   }
   &__task-stat-icon {
     font-size: $font-size-base;
+    line-height: 1;
     margin-right: $spacing-xs;
   }
   &__task-stat-text {
-    font-size: $font-size-sm;
+    font-size: $font-size-base;
+    line-height: 1;
     color: var(--color-text-secondary);
     margin-right: $spacing-xs;
   }
   &__task-stat-num {
     font-size: $font-size-md;
+    line-height: 1;
     font-weight: 600;
     color: var(--color-primary);
   }
   &__task-stat-unit {
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
+    line-height: 1;
     color: var(--color-text-hint);
     margin-left: 2rpx;
   }

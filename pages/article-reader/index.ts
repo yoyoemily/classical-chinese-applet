@@ -241,9 +241,9 @@ import type { WordTypeCode } from '../../utils/wordType';
 	      const merged: IVocabSegment[] = [];
 	      for (let idx = 0; idx < segments.length; idx++) {
 	        const cur = segments[idx];
-	        if (cur.isKeyword && merged.length > 0) {
+	        if (cur.isGlossary && merged.length > 0) {
 	          const prev = merged[merged.length - 1];
-	          if (prev.isKeyword && prev.word === cur.word) {
+	          if (prev.isGlossary && prev.word === cur.word) {
 	            prev.text += cur.text;
 	            continue;
 	          }

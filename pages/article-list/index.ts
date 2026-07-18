@@ -5,6 +5,7 @@ import { ARTICLE_CATEGORIES, TEXTBOOK_GRADES } from '../../constants/config';
 interface IArticleDisplay extends IArticle {
   progress: number;
   keywordCount: number;
+  gradeLabel: string;
 }
 
 interface IArticleListData {
@@ -70,6 +71,9 @@ Page<IArticleListData, WechatMiniprogram.Page.CustomOption>({
         ...article,
         progress: 0,
         keywordCount: article.keywordCount ?? 0,
+        gradeLabel: article.textbook
+          ? (TEXTBOOK_GRADES.find(g => g.key === article.textbook)?.label || '')
+          : '',
       }));
 
       this.setData({

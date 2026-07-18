@@ -74,7 +74,10 @@
       <view class="page-article-list__card-icon">📜</view>
       <view class="page-article-list__card-body">
         <view class="page-article-list__card-row">
-          <view class="page-article-list__card-title">{{item.title}}</view>
+          <view class="page-article-list__card-title-wrap">
+            <view class="page-article-list__card-title">{{item.title}}</view>
+            <view wx:if="{{item.gradeLabel}}" class="page-article-list__card-grade">{{item.gradeLabel}}</view>
+          </view>
           <text wx:if="{{item.listened}}" class="page-article-list__card-listened">✓ 已听读</text>
         </view>
         <view class="page-article-list__card-meta">{{item.author}} · {{item.dynasty}}</view>

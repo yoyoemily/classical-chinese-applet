@@ -12,7 +12,7 @@
   &__header {
     @include flex-column;
     align-items: center;
-    padding: $spacing-xl $spacing-lg $spacing-base;
+    padding: 36rpx $spacing-lg $spacing-sm;
     background: linear-gradient(180deg, var(--color-primary), var(--color-primary-dark));
   }
   &__header-top {
@@ -134,7 +134,7 @@
     margin: 0 $spacing-base $spacing-sm;
     background: var(--color-bg-card, #fafaf8);
     border-radius: $radius-sm;
-    border: 1rpx solid var(--color-border-light, #f0f0f0);
+    border: 1rpx solid #ddd;
   }
   &__legend-label {
     font-size: 22rpx;
@@ -186,8 +186,9 @@
     flex-shrink: 0;
     margin-top: 18rpx;
     margin-left: $spacing-sm;
-    font-size: 24rpx;
-    color: var(--color-text-hint);
+    font-size: 32rpx;
+    font-weight: 600;
+    color: var(--color-text-secondary);
     transition: transform 0.2s;
   }
   &__plain-expand {
@@ -319,8 +320,9 @@
   &__clause-arrow {
     flex-shrink: 0;
     margin-top: 12rpx;
-    font-size: 22rpx;
-    color: var(--color-text-hint);
+    font-size: 32rpx;
+    font-weight: 600;
+    color: var(--color-text-secondary);
   }
   &__clause-trans {
     margin: 0 $spacing-base $spacing-md;
@@ -360,8 +362,13 @@
   // 典故词条高亮
   &__gloss-word {
     color: var(--color-primary, #4a6a5e);
-    border-bottom: 2rpx solid var(--color-accent, #c9a96e);
-    padding-bottom: 2rpx;
+    // 用背景模拟下划线，比文字略短（两侧各缩 4rpx），
+    // 相邻不同典故词之间自然有 8rpx 空隙，不会连成一条线。
+    background-image: linear-gradient(to right, var(--color-accent, #c9a96e), var(--color-accent, #c9a96e));
+    background-size: calc(100% - 8rpx) 2rpx;
+    background-position: center bottom 2rpx;
+    background-repeat: no-repeat;
+    padding-bottom: 4rpx;
     transition: background 0.15s ease;
     &--hover {
       background: rgba(201, 169, 110, 0.15);

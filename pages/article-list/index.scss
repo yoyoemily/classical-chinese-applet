@@ -205,14 +205,20 @@
     min-width: 0;
   }
 
+  &__card-title-wrap {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
   &__card-title {
     font-size: $font-size-md;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin-bottom: $spacing-xs;
+    line-height: 1.2;
     @include text-ellipsis;
-    flex: 1;
-    min-width: 0;
   }
 
   &__card-row {
@@ -246,5 +252,16 @@
     font-weight: 500;
     flex-shrink: 0;
     margin-left: 12rpx;
+  }
+
+  &__card-grade {
+    flex-shrink: 0;
+    margin-left: 12rpx;
+    padding: 2rpx 10rpx;
+    font-size: 20rpx;
+    line-height: 1.2;
+    color: var(--color-primary);
+    background-color: rgba(var(--color-primary-rgb, 77, 133, 232), 0.08);
+    border-radius: 6rpx;
   }
 }
