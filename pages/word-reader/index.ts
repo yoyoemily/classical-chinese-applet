@@ -69,6 +69,13 @@ Page<IWordReaderData, WechatMiniprogram.Page.CustomOption>({
     update[`words[${idx}].allExpanded`] = shouldExpand;
     this.setData(update);
   },
+  onTapUsage(e: WechatMiniprogram.TouchEvent): void {
+    const widx = e.currentTarget.dataset.widx as number;
+    const uidx = e.currentTarget.dataset.uidx as number;
+    this.setData({
+      [`words[${widx}].usages[${uidx}].expanded`]: !this.data.words[widx].usages[uidx].expanded,
+    });
+  },
   onShareAppMessage() {
     return {
       title: this.data.bookName || '文言虚词一本通',

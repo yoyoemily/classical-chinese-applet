@@ -54,11 +54,12 @@
   &__usage-list { border-top: 1rpx solid $color-border-light; }
   &__usage-item {
     border-bottom: 1rpx solid $color-border-light;
+    cursor: pointer;
+    &:active { background: $color-bg-card; }
     &:last-child { border: none; }
   }
   &__usage-header {
     display: flex; align-items: center; padding: $spacing-base $spacing-md;
-    &:active { background: $color-bg-card; }
   }
   &__usage-idx {
     width: 40rpx; height: 40rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0;

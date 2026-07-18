@@ -33,6 +33,9 @@
             <view
               wx:for="{{item.usages}}" wx:key="index" wx:for-item="usage" wx:for-index="uIdx"
               class="page-word-reader__usage-item"
+              data-widx="{{index}}"
+              data-uidx="{{uIdx}}"
+              bindtap="onTapUsage"
             >
               <view class="page-word-reader__usage-header">
                 <view class="page-word-reader__usage-idx">{{uIdx + 1}}</view>
