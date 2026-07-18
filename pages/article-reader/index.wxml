@@ -143,7 +143,6 @@
       wx:else
       class="page-article-reader__body"
       scroll-y enhanced show-scrollbar="{{false}}"
-      bindscroll="onDismissGlossary"
     >
       <!-- 逐句 -->
       <block wx:for="{{glossarySegments}}" wx:key="*this" wx:for-item="segArr" wx:for-index="si">
@@ -157,20 +156,11 @@
                 data-sentence-index="{{si}}"
                 data-word="{{seg.word}}"
                 data-definition="{{seg.definition}}"
-                bindtap="onTapGlossary"
+                catchtap="onTapGlossary"
                 hover-class="page-article-reader__gloss-word--hover"
               >{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
               <text wx:else>{{seg.text}}<text wx:if="{{seg.pinyin}}" class="page-article-reader__pinyin">({{seg.pinyin}})</text></text>
             </block>
-          </view>
-
-          <!-- 释义气泡 -->
-          <view
-            wx:if="{{glossaryPopup && glossaryPopup.sentenceIndex === si}}"
-            class="page-article-reader__gloss-bubble"
-          >
-            <text class="page-article-reader__gloss-bubble-word">{{glossaryPopup.word}}</text>
-            <text class="page-article-reader__gloss-bubble-def">{{glossaryPopup.definition}}</text>
           </view>
 
           <!-- 全句译文 -->
@@ -215,6 +205,23 @@
         </view>
       </view>
     </view>
+
+    <!-- 典故注释底部浮层 -->
+    <block wx:if="{{glossaryPopup}}">
+      <view
+        class="page-article-reader__gloss-overlay"
+        bindtap="onDismissGlossary"
+      ></view>
+      <view class="page-article-reader__gloss-panel">
+        <view class="page-article-reader__gloss-panel-bar" bindtap="onDismissGlossary">
+          <view class="page-article-reader__gloss-panel-handle"></view>
+        </view>
+        <view class="page-article-reader__gloss-panel-body">
+          <text class="page-article-reader__gloss-panel-word">{{glossaryPopup.word}}</text>
+          <text class="page-article-reader__gloss-panel-def">{{glossaryPopup.definition}}</text>
+        </view>
+      </view>
+    </block>
 
     <!-- 错误反馈浮层 -->
     <view class="page-article-reader__feedback-mask" wx:if="{{showFeedbackPanel}}" bindtap="onCloseFeedback"></view>

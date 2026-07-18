@@ -254,27 +254,45 @@ $light-ink: #8a7a60;
     }
   }
 
-  // ---------- 释义气泡 ----------
-  &__gloss-bubble {
-    margin-top: $spacing-sm;
-    padding: $spacing-sm $spacing-md;
+  // ---------- 典故注释底部浮层 ----------
+  &__gloss-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 200;
+    animation: fadeInSimple 0.25s ease;
+  }
+  &__gloss-panel {
+    position: fixed; bottom: 0; left: 0; right: 0;
     background: #fef9f0;
-    border-left: 4rpx solid var(--color-accent);
-    border-radius: 0 $radius-sm $radius-sm 0;
-    animation: bubbleIn 0.2s ease;
-    &-word {
-      display: block;
-      font-family: 'STKaiti', 'KaiTi', '楷体', serif;
-      font-size: 36rpx;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: 4rpx;
-    }
-    &-explanation {
-      font-size: $font-size-base;
-      color: #5a2a1a;
-      line-height: 1.8;
-    }
+    border-radius: $radius-lg $radius-lg 0 0;
+    z-index: 201;
+    padding-bottom: calc(#{$spacing-lg} + var(--safe-area-bottom));
+    animation: slideUp 0.3s ease;
+  }
+  &__gloss-panel-bar {
+    @include flex-center;
+    padding: $spacing-sm 0;
+  }
+  &__gloss-panel-handle {
+    width: 64rpx; height: 8rpx;
+    border-radius: 4rpx;
+    background: var(--color-border);
+  }
+  &__gloss-panel-body {
+    padding: 0 $spacing-lg $spacing-md;
+  }
+  &__gloss-panel-word {
+    display: block;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+    font-size: 38rpx;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: $spacing-base;
+  }
+  &__gloss-panel-explanation {
+    font-size: $font-size-base;
+    color: #5a2a1a;
+    line-height: 1.9;
   }
 
   // ---------- 译文 ----------
@@ -624,6 +642,10 @@ $light-ink: #8a7a60;
 }
 @keyframes fadeInSimple {
   from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 // XP 动效 keyframes（顶层定义）
