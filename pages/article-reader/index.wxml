@@ -143,6 +143,7 @@
       wx:else
       class="page-article-reader__body"
       scroll-y enhanced show-scrollbar="{{false}}"
+      bindscroll="onDismissGlossary"
     >
       <!-- 逐句 -->
       <block wx:for="{{glossarySegments}}" wx:key="*this" wx:for-item="segArr" wx:for-index="si">
@@ -178,13 +179,6 @@
           </view>
         </view>
       </block>
-
-      <!-- 底部遮罩（点击任意位置关闭释义） -->
-      <view
-        wx:if="{{glossaryPopup}}"
-        class="page-article-reader__gloss-mask"
-        bindtap="onDismissGlossary"
-      ></view>
 
       <view class="page-article-reader__body-spacer"></view>
     </scroll-view>

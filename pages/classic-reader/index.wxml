@@ -82,6 +82,7 @@
       class="page-classic-reader__scroll-body"
       scroll-y enhanced show-scrollbar="{{false}}"
       scroll-into-view="{{'chapter-' + currentNodeId}}"
+      bindscroll="onDismissGlossaryPopup"
     >
       <block wx:for="{{fullChapters}}" wx:key="id" wx:for-item="chapter" wx:for-index="ci">
         <view class="page-classic-reader__chapter" id="chapter-{{chapter.id}}">
@@ -143,6 +144,7 @@
       wx:elif="{{meta.loadMode === 'chunked'}}"
       class="page-classic-reader__scroll-body"
       scroll-y enhanced show-scrollbar="{{false}}"
+      bindscroll="onDismissGlossaryPopup"
     >
       <!-- 内容加载中 -->
       <view wx:if="{{contentLoading}}" class="page-classic-reader__content-loading">
@@ -322,13 +324,6 @@
         </block>
       </scroll-view>
     </view>
-
-    <!-- 关闭气泡遮罩 -->
-    <view
-      wx:if="{{glossaryPopup}}"
-      class="page-classic-reader__gloss-mask"
-      bindtap="onDismissGlossaryPopup"
-    ></view>
 
     <!-- 创作背景弹窗 -->
     <view class="page-classic-reader__bg-overlay" wx:if="{{showBackground}}" bindtap="onCloseBackground">
