@@ -38,6 +38,8 @@ interface IMineData {
   nextBadge: NextBadgeInfo | null;
   /** 数据清除恢复截止时间 */
   recoveryDeadline?: string;
+  /** 从后端下载的海报临时路径（用于弹窗展示和保存） */
+  posterTempPath: string;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -64,13 +66,14 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     showNuoDialog: false,
     pactChecked: false,
     nextBadge: null,
+    posterTempPath: '',
   },
 
   onLoad(): void {},
 
   onShow(): void {
     // 从其他页面返回时刷新数据，并重置海报弹窗状态
-    this.setData({ showSharePoster: false, posterSaved: false, shareConfirmed: false });
+    this.setData({ showSharePoster: false, posterSaved: false, shareConfirmed: false, posterTempPath: '' });
     this.loadProfile();
   },
 
@@ -139,9 +142,34 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url });
   },
 
-  /** 打开分享海报弹窗 */
-  onTapShare(): void {
-    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false, pactChecked: false });
+  /** 打开分享海报弹窗（从后端下载海报） */
+  async onTapShare(): Promise<void> {
+    // 先打开弹窗（loading 状态）
+    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false, pactChecked: false, posterTempPath: '' });
+
+    const POSTER_URL = this.getPosterUrl();
+    wx.showLoading({ title: '加载海报...' });
+
+    wx.downloadFile({
+      url: POSTER_URL,
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          this.setData({ posterTempPath: res.tempFilePath });
+        } else {
+          wx.showToast({ title: '海报加载失败', icon: 'none' });
+        }
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '海报加载失败', icon: 'none' });
+      },
+    });
+  },
+
+  /** 计算海报 URL */
+  getPosterUrl(): string {
+    return 'https://wyq.yinqueai.com/assets/share-poster.png';
   },
 
   /** 签订契约并关闭 */
@@ -161,59 +189,41 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 关闭海报弹窗 */
   onCloseShare(): void {
-    this.setData({ showSharePoster: false });
+    this.setData({ showSharePoster: false, posterTempPath: '' });
   },
 
-  /** 保存海报到相册 */
+  /** 保存海报到相册（复用已下载的临时路径） */
   onSavePoster(): void {
+    const tempPath = this.data.posterTempPath;
+    if (!tempPath) {
+      wx.showToast({ title: '海报尚未加载完成', icon: 'none' });
+      return;
+    }
+
     wx.showLoading({ title: '保存中...' });
-
-    // 根据小程序环境自动选择下载地址
-    let POSTER_URL = 'https://wyq.yinque-ai.com/assets/share-poster.png';
-    try {
-      const { envVersion } = wx.getAccountInfoSync().miniProgram;
-      if (envVersion !== 'release') {
-        POSTER_URL = 'http://localhost:8080/assets/share-poster.png';
-      }
-    } catch { /* use prod fallback */ }
-
-    wx.downloadFile({
-      url: POSTER_URL,
-      success: (res) => {
-        if (res.statusCode === 200) {
-          wx.saveImageToPhotosAlbum({
-            filePath: res.tempFilePath,
-            success: () => {
-              wx.hideLoading();
-              wx.showToast({ title: '图片已保存', icon: 'success', duration: 1500 });
-              this.setData({ posterSaved: true });
-            },
-            fail: (err) => {
-              wx.hideLoading();
-              if (err.errMsg.includes('auth deny') || err.errMsg.includes('authorize')) {
-                wx.showModal({
-                  title: '需要相册权限',
-                  content: '请允许访问您的相册，以便保存海报图片',
-                  confirmText: '去设置',
-                  success: (modalRes) => {
-                    if (modalRes.confirm) {
-                      wx.openSetting();
-                    }
-                  },
-                });
-              } else {
-                wx.showToast({ title: '保存失败，请重试', icon: 'none' });
+    wx.saveImageToPhotosAlbum({
+      filePath: tempPath,
+      success: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '图片已保存', icon: 'success', duration: 1500 });
+        this.setData({ posterSaved: true });
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        if (err.errMsg.includes('auth deny') || err.errMsg.includes('authorize')) {
+          wx.showModal({
+            title: '需要相册权限',
+            content: '请允许访问您的相册，以便保存海报图片',
+            confirmText: '去设置',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                wx.openSetting();
               }
             },
           });
         } else {
-          wx.hideLoading();
           wx.showToast({ title: '保存失败，请重试', icon: 'none' });
         }
-      },
-      fail: () => {
-        wx.hideLoading();
-        wx.showToast({ title: '保存失败，请重试', icon: 'none' });
       },
     });
   },

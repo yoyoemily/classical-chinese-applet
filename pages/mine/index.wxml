@@ -108,7 +108,7 @@
       <block wx:if="{{!shareConfirmed}}">
         <image
           class="page-mine__poster-image"
-          src="/assets/share-poster.png"
+          src="{{posterTempPath}}"
           mode="widthFix"
         />
         <view class="page-mine__poster-actions">

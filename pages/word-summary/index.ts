@@ -67,7 +67,7 @@ Page<IWordSummaryData, WechatMiniprogram.Page.CustomOption>({
           articleId: m.articleId || '',
           articleTitle: m.articleTitle || '',
         })),
-        expanded: false,
+        expanded: true,
       }));
       this.setData({
         word, character: word.character,

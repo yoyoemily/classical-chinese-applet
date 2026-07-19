@@ -2,6 +2,7 @@
 // 个人信息编辑页面
 // ============================================
 import { fetchUserInfo, saveUserInfo } from '../../api/index';
+import { STORAGE_KEYS } from '../../constants/config';
 import type { IUserProfile } from '../../typings/index.d';
 
 interface IProfileEditData {
@@ -52,8 +53,7 @@ Page<IProfileEditData, WechatMiniprogram.Page.CustomOption>({
 
   /** 选择头像（微信新版头像组件） */
   onChooseAvatar(e: WechatMiniprogram.CustomEvent<{ avatarUrl: string }>): void {
-    this.setData({ avatarUrl: e.detail.avatarUrl });
-    this.save();
+    this.uploadAndSave(e.detail.avatarUrl);
   },
 
   /** 从相册选择或拍照 */
@@ -63,13 +63,43 @@ Page<IProfileEditData, WechatMiniprogram.Page.CustomOption>({
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
       success: (res) => {
-        const tempFilePath = res.tempFiles[0].tempFilePath;
-        this.setData({ avatarUrl: tempFilePath });
-        this.save();
+        this.uploadAndSave(res.tempFiles[0].tempFilePath);
       },
       fail: (err) => {
         if (err.errMsg.includes('cancel')) return;
         wx.showToast({ title: '选择图片失败', icon: 'none' });
+      },
+    });
+  },
+
+  /** 上传头像到后端，拿到 URL 后本地展示 + 保存 */
+  uploadAndSave(tempFilePath: string): void {
+    wx.showLoading({ title: '上传中...' });
+
+    const token = wx.getStorageSync(STORAGE_KEYS.TOKEN) || '';
+
+    wx.uploadFile({
+      url: 'https://wyq.yinqueai.com/api/upload/avatar',
+      filePath: tempFilePath,
+      name: 'file',
+      header: { Authorization: `Bearer ${token}` },
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          try {
+            const body = JSON.parse(res.data);
+            if (body.code === 0 && body.data?.avatarUrl) {
+              this.setData({ avatarUrl: body.data.avatarUrl });
+              this.save();
+              return;
+            }
+          } catch { /* JSON 解析失败 */ }
+        }
+        wx.showToast({ title: '头像上传失败', icon: 'none' });
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '头像上传失败', icon: 'none' });
       },
     });
   },
