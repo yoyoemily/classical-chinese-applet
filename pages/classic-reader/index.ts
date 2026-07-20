@@ -132,13 +132,12 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
         const paragraphSegments = this.buildAllGlossarySegments(fullChapters);
         this.setData({ fullChapters, paragraphSegments, currentNodeId: '' });
       } else {
-        // chunked 模式：等待用户选择
-        // 如果 navMode 是 strip/accordion 且有内容，自动加载第一篇
-        if ((meta.navMode === 'strip' || meta.navMode === 'accordion') && meta.toc.length > 0) {
+        // chunked 模式：自动加载第一篇内容，避免空状态
+        if (meta.toc.length > 0) {
           const firstNode = this.findFirstLeaf(meta.toc);
           if (firstNode) this.loadContent(firstNode.id);
         }
-        // author 模式：显示提示，不自动加载
+        // author 模式：初始化作者面板层级
         if (meta.navMode === 'author') {
           this.setData({ authorLevel: 0 });
         }

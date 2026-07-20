@@ -745,6 +745,82 @@ function getYanShiJiaXunMockContent(nodeId: string): IContentBlock | undefined {
 }
 
 // ============================================
+// 围炉夜话 Mock（章节型 → list 竖向列表，chunked 按需加载）
+// ============================================
+
+const weiLuYeHuaMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '教子弟于幼时', paragraphs: [
+      { text: '教子弟于幼时，便当有正大光明气象；检身心于平日，不可无忧勤惕厉功夫。', translation: '教育子弟要从幼年开始，培养他们正大光明的气度；平日反省自己的身心，不可缺少忧患意识和勤奋戒惧的功夫。', glossary: [{ word: '忧勤惕厉', explanation: '出于《周易·乾卦》："君子终日乾乾，夕惕若厉，无咎。"指君子日夜勤奋，晚上仍保持警惕。' }] },
+    ],
+  },
+  {
+    id: 2, title: '与朋友交游', paragraphs: [
+      { text: '与朋友交游，须将他好处留心学来，方能受益；对圣贤言语，必要我平时照样行去，才算读书。', translation: '与朋友交往，要把别人的优点用心学过来，才能得到真正的益处；对待圣贤的教诲，必须在日常中身体力行，才算得上真正的读书。', glossary: [] },
+    ],
+  },
+  {
+    id: 7, title: '人皆欲会说话', paragraphs: [
+      { text: '人皆欲会说话，苏秦乃因会说话而杀身；人皆欲多积财，石崇乃因多积财而丧命。', translation: '人人都想能说会道，苏秦却因为会说话而丢了性命；人人都想多积财富，石崇却因为财富太多而丧命。', glossary: [{ word: '苏秦', explanation: '战国纵横家，以游说六国合纵抗秦而闻名，最终在齐国被刺身亡。他的口才成就了他，也害了他。' }, { word: '石崇', explanation: '西晋富豪，以奢靡斗富闻名。后因不愿将爱妾绿珠送给权臣孙秀，被诬陷处死——财富最终成了催命符。' }] },
+    ],
+  },
+];
+
+function getWeiLuYeHuaMockMeta(): IClassicMeta {
+  return {
+    id: 58, name: '围炉夜话', author: '王永彬', era: '清', category: '子',
+    description: '与《菜根谭》并称"处世奇书"，王永彬著。184则冬夜围炉闲聊式的短论，每则两三句话，温润如老友对谈。',
+    structureType: 'chapter', loadMode: 'chunked', navMode: 'list',
+    toc: weiLuYeHuaMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getWeiLuYeHuaMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = weiLuYeHuaMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
+// 晏子春秋 Mock（章节型 → accordion 手风琴二级 TOC，chunked 按需加载）
+// ============================================
+
+const yanZiChunQiuMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '内篇谏上第一', paragraphs: [
+      { text: '景公之时，雨雪三日而不霁。公被狐白之裘，坐于堂侧阶。晏子入见，立有间，公曰："怪哉！雨雪三日而天不寒。"晏子对曰："天不寒乎？"公笑。晏子曰："婴闻古之贤君，饱而知人之饥，温而知人之寒，逸而知人之劳。今君不知也。"公曰："善！寡人闻命矣。"乃令出裘发粟，与饥寒者。', translation: '景公在位的时候连下了三天大雪还不放晴。景公穿着白狐皮裘衣，坐在堂屋侧面的台阶上。晏子进去拜见，站了一会儿，景公说："真奇怪呀！下了三天雪却一点也不冷。"晏子说："这天难道真的不冷吗？"景公笑了。晏子说："我听说古代的贤明君主，自己吃饱了却知道别人还在挨饿，自己暖和了却知道别人还在受冻，自己安逸了却知道别人还在劳累。现在您却不知道这些。"景公说："好！我听明白了。"于是下令取出衣裘、发放粮食，给那些挨饿受冻的人。', glossary: [{ word: '饱而知人饥', explanation: '自己吃饱了却知道别人还在挨饿。这是晏子劝谏的核心逻辑——君主需要"换位感知"，不能以自身的感受来判断百姓的处境。' }] },
+    ],
+  },
+  {
+    id: 2, title: '内篇谏下第二', paragraphs: [
+      { text: '景公使圉人养所爱马，暴死。公怒，令人操刀解养马者。是时晏子侍前，左右执刀而进，晏子止之，而问于公曰："尧舜支解人，从何躯始？"公矍然曰："从寡人始。"遂不支解。', translation: '景公让养马人养他心爱的马，马突然得病死了。景公大怒，命令人拿着刀把养马人肢解了。当时晏子正在旁边侍奉，左右的人拿着刀上前，晏子拦住他们，问景公说："尧舜当年肢解人的时候——是从身体的哪个部位开始的？"景公惊慌地醒悟过来说："从我开始（尧舜根本就没有肢解过人）。"于是不肢解了。', glossary: [{ word: '尧舜支解人从何躯始', explanation: '这是晏子最机智的劝谏之一。晏子明知尧舜从没有肢解过人，故意问"从哪开始"——让景公自己意识到肢解是暴君之举，与尧舜背道而驰。' }] },
+    ],
+  },
+  {
+    id: 6, title: '内篇杂下第六', paragraphs: [
+      { text: '晏子使楚。楚人以晏子短，为小门于大门之侧而延晏子。晏子不入，曰："使狗国者，从狗门入；今臣使楚，不当从此门入。"傧者更道，从大门入。', translation: '晏子出使楚国。楚国因为晏子身材短小，就在大门旁边开了一个小门来迎接晏子。晏子不肯进去，说："出使狗国的人才从狗门进去——如今我出使的是楚国，不应当从这个门进去。"迎接的官员只好改换了路线，请他从大门进去。', glossary: [{ word: '使狗国者从狗门入', explanation: '这是晏子最著名的外交辞令之一，收入全国初中语文教材。楚国故意开小门来羞辱晏子身材矮小，晏子用"狗门"回击——"如果出使狗国就钻狗洞"。' }] },
+    ],
+  },
+];
+
+function getYanZiChunQiuMockMeta(): IClassicMeta {
+  return {
+    id: 46, name: '晏子春秋', author: '晏婴', era: '春秋', category: '子',
+    description: '记录晏婴言行事迹的经典。"橘逾淮为枳""二桃杀三士"等名篇皆出于此，故事短小精悍、机智幽默，适合中学生阅读。',
+    structureType: 'chapter', loadMode: 'chunked', navMode: 'list',
+    toc: yanZiChunQiuMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getYanZiChunQiuMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = yanZiChunQiuMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
 // 浮生六记 Mock（章节型 → list 竖向列表，chunked 按需加载）
 // ============================================
 
@@ -882,6 +958,130 @@ export function getFallbackClassics(): IClassicItem[] {
 }
 
 // ============================================
+// 陶渊明集 Mock（选集型 → list 竖向列表，chunked 按需加载）
+// ============================================
+
+const taoyuanmingjiMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '归去来兮辞', paragraphs: [
+      { text: '归去来兮，田园将芜胡不归？既自以心为形役，奚惆怅而独悲？悟已往之不谏，知来者之可追。实迷途其未远，觉今是而昨非。', translation: '回去罢！田园快要荒芜了，为什么还不回去？既然让心神被形体所奴役，为何还惆怅而独自悲伤？明白了已往的事不能挽回，知道了未来的事还可以追求。实在是迷路还不算远，醒悟到今天对的、昨天错的。', glossary: [
+        { word: '心为形役', explanation: '心神被身体所奴役。指为了生计而违背本心出仕，内心与行动分裂的痛苦。' },
+      ]},
+    ],
+  },
+  {
+    id: 2, title: '桃花源记', paragraphs: [
+      { text: '晋太元中，武陵人捕鱼为业。缘溪行，忘路之远近。忽逢桃花林，夹岸数百步，中无杂树，芳草鲜美，落英缤纷。', translation: '东晋太元年间，武陵郡有一个人以捕鱼为业。一天他沿着溪水前行，忘记了走了多远。忽然遇到一片桃花林，夹着溪流两岸数百步，中间没有别的树，芳草鲜嫩美丽，落花纷纷扬扬。', glossary: [
+        { word: '落英缤纷', explanation: '落花纷繁而繁多。缤纷，繁盛纷乱的样子。四字写出桃花凋谢时漫天飞舞的壮美景象。' },
+      ]},
+    ],
+  },
+  {
+    id: 3, title: '饮酒·其五', paragraphs: [
+      { text: '结庐在人境，而无车马喧。问君何能尔？心远地自偏。采菊东篱下，悠然见南山。此中有真意，欲辨已忘言。', translation: '把房屋建在人来人往的地方，却听不到车马的喧嚣。问你怎么能做到这样？心情悠远，地方自然就偏远。采菊东篱下，悠然抬头望见南山。这里面有人生的真意，想要解说却已经忘了言语。', glossary: [
+        { word: '心远地自偏', explanation: '内心远离尘世的纷扰，即便身处闹市也如同居于偏远之地。这是陶渊明哲学的核心——隐逸不在于地理位置的遥远，而在于内心状态的超脱。' },
+        { word: '悠然见南山', explanation: '"见"字极妙——不是刻意地"望"，而是不经意间"看见"。苏轼评此句："采菊之次，偶然见山，初不用意，而境与意会"。' },
+      ]},
+    ],
+  },
+];
+
+function getTaoYuanMingJiMockMeta(): IClassicMeta {
+  return {
+    id: 57, name: '陶渊明集', author: '陶渊明', era: '东晋', category: '集',
+    description: '"归去来兮，田园将芜胡不归"——中国隐逸诗人之宗。',
+    structureType: 'anthology', loadMode: 'chunked', navMode: 'list',
+    toc: taoyuanmingjiMockChapters.map(ch => ({
+      id: String(ch.id),
+      title: ch.title,
+      level: 0,
+      isLeaf: true,
+    })),
+  } as IClassicMeta;
+}
+
+function getTaoYuanMingJiMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = taoyuanmingjiMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+
+// ============================================
+// 西厢记 Mock（选集型 → accordion 手风琴，chunked 按需加载）
+// ============================================
+
+const xixiangjiMockContent: Record<string, IChapterParagraph[]> = {
+  xixiangji_book1_1: [
+    { text: '可正是人值残春蒲郡东，门掩重关萧寺中。花落水流红，闲愁万种，无语怨东风。', translation: '正是暮春时节在蒲郡东边，重重门户深掩在萧条的佛寺中。落花随水漂流染红了水面，万千种闲愁，无话可说只能埋怨这东风。', glossary: [
+      { word: '蒲郡', explanation: '即蒲州，在今山西永济一带，西厢记故事的发生地。' },
+      { word: '萧寺', explanation: '佛寺。梁武帝萧衍崇佛，广建佛寺，后世因以"萧寺"代指佛寺。剧中指普救寺。' },
+    ]},
+  ],
+  xixiangji_book1_2: [
+    { text: '万金宝剑藏秋水，满马春愁压绣鞍。', translation: '价值万金的宝剑藏起如秋水般的锋芒，满怀的春愁压在绣鞍上。', glossary: [
+      { word: '藏秋水', explanation: '秋水形容宝剑寒光如秋水般明亮。藏秋水即宝剑藏而不露，隐喻张生怀才不遇。' },
+    ]},
+  ],
+  xixiangji_book2_1: [
+    { text: '待月西厢下，迎风户半开。拂墙花影动，疑是玉人来。', translation: '在西厢下等待月亮升起，迎着微风把门半开。花影在墙上拂动，疑是心上人来了。', glossary: [
+      { word: '待月西厢', explanation: '"待月西厢"后来成为情侣幽会的经典意象。西厢，西边的厢房。莺莺住在普救寺的西厢房，因此剧名《西厢记》。' },
+    ]},
+  ],
+  xixiangji_book4_1: [
+    { text: '碧云天，黄花地，西风紧，北雁南飞。晓来谁染霜林醉？总是离人泪。', translation: '碧蓝的天空，遍地盛开的黄花，西风刮得紧，北雁向南飞去。清晨是谁把枫叶染得像喝醉一样红？全都是离别之人的眼泪染的。', glossary: [
+      { word: '霜林醉', explanation: '经霜的枫林红得像喝醉了酒一样。王实甫将"离人泪"染红霜林的奇特意象，成为千古绝唱。' },
+    ]},
+    { text: '恨相见得迟，怨归去得疾。柳丝长玉骢难系，恨不倩疏林挂住斜晖。', translation: '恨我们相见识得太晚，怨离别来得太快。柳丝虽然长却系不住青骢马，恨不得让疏林挂住夕阳。', glossary: [
+      { word: '玉骢', explanation: '青白色的骏马。柳丝长长想系住离人的马——这个典故化用了古人折柳送别的习俗，柳谐音留。' },
+    ]},
+  ],
+  xixiangji_book5_1: [
+    { text: '愿天下有情的都成了眷属。', translation: '祝愿天下有情人都能成为眷属。', glossary: [
+      { word: '愿天下有情的都成了眷属', explanation: '这是《西厢记》全剧最著名的主题句。"有情的"而非"有钱的"或"有势的"，表明王实甫的核心价值观——情是第一位的。后世"有情人终成眷属"成为中国文化中最经典的爱情祝福语。' },
+    ]},
+  ],
+};
+
+function getXiXiangJiMockMeta(): IClassicMeta {
+  return {
+    id: 48, name: '西厢记', author: '王实甫', era: '元', category: '集',
+    description: '王实甫著，元杂剧巅峰。张生与崔莺莺的爱情故事，"愿天下有情人终成眷属"。',
+    structureType: 'anthology', loadMode: 'chunked', navMode: 'accordion',
+    toc: [
+      { id: 'group_book1', title: '第一本·张君瑞闹道场', level: 0, isLeaf: false, children: [
+        { id: 'xixiangji_book1_1', title: '第一折·惊艳', level: 1, isLeaf: true },
+        { id: 'xixiangji_book1_2', title: '第一折·张生独白', level: 1, isLeaf: true },
+      ]},
+      { id: 'group_book2', title: '第二本·崔莺莺夜听琴', level: 0, isLeaf: false, children: [
+        { id: 'xixiangji_book2_1', title: '第四折·琴心', level: 1, isLeaf: true },
+      ]},
+      { id: 'group_book4', title: '第四本·草桥店梦莺莺', level: 0, isLeaf: false, children: [
+        { id: 'xixiangji_book4_1', title: '第三折·长亭送别', level: 1, isLeaf: true },
+      ]},
+      { id: 'group_book5', title: '第五本·张君瑞庆团圆', level: 0, isLeaf: false, children: [
+        { id: 'xixiangji_book5_1', title: '第四折·团圆', level: 1, isLeaf: true },
+      ]},
+    ],
+  } as IClassicMeta;
+}
+
+function getXiXiangJiMockContent(nodeId: string): IContentBlock | undefined {
+  const paragraphs = xixiangjiMockContent[nodeId];
+  if (!paragraphs) return undefined;
+  const meta: Record<string, { title: string }> = {
+    xixiangji_book1_1: { title: '第一折·惊艳' },
+    xixiangji_book1_2: { title: '第一折·张生独白' },
+    xixiangji_book2_1: { title: '第四折·琴心' },
+    xixiangji_book4_1: { title: '第三折·长亭送别' },
+    xixiangji_book5_1: { title: '第四折·团圆' },
+  };
+  return { id: nodeId, title: meta[nodeId]?.title || '', paragraphs };
+}
+
+
+// ============================================
 // 经典著作——Meta 与 TOC（Mock）
 // ============================================
 
@@ -933,6 +1133,14 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     toc = getLieziMockMeta().toc;
   } else if (id === 40) {
     toc = getYanShiJiaXunMockMeta().toc;
+  } else if (id === 58) {
+    toc = getWeiLuYeHuaMockMeta().toc;
+  } else if (id === 46) {
+    toc = getYanZiChunQiuMockMeta().toc;
+  } else if (id === 57) {
+    toc = getTaoYuanMingJiMockMeta().toc;
+  } else if (id === 48) {
+    toc = getXiXiangJiMockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -940,7 +1148,7 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   const result: IClassicMeta = {
     id: config.id,
     name: config.name,
-    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : config.id === 43 ? '王应麟' : config.id === 44 ? '周兴嗣' : config.id === 38 ? '孔子（托名）' : config.id === 27 ? '屈原' : config.id === 24 ? '鬼谷子' : config.id === 47 ? '洪应明' : config.id === 55 ? '沈复' : config.id === 37 ? '列御寇' : config.id === 40 ? '颜之推' : '佚名',
+    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : config.id === 43 ? '王应麟' : config.id === 44 ? '周兴嗣' : config.id === 38 ? '孔子（托名）' : config.id === 27 ? '屈原' : config.id === 24 ? '鬼谷子' : config.id === 47 ? '洪应明' : config.id === 55 ? '沈复' : config.id === 37 ? '列御寇' : config.id === 40 ? '颜之推' : config.id === 58 ? '王永彬' : config.id === 46 ? '晏婴' : config.id === 57 ? '陶渊明' : config.id === 48 ? '王实甫' : '佚名',
     era: config.era,
     category: config.category,
     description: config.description,
@@ -1067,6 +1275,26 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   if (classicId === 40) {
     const content = getYanShiJiaXunMockContent(nodeId);
     if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 58) {
+    const content = getWeiLuYeHuaMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 46) {
+    const content = getYanZiChunQiuMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 57) {
+    const content = getTaoYuanMingJiMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 48) {
+    const content = getXiXiangJiMockContent(nodeId);
+    if (!content) throw new Error('折不存在');
     return content;
   }
   throw new Error('该经典的数据尚在整理中');
