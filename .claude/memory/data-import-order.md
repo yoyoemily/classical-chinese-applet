@@ -55,26 +55,69 @@ metadata:
 
 线上服务器没有知识库本地文件，**一律使用 `-d @本地路径` 方式**（curl 读取本地文件作为请求体发送），无需上传文件到服务器。
 
+> 以上接口均为 `@RequestBody` 模式（`importArticles` 同时兼容无参，本地开发可省略 `-d @`）。导入顺序无依赖。
+
 ```bash
 BASE="https://wyq.yinqueai.com"
+DIR="$HOME/Documents/knowledge_library/文言文"
 
-# 选篇正文（含 keyWords）——全量导入
+# ============================================================
+# 1. 选篇正文（含 keyWords）——全量导入（1 条命令）
+# ============================================================
 curl -s -X POST $BASE/api/admin/import/articles \
     -H "Content-Type: application/json" \
-    -d @$HOME/Documents/knowledge_library/文言文/选篇/正文/articles.json
+    -d @$DIR/选篇/正文/articles.json
 
-# 典故注释 ——单篇导入
-curl -s -X POST $BASE/api/admin/import/glossary/art_035 \
-    -H "Content-Type: application/json" \
-    -d @$HOME/Documents/knowledge_library/文言文/选篇/典故注释/art_035.json
+# ============================================================
+# 2. 典故注释 ——全量 85 篇（单篇循环导入）
+# ============================================================
+for f in $DIR/选篇/典故注释/art_*.json; do
+    aid=$(basename "$f" .json)
+    echo ">>> $aid"
+    curl -s -X POST "$BASE/api/admin/import/glossary/$aid" \
+        -H "Content-Type: application/json" \
+        -d @"$f"
+done
 
-# 词书 ——单本导入
+# ============================================================
+# 3. 词书 ——全量 9 本（单本导入）
+# ============================================================
 curl -s -X POST $BASE/api/admin/import/wordbook \
     -H "Content-Type: application/json" \
-    -d @$HOME/Documents/knowledge_library/文言文/词书/wb_zhongkao_shixu.json
-```
+    -d @$DIR/词书/wb_zhongkao_shixu.json
 
-> 以上接口均为 `@RequestBody` 模式（`importArticles` 同时兼容无参，本地开发可省略 `-d @`）。导入顺序无依赖。
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_zhongkao_cileihuoyong.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_zhongkao_gujinyi.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_zhongkao_tongjia.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_gaokao_shixu.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_gaokao_cileihuoyong.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_gaokao_gujinyi.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_gaokao_tongjia.json
+
+curl -s -X POST $BASE/api/admin/import/wordbook \
+    -H "Content-Type: application/json" \
+    -d @$DIR/词书/wb_function_words.json
+```
 
 [[study-section]]
 [[articles-section]]
