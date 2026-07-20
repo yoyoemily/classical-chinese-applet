@@ -39,7 +39,7 @@
           type="nickname"
           value="{{nickName}}"
           placeholder="请输入昵称（可自动填充微信昵称）"
-          maxlength="20"
+          maxlength="8"
           bindinput="onNickNameInput"
         />
       </view>
