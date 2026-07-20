@@ -29,7 +29,6 @@ const FALLBACK_CLASSICS: IClassicItem[] = [
 
   { id: 8,  name: '礼记',       era: '战国至汉', icon: '📃', description: '先秦礼制的系统记录，涵盖制度、义理、通论，是理解古代社会与儒家思想的重要门径。', category: '经', loadMode: 'chunked', navMode: 'list' },
   { id: 9,  name: '左传',       era: '春秋',   icon: '📜', description: '左丘明著，与《春秋》互为表里的叙事经典，大量成语典故的源头，中考常考选文出处。', category: '经', loadMode: 'chunked', navMode: 'accordion' },
-
   { id: 38, name: '孝经',       era: '春秋',   icon: '📕', description: '十三经之一，专论孝道，仅十八章约一千八百字。"夫孝，德之本也"，儒家伦理的基石，与中学生德育高度契合。', category: '经', loadMode: 'full', navMode: 'strip' },
   { id: 43, name: '三字经',     era: '南宋',   icon: '📗', description: '传统蒙学第一书，三字一句、朗朗上口。"人之初，性本善"，中国学生人人会背的启蒙经典。', category: '经', loadMode: 'full', navMode: 'strip' },
   { id: 44, name: '千字文',     era: '南朝梁', icon: '📘', description: '一千个不重复的汉字编成二百五十句四言韵文，涵盖天文地理历史伦理，构思之精巧古今无双。', category: '经', loadMode: 'full', navMode: 'strip' },

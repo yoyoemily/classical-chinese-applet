@@ -669,6 +669,82 @@ function getCaiGenTanMockContent(nodeId: string): IContentBlock | undefined {
 }
 
 // ============================================
+// 列子 Mock（章节型 → list 竖向列表，chunked 按需加载）
+// ============================================
+
+const lieziMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '天瑞篇第一', paragraphs: [
+      { text: '子列子居郑圃，四十年人无识者。国君卿大夫视之，犹众庶也。国不足，将嫁于卫。弟子曰："先生往无反期，弟子敢有所谒；先生将何以教？先生不闻壶丘子林之言乎？"子列子笑曰："壶子何言哉？虽然，夫子尝语伯昏瞀人，吾侧闻之，试以告女。其言曰：有生不生，有化不化。不生者能生生，不化者能化化。"', translation: '列子住在郑国圃田，四十年没有人了解他。国君和卿大夫看待他，如同看待普通百姓一样。郑国发生饥荒，列子准备到卫国去。弟子说："先生这一去不知什么时候回来，弟子冒昧请教：先生将用什么来教诲我们？"列子笑着说："壶子说了什么呢？虽然如此，先生曾经对伯昏瞀人说过一番话，我在旁边听到了，试着告诉你们。他说：有产生的不产生，有变化的不变化。不产生的能产生那产生的，不变化的能变化那变化的。"', glossary: [{ word: '列子', explanation: '即列御寇，战国时期郑国人，道家重要代表人物，与老子、庄子并称"道家三经"。' }] },
+    ],
+  },
+  {
+    id: 2, title: '黄帝篇第二', paragraphs: [
+      { text: '黄帝即位十有五年，喜天下戴己，养正命，娱耳目，供鼻口，焦然肌色皯黣，昏然五情爽惑。又十有五年，忧天下之不治，竭聪明，进智力，营百姓，焦然肌色皯黣，昏然五情爽惑。黄帝乃喟然赞曰："朕之过淫矣。养一己其患如此，治万物其患如此。"于是放万机，舍宫寝，退而闲居大庭之馆，斋心服形，三月不亲政事。昼寝而梦，游于华胥氏之国。', translation: '黄帝即位十五年后，因为天下人都拥戴自己而感到高兴，于是调养性命、娱乐耳目、满足口鼻之欲，结果搞得面黄肌瘦、精神昏乱。又过了十五年，他又因为担忧天下治理不好而忧心，耗尽聪明才智来治理百姓，结果又搞得面黄肌瘦、精神昏乱。黄帝于是长叹道："我的过错太严重了。"于是他放下了纷繁的政务，离开了宫室寝殿，清静心灵、调养形体——整整三个月不参与政事。一天白天睡觉做梦，梦中游览了一个叫华胥氏的国度。', glossary: [{ word: '华胥氏之国', explanation: '列子虚构的一个理想国度——是道家版的"乌托邦"。黄帝在梦里领悟了"无为而治"的真谛。' }] },
+    ],
+  },
+  {
+    id: 5, title: '汤问篇第五', paragraphs: [
+      { text: '太行、王屋二山，方七百里，高万仞。本在冀州之南，河阳之北。北山愚公者，年且九十，面山而居。惩山北之塞，出入之迂也，聚室而谋曰："吾与汝毕力平险，指通豫南，达于汉阴，可乎？"杂然相许。', translation: '太行山和王屋山，方圆七百里，高达数万丈。北山有一位叫愚公的老人，年纪将近九十岁了，面对着这两座山居住。他苦于山北的阻塞，就召集全家人商议说："我和你们拿出全部的力量来削平这两座险峻的大山，可以吗？"大家纷纷赞同。', glossary: [{ word: '愚公移山', explanation: '《列子》中最著名的寓言，被收入全国初中语文教材。以"子子孙孙无穷匮也，而山不加增"的伟大朴素逻辑揭示了"代际接力"的力量。' }] },
+    ],
+  },
+];
+
+function getLieziMockMeta(): IClassicMeta {
+  return {
+    id: 37, name: '列子', author: '列御寇', era: '战国', category: '子',
+    description: '道家三经之一，名篇密度极高：愚公移山、杞人忧天、朝三暮四、夸父逐日——全是课本常客。',
+    structureType: 'chapter', loadMode: 'chunked', navMode: 'list',
+    toc: lieziMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getLieziMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = lieziMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
+// 颜氏家训 Mock（章节型 → list 竖向列表，chunked 按需加载）
+// ============================================
+
+const yanShiJiaXunMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '序致第一', paragraphs: [
+      { text: '夫圣贤之书，教人诚孝，慎言检迹，立身扬名，亦已备矣。魏、晋已来，所著诸子，理重事复，递相模效，犹屋下架屋，床上施床耳。吾今所以复为此者，非敢轨物范世也，业以整齐门内，提撕子孙。', translation: '圣贤们的著作，教诲人们尽忠尽孝、言语谨慎、行为检点、立身扬名——这些道理已经说得很完备了。魏晋以来所出的各家著述，道理重复、事例雷同，互相模仿因袭——就像在屋子下面再建一间屋子、在床上面再放一张床。我如今再写这部家训，不敢说是为了给天下人做规范——只是用来整顿家族门风、提醒教导子孙罢了。', glossary: [{ word: '屋下架屋，床上施床', explanation: '屋子下面又建屋子，床上又放床——比喻重复别人的工作而不加创造。' }] },
+    ],
+  },
+  {
+    id: 2, title: '教子第二', paragraphs: [
+      { text: '上智不教而成，下愚虽教无益，中庸之人，不教不知也。古者，圣王有胎教之法：怀子三月，出居别宫，目不邪视，耳不妄听，音声滋味，以礼节之。父母威严而有慈，则子女畏慎而生孝矣。孔子云："少成若天性，习惯如自然"是也。', translation: '上等智慧的人不必教就能成才，下等愚顽的人即使教也没用，普通资质的人——不教就不明白道理。古时候，圣明的君王有一整套胎教的方法。父母有威严而又有慈爱，那么子女就会敬畏谨慎而生出孝顺之心。孔子说："少年时形成的习惯，就像天性一样；长期的习惯，就像自然一样"——说的正是这个。', glossary: [{ word: '胎教之法', explanation: '这是中国文献中关于胎教的最早系统记述之一。"胎教"一词在中国文化中的源头之一即是《颜氏家训》。' }] },
+    ],
+  },
+  {
+    id: 8, title: '勉学第八', paragraphs: [
+      { text: '自古明王圣帝，犹须勤学，况凡庶乎！人生在世，会当有业：农民则计量耕稼，商贾则讨论货贿，工巧则致精器用，伎艺则沉思法术，武夫则惯习弓马，文士则讲议经书。何惜数年勤学，长受一生愧辱哉！', translation: '自古以来，即使是圣明的帝王，尚且需要勤奋学习——何况是一般的平庸百姓呢！人生在世，总要有自己的事业。为什么舍不得几年的勤学苦练——却愿意忍受一生的羞愧和耻辱呢？', glossary: [{ word: '勉学', explanation: '"勉学"是《颜氏家训》中最著名的一篇。"人生在世，会当有业"——颜之推不鼓励空谈道德，而强调"有一门职业技能"是最基本、最要紧的事。' }] },
+    ],
+  },
+];
+
+function getYanShiJiaXunMockMeta(): IClassicMeta {
+  return {
+    id: 40, name: '颜氏家训', author: '颜之推', era: '北齐', category: '子',
+    description: '中国第一部系统家训，颜之推著。论学论教论处世，与"帮助中学生掌握文言文"的定位天然吻合。',
+    structureType: 'chapter', loadMode: 'chunked', navMode: 'list',
+    toc: yanShiJiaXunMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getYanShiJiaXunMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = yanShiJiaXunMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
 // 浮生六记 Mock（章节型 → list 竖向列表，chunked 按需加载）
 // ============================================
 
@@ -853,6 +929,10 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     toc = getCaiGenTanMockMeta().toc;
   } else if (id === 55) {
     toc = getFuShengLiuJiMockMeta().toc;
+  } else if (id === 37) {
+    toc = getLieziMockMeta().toc;
+  } else if (id === 40) {
+    toc = getYanShiJiaXunMockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -860,7 +940,7 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   const result: IClassicMeta = {
     id: config.id,
     name: config.name,
-    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : config.id === 43 ? '王应麟' : config.id === 44 ? '周兴嗣' : config.id === 38 ? '孔子（托名）' : config.id === 27 ? '屈原' : config.id === 24 ? '鬼谷子' : config.id === 47 ? '洪应明' : config.id === 55 ? '沈复' : '佚名',
+    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : config.id === 43 ? '王应麟' : config.id === 44 ? '周兴嗣' : config.id === 38 ? '孔子（托名）' : config.id === 27 ? '屈原' : config.id === 24 ? '鬼谷子' : config.id === 47 ? '洪应明' : config.id === 55 ? '沈复' : config.id === 37 ? '列御寇' : config.id === 40 ? '颜之推' : '佚名',
     era: config.era,
     category: config.category,
     description: config.description,
@@ -976,6 +1056,16 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   }
   if (classicId === 55) {
     const content = getFuShengLiuJiMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 37) {
+    const content = getLieziMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 40) {
+    const content = getYanShiJiaXunMockContent(nodeId);
     if (!content) throw new Error('章节不存在');
     return content;
   }
