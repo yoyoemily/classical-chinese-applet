@@ -135,6 +135,10 @@
     &--active {
       opacity: 0.85;
     }
+
+    &--incomplete {
+      opacity: 0.45;
+    }
   }
 
   &__card-left {
@@ -180,7 +184,7 @@
   }
 
   &__card-desc {
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     color: var(--color-text-hint);
     line-height: 1.6;
     margin-top: 6rpx;

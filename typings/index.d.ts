@@ -436,6 +436,8 @@ export interface IClassicItem {
   loadMode: LoadMode
   /** 导航 UI 形态：strip/list/accordion/author */
   navMode: NavMode
+  /** 是否已完成(人工维护): 0=未完成, 1=已完成 */
+  isCompleted?: number
 }
 
 // ============================================

@@ -34,10 +34,10 @@
   <view class="page-classic__list">
     <block wx:for="{{displayItems}}" wx:key="id">
       <view
-        class="page-classic__card"
-        hover-class="page-classic__card--active"
+        class="page-classic__card {{item.isCompleted !== 1 ? 'page-classic__card--incomplete' : ''}}"
+        hover-class="{{item.isCompleted === 1 ? 'page-classic__card--active' : ''}}"
         data-id="{{item.id}}"
-        data-load-mode="{{item.loadMode}}"
+        data-is-completed="{{item.isCompleted}}"
         bindtap="onTapClassic"
       >
         <view class="page-classic__card-left">

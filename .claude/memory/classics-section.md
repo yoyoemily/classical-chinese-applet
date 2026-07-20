@@ -72,7 +72,7 @@ metadata:
 
 | 类型 | 关键字段 |
 |------|---------|
-| `IClassicItem` | `id (number), name, era, icon, description, category ('经'|'史'|'子'|'集'), loadMode?, navMode?` |
+| `IClassicItem` | `id (number), name, era, icon, description, category ('经'|'史'|'子'|'集'), loadMode?, navMode?, isCompleted? (number, 1=已完成可点击)` |
 | `IClassicMeta` | 扩展 IClassicItem：`author, structureType ('chapter'|'anthology'|'volume'), toc: ITocNode[]` |
 | `ITocNode` | `id, title, level, isLeaf, children?` |
 | `IContentBlock` | `id, title, author?, era?, background?, paragraphs: IChapterParagraph[]` |
