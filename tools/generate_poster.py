@@ -57,8 +57,8 @@ COLOR_WHITE = "#ffffff"
 # ============================================================
 TITLE_BRAND = "中学生文言文助手"
 MAIN_TITLE = "文言雀"
-SUBTITLE = "无障碍畅读传世经典，领略古贤智慧"
-QUOTE = "腹有诗书气自华"
+SUBTITLE = "基于艾宾浩斯记忆法，科学掌握文言字词"
+QUOTE = "每天十分钟，文言很轻松"
 QR_HINT = "长按识别小程序码"
 
 # ============================================================
@@ -149,15 +149,18 @@ def draw_brand_with_lines(
     # 先画文字
     draw.text((text_x, text_y), text, font=font, fill=text_color)
 
+    # 线条 y 稍下移，补偿汉字视觉重心偏下的问题
+    line_y = y + 4
+
     # 左侧短横线（紧贴文字左侧）
     x_left_end = text_x - SIDE_LINE_GAP
     x_left_start = x_left_end - SIDE_LINE_LENGTH
-    draw.line((x_left_start, y, x_left_end, y), fill=line_color, width=line_width)
+    draw.line((x_left_start, line_y, x_left_end, line_y), fill=line_color, width=line_width)
 
     # 右侧短横线（紧贴文字右侧）
     x_right_start = text_x + tw + SIDE_LINE_GAP
     x_right_end = x_right_start + SIDE_LINE_LENGTH
-    draw.line((x_right_start, y, x_right_end, y), fill=line_color, width=line_width)
+    draw.line((x_right_start, line_y, x_right_end, line_y), fill=line_color, width=line_width)
 
 
 def draw_quote_underline(
