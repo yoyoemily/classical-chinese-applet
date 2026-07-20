@@ -4,7 +4,6 @@ dist/
 .DS_Store
 *.log
 project.private.config.json
-.claude/
 
 temp/
 data/
