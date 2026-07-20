@@ -592,6 +592,121 @@ function getDaXueMockContent(nodeId: string): IContentBlock | undefined {
 }
 
 // ============================================
+// 鬼谷子 Mock（章节型 → strip 横向标签，full 全量加载）
+// ============================================
+
+const guiguziMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '捭阖第一', paragraphs: [
+      { text: '粤若稽古，圣人之在天地间也，为众生之先。观阴阳之开阖以名命物，知存亡之门户，筹策万类之终始，达人心之理，见变化之朕焉，而守司其门户。故圣人之在天下也，自古及今，其道一也。', translation: '考察古代的历史，圣人生活在天地之间，是众生的先导。他们观察阴阳二气的开合变化来命名万物，了解事物存亡的关键所在，筹划万物的始终，通达人心变化的规律，看到变化的征兆，从而掌握万物存亡的门户。', glossary: [{ word: '捭阖', explanation: '捭(bǎi)，打开、开启；阖(hé)，闭合、关闭。鬼谷子以"捭阖"比喻游说之术的核心——开口说话与闭口沉默的时机把握。' }, { word: '门户', explanation: '比喻事物的关键、枢纽。鬼谷子认为万物存亡都有一个"门户"，掌握了它就能控制事物的发展方向。' }] },
+      { text: '变化无穷，各有所归。或阴或阳，或柔或刚，或开或闭，或弛或张。是故圣人一守司其门户，审察其所先后，度权量能，校其伎巧短长。', translation: '变化虽然无穷无尽，但各自都有归宿。有的属阴，有的属阳；有的柔弱，有的刚强。因此圣人始终把握住万物存亡的关键门户，审察事物的先后次序，度量人的权谋和能力。', glossary: [{ word: '度权量能', explanation: '度量权衡一个人的权谋和能力。这是游说前的重要准备工作——了解游说对象的实力和特点。' }] },
+    ],
+  },
+  {
+    id: 2, title: '反应第二', paragraphs: [
+      { text: '人言者，动也；己默者，静也。因其言，听其辞。言有不合者，反而求之，其应必出。', translation: '别人说话，是动；自己沉默，是静。顺着对方的言语，聆听对方的措辞。对方的话如果有不合情理的地方，就反过来探求，对方的回应必定会显露出来。', glossary: [{ word: '反应', explanation: '"反"指返回到对方那里去观察，"应"指对方的回应。本篇讲如何用反向思维和反复试探来获取对方的真实想法。' }] },
+    ],
+  },
+  {
+    id: 3, title: '内揵第三', paragraphs: [
+      { text: '君臣上下之事，有远而亲，近而疏；就之不用，去之反求；日进前而不御，遥闻声而相思。事皆有内揵，素结本始。', translation: '君臣上下的关系中，有的关系疏远却彼此亲近，有的关系亲密却反而疏远；主动投靠却不被任用，离开后反而被寻求。事情都有内在的揵合关键，原本就在初始时就结成了。', glossary: [{ word: '内揵', explanation: '"内"即内心，"揵"(jiàn)即闩门的木棍，引申为关键的联结。本篇讲如何在心理上牢牢拴住君主。' }] },
+    ],
+  },
+];
+
+function getGuiGuZiMockMeta(): IClassicMeta {
+  return {
+    id: 24, name: '鬼谷子', author: '鬼谷子', era: '战国', category: '子',
+    description: '纵横家经典，捭阖、反应、揣摩、权谋之术的源头。社交识人、谈判沟通——社会人士的职场智慧宝典。',
+    structureType: 'chapter', loadMode: 'full', navMode: 'strip',
+    toc: guiguziMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getGuiGuZiMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = guiguziMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
+// 菜根谭 Mock（章节型 → list 竖向列表，chunked 按需加载）
+// ============================================
+
+const caiGenTanMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '弄权一时，凄凉万古', paragraphs: [
+      { text: '栖守道德者，寂寞一时；依阿权势者，凄凉万古。达人观物外之物，思身后之身，宁受一时之寂寞，毋取万古之凄凉。', translation: '坚守道德的人，可能会一时寂寞；依附权势的人，却会留下万古的凄凉。通达的人看到的是物质之外的东西，想到的是死后的名声，宁可忍受一时的寂寞，也不去换取万古的凄凉。', glossary: [{ word: '达人', explanation: '通达事理的人。"达"有通晓、透彻之意，指能够看透人生得失、不被眼前利益迷惑的人。' }] },
+    ],
+  },
+  {
+    id: 2, title: '抱朴守拙，涉世之道', paragraphs: [
+      { text: '涉世浅，点染亦浅；历事深，机械亦深。故君子与其练达，不若朴鲁；与其曲谨，不若疏狂。', translation: '涉世不深的人，沾染的不良习气也少；阅历丰富的人，心机城府也深。所以君子与其精明老练，不如保持朴实鲁钝；与其处处委屈谨慎，不如坦荡疏狂。', glossary: [{ word: '朴鲁', explanation: '朴实、鲁钝，指为人真诚、不玩弄心机。' }] },
+    ],
+  },
+  {
+    id: 3, title: '心事宜明，才华须韫', paragraphs: [
+      { text: '君子之心事，天青日白，不可使人不知；君子之才华，玉韫珠藏，不可使人易知。', translation: '君子的心事，应当像青天白日一样光明磊落；君子的才华，应该像珠玉隐藏一样深藏不露，不可以让人轻易知道。', glossary: [{ word: '玉韫珠藏', explanation: '把玉和珍珠收藏起来，不轻易示人。"韫"即藏。比喻有才华的人应当含蓄内敛。' }] },
+    ],
+  },
+];
+
+function getCaiGenTanMockMeta(): IClassicMeta {
+  return {
+    id: 47, name: '菜根谭', author: '洪应明', era: '明', category: '子',
+    description: '洪应明著格言体小品，一句话一条，极短极精。"咬得菜根，百事可做"，适合碎片化阅读。',
+    structureType: 'chapter', loadMode: 'chunked', navMode: 'list',
+    toc: caiGenTanMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getCaiGenTanMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = caiGenTanMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
+// 浮生六记 Mock（章节型 → list 竖向列表，chunked 按需加载）
+// ============================================
+
+const fuShengLiuJiMockChapters: { id: number; title: string; paragraphs: IChapterParagraph[] }[] = [
+  {
+    id: 1, title: '闺房记乐', paragraphs: [
+      { text: '余生乾隆癸未冬十一月二十有二日，正值太平盛世，且在衣冠之家，居苏州沧浪亭畔，天之厚我，可谓至矣。', translation: '我出生在乾隆癸未年冬天十一月二十二日，正逢太平盛世，而且生在官宦世家，住在苏州沧浪亭畔，上天对我的厚爱，可以说到了极点。', glossary: [{ word: '沧浪亭', explanation: '苏州名园，北宋苏舜钦所建。沈复出生在沧浪亭畔，暗示其文人世家的身份。' }] },
+    ],
+  },
+  {
+    id: 2, title: '闲情记趣', paragraphs: [
+      { text: '余忆童稚时，能张目对日，明察秋毫，见藐小微物，必细察其纹理，故时有物外之趣。夏蚊成雷，私拟作群鹤舞空。', translation: '我回忆童年的时候，能睁大眼睛直视太阳，视力好到能看清秋天鸟兽新长的毫毛，看到微小的东西一定会仔细察看它的纹理，所以常常有超出事物本身的趣味。夏天蚊子成群嗡嗡如雷，我私下把它们想象成群鹤在空中飞舞。', glossary: [{ word: '明察秋毫', explanation: '视力能看清秋天鸟兽新长的最细的毫毛。出自《孟子·梁惠王上》。沈复以此形容自己童年时的专注观察力。' }] },
+    ],
+  },
+  {
+    id: 3, title: '坎坷记愁', paragraphs: [
+      { text: '人生坎坷，何为乎来哉？往往皆自作孽耳。余则非也。多情重诺，爽直不羁，转因之为累。', translation: '人生的坎坷，是从哪里来的呢？往往都是自己作孽造成的。我却不是这样。我多情重承诺，爽直不拘束，反而因此受到连累。', glossary: [] },
+    ],
+  },
+];
+
+function getFuShengLiuJiMockMeta(): IClassicMeta {
+  return {
+    id: 55, name: '浮生六记', author: '沈复', era: '清', category: '集',
+    description: '沈复自传体散文，记闺房之乐、闲情之趣、坎坷之愁、浪游之快。语言洗练真挚，古文过渡阅读的绝佳之选。',
+    structureType: 'chapter', loadMode: 'chunked', navMode: 'list',
+    toc: fuShengLiuJiMockChapters.map(ch => ({ id: String(ch.id), title: ch.title, level: 0, isLeaf: true })),
+  } as IClassicMeta;
+}
+
+function getFuShengLiuJiMockContent(nodeId: string): IContentBlock | undefined {
+  const chapterId = Number(nodeId);
+  const chapter = fuShengLiuJiMockChapters.find(ch => ch.id === chapterId);
+  if (!chapter) return undefined;
+  return { id: String(chapter.id), title: chapter.title, paragraphs: chapter.paragraphs };
+}
+
+// ============================================
 // 五十二部经典——完整列表（含 loadMode/navMode）
 // ============================================
 
@@ -732,6 +847,12 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     toc = getXiaoJingMockMeta().toc;
   } else if (id === 27) {
     toc = getChuCiMockMeta().toc;
+  } else if (id === 24) {
+    toc = getGuiGuZiMockMeta().toc;
+  } else if (id === 47) {
+    toc = getCaiGenTanMockMeta().toc;
+  } else if (id === 55) {
+    toc = getFuShengLiuJiMockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -739,7 +860,7 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   const result: IClassicMeta = {
     id: config.id,
     name: config.name,
-    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : config.id === 43 ? '王应麟' : config.id === 44 ? '周兴嗣' : config.id === 38 ? '孔子' : config.id === 27 ? '屈原' : '佚名',
+    author: config.id === 22 ? '孙武' : config.id === 33 ? '刘义庆' : config.id === 18 ? '老子' : config.id === 3 ? '曾子' : config.id === 4 ? '子思' : config.id === 43 ? '王应麟' : config.id === 44 ? '周兴嗣' : config.id === 38 ? '孔子（托名）' : config.id === 27 ? '屈原' : config.id === 24 ? '鬼谷子' : config.id === 47 ? '洪应明' : config.id === 55 ? '沈复' : '佚名',
     era: config.era,
     category: config.category,
     description: config.description,
@@ -773,6 +894,9 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
   }
   if (config.loadMode === 'full' && id === 27) {
     (result as Record<string, unknown>).chapters = chuCiMockChapters;
+  }
+  if (config.loadMode === 'full' && id === 24) {
+    (result as Record<string, unknown>).chapters = guiguziMockChapters;
   }
 
   return result;
@@ -837,6 +961,21 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   }
   if (classicId === 27) {
     const content = getChuCiMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 24) {
+    const content = getGuiGuZiMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 47) {
+    const content = getCaiGenTanMockContent(nodeId);
+    if (!content) throw new Error('章节不存在');
+    return content;
+  }
+  if (classicId === 55) {
+    const content = getFuShengLiuJiMockContent(nodeId);
     if (!content) throw new Error('章节不存在');
     return content;
   }
