@@ -16,43 +16,61 @@
     <text class="page-classic__intro-desc">五十余部传世典籍 · 涵泳其间，与古贤对话</text>
   </view>
 
-  <!-- 分类 Tab -->
-  <view class="page-classic__tabs">
-    <block wx:for="{{groups}}" wx:key="category">
-      <view
-        class="page-classic__tab {{activeTab === item.category ? 'page-classic__tab--active' : ''}}"
-        data-tab="{{item.category}}"
-        bindtap="onTapTab"
-      >
-        <text>{{item.category}}部</text>
-        <text class="page-classic__tab-count">{{item.items.length}}</text>
-      </view>
-    </block>
+  <!-- 加载中 -->
+  <view class="page-classic__loading" wx:if="{{loading}}">
+    <view class="page-classic__loading-spinner"></view>
+    <text class="page-classic__loading-text">加载中...</text>
   </view>
 
-  <!-- 经典列表 -->
-  <view class="page-classic__list">
-    <block wx:for="{{displayItems}}" wx:key="id">
-      <view
-        class="page-classic__card {{item.isCompleted !== 1 ? 'page-classic__card--incomplete' : ''}}"
-        hover-class="{{item.isCompleted === 1 ? 'page-classic__card--active' : ''}}"
-        data-id="{{item.id}}"
-        data-is-completed="{{item.isCompleted}}"
-        bindtap="onTapClassic"
-      >
-        <view class="page-classic__card-left">
-          <text class="page-classic__card-icon">{{item.icon}}</text>
-        </view>
-        <view class="page-classic__card-body">
-          <view class="page-classic__card-title-row">
-            <text class="page-classic__card-name">{{item.name}}</text>
-            <text class="page-classic__card-era">{{item.era}}</text>
-          </view>
-          <text class="page-classic__card-desc">{{item.description}}</text>
-        </view>
-        <text class="page-classic__card-arrow">›</text>
-      </view>
-    </block>
+  <!-- 加载失败 -->
+  <view class="page-classic__error" wx:elif="{{error}}">
+    <text class="page-classic__error-icon">😵</text>
+    <text class="page-classic__error-text">加载失败，请检查网络</text>
+    <view class="page-classic__error-btn" bindtap="onTapRetry">
+      <text>重试</text>
+    </view>
   </view>
+
+  <!-- 正常内容 -->
+  <block wx:else>
+    <!-- 分类 Tab -->
+    <view class="page-classic__tabs">
+      <block wx:for="{{groups}}" wx:key="category">
+        <view
+          class="page-classic__tab {{activeTab === item.category ? 'page-classic__tab--active' : ''}}"
+          data-tab="{{item.category}}"
+          bindtap="onTapTab"
+        >
+          <text>{{item.category}}部</text>
+          <text class="page-classic__tab-count">{{item.items.length}}</text>
+        </view>
+      </block>
+    </view>
+
+    <!-- 经典列表 -->
+    <view class="page-classic__list">
+      <block wx:for="{{displayItems}}" wx:key="id">
+        <view
+          class="page-classic__card {{item.isCompleted !== 1 ? 'page-classic__card--incomplete' : ''}}"
+          hover-class="{{item.isCompleted === 1 ? 'page-classic__card--active' : ''}}"
+          data-id="{{item.id}}"
+          data-is-completed="{{item.isCompleted}}"
+          bindtap="onTapClassic"
+        >
+          <view class="page-classic__card-left">
+            <text class="page-classic__card-icon">{{item.icon}}</text>
+          </view>
+          <view class="page-classic__card-body">
+            <view class="page-classic__card-title-row">
+              <text class="page-classic__card-name">{{item.name}}</text>
+              <text class="page-classic__card-era">{{item.era}}</text>
+            </view>
+            <text class="page-classic__card-desc">{{item.description}}</text>
+          </view>
+          <text class="page-classic__card-arrow">›</text>
+        </view>
+      </block>
+    </view>
+  </block>
 
 </view>

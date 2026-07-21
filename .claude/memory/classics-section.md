@@ -16,7 +16,7 @@ metadata:
 | 经典列表 | `pages/classic/` | TabBar 3，52 部经典卡片，四部分类 Tab 切换 |
 | 经典阅读器 | `pages/classic-reader/` | 典故注释模式阅读，连续滚动章节导航，古典书卷风 |
 
-经典列表页从 `GET /api/classics?category=` 拉取数据，失败时用 `FALLBACK_CLASSICS` 硬编码兜底。判断经典是否开放：有 `loadMode` 字段即可跳转，否则 toast "该经典正在整理中，敬请期待"。
+经典列表页从 `GET /api/classics?category=` 拉取数据，仅依赖后端 API，无离线兜底。判断经典是否开放：有 `loadMode` 字段即可跳转，否则 toast "该经典正在整理中，敬请期待"。
 
 **分类内排序**：后端 `ClassicService.listClassics()` 按 `classic.sort_order` 升序排列，每个分类内部独立排序。排序值由 `source.json` 中 `classics[].sortOrder` 定义，`DataImportService.importClassics()` 入库。排序逻辑：经部按群经之首→三礼→春秋→四书→蒙学，史部按成书时代，子部按先秦诸子→秦汉→后世，集部按时代+文体。调整排序只需改 `source.json` 中 `sortOrder` 值并重新导入。
 
@@ -273,7 +273,7 @@ mock 数据精简到几条即可——只验证 TOC 导航和内容渲染。
 
 ### 4. 前端入口开放
 
-`pages/classic/index.ts` 的 `FALLBACK_CLASSICS` 数组中该经典的 `loadMode` 字段确保已设置（chunked 或 full），则自动可点击跳转 `pages/classic-reader/index?id=<id>`。
+后端 `classic` 表的 `load_mode` 和 `nav_mode` 字段确保已设置（chunked 或 full 即表示可上线），前端列表页从 API 获取数据后自动可点击跳转 `pages/classic-reader/index?id=<id>`。
 
 ### 5. 更新知识库 readme + 项目记忆
 
@@ -371,7 +371,7 @@ mock 数据精简到几条即可——只验证 TOC 导航和内容渲染。
 | 后端 controller | `controller/ClassicController.java` | `GET /api/classics`、`GET /api/classics/:id`、`GET /api/classics/:id/content/:nodeId` |
 | 前端 reader | `pages/classic-reader/index.*` | v2：full/chunked + strip/list/accordion/author 四种 navMode |
 | 前端 mock | `mock/classics.ts` | `getClassicMetaById()` + `getClassicMockContent()` |
-| 前端列表 | `pages/classic/index.*` | `FALLBACK_CLASSICS` 含 52 部元数据（loadMode 控制是否可点击） |
+| 前端列表 | `pages/classic/index.*` | 列表页，API 拉取经典列表，三态切换（加载/错误/正常） |
 | 前端 API | `api/index.ts` | `fetchClassics()` / `fetchClassicMeta()` / `fetchClassicContent()` |
 
 [[classical-chinese-applet-overview]]
