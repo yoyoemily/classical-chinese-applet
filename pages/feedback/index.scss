@@ -1,0 +1,111 @@
+// ============================================
+// 意见建议页面样式
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-feedback {
+  min-height: 100vh;
+  @include flex-column;
+  background-color: var(--color-bg-page);
+  padding: $spacing-md $spacing-base;
+  padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom));
+
+  // 表单卡片
+  &__card {
+    @include card;
+    padding: 0;
+  }
+
+  &__row {
+    @include flex-between;
+    padding: $spacing-lg $spacing-md;
+    min-height: 88rpx;
+
+    & + & {
+      @include hairline('top', var(--color-border-light));
+    }
+
+    &--textarea {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-base;
+    }
+  }
+
+  &__label {
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-right: $spacing-md;
+  }
+
+  &__picker-value {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+  }
+
+  &__picker-arrow {
+    font-size: $font-size-lg;
+    color: var(--color-text-hint);
+    font-family: serif;
+  }
+
+  // 文本输入
+  &__textarea {
+    width: 100%;
+    min-height: 280rpx;
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    padding: $spacing-base;
+    background-color: var(--color-bg-card);
+    border-radius: $radius-base;
+    box-sizing: border-box;
+  }
+
+  &__input {
+    flex: 1;
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+    text-align: right;
+  }
+
+  // 字数统计
+  &__count {
+    text-align: right;
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    padding: 0 $spacing-md $spacing-md;
+  }
+
+  // 提交按钮
+  &__action {
+    margin-top: $spacing-xl;
+    padding: 0 $spacing-base;
+  }
+
+  &__submit-btn {
+    width: 100%;
+    height: 88rpx;
+    @include flex-center;
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-size: $font-size-md;
+    font-weight: 500;
+    border-radius: $radius-base;
+    box-shadow: $shadow-sm;
+
+    &::after {
+      border: none;
+    }
+
+    &--loading {
+      opacity: 0.6;
+    }
+  }
+}

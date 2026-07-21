@@ -1,0 +1,58 @@
+<!-- 意见建议页面 -->
+<view class="page-feedback">
+  <!-- 表单卡片 -->
+  <view class="page-feedback__card">
+    <!-- 分类选择 -->
+    <view class="page-feedback__row">
+      <text class="page-feedback__label">分类</text>
+      <picker
+        mode="selector"
+        range="{{categories}}"
+        value="{{categoryIndex}}"
+        bindchange="onCategoryChange"
+      >
+        <view class="page-feedback__picker-value">
+          <text>{{categories[categoryIndex]}}</text>
+          <text class="page-feedback__picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 建议内容（必填） -->
+    <view class="page-feedback__row page-feedback__row--textarea">
+      <text class="page-feedback__label">内容</text>
+      <textarea
+        class="page-feedback__textarea"
+        placeholder="请详细描述您的建议或遇到的问题..."
+        placeholder-style="color: #999; font-size: 28rpx;"
+        maxlength="2000"
+        auto-height
+        value="{{content}}"
+        bindinput="onInputContent"
+      />
+    </view>
+    <view class="page-feedback__count">{{content.length}}/2000</view>
+
+    <!-- 联系方式（选填） -->
+    <view class="page-feedback__row">
+      <text class="page-feedback__label">联系方式</text>
+      <input
+        class="page-feedback__input"
+        placeholder="微信/手机/邮箱（选填）"
+        placeholder-style="color: #999;"
+        maxlength="128"
+        value="{{contact}}"
+        bindinput="onInputContact"
+      />
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="page-feedback__action">
+    <button
+      class="page-feedback__submit-btn {{submitting ? 'page-feedback__submit-btn--loading' : ''}}"
+      bindtap="onSubmit"
+      disabled="{{submitting}}"
+    >{{submitting ? '提交中...' : '提交建议'}}</button>
+  </view>
+</view>

@@ -7,6 +7,7 @@ import type {
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
   IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
   IClassicBook, IClassicMeta, IContentBlock, IWordQuickItem,
+  ISuggestionSubmitParams,
 } from '../typings/index.d';
 import { wordTypeToGroupKey, QUICK_GROUP_ORDER } from '../utils/wordType';
 
@@ -399,6 +400,17 @@ export async function submitFeedback(data: IFeedbackSubmitParams): Promise<{ id:
     return { id: `fb_${Date.now()}` };
   }
   return post('/api/feedback', data);
+}
+
+// ============================================
+// 意见建议
+// ============================================
+export async function submitSuggestion(data: ISuggestionSubmitParams): Promise<{ id: string }> {
+  if (USE_MOCK) {
+    wx.showToast({ title: '感谢您的建议！', icon: 'success', duration: 2000 });
+    return { id: `sug_${Date.now()}` };
+  }
+  return post('/api/suggestion', data);
 }
 
 // ============================================

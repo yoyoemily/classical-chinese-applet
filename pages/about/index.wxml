@@ -1,0 +1,35 @@
+<!-- 关于文言雀——品牌故事 -->
+<view class="page-about">
+  <!-- 品牌标识 -->
+  <view class="page-about__brand">
+    <image class="page-about__logo" src="/assets/icons/icon.png" mode="aspectFit" />
+    <text class="page-about__name">文言雀</text>
+  </view>
+
+  <!-- 品牌故事 -->
+  <view class="page-about__story">
+    <text class="page-about__para">
+      中学文言文，大概是语文试卷上的失分重灾区。
+    </text>
+
+    <text class="page-about__para">
+      作为家长，翻遍了市面上的文言文打卡软件——要么功能敷衍，要么伸手要钱。想让孩子的文言文多拿几分，竟找不到一款称心的工具。
+    </text>
+
+    <text class="page-about__para">
+      索性借着 AI 的东风，从零到一，亲手搓了一个。没想到，孩子说有点好用。
+    </text>
+
+    <text class="page-about__para">
+      那就公开出来吧。让全网的中学生都能免费用。
+    </text>
+
+    <text class="page-about__para page-about__para--pledge">
+      文言雀，永久免费打卡。
+    </text>
+
+    <text class="page-about__para page-about__para--closing">
+      一个普通爸爸，送给每个在文言文里磕磕绊绊的少年的心意
+    </text>
+  </view>
+</view>

@@ -1,0 +1,66 @@
+// ============================================
+// 关于文言雀——品牌故事
+// ============================================
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-about {
+  min-height: 100vh;
+  @include flex-column;
+  align-items: center;
+  background-color: var(--color-bg-page);
+  padding: $spacing-xl $spacing-lg;
+  padding-bottom: calc(#{$spacing-xxl} + var(--safe-area-bottom));
+
+  // -------- 品牌标识 --------
+  &__brand {
+    @include flex-column;
+    @include flex-center;
+    margin-top: $spacing-sm;
+    margin-bottom: $spacing-base;
+    gap: $spacing-sm;
+  }
+
+  &__logo {
+    width: 120rpx;
+    height: 120rpx;
+    display: block;
+  }
+
+  &__name {
+    font-size: 48rpx;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 8rpx;
+    font-family: 'STKaiti', 'KaiTi', '楷体', serif;
+  }
+
+  // -------- 品牌故事正文 --------
+  &__story {
+    width: 100%;
+    @include flex-column;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-base;
+  }
+
+  &__para {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    text-indent: 2em;
+
+    &--pledge {
+      font-weight: 700;
+      color: var(--color-primary);
+      text-indent: 0;
+      text-align: center;
+    }
+
+    &--closing {
+      font-size: $font-size-sm;
+      color: var(--color-text-hint);
+      text-indent: 0;
+      text-align: center;
+    }
+  }
+}

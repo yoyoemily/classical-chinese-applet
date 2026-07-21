@@ -53,10 +53,10 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     totalBadges: 8,
     menuItems: [
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
-      { key: 'mistake', icon: '📝', label: '错题本', url: '/pages/mistake-book/index' },
-      { key: 'vocabulary', icon: '📖', label: '生词本', url: '/pages/vocabulary/index' },
       { key: 'profile', icon: '👤', label: '个人信息', url: '/pages/profile-edit/index' },
       { key: 'settings', icon: '⚙️', label: '设置', url: '/pages/settings/index' },
+      { key: 'feedback', icon: '💬', label: '意见建议', url: '/pages/feedback/index' },
+      { key: 'about', icon: '📖', label: '品牌故事', url: '/pages/about/index' },
     ],
     loading: false,
     showSharePoster: false,

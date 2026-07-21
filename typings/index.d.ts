@@ -405,6 +405,16 @@ export interface IFeedbackSubmitParams {
 }
 
 // ============================================
+// 意见建议
+// ============================================
+/** 提交意见建议的请求参数 */
+export interface ISuggestionSubmitParams {
+  content: string
+  contact?: string
+  category?: string
+}
+
+// ============================================
 // 学习汇总缓存（study-complete 页秒开用）
 // ============================================
 export interface IStudySummary {
