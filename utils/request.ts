@@ -27,7 +27,7 @@ function getBaseUrl(): string {
     const { envVersion } = wx.getAccountInfoSync().miniProgram;
     return envVersion === 'release'
       ? 'https://wyq.yinqueai.com'
-      : 'https://wyq.yinqueai.com';
+      : 'http://localhost:8080';
   } catch {
     return 'https://wyq.yinqueai.com';
   }

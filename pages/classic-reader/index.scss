@@ -378,6 +378,7 @@ $light-ink: #8a7a60;
   }
   &__toc-body {
     flex: 1;
+    height: 0;
     overflow-y: auto;
     padding: $spacing-md 0;
   }

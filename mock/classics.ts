@@ -923,7 +923,7 @@ const CLASSIC_CONFIGS: IClassicConfig[] = [
   // 集部 17
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集', structureType: 'anthology', loadMode: 'full', navMode: 'strip' },
   { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'author' },
-  { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'author' },
+  { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'author', isCompleted: 1 },
   { id: 30, name: '乐府诗集',   era: '北宋',   icon: '🎶', description: '郭茂倩编，收录汉魏至五代乐府歌辞百卷，民间声诗与文人拟作交相辉映。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'accordion' },
 
   { id: 32, name: '古文观止',   era: '清',     icon: '📖', description: '吴楚材、吴调侯编选，收录先秦至明末散文精华二百二十二篇，是古文入门的绝佳读本。', category: '集', structureType: 'anthology', loadMode: 'chunked', navMode: 'author' },
@@ -1141,6 +1141,8 @@ export function getClassicMetaById(id: number): IClassicMeta | undefined {
     toc = getTaoYuanMingJiMockMeta().toc;
   } else if (id === 48) {
     toc = getXiXiangJiMockMeta().toc;
+  } else if (id === 29) {
+    toc = getSongCi300MockMeta().toc;
   } else {
     toc = [{ id: 'placeholder', title: '章节数据整理中，敬请期待', level: 0, isLeaf: false }];
   }
@@ -1295,6 +1297,11 @@ export function getClassicMockContent(classicId: number, nodeId: string): IConte
   if (classicId === 48) {
     const content = getXiXiangJiMockContent(nodeId);
     if (!content) throw new Error('折不存在');
+    return content;
+  }
+  if (classicId === 29) {
+    const content = getSongCi300MockContent(nodeId);
+    if (!content) throw new Error('词篇不存在');
     return content;
   }
   throw new Error('该经典的数据尚在整理中');
@@ -1773,6 +1780,54 @@ function getTang300MockContent(nodeId: string): IContentBlock | undefined {
     tang300_libai_2: { title: '月下独酌', author: '李白', era: '唐' },
     tang300_dufu_1: { title: '望岳', author: '杜甫', era: '唐' },
     tang300_bai_1: { title: '赋得古原草送别', author: '白居易', era: '唐' },
+  };
+  const info = meta[nodeId] || { title: '', author: '', era: '' };
+  return { id: nodeId, title: info.title, author: info.author, era: info.era, paragraphs };
+}
+
+// ============================================
+// 宋词三百首 Mock（author 二级导航，精简验证用）
+// ============================================
+
+const songCi300MockContent: Record<string, IChapterParagraph[]> = {
+  songci_sushi_1: [
+    { text: '明月几时有？把酒问青天。不知天上宫阙，今夕是何年。我欲乘风归去，又恐琼楼玉宇，高处不胜寒。起舞弄清影，何似在人间。转朱阁，低绮户，照无眠。不应有恨，何事长向别时圆？人有悲欢离合，月有阴晴圆缺，此事古难全。但愿人长久，千里共婵娟。', translation: '明月从什么时候开始有的？我举着酒杯问青天。不知天上的宫殿楼阁，今晚是哪一年。我想驾着清风回到天上去，又怕美玉砌成的楼宇，太高处经受不住寒冷。起身舞蹈玩赏清朗的月影，哪里像是在人间。月亮转过朱红色的楼阁，低挂在雕花的窗户上，照着难以入眠的人。不该对人有怨恨吧，为什么总在人们离别的时候才圆呢？人有悲欢离合，月有阴晴圆缺，这种事自古以来就难以周全。只希望人们能长久安康，虽然相隔千里，也能共享这美好的月光。', glossary: [] },
+  ],
+  songci_xinqiji_1: [
+    { text: '千古江山，英雄无觅孙仲谋处。舞榭歌台，风流总被雨打风吹去。斜阳草树，寻常巷陌，人道寄奴曾住。想当年，金戈铁马，气吞万里如虎。元嘉草草，封狼居胥，赢得仓皇北顾。四十三年，望中犹记，烽火扬州路。可堪回首，佛狸祠下，一片神鸦社鼓。凭谁问：廉颇老矣，尚能饭否？', translation: '千古江山依旧，却再也找不到英雄孙权的去处了。那些舞榭歌台里的风流韵事，总被历史的风雨吹打而去。斜阳照着草树，那些寻常的街巷，人们说刘裕曾经住过。想当年，他手持金戈、骑着铁马，气吞万里如同猛虎。元嘉年间草率北伐，只落得仓皇败退、北望追兵。四十三年过去了，远望中还记得当年扬州路上烽火连天的景象。还能指望谁来问：廉颇老了，还能吃饭吗？', glossary: [] },
+  ],
+  songci_liqingzhao_1: [
+    { text: '寻寻觅觅，冷冷清清，凄凄惨惨戚戚。乍暖还寒时候，最难将息。三杯两盏淡酒，怎敌他、晚来风急？雁过也，正伤心，却是旧时相识。满地黄花堆积，憔悴损，如今有谁堪摘？守着窗儿，独自怎生得黑？梧桐更兼细雨，到黄昏、点点滴滴。这次第，怎一个愁字了得！', translation: '找来找去，周围冷冷清清，凄凄惨惨令人生愁。初暖还寒的季节，最难保养身体。三两杯淡酒，怎么抵得住傍晚急来的寒风？大雁飞过，正伤心时，却发现它们是从前在北方见过的旧相识。满地堆积着黄花，凋谢零落，如今有谁还会摘取呢？守在窗边，一个人怎么熬到天黑？梧桐叶上再加上细雨，到黄昏时点点滴滴地滴着。此情此景，怎一个愁字能说得尽！', glossary: [] },
+  ],
+};
+
+function getSongCi300MockMeta(): IClassicMeta {
+  return {
+    id: 29, name: '宋词三百首', author: '朱祖谋 编', era: '清', category: '集',
+    description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。',
+    structureType: 'anthology', loadMode: 'chunked', navMode: 'author',
+    toc: [
+      { id: 'group_sushi', title: '苏轼', level: 0, isLeaf: false, children: [
+        { id: 'songci_sushi_1', title: '水调歌头·明月几时有', level: 1, isLeaf: true, author: '苏轼', era: '北宋' },
+      ]},
+      { id: 'group_xinqiji', title: '辛弃疾', level: 0, isLeaf: false, children: [
+        { id: 'songci_xinqiji_1', title: '永遇乐·京口北固亭怀古', level: 1, isLeaf: true, author: '辛弃疾', era: '南宋' },
+      ]},
+      { id: 'group_liqingzhao', title: '李清照', level: 0, isLeaf: false, children: [
+        { id: 'songci_liqingzhao_1', title: '声声慢·寻寻觅觅', level: 1, isLeaf: true, author: '李清照', era: '南渡后' },
+      ]},
+      { id: 'group_other', title: '其他', level: 0, isLeaf: false, children: [] },
+    ],
+  } as IClassicMeta;
+}
+
+function getSongCi300MockContent(nodeId: string): IContentBlock | undefined {
+  const paragraphs = songCi300MockContent[nodeId];
+  if (!paragraphs) return undefined;
+  const meta: Record<string, { title: string; author: string; era: string }> = {
+    songci_sushi_1: { title: '水调歌头·明月几时有', author: '苏轼', era: '北宋' },
+    songci_xinqiji_1: { title: '永遇乐·京口北固亭怀古', author: '辛弃疾', era: '南宋' },
+    songci_liqingzhao_1: { title: '声声慢·寻寻觅觅', author: '李清照', era: '南渡后' },
   };
   const info = meta[nodeId] || { title: '', author: '', era: '' };
   return { id: nodeId, title: info.title, author: info.author, era: info.era, paragraphs };

@@ -6,7 +6,8 @@
 - [📙 选篇板块](articles-section.md) — 77 篇名篇/3 种阅读模式/kid 全局引用/典故注释/5 色分高亮，关联知识库 文言文/选篇/典故注释/readme.md。articles.json 已规范化（2026-07-17：wordType 100%、wordBookId 63.6%、kid 去重）
 - [📋 选篇调整工作流程](article-adjustment-workflow.md) — 独立 SOP：句子增删/移位、keyWords 标注、典故注释、词书同步、导入数据库、完成后检查清单。触发词：调整选篇、修改选篇、优化选篇
 - [📋 壳文章定位](shell-article-positioning.md) — 壳文章在系统中的设计定位、为什么存在、译文要求、与大文章的差异。触发词：壳文章定位、显示壳文章定位、壳文章是什么
-- [📗 经典板块](classics-section.md) — 52 部经典(已上线11部)/4 种 navMode/5 步集成流程，关联知识库 文言文/经典/readme.md
+- [📗 经典板块](classics-section.md) — 52 部经典(已上线24部)/4 种 navMode/5 步集成流程，关联知识库 文言文/经典/readme.md
+- [📊 经典完整性审计](classics-completeness-audit.md) — 2026-07-21 数据库快照，12 部完整 + 12 部有缺，缺失比例和修复优先级
 - [分享海报](share-poster-generation.md) — 生成脚本/素材/字体/布局参数/前端展示
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/分享流程/契约会员/页面结构
 - [清除学习数据方案](clear-study-data-plan.md) — 软删除+24h恢复窗口，方案已定待实施

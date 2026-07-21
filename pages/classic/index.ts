@@ -62,7 +62,7 @@ const FALLBACK_CLASSICS: IClassicItem[] = [
   { id: 58, name: '围炉夜话',   era: '清',     icon: '🔥', description: '与《菜根谭》并称"处世奇书"，王永彬著。184则冬夜围炉闲聊式的短论，每则两三句话，温润如老友对谈。', category: '子', loadMode: 'chunked', navMode: 'list' },
   { id: 27, name: '楚辞',       era: '战国至汉', icon: '🌊', description: '屈原、宋玉等楚地诗人的辞赋总集，"路漫漫其修远兮"开创了中国浪漫主义文学的先河。', category: '集', loadMode: 'full', navMode: 'strip', isCompleted: 1 },
   { id: 28, name: '唐诗三百首', era: '清',     icon: '🏔️', description: '蘅塘退士编选，收录唐代七十七家三百一十一首诗，"熟读唐诗三百首，不会作诗也会吟"。', category: '集', loadMode: 'chunked', navMode: 'author', isCompleted: 1 },
-  { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集', loadMode: 'chunked', navMode: 'author' },
+  { id: 29, name: '宋词三百首', era: '清',     icon: '🌸', description: '朱祖谋编选，荟萃两宋词人精华，苏轼、辛弃疾、李清照、柳永，宋词之美尽在其中。', category: '集', loadMode: 'chunked', navMode: 'author', isCompleted: 1 },
   { id: 30, name: '乐府诗集',   era: '北宋',   icon: '🎶', description: '郭茂倩编，收录汉魏至五代乐府歌辞百卷，民间声诗与文人拟作交相辉映。', category: '集', loadMode: 'chunked', navMode: 'accordion' },
 
   { id: 32, name: '古文观止',   era: '清',     icon: '📖', description: '吴楚材、吴调侯编选，收录先秦至明末散文精华二百二十二篇，是古文入门的绝佳读本。', category: '集', loadMode: 'chunked', navMode: 'author' },
