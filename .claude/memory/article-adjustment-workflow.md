@@ -18,7 +18,7 @@ metadata:
 |------|------|
 | `articles.json` (知识库) | 选篇正文唯一权威源：标题、句子文本/译文、keyWords |
 | `art_XXX.json` (知识库) | 该篇的典故注释 |
-| `wb_*.json` (词书, 8本打卡型) | 若 keyWords 有增删，对应 wordEntry 的 keyWordRefs 需同步 |
+| `wb_*.json` (词书, 8 本打卡型) | 若 keyWords 有增删，对应 wordEntry 的 keyWordRefs 需同步 |
 
 ### 2. 句子增删/移位
 
@@ -31,9 +31,11 @@ metadata:
 
 ### 3. keyWords 标注标准
 
-> ⚠️ **【最重要的一课】2026-07-21 高一下补齐踩坑**：4 首诗词 36 个 keyWord 中仅 1 个与词书对应，其余全为地名/典故/文化隐喻（"坼""乾坤""故国""星河""门外楼头""西江""北斗""姹紫嫣红""朝飞暮卷"等）。根因是没有逐字核对词书，凭感觉把"有文化内涵"的词全标成了 keyWord。**keyWord 的唯一判定标准是：该字/词是否在 9 本词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。** 不在词书 = 不是 keyWord（有典故价值的归 glossary）。
+> ⚠️ **【最重要的一课】2026-07-21 高一下补齐踩坑**：4 首诗词 36 个 keyWord 中仅 1 个与词书对应，其余全为地名/典故/文化隐喻（"坼""乾坤""故国""星河""门外楼头""西江""北斗""姹紫嫣红""朝飞暮卷"等）。根因是没有逐字核对词书，凭感觉把"有文化内涵"的词全标成了 keyWord。**keyWord 的唯一判定标准是：该字/词是否在 8 本打卡型词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。** 不在词书 = 不是 keyWord（有典故价值的归 glossary）。
 
-**数据关系**：选篇 keyWords 是唯一权威源，词书通过 `kid` 引用。标注新选篇时，以 **9 本词书**（8 本考纲打卡型 + wb_function_words）的 `wordEntries` 作为**唯一参照**——词书定义了"哪些字是考点"，选篇负责"这些考点在具体语境中怎么用"。
+**数据关系**：选篇 keyWords 是唯一权威源，词书通过 `kid` 引用。标注新选篇时，以 **8 本打卡型词书**（中考/高考 × shixu/tongjia/gujinyi/cileihuoyong）的 `wordEntries` 作为**唯一参照**——词书定义了"哪些字是考点"，选篇负责"这些考点在具体语境中怎么用"。
+
+> 注：`wb_function_words.json`（文言文虚词深度解析）不参与 keyWord 核对。它是阅读型词书，无 quizItems（0 题），不驱动打卡学习回路。其 54 个虚词中 38 个已在打卡型词书中，保持独立浏览即可。
 
 **硬性边界（keyWord vs glossary 不可混淆）**：
 
@@ -48,7 +50,7 @@ metadata:
 
 **判断流程（必须逐字执行）**：
 1. 分析句中每个字/词的语义和用法
-2. 在 9 本词书的 `wordEntries[].character` 中精确查该字（**单字优先，多字词通常不标**）
+2. 在 8 本打卡型词书的 `wordEntries[].character` 中精确查该字（**单字优先，多字词通常不标**）
 3. 命中后核对**释义是否匹配句中的实际用法**——义项不匹配的不标（如"涕"在词书中义为"眼泪"但句中指"鼻涕"，不标）
 4. 匹配的词条，在选篇中标注 keyWord：
 
@@ -68,7 +70,7 @@ metadata:
 - `kid` 序号从 0 开始递增，同句同字可以有多个序号（如不同义项来自不同词书）
 - 同句同字有多个 kid 时，`definition` 应区分（如"介词/连词：和、跟、同" vs "和、同"）
 - kid 全局唯一，新增前先确认不重复
-- **标注完成后必须跑交叉验证脚本**：提取全部 keyWord 的 `word`，在 9 本词书中逐一查存在性，报告命中和遗漏
+- **标注完成后必须跑交叉验证脚本**：提取全部 keyWord 的 `word`，在 8 本打卡型词书中逐一查存在性，报告命中和遗漏
 
 ### 4. 典故注释 (glossary) 标准
 
@@ -136,7 +138,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 - [ ] 所有 keyWord 的 `kid` 中的 `sXX` 编号与当前 sentenceIndex 一致
 - [ ] 所有 glossary 的 `sentenceIndex` 与当前句子编号一致
 - [ ] kid 全局唯一，无重复
-- [ ] **每个 keyWord 的 `word` 在 9 本词书中有对应 `character`，且义项匹配句中用法**（运行 `scripts/validate_keywords.py` 交叉验证）
+- [ ] **每个 keyWord 的 `word` 在 8 本打卡型词书中有对应 `character`，且义项匹配句中用法**（运行 `scripts/validate_keywords.py` 交叉验证）
 - [ ] **每个 keyWord 的 `wordBookId` 非空**，指向正确的词书
 - [ ] JSON 校验通过
 - [ ] 数据已导入数据库

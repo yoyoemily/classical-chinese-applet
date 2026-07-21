@@ -14,11 +14,27 @@ metadata:
 - **已标注的 wordBookId 可能指错词书或义项不匹配**
 - **高一下补齐时发现 35/36 条误标**（地名、典故、文化隐喻被错标为 keyWord，应为 glossary）
 
-根因：标注时没有严格核对词书。keyWord 的唯一判定标准是该字/词是否在 9 本词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。不在词书 = 不是 keyWord。
+根因：标注时没有严格核对词书。keyWord 的唯一判定标准是该字/词是否在 8 本打卡型词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。不在词书 = 不是 keyWord。
+
+## 核对范围
+
+**只核对 8 本打卡型词书**，不包括 `wb_function_words.json`（文言文虚词深度解析）。
+
+原因：
+- 虚词解析是阅读型词书，无 quizItems（0 题），不参与打卡学习回路
+- 虚词解析的 54 个 character 中有 38 个已在打卡型词书中，剩余 16 个（凡、勿、哉、夫、将、尝、岂、弗、惟、敢、果、犹、独、矣、耳、遂）非考点维度
+- keyWords 服务于选篇阅读（高亮+弹窗释义），quizItems 服务于打卡学习（答题+纠错），两者解耦
+- 虚词解析保持独立浏览即可
+
+## 壳文章定位
+
+壳文章（121 篇，339 条 keyWords）不是给用户读的——它们是词书 keyWordRefs 的句子锚点容器。审核时：
+- 壳文章的 keyWords 如果不在任何打卡型词书中 → **直接删除**（没有灰度，没有"有典故价值"的说法）
+- 壳文章的唯一存在意义是承接词书的 kidRef 引用，不在词书 = 无用数据
 
 ## 范围
 
-**只做 keyWord ↔ 词书交叉核对。** 不在词书中的 keyWord → 删除。典故注释（glossary）迁移后续单独处理。
+**只做 keyWord ↔ 8 本打卡型词书交叉核对。** 不在词书中的 keyWord → 删除。典故注释（glossary）迁移后续单独处理。`wb_function_words.json`（文言文虚词深度解析）不参与核对——它是阅读型词书，无 quizItems，独立浏览即可。
 
 ## 数据规模
 
@@ -29,9 +45,12 @@ metadata:
 | 总 keyWords | 2,030 条 |
 | 有 wordBookId | 1,214 条（60%） |
 | 无 wordBookId | 816 条（40%） |
-| 词书主词条 | 425 个唯一 character |
+| 词书主词条 | 409 个唯一 character（8 本打卡型词书） |
 | 词书词条 | 601 个 wordEntry |
 | 词书 kidRef | 984 条 |
+| 词书 quizItems | 1365 题 |
+
+> **核对标准**：8 本打卡型词书（中考/高考 × shixu/tongjia/gujinyi/cileihuoyong），不包括 `wb_function_words.json`（阅读型，无 quizItems，独立浏览）。
 
 ## 12 批次（按文件，先小后大、先易后难）
 
@@ -84,12 +103,12 @@ Step 4. 验证 + 导入
 
 | 文件 | 角色 |
 |------|------|
-| `scripts/audit_keywords.py` | **待创建** — 审核脚本 |
+| `scripts/audit_keywords.py` | **待创建** — 审核脚本（输出逐条报告，按 OK/PENDING_WB/NO_MATCH/DELETE 四类标记） |
 | `scripts/articles_io.py` | I/O 工具（复用 `read_all_articles` / `write_articles_by_grade`） |
-| `scripts/validate_keywords.py` | 修复后验证 |
-| `scripts/fill_kidref.py` | 复用 `norm_def()` / `same_meaning()` |
+| `scripts/validate_keywords.py` | 修复后全局验证（8 本打卡型词书覆盖率检查） |
+| `scripts/fill_kidref.py` | 复用 `norm_def()` / `same_meaning()` 语义匹配函数 |
 | `~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json` | 12 个数据文件（权威源） |
-| `~/Documents/knowledge_library/文言文/词书/wb_*.json` | 9 本词书（核对标准） |
+| `~/Documents/knowledge_library/文言文/词书/wb_*.json` | 9 本词书（其中 8 本打卡型为核对标准，`wb_function_words.json` 不参与） |
 
 ## 导入机制
 
