@@ -185,9 +185,46 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 
 详细记录见 [[study-section]]#数据模型-v2-架构。
 
-### 待办
+### 待办：诗词 keyWords 标注质量排查（⚠️ 2026-07-21）
 
-- ⚠️ **诗词 keyWords 标注质量排查**（2026-07-21）：全部诗词选篇（~100首）的 keyWords 需与 9 本词书逐一核对。发现大量地名/典故/文化隐喻误标为 keyWord（如高一下 36 条中仅 1 条与词书对应）。不在词书的条目应移入 glossary。详见 [[poetry-keywords-quality-issue]]。
+全部诗词选篇（~100首）的 keyWords 需与 9 本词书逐一核对。高一下补齐时发现 36 条 keyWords 中仅 1 条与词书对应（"但"），其余 35 条如"坼""乾坤""故国""星河""门外楼头""西江""北斗""姹紫嫣红""朝飞暮卷"均为地名、典故、文化隐喻——应标注为 glossary 而非 keyWords。
+
+**根因**：标注时没有严格核对词书。keyWord 的唯一判定标准是：该字/词是否在 9 本词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。不在词书 = 不是 keyWord（有典故价值的归 glossary）。
+
+**影响范围**：全部诗词选篇（约 100 首），按年级分布在 12 个分文件中。
+
+**修复方案**：
+1. 导出全部诗词选篇的 keyWords 清单
+2. 与 9 本词书逐一交叉核对（`wordEntries[].character` + 义项匹配）
+3. 不在词书中或义项不匹配的 keyWord → 移除，有典故价值的移入 glossary
+4. 在词书中且义项匹配的 → 保留 keyWord，修正 `wordBookId` 和 `definition`
+5. 全量重新导入数据库（articles + glossary）
+
+**Why:** keyWords 与词书解耦会导致学习回路中断——学生答题时看不到这些字的 quizItem，标注无意义。
+
+---
+
+## 壳文章
+
+壳文章 (`art_shell_001` ~ `art_shell_121`) 是词书 keyWords 的句子上下文容器，不是用户可读的选篇。词书通过 `keyWordRefs[].kid` 引用选篇 keyWords，壳文章的句子和 keyWords 就是这些引用的落地锚点。
+
+| 维度 | 行为 |
+|------|------|
+| 文章列表 | **不可见**。后端 `has_content = 0` 过滤 |
+| 文章详情 | API 无过滤，直接输 URL 可到达 |
+| 排序 | `sortOrder = 10000 + index`，排在大纲文章之后 |
+| 数据源 | `articles.json`（知识库），121 篇、339 句、339 条 keyWords |
+| 典故注释 | 无 |
+| 创作背景 | 无 |
+| 译文 | 有 keyWord 的句子必须 100% 有译文 |
+
+**Why:** 大纲文章 77 篇覆盖面有限，壳文章补充更多句子场景，让词书的每个 keyWordRef 都有句子可依附。
+
+---
+
+## 古诗词补齐状态
+
+部编版初高中全部诗词已补齐：七上~九下（初中）+ 高一上~高三（高中）= 12 个年级，全部 ✅。共补齐约 100 首诗词，含 keyWords 标注、典故注释、创作背景。导入脚本和数据文件已完成任务并清理。
 
 ---
 
@@ -211,4 +248,4 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 | 后端 | `controller/ImportController.java` | `POST /api/admin/import/glossary/{articleId}` |
 | 后端 | `src/main/resources/source.json` | 冷启动数据（词书+勋章+经典，不含选篇正文） |
 
-[[classical-chinese-applet-overview]]
+[[study-section]]

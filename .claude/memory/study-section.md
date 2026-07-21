@@ -259,7 +259,5 @@ metadata:
 | 后端 | `service/ContentService.java` | getWordDetail（义项列表由 quizItem 驱动） |
 | 后端 | `src/main/resources/source.json` | 全量冷启动数据 |
 
-[[classical-chinese-applet-overview]]
-[[classical-chinese-data-model]]
 [[backend-infrastructure]]
 [[articles-section]]

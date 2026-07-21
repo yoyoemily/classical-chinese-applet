@@ -116,5 +116,44 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 **How to apply:** 对接时只需关注 `api/index.ts` 中的 `USE_MOCK` 开关和 `utils/request.ts` 中的 `BASE_URL`。所有 API 接口路径无需修改。
 
-[[classical-chinese-applet-overview]]
-[[classical-chinese-data-model]]
+### 导入顺序
+
+冷启动完整命令序（每个脚本只管自己的事，互不覆盖）：
+
+```
+./clear_data.sh all → import_all.sh → import_articles.sh → import_glossaries.sh
+    → import_wordbook.sh --all → import_classic_list.sh → import_classic.sh --all
+```
+
+| 顺序 | 脚本 | 数据源 | 内容 |
+|:--:|------|------|------|
+| 0 | `clear_data.sh` | — | 清理业务数据（all/user/wordbook/article/classic 5 种 scope） |
+| 1 | `import_all.sh` | `source.json` | 勋章定义导入 `badge` 表 |
+| 2 | `import_articles.sh` | 知识库 `articles_*.json`（12 个分文件） | 选篇正文 + keyWord 标注 |
+| 3 | `import_glossaries.sh` | 知识库 `art_*.json` | 选篇典故注释 |
+| 4 | `import_wordbook.sh --all` | 知识库 `wb_*.json`（9 本） | 词书全量 |
+| 5 | `import_classic_list.sh` | 知识库 `classics.json` | 经典元数据（幂等 upsert） |
+| 6 | `import_classic.sh --all` | 知识库 各经典子目录 JSON | 经典章节/段落/注释 |
+
+**修订后重导原则**：kid 不变就不需要重导词书。修改已有 keyWord 时 kid 不变，词书自动生效；新增 keyWord 才需词书跟进。
+
+**线上部署**：一律使用 `-d @本地路径` 方式（curl 读取本地文件作为请求体发送），BASE_URL 替换为 `https://wyq.yinqueai.com`，无需上传文件到服务器。
+
+### 数据维护脚本
+
+| 脚本 | 用途 |
+|------|------|
+| `scripts/split_articles.py` | 单文件 articles.json 拆为 12 个分文件 |
+| `scripts/normalize_articles.py` | 补 wordType/wordBookId、删脏数据、补壳文章元数据 |
+| `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord |
+| `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子 |
+| `scripts/fill_kidref.py` | 词书 quizItem.kidRef 填充 |
+| `scripts/articles_io.py` | 公共 I/O 模块（以上脚本共用） |
+
+- 所有脚本默认 dry-run，必须加 `--apply` 才写入
+- 分文件写入前会自动备份（`.bak`），完成后删除
+- `article_keyword.kid` 全局唯一，`fill_kidref.py` 最后一步自动检测重复
+
+[[study-section]]
+[[articles-section]]
+[[classics-section]]

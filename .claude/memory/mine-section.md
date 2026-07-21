@@ -159,6 +159,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 - 素材：`assets/share-poster-bg.png` + `assets/qrcode.jpg` → 输出 `assets/share-poster.png`
 - 图片部署：后端 `resources/static/assets/`，前端 `onSavePoster` 根据环境自动切换 download URL
 - 字体：行楷 SC Bold（主标题"文言雀"）+ 华文楷体 SC Regular（其余文字），macOS 系统自带
+- **注意**：小程序不支持直接保存项目内静态资源，必须通过 URL 下载到本地再保存
 
 ### 关键代码
 
@@ -220,9 +221,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 后端数据 | `source.json` | `badges[]` 8 枚勋章定义 |
 | 海报脚本 | `tools/generate_poster.py` | Pillow 合成 720×1280 海报 |
 
-[[classical-chinese-applet-overview]]
 [[study-section]]
-[[share-poster-generation]]
 
 ---
 
