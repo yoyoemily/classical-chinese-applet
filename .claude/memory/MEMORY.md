@@ -2,6 +2,7 @@
 - [📘 学习板块](study-section.md) — 9 本词书/学习回路(v2 架构)/艾宾浩斯/错题本/语音播报/勋章打卡，关联知识库 文言文/词书/readme.md
 - [📙 选篇板块](articles-section.md) — 88 篇名篇/121 篇壳文章/3 种阅读模式/5 色分高亮/典故注释/诗词补齐全部完成/keyWords 质量待排查，关联知识库 文言文/选篇/
 - [📋 选篇调整工作流程](article-adjustment-workflow.md) — 独立 SOP：句子增删/移位、keyWords 标注、典故注释、词书同步、导入数据库、完成后检查清单。触发词：调整选篇、修改选篇、优化选篇
+- [🔍 选篇 keyWords 词书交叉核对](keywords-audit-master-plan.md) — 系统性质量排查：2030 条 keyWords 分 12 批逐一核对 9 本词书，修正/删除不在词书范围内的标注。进行中。触发词：继续核对 keyWords、继续选篇字词标注排查、继续第 N 批
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/分享流程/金石契/海报生成/页面结构
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
