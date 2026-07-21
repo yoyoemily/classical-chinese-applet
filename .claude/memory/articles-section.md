@@ -185,6 +185,10 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 
 详细记录见 [[study-section]]#数据模型-v2-架构。
 
+### 待办
+
+- ⚠️ **诗词 keyWords 标注质量排查**（2026-07-21）：全部诗词选篇（~100首）的 keyWords 需与 9 本词书逐一核对。发现大量地名/典故/文化隐喻误标为 keyWord（如高一下 36 条中仅 1 条与词书对应）。不在词书的条目应移入 glossary。详见 [[poetry-keywords-quality-issue]]。
+
 ---
 
 ## 关键文件索引

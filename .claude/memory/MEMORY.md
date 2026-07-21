@@ -14,3 +14,7 @@
 - [数据导入顺序](data-import-order.md) — 冷启动导入顺序/修订后重导依赖关系/导入脚本一览
 - [数据维护脚本](data-scripts.md) — articles.json/词书 JSON 的规范化与维护脚本
 - [抖音视频脚本](douyin-video-script.md) — 抖音宣传视频脚本，60~75 秒完整版 + 15 秒极速版，含分镜表/截图清单/BGM 建议
+- [古诗词补齐总进度](poetry-backfill-master.md) — 按年级追踪补齐状态，初中全部✅、高一✅、高二✅、高三✅，全部完成
+- [高三上补齐数据](grade12a-poetry-data.md) — 高三上 4 首诗词补齐完成记录，含 keyWord 命中率与校验结果
+- [诗词keyWords标注质量问题](poetry-keywords-quality-issue.md) — 地名/典故/文化隐喻误标为keyWords，需统一排查修复
+- [grade11b 补齐数据](grade11b-poetry-data.md) — 高二下 4 首诗词补齐完成记录，含 keyWord 命中率与经验教训
