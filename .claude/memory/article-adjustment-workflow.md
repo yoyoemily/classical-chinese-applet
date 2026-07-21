@@ -31,17 +31,18 @@ metadata:
 
 ### 3. keyWords 标注标准
 
-**来源**：8 本打卡型词书（`wb_zhongkao_*` + `wb_gaokao_*`），**不含** `wb_function_words`（阅读型词书）。
+**数据关系**：选篇 keyWords 是唯一权威源，词书通过 `kid` 引用。标注新选篇时，以 8 本打卡型词书的 `wordEntries` 作为**考纲参照**——词书定义了"哪些字是考点"，选篇负责"这些考点在具体语境中怎么用"。
 
 **判断流程**：
-1. 将该句每个字/词在 8 本词书的 `wordEntries[].character` 中逐一搜索
-2. 对于命中的词条，检查其**释义是否匹配句中的实际用法**——义项不匹配的不标
-3. 匹配的词条，按以下格式生成 keyWord：
+1. 分析句中每个字/词的语义和用法
+2. 在 8 本词书的 `wordEntries[].character` 中检查该字是否属于考纲范围
+3. 命中后核对**释义是否匹配句中的实际用法**——义项不匹配的不标
+4. 匹配的词条，在选篇中标注 keyWord（同时关联对应词书的 `wordBookId`）：
 
 ```json
 {
   "word": "字",
-  "definition": "释义（从词书 explanation 中提取匹配的义项，简洁表述）",
+  "definition": "结合句中用法，从词书 explanation 中提取匹配的义项，简洁表述",
   "wordType": "shi/xu/tongjia/gujinyi/huoyong",
   "kid": "kw_{articleId}_s{sentenceIndex:02d}_{word}_{序号}",
   "wordBookId": "词书 ID"
@@ -49,8 +50,9 @@ metadata:
 ```
 
 **约束**：
-- `wordBookId` 必须填写，指向词书 `id` 字段
-- `kid` 序号从 0 开始递增，同句同学可以有多个序号（来自不同词书）
+- 选篇中的字如果不在任何词书中，不代表它不标注——但如果标注了，就无法关联 `wordBookId`（学习回路中该字不会出现在词书答题中）
+- `wordBookId` 填写后，词书通过 `keyWordRefs` 自动引用该 keyWord 的 `kid`，无需在词书侧手工维护
+- `kid` 序号从 0 开始递增，同句同字可以有多个序号（如不同义项来自不同词书）
 - 同句同字有多个 kid 时，`definition` 应区分（如"介词/连词：和、跟、同" vs "和、同"）
 - kid 全局唯一，新增前先确认不重复
 
@@ -77,10 +79,16 @@ metadata:
 每个文件修改后分别导入，**一律使用 `-d @文件路径` 方式**（客户端发送文件内容，不依赖服务器本地文件系统），本地和线上通用。导入顺序无依赖：
 
 ```bash
-# 正文（含 keyWords）—— 全量导入
+# 正文（含 keyWords）—— 全量导入（拼接 12 个分文件后发送）
 curl -X POST {BASE_URL}/api/admin/import/articles \
     -H "Content-Type: application/json" \
-    -d @$HOME/Documents/knowledge_library/文言文/选篇/正文/articles.json
+    -d "$(python3 -c "
+import json, glob, os
+d = []
+for f in sorted(glob.glob(os.path.expanduser('~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json'))):
+    with open(f) as fp: d.extend(json.load(fp))
+print(json.dumps(d, ensure_ascii=False))
+")"
 
 # 典故注释 —— 单篇导入
 curl -X POST {BASE_URL}/api/admin/import/glossary/{articleId} \

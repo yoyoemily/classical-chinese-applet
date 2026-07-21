@@ -12,7 +12,7 @@ metadata:
 | 脚本 | 用途 | 用法 |
 |------|------|------|
 | `scripts/split_articles.py` | 拆分工具：从旧版单文件 articles.json 拆为 12 个 articles_*.json | `python3 split_articles.py --apply` |
-| `scripts/normalize_articles.py` | 分文件规范化：补 wordType（文本规律→词书匹配→默认实词）、补 wordBookId（kid 链路）、删脏数据、补壳文章元数据 | `python3 normalize_articles.py --apply` |
+| `scripts/normalize_articles.py` | 分文件规范化：补 wordType（文本规则推断→参照词书考纲→默认实词）、补 wordBookId（kid 链路）、删脏数据、补壳文章元数据 | `python3 normalize_articles.py --apply` |
 | `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord（硬编码映射，用在句子已在分文件但该词未标注的场景） | `python3 add_missing_keywords.py --apply` |
 | `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子到分文件（新句子追加到文章末尾） | `python3 backfill_sentences.py --apply` |
 | `scripts/fill_kidref.py` | 词书 quizItem.kidRef 填充：targetWord + definition 语义匹配 article_keyword → sentenceText 消歧 | `python3 fill_kidref.py --apply` |
