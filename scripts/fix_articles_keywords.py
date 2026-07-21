@@ -30,7 +30,8 @@ from difflib import SequenceMatcher
 
 ARTICLES_PATH = os.path.expanduser(
     "~/Documents/knowledge_library/文言文/选篇/正文/articles.json"
-)
+)  # 旧版单文件（回退用）
+ARTICLES_DIR = os.path.expanduser("~/Documents/knowledge_library/文言文/选篇/正文")
 WB_DIR = os.path.expanduser("~/Documents/knowledge_library/文言文/词书")
 WB_FILES = [
     "wb_zhongkao_shixu.json", "wb_zhongkao_tongjia.json",
@@ -350,8 +351,14 @@ def main():
     parser.add_argument("--import-api", action="store_true", help="修复后自动导入数据库")
     args = parser.parse_args()
 
-    with open(ARTICLES_PATH, "r", encoding="utf-8") as f:
-        articles = json.load(f)
+    try:
+        from articles_io import read_all_articles
+        articles = read_all_articles(ARTICLES_DIR)
+        print(f"从拆分文件加载: {len(articles)} 篇")
+    except (ImportError, FileNotFoundError):
+        with open(ARTICLES_PATH, "r", encoding="utf-8") as f:
+            articles = json.load(f)
+        print(f"从单文件加载: {len(articles)} 篇")
     articles_by_id = {a["id"]: a for a in articles}
 
     orig_count = sum(len(s.get("keyWords", [])) for a in articles for s in a["sentences"])
@@ -409,12 +416,17 @@ def main():
         print("  ⚠️  Dry run. 使用 --apply 或 --import-api 执行修复")
         return 0
 
-    # 写入
-    with open(ARTICLES_PATH, "w", encoding="utf-8") as f:
-        json.dump(articles, f, ensure_ascii=False, indent=2)
-    with open(ARTICLES_PATH, "r", encoding="utf-8") as f:
-        json.load(f)  # 校验
-    print(f"  ✅ {ARTICLES_PATH} 写入成功，JSON 校验通过")
+    # 写入（多文件模式）
+    try:
+        from articles_io import write_articles_by_grade
+        write_articles_by_grade(articles, ARTICLES_DIR)
+        print(f"  ✅ 分文件写入并校验通过")
+    except ImportError:
+        with open(ARTICLES_PATH, "w", encoding="utf-8") as f:
+            json.dump(articles, f, ensure_ascii=False, indent=2)
+        with open(ARTICLES_PATH, "r", encoding="utf-8") as f:
+            json.load(f)  # 校验
+        print(f"  ✅ {ARTICLES_PATH} 写入成功，JSON 校验通过")
 
     if args.import_api:
         result = import_to_db()

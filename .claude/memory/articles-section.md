@@ -190,7 +190,7 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/articles.json` | 选篇正文唯一权威源（198 篇：大纲 77 篇 + 壳文章 121 篇） |
+| 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（12 个分文件：grade7a~12a + shell，共 198 篇） |
 | 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/readme.md` | 选篇正文目录说明 |
 | 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/readme.md` | 典故注释目录说明 |
 | 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/art_*.json` | 77 篇典故注释唯一权威源（全部完成） |
@@ -201,7 +201,7 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 | 前端 | `api/index.ts` | `fetchArticles()` / `fetchArticleDetail()` |
 | 后端 | `controller/ArticleController.java` | 名篇 API |
 | 后端 | `service/ArticleService.java` | 名篇业务逻辑（toArticleMap 序列化 kid/wordType/matchWord） |
-| 后端 | `service/DataImportService.java` | `importArticlesFromJson()` 选篇正文幂等导入（含 kid/matchWord/wordType）；`importGlossaryForArticle()` 典故注释幂等导入 |
+| 后端 | `service/DataImportService.java` | `importArticlesFromJson()` 从目录读取 12 个分文件合并后幂等导入（含 kid/matchWord/wordType）；`importGlossaryForArticle()` 典故注释幂等导入 |
 | 后端 | `controller/ImportController.java` | `POST /api/admin/import/articles`（全量导入选篇正文+壳文章） |
 | 后端 | `controller/ImportController.java` | `POST /api/admin/import/glossary/{articleId}` |
 | 后端 | `src/main/resources/source.json` | 冷启动数据（词书+勋章+经典，不含选篇正文） |

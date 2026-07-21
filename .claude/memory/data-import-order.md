@@ -11,7 +11,7 @@ metadata:
 |:--:|------|--------|------|------|
 | 0 | `clear_data.sh` | 无 | 清理业务数据（可选全部/用户/词书/选篇/经典 5 种 scope），详见下方 | 无。仅清数据不导入 |
 | 1 | `import_all.sh` | `source.json`（classpath） | 导入 8 枚勋章到 `badge` 表 | badge 表会被 0(all) 清空，需要 0→1 配合；user 档不含 badge |
-| 2 | `import_articles.sh` | 知识库 `articles.json` | 选篇正文 + keyWord 标注（`article`, `article_sentence`, `article_keyword`） | 无。生成 kid |
+| 2 | `import_articles.sh` | 知识库 `articles_*.json`（12 个分文件） | 选篇正文 + keyWord 标注（`article`, `article_sentence`, `article_keyword`） | 无。生成 kid |
 | 3 | `import_glossaries.sh` | 知识库 `art_*.json`（77 篇） | 选篇典故注释（`article_glossary`） | 依赖 2 的 `article_sentence` |
 | 4 | `import_wordbook.sh --all` | 知识库 `wb_*.json`（9 本） | 词书全量（`word_book`, `word_book_entry`, `word_entry_keyword_ref`, `quiz_item`, `quiz_distractor`, `word_usage`） | 建议在 2 之后，方便即时验证 kid 引用。与 2 无外键约束，可互换 |
 | 5 | `import_classic_list.sh` | 知识库 `classics.json` | 经典元数据（`classic`，幂等 upsert） | 必须先于步骤 6 |
@@ -44,7 +44,7 @@ metadata:
 | 清空业务数据 | 无 | `./clear_data.sh <scope>` | 按需清理：all/user/wordbook/article/classic |
 | 勋章（增删改） | `source.json` | `import_all.sh` | 仅导入勋章定义，不清用户数据 |
 | 经典元数据（增删改） | 知识库 `classics.json` | `import_classic_list.sh` | 仅影响 classic 表 |
-| 选篇正文 + keyWord（新增/修改） | 知识库 `articles.json` | `import_articles.sh`；若新增 kid → 还需 `import_wordbook.sh --all` | 修改已有 keyWord 时 kid 不变，词书自动生效；新增 keyWord 才需词书跟进 |
+| 选篇正文 + keyWord（新增/修改） | 知识库 `articles_*.json`（12 个分文件） | `import_articles.sh`；若新增 kid → 还需 `import_wordbook.sh --all` | 修改已有 keyWord 时 kid 不变，词书自动生效；新增 keyWord 才需词书跟进 |
 | 词书任何变更 | 知识库 `wb_*.json` | `import_wordbook.sh`（该本词书） | 不影响其他词书 |
 | 典故注释（增删改） | 知识库 `art_*.json` | `import_glossaries.sh`（该篇） | 独立表 |
 | 经典内容（增删改） | 知识库 经典子目录 JSON | `import_classic.sh`（该部） | 独立表 |
@@ -62,11 +62,21 @@ BASE="https://wyq.yinqueai.com"
 DIR="$HOME/Documents/knowledge_library/文言文"
 
 # ============================================================
-# 1. 选篇正文（含 keyWords）——全量导入（1 条命令）
+# 1. 选篇正文（含 keyWords）——全量导入（拼接 12 个分文件后发送）
 # ============================================================
-curl -s -X POST $BASE/api/admin/import/articles \
+cd "$DIR/选篇/正文"
+python3 -c "
+import json, sys
+from pathlib import Path
+files = sorted(Path('.').glob('articles_*.json'))
+all_articles = []
+for f in files:
+    with open(f) as fh:
+        all_articles.extend(json.load(fh))
+json.dump(all_articles, sys.stdout, ensure_ascii=False)
+" | curl -s -X POST $BASE/api/admin/import/articles \
     -H "Content-Type: application/json" \
-    -d @$DIR/选篇/正文/articles.json
+    -d @-
 
 # ============================================================
 # 2. 典故注释 ——全量 85 篇（单篇循环导入）

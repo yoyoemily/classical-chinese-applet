@@ -22,7 +22,8 @@ from difflib import SequenceMatcher
 
 # ═══ 路径 ═══
 
-ARTICLES_PATH = os.path.expanduser("~/Documents/knowledge_library/文言文/选篇/正文/articles.json")
+ARTICLES_PATH = os.path.expanduser("~/Documents/knowledge_library/文言文/选篇/正文/articles.json")  # 旧版单文件（回退用）
+ARTICLES_DIR = os.path.expanduser("~/Documents/knowledge_library/文言文/选篇/正文")
 WB_DIR = os.path.expanduser("~/Documents/knowledge_library/文言文/词书")
 WB_FILES = [
     "wb_zhongkao_shixu.json", "wb_zhongkao_tongjia.json",
@@ -191,8 +192,15 @@ def find_kidref(quiz_item, entry, ak_index):
 # ═══ 主流程 ═══
 
 def fill_all(articles_path, wb_files):
-    with open(articles_path, encoding="utf-8") as f:
-        articles = json.load(f)
+    # 优先多文件模式
+    try:
+        from articles_io import read_all_articles
+        articles = read_all_articles(ARTICLES_DIR)
+        print(f"从拆分文件加载: {len(articles)} 篇")
+    except (ImportError, FileNotFoundError):
+        with open(articles_path, encoding="utf-8") as f:
+            articles = json.load(f)
+        print(f"从单文件加载: {len(articles)} 篇")
     ak_index = build_ak_index(articles)
     print(f"选篇索引: {len(ak_index)} 条 keyWord")
 
