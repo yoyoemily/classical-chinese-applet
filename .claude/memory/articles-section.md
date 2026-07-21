@@ -9,7 +9,7 @@ metadata:
 
 ## 选篇板块概览
 
-选篇板块覆盖 198 篇文言文/古诗词（部编版教材大纲 77 篇 + 壳文章 121 篇），支持 3 种阅读模式。关联页面（共 2 个）：
+选篇板块覆盖 300 篇文言文/古诗词（部编版教材大纲 179 篇 + 壳文章 121 篇），支持 3 种阅读模式。关联页面（共 2 个）：
 
 | 页面 | 路径 | 角色 |
 |------|------|------|
@@ -27,7 +27,7 @@ metadata:
 - **典故注释唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/典故注释/`
 - **目录说明**：`~/Documents/knowledge_library/文言文/选篇/典故注释/readme.md` — 记录了文件格式、标注标准（标注什么/不标什么/判断口诀）、导入命令、维护流程。写典故注释时以此为准
 - **典故注释 JSON 文件**：`art_001.json` ~ `art_037.json`，37 篇共 482 条，全部已导入数据库（18 篇新课暂未标注）
-- **选篇正文唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/正文/articles.json` — 198 篇（大纲 77 篇 + 壳文章 121 篇）
+- **选篇正文唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json`（12 个分文件）— 300 篇（教材 179 篇 + 壳文章 121 篇），1,634 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
 - **正文目录说明**：`~/Documents/knowledge_library/文言文/选篇/正文/readme.md` — 格式、字段说明、数据约束
 - **数据约束**：标注时以知识库 `articles.json` 正文为准，不参考 mock（mock 只有 4 篇，句子拆分可能不一致）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验
 
@@ -146,13 +146,7 @@ articles.json 规范化：
 ## 当前进度
 
 ### 已完成
-- ✅ 88 篇名篇全部录入（2026-07-21 补齐七上 11 首诗词）
-  - 初中 (grade7a~9b)：56 篇
-  - 高中必修上 (grade10a)：7 篇（登泰山记、劝学、师说、赤壁赋、念奴娇·赤壁怀古、梦游天姥吟留别、静女）
-  - 高中必修下 (grade10b)：11 篇（答司马谏议书、侍坐、齐桓晋文之事、庖丁解牛、烛之武退秦师、鸿门宴、谏逐客书、谏太宗十思疏、促织、阿房宫赋、六国论）
-  - 高中选必上 (grade11a)：5 篇（屈原列传、苏武传、老子四章、五石之瓠、人皆有不忍人之心）
-  - 高中选必中 (grade11b)：2 篇（过秦论、五代史伶官传序）
-  - 高中选必下 (grade12a)：7 篇（氓、离骚、孔雀东南飞、陈情表、项脊轩志、归去来兮辞、兰亭集序）
+- ✅ 88 篇名篇全部录入（2026-07-21 补齐七上 11 首诗词，含 keyWords 标注、典故注释、创作背景）
 - ✅ 30 篇新课已完成切句+逐句译文+keyWords 标注（含 wordBookId 关联 4 本高中词书），共 170 条 keyWords
 - ✅ 七上 11 首诗词补齐完成（2026-07-21）：新增 38 条 keyWords + 62 条典故注释，4 本词书 keyWordRefs 同步。详见 [[poetry-backfill-master]]
 - ✅ 3 种阅读模式全部实现
@@ -164,6 +158,7 @@ articles.json 规范化：
 - ✅ 三行筛选：第一行文体分类（全部/散文/论说/诗词/骈赋），第二行学段（全部/初中/高中/其他），第三行年级弹出面板（含高一上~高三）
 - ✅ 生僻字拼音旁注
 - ✅ keyWords 全量修复（2026-07-16）：交叉对比 8 本词书，543→1,095 条（含壳文章）；修正 6 处挂错句子；同义去重 81 条；同字消歧 14 处
+- ✅ keyWords 词书交叉核对（2026-07-22）：全部 12 批完成，2,030→1,634 条。396 条不在词书的删除，440+ 条补充 wordBookId，~30 条修正错误指向（wb_function_words→打卡型词书），~116 条 wordType 统一，2 条词书脏 kidRef 清理。最终 100% 词书覆盖 + 100% wordBookId + 100% wordType 一致。详细见 [[keywords-audit-master-plan]]
 - ✅ 问题 4 — 同句同字多义项消歧渲染错误修复（2026-07-16）：新增 `matchWord` 字段全链路透传（articles.json → SourceKeyWord DTO → ArticleKeyword 实体 → DB `article_keyword.match_word` → 导入 → API → IArticleKeyWord → IVocabSegment → buildVocabSegments()）。`matchWord` 仅用于定位，`word` 用于弹窗展示。涉及文件：
   - 前端：`typings/index.d.ts`（IArticleKeyWord 加 matchWord）、`pages/article-reader/index.ts`（buildVocabSegments 用 matchWord 匹配 + wordStart 偏移仅高亮 word 字符）
   - 后端：`SourceData.java`、`ArticleKeyword.java`、`DataImportService.java`（导入 7 列）、`ArticleService.java`（API 序列化 matchWord）
@@ -185,22 +180,9 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 
 详细记录见 [[study-section]]#数据模型-v2-架构。
 
-### 待办：诗词 keyWords 标注质量排查（⚠️ 2026-07-21）
+### 待办
 
-全部诗词选篇（~100首）的 keyWords 需与 9 本词书逐一核对。高一下补齐时发现 36 条 keyWords 中仅 1 条与词书对应（"但"），其余 35 条如"坼""乾坤""故国""星河""门外楼头""西江""北斗""姹紫嫣红""朝飞暮卷"均为地名、典故、文化隐喻——应标注为 glossary 而非 keyWords。
-
-**根因**：标注时没有严格核对词书。keyWord 的唯一判定标准是：该字/词是否在 9 本词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。不在词书 = 不是 keyWord（有典故价值的归 glossary）。
-
-**影响范围**：全部诗词选篇（约 100 首），按年级分布在 12 个分文件中。
-
-**修复方案**：
-1. 导出全部诗词选篇的 keyWords 清单
-2. 与 9 本词书逐一交叉核对（`wordEntries[].character` + 义项匹配）
-3. 不在词书中或义项不匹配的 keyWord → 移除，有典故价值的移入 glossary
-4. 在词书中且义项匹配的 → 保留 keyWord，修正 `wordBookId` 和 `definition`
-5. 全量重新导入数据库（articles + glossary）
-
-**Why:** keyWords 与词书解耦会导致学习回路中断——学生答题时看不到这些字的 quizItem，标注无意义。
+暂无。keyWords 词书交叉核对全部完成，诗词标注质量排查已随 12 批核对一并解决。
 
 ---
 
@@ -232,10 +214,10 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（12 个分文件：grade7a~12a + shell，共 198 篇） |
+| 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（12 个分文件：grade7a~12a + shell，共 300 篇，1,634 条 keyWords，全部含 kid/wordBookId/wordType） |
 | 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/readme.md` | 选篇正文目录说明 |
 | 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/readme.md` | 典故注释目录说明 |
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/art_*.json` | 77 篇典故注释唯一权威源（全部完成） |
+| 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/art_*.json` | 典故注释唯一权威源（全部完成） |
 | 前端 | `pages/article-list/index.*` | 选篇列表（三行筛选：文体 + 学段/其他 + 年级弹出面板） |
 | 前端 | `pages/article-reader/index.*` | 名篇阅读器（3 种模式） |
 | 前端 | `utils/tts.ts` | 语音播报（名篇阅读页使用） |
