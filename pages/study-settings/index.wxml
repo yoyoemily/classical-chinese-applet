@@ -1,0 +1,57 @@
+<view class="page-study-settings">
+  <view class="page-study-settings__section">
+    <view class="page-study-settings__section-title">每日学习</view>
+    <view class="page-study-settings__card">
+      <view class="page-study-settings__row">
+        <text class="page-study-settings__label">每日新学词数</text>
+        <picker mode="selector" range="{{newWordsRange}}" value="{{newWordsRange.indexOf(dailyNewWords)}}" bindchange="onNewWordsChange">
+          <view class="page-study-settings__picker-value">
+            <text>{{dailyNewWords}}</text>
+            <text class="page-study-settings__picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="page-study-settings__row">
+        <text class="page-study-settings__label">每日复习词数</text>
+        <picker mode="selector" range="{{reviewWordsRange}}" value="{{dailyReviewWords - 1}}" bindchange="onReviewWordsChange">
+          <view class="page-study-settings__picker-value">
+            <text>{{dailyReviewWords}}</text>
+            <text class="page-study-settings__picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="page-study-settings__section">
+    <view class="page-study-settings__section-title">学习偏好</view>
+    <view class="page-study-settings__card">
+      <view class="page-study-settings__row">
+        <text class="page-study-settings__label">自动播放语音</text>
+        <switch checked="{{autoPlayAudio}}" bindchange="onToggleAutoPlay" color="#4a6a5e" />
+      </view>
+      <view class="page-study-settings__row">
+        <text class="page-study-settings__label">答题音效</text>
+        <switch checked="{{answerSound}}" bindchange="onToggleAnswerSound" color="#4a6a5e" />
+      </view>
+      <view class="page-study-settings__row">
+        <text class="page-study-settings__label">学习顺序</text>
+        <picker mode="selector" range="{{studyOrderOptions}}" value="{{studyOrder}}" bindchange="onStudyOrderChange">
+          <view class="page-study-settings__picker-value">
+            <text>{{studyOrderOptions[studyOrder]}}</text>
+            <text class="page-study-settings__picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="page-study-settings__row">
+        <text class="page-study-settings__label">错题移出阈值</text>
+        <picker mode="selector" range="{{['1次','2次','3次']}}" value="{{['1次','2次','3次'].indexOf(mistakeThreshold + '次')}}" bindchange="onMistakeThresholdChange">
+          <view class="page-study-settings__picker-value">
+            <text>{{mistakeThreshold}}次答对后移出</text>
+            <text class="page-study-settings__picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+  </view>
+</view>

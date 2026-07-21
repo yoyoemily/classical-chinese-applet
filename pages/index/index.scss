@@ -307,11 +307,37 @@
     padding: $spacing-md $spacing-md $spacing-lg;
     margin-bottom: $spacing-md;
   }
+  &__task-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-base;
+  }
   &__task-title {
     font-size: $font-size-md;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin-bottom: $spacing-base;
+  }
+  &__task-settings {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-base;
+    background-color: var(--color-bg-card);
+
+    &--hover {
+      opacity: 0.6;
+    }
+  }
+  &__task-settings-icon {
+    font-size: 24rpx;
+    line-height: 1;
+  }
+  &__task-settings-text {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    line-height: 1;
   }
 
   // 新学/复习两列

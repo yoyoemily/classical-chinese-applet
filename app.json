@@ -12,6 +12,7 @@
     "pages/article-reader/index",
     "pages/badges/index",
     "pages/calendar/index",
+    "pages/study-settings/index",
     "pages/settings/index",
     "pages/profile-edit/index",
     "pages/search/index",

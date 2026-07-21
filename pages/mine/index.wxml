@@ -94,11 +94,6 @@
     </block>
   </view>
 
-  <!-- 底部信息 -->
-  <view class="page-mine__footer">
-    <text class="page-mine__footer-text">文言雀</text>
-  </view>
-
   <!-- 分享海报弹窗 -->
   <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="{{shareConfirmed ? '' : 'onCloseShare'}}">
     <view class="page-mine__poster-modal" catchtap="noop">

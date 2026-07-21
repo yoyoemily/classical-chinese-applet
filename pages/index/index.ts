@@ -309,6 +309,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/search/index' });
   },
 
+  /** 点击设置 → 跳转学习设置页 */
+  onTapSettings(): void {
+    wx.navigateTo({ url: '/pages/study-settings/index' });
+  },
+
   /** 点击勋章墙 → 跳转勋章页 */
   onTapBadges(): void {
     wx.navigateTo({ url: '/pages/badges/index' });

@@ -1,0 +1,52 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.page-study-settings {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+  padding: $spacing-md $spacing-base;
+  padding-bottom: calc(#{$spacing-xl} + var(--safe-area-bottom));
+
+  &__section {
+    margin-bottom: $spacing-lg;
+  }
+
+  &__section-title {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+    padding: 0 $spacing-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__card {
+    @include card;
+  }
+
+  &__row {
+    @include flex-between;
+    padding: $spacing-lg $spacing-md;
+    min-height: 96rpx;
+
+    & + & {
+      border-top: 1rpx solid var(--color-border-light);
+    }
+  }
+
+  &__label {
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+  }
+
+  &__picker-value {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+  }
+
+  &__picker-arrow {
+    font-size: $font-size-md;
+    color: var(--color-text-hint);
+  }
+}

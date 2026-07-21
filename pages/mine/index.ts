@@ -54,7 +54,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     menuItems: [
       { key: 'calendar', icon: '📅', label: '打卡日历', url: '/pages/calendar/index' },
       { key: 'profile', icon: '👤', label: '个人信息', url: '/pages/profile-edit/index' },
-      { key: 'settings', icon: '⚙️', label: '设置', url: '/pages/settings/index' },
+      { key: 'settings', icon: '⚙️', label: '系统设置', url: '/pages/settings/index' },
       { key: 'feedback', icon: '💬', label: '意见建议', url: '/pages/feedback/index' },
       { key: 'about', icon: '📖', label: '品牌故事', url: '/pages/about/index' },
     ],
