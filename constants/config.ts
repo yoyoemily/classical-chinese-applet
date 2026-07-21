@@ -109,8 +109,7 @@ export const SENIOR_GRADES = [
   { key: 'grade10b', label: '高一下' },
   { key: 'grade11a', label: '高二上' },
   { key: 'grade11b', label: '高二下' },
-  { key: 'grade12a', label: '高三上' },
-  { key: 'grade12b', label: '高三下' },
+  { key: 'grade12a', label: '高三' },
 ] as const;
 
 /** @deprecated 使用 EDUCATION_STAGES + JUNIOR_GRADES / SENIOR_GRADES 替代 */
@@ -126,8 +125,7 @@ export const TEXTBOOK_GRADES = [
   { key: 'grade10b', label: '高一下' },
   { key: 'grade11a', label: '高二上' },
   { key: 'grade11b', label: '高二下' },
-  { key: 'grade12a', label: '高三上' },
-  { key: 'grade12b', label: '高三下' },
+  { key: 'grade12a', label: '高三' },
 ] as const;
 
 // ============================================

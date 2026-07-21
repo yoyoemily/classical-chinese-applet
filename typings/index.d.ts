@@ -137,7 +137,7 @@ export type SentenceDifficulty = 'basic' | 'medium' | 'hard'
 // ============================================
 export type ArticleCategory = 'prose' | 'argument' | 'poem' | 'verse'
 export type TextbookGrade = 'grade7a' | 'grade7b' | 'grade8a' | 'grade8b' | 'grade9a' | 'grade9b'
-  | 'grade10a' | 'grade10b' | 'grade11a' | 'grade11b' | 'grade12a' | 'grade12b'
+  | 'grade10a' | 'grade10b' | 'grade11a' | 'grade11b' | 'grade12a'
 export type EducationStage = 'all' | 'junior' | 'senior' | 'other'
 
 export interface IArticleKeyWord {

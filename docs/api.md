@@ -1568,8 +1568,7 @@ HTTP/1.1 200 OK
 | `grade10b` | 高一下 |
 | `grade11a` | 高二上 |
 | `grade11b` | 高二下 |
-| `grade12a` | 高三上 |
-| `grade12b` | 高三下 |
+| `grade12a` | 高三 |
 
 #### MasteryLevel — 掌握程度
 

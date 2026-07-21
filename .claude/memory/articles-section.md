@@ -161,7 +161,7 @@ articles.json 规范化：
 - ✅ 语音播报（WechatSI 插件，长文本自动切段拼接，playId 机制防止资源泄漏）
 - ✅ 内联生词高亮（最长匹配切分）
 - ✅ 错误反馈（原文/译文/标注/文章信息/其他）
-- ✅ 三行筛选：第一行文体分类（全部/散文/论说/诗词/骈赋），第二行学段（全部/初中/高中/其他），第三行年级弹出面板（含高一上~高三下）
+- ✅ 三行筛选：第一行文体分类（全部/散文/论说/诗词/骈赋），第二行学段（全部/初中/高中/其他），第三行年级弹出面板（含高一上~高三）
 - ✅ 生僻字拼音旁注
 - ✅ keyWords 全量修复（2026-07-16）：交叉对比 8 本词书，543→1,095 条（含壳文章）；修正 6 处挂错句子；同义去重 81 条；同字消歧 14 处
 - ✅ 问题 4 — 同句同字多义项消歧渲染错误修复（2026-07-16）：新增 `matchWord` 字段全链路透传（articles.json → SourceKeyWord DTO → ArticleKeyword 实体 → DB `article_keyword.match_word` → 导入 → API → IArticleKeyWord → IVocabSegment → buildVocabSegments()）。`matchWord` 仅用于定位，`word` 用于弹窗展示。涉及文件：

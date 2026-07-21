@@ -1,11 +1,11 @@
 ---
 name: grade12a-poetry-data
-description: 高三上 4 首诗词补齐完成记录——数据文件/导入脚本/校验结果
+description: 高三 4 首诗词补齐完成记录——数据文件/导入脚本/校验结果
 metadata:
   type: project
 ---
 
-## 高三上（grade12a）诗词补齐完成
+## 高三（grade12a）诗词补齐完成
 
 2026-07-21，补齐选择性必修下册「古诗词诵读」板块 4 首诗词。
 
