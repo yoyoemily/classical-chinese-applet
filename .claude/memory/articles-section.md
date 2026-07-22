@@ -26,7 +26,7 @@ metadata:
 
 - **典故注释唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/典故注释/`
 - **目录说明**：`~/Documents/knowledge_library/文言文/选篇/典故注释/readme.md` — 记录了文件格式、标注标准（标注什么/不标什么/判断口诀）、导入命令、维护流程。写典故注释时以此为准
-- **典故注释 JSON 文件**：`art_001.json` ~ `art_037.json`，37 篇共 482 条，全部已导入数据库（18 篇新课暂未标注）
+- **典故注释 JSON 文件**：179 个文件（`art_001.json` ~ `art_187.json`，含跳过/删除的 ID），共 2,125 条注释，全部已导入数据库，均 126 字/条（8 批梳理后）
 - **选篇正文唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json`（12 个分文件）— 300 篇（教材 179 篇 + 壳文章 121 篇），1,634 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
 - **正文目录说明**：`~/Documents/knowledge_library/文言文/选篇/正文/readme.md` — 格式、字段说明、数据约束
 - **数据约束**：标注时以知识库 `articles.json` 正文为准，不参考 mock（mock 只有 4 篇，句子拆分可能不一致）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验
@@ -85,7 +85,7 @@ metadata:
 
 > ⚠️ **【硬性规则】JSON 文件中禁止 ASCII 双引号 `"` 出现在字符串值内部。** 引用原文时用中文引号 `"` `"`（`"` 和 `"`）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验。详见 [[work-manual]]#9。
 
-55 篇全部已完成（713 条注释），后续只做修改/增补：
+179 篇全部已完成（2,125 条注释，均 126 字/条），后续只做修改/增补：
 
 1. 编辑知识库 `art_XXX.json`（格式和标注标准见知识库 readme）
 2. **写完后先做中文引号检查**，确认所有字符串值内部引用原文/说法处均使用 `""` 而非 ASCII `"`
@@ -150,7 +150,7 @@ articles.json 规范化：
 - ✅ 30 篇新课已完成切句+逐句译文+keyWords 标注（含 wordBookId 关联 4 本高中词书），共 170 条 keyWords
 - ✅ 七上 11 首诗词补齐完成（2026-07-21）：新增 38 条 keyWords + 62 条典故注释，4 本词书 keyWordRefs 同步。详见 [[poetry-backfill-master]]
 - ✅ 3 种阅读模式全部实现
-- ✅ 全部 88 篇文章典故注释完成（知识库 96 个 JSON 文件，共 1151 条，全部已导入数据库）
+- ✅ 全部 179 篇选篇典故注释完成（知识库 179 个 JSON 文件，2,125 条，全部已导入数据库）。2026-07-22 完成典故注释全量梳理第 1~10 批全部完成（art_002~187），深度扩充+补齐缺失句，全量均约 150 字/条。详见 [[glossary-audit-master-plan]] 和 [[glossary-audit-master-plan]]#修订进度
 - ✅ 30 篇高中课文创作背景补充完成（2026-07-13，含写作时代、作者境遇、文章主旨，每篇约 100-120 字，已导入数据库）
 - ✅ 语音播报（WechatSI 插件，长文本自动切段拼接，playId 机制防止资源泄漏）
 - ✅ 内联生词高亮（最长匹配切分）
@@ -182,7 +182,7 @@ articles.json 所有 keyWord 新增 `kid`（全局唯一 ID，格式 `kw_{articl
 
 ### 待办
 
-暂无。keyWords 词书交叉核对全部完成，诗词标注质量排查已随 12 批核对一并解决。
+- 典故注释全量梳理第 9~10 批（art_154~art_187，34 篇）✅ 已完成（2026-07-22）。
 
 ---
 

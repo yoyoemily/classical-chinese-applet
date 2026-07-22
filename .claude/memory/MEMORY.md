@@ -3,7 +3,7 @@
 - [📙 选篇板块](articles-section.md) — 300 篇名篇（179 教材 + 121 壳）/3 种阅读模式/5 色分高亮/典故注释全部完成/keyWords 词书交叉核对 100% 通过，关联知识库 文言文/选篇/
 - [📋 选篇调整工作流程](article-adjustment-workflow.md) — 独立 SOP：句子增删/移位、keyWords 标注、典故注释、词书同步、导入数据库、完成后检查清单。触发词：调整选篇、修改选篇、优化选篇
 - [🔍 选篇 keyWords 词书交叉核对](keywords-audit-master-plan.md) — ✅ 已完成。2030→1,634 条，100% 词书覆盖 + wordBookId + wordType 一致。396 条不在词书的已删除，440+ 条补充 wbId，~30 条修正指向，~116 条统一 wordType，2 条词书脏 kidRef 清理。触发词：继续核对 keyWords、继续选篇字词标注排查、继续第 N 批
-- [📝 选篇典故注释全量梳理](glossary-audit-master-plan.md) — 🚧 进行中。187 篇 1955 条典故注释深度审查扩充，新标注标准（扩大范围+增加深度），范本先行批量跟进。触发词：继续典故注释梳理、继续 glossary audit、继续第 N 批典故注释
+- [📝 选篇典故注释全量梳理](glossary-audit-master-plan.md) — ✅ 已完成。187 篇 2,125 条典故注释 1~10 批全量深度审查扩充，全量均约 150 字/条（原均 69 字）。2026-07-22 第 9~10 批（art_154~187）34 篇完成。待批量导入数据库。触发词：继续典故注释梳理、继续 glossary audit、继续第 N 批典故注释
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/分享流程/金石契/海报生成/页面结构
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
