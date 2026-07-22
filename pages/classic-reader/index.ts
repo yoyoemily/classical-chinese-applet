@@ -428,7 +428,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
     } else if (currentContent) {
       const c = currentContent;
       const text = c.paragraphs ? c.paragraphs.map(p => p.text).join('') : (c.text || '');
-      this._tts?.play(text, undefined, {
+      this._tts?.play(text, c.audioUrl, {
         onStatusChange: (status) => {
           this.setData({
             audioLoading: status === 'loading',
