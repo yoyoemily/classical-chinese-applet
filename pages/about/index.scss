@@ -35,19 +35,45 @@
     font-family: 'STKaiti', 'KaiTi', '楷体', serif;
   }
 
-  // -------- 品牌故事正文 --------
-  &__story {
+  // -------- 独立卡片 --------
+  &__card {
     width: 100%;
-    @include flex-column;
-    gap: $spacing-xs;
+    background-color: var(--color-bg-white);
+    border-radius: $radius-base;
+    padding: $spacing-lg;
     margin-bottom: $spacing-base;
+    box-shadow: $shadow-sm;
+    @include flex-column;
+    gap: 2rpx;
+
+    &-title {
+      font-size: $font-size-lg;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-align: center;
+      margin-bottom: $spacing-sm;
+      letter-spacing: 4rpx;
+    }
+
+    &--meaning {
+    }
+
+    &--story {
+    }
   }
 
+  // -------- 品牌故事正文 --------
   &__para {
     font-size: $font-size-md;
     color: var(--color-text-secondary);
-    line-height: 1.8;
+    line-height: 1.5;
     text-indent: 2em;
+
+    &--meaning {
+      text-indent: 0;
+      font-style: italic;
+      color: var(--color-text-primary);
+    }
 
     &--pledge {
       font-weight: 700;

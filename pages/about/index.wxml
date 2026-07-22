@@ -6,8 +6,27 @@
     <text class="page-about__name">文言雀</text>
   </view>
 
-  <!-- 品牌故事 -->
-  <view class="page-about__story">
+  <!-- 品牌寓意卡片 -->
+  <view class="page-about__card page-about__card--meaning">
+    <text class="page-about__card-title">品牌寓意</text>
+
+    <text class="page-about__para page-about__para--meaning">
+      雀，小而敏，勤而恒。
+    </text>
+
+    <text class="page-about__para page-about__para--meaning">
+      古人观雀，见其啄粒——一粒虽微，日积月累，终成饱腹。学文言文亦然：一字一词，看似零碎，日日啄之，自能融会贯通。
+    </text>
+
+    <text class="page-about__para page-about__para--meaning">
+      这便是「文言雀」的来历——以雀寓学，以小博大。不贪多，不图快，每日片刻，让文言文的字词如雀食般，一粒一粒落入心里。
+    </text>
+  </view>
+
+  <!-- 品牌故事卡片 -->
+  <view class="page-about__card page-about__card--story">
+    <text class="page-about__card-title">品牌故事</text>
+
     <text class="page-about__para">
       中学文言文，大概是语文试卷上的失分重灾区。
     </text>
@@ -25,7 +44,7 @@
     </text>
 
     <text class="page-about__para page-about__para--pledge">
-      文言雀，永久免费打卡。
+      文言雀，永久免费打卡
     </text>
 
     <text class="page-about__para page-about__para--closing">
