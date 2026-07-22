@@ -498,6 +498,8 @@ export interface IContentBlock {
   era?: string
   /** 篇章创作背景 */
   background?: string
+  /** 章节预录音频 URL（讯飞 TTS 合成后写入） */
+  audioUrl?: string
   /** 完整原文（选集型、卷帙型用） */
   text?: string
   /** 完整译文 */

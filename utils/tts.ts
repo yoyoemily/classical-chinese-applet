@@ -121,8 +121,8 @@ class TTSPlayer {
 
     const playId = this._playId;
     const ctx = this._createCtx();
-    ctx.src = url;
     ctx.autoplay = true;
+    ctx.src = url;
 
     ctx.onCanplay(() => {
       if (this._playId !== playId) return;
