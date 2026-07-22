@@ -383,7 +383,7 @@ mock 数据精简到几条即可——只验证 TOC 导航和内容渲染。
 | 后端 service | `service/ClassicService.java` | `buildToc()` 构建导航树 |
 | 后端 controller | `controller/ImportController.java` | `POST /api/admin/import/classic/{id}`（免登录） |
 | 后端 controller | `controller/ClassicController.java` | `GET /api/classics`、`GET /api/classics/:id`、`GET /api/classics/:id/content/:nodeId` |
-| 前端 reader | `pages/classic-reader/index.*` | v2：full/chunked + strip/list/accordion/author 四种 navMode |
+| 前端 reader | `pages/classic-reader/index.*` | 支持 full/chunked + strip/list/accordion/author 四种 navMode |
 | 前端 mock | `mock/classics.ts` | `getClassicMetaById()` + `getClassicMockContent()` |
 | 前端列表 | `pages/classic/index.*` | 列表页，API 拉取经典列表，三态切换（加载/错误/正常） |
 | 前端 API | `api/index.ts` | `fetchClassics()` / `fetchClassicMeta()` / `fetchClassicContent()` |

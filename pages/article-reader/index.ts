@@ -238,7 +238,7 @@ import type { WordTypeCode } from '../../utils/wordType';
 	      // 合并属于同一 word 的连续 keyword 字符，
 	      // 使多字词（如"明年"）渲染为一条完整下划线，
 	      // 而不同 word 的相邻字符保持独立、视觉上自然区分。
-	      const merged: IVocabSegment[] = [];
+	      const merged: IGlossarySegment[] = [];
 	      for (let idx = 0; idx < segments.length; idx++) {
 	        const cur = segments[idx];
 	        if (cur.isGlossary && merged.length > 0) {

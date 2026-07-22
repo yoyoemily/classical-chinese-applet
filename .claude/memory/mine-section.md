@@ -155,7 +155,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 
 ### 海报生成
 
-- 脚本：`tools/generate_poster.py`（Pillow 合成 720×1280）
+- 脚本：`scripts/generate_poster.py`（Pillow 合成 720×1280）
 - 素材：`assets/share-poster-bg.png` + `assets/qrcode.jpg` → 输出 `assets/share-poster.png`
 - 图片部署：后端 `resources/static/assets/`，前端 `onSavePoster` 根据环境自动切换 download URL
 - 字体：行楷 SC Bold（主标题"文言雀"）+ 华文楷体 SC Regular（其余文字），macOS 系统自带
@@ -170,7 +170,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 前端 mine 页 | `pages/mine/index.*` | 两阶段弹窗 + 契约会员标签 + 金石契弹窗 |
 | 前端门禁常量 | `constants/config.ts` | `SHARE_GATE_STREAK_DAYS` |
 | 前端首页 | `pages/index/index.ts` | `onTapStart()` 检查分享门禁 |
-| 海报脚本 | `tools/generate_poster.py` | Pillow 合成逻辑 |
+| 海报脚本 | `scripts/generate_poster.py` | Pillow 合成逻辑 |
 
 ---
 
@@ -219,7 +219,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 后端勋章 | `StudyService.java` | `checkNewBadges()` |
 | 后端契约 | `UserService.java` | `signPact()` |
 | 后端数据 | `source.json` | `badges[]` 8 枚勋章定义 |
-| 海报脚本 | `tools/generate_poster.py` | Pillow 合成 720×1280 海报 |
+| 海报脚本 | `scripts/generate_poster.py` | Pillow 合成 720×1280 海报 |
 
 [[study-section]]
 

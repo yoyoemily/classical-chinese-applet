@@ -89,7 +89,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 ### 数据导入
 
-- 源文件：`src/main/resources/source.json`（8 本词书 + 8 勋章 + 36 部经典著作；选篇正文已独立到知识库 `文言文/选篇/正文/articles.json`）
+- 源文件：`src/main/resources/source.json`（8 本词书 + 8 勋章 + 36 部经典著作；选篇正文已独立到知识库 `文言文/选篇/正文/articles_*.json`）
 - 与知识库 `~/Documents/knowledge_library/文言文/词书/` 下的独立 JSON 文件内容一致
 - 每字含 `wordType` 字段（实词/虚词/通假字）
 - `word` 表含 `word_type` 列，DataImportService 导入时写入
@@ -97,7 +97,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 - 建表：`data/schema.sql`（24 张表）
 - **全量导入**：`POST /api/admin/import` → `DataImportService.importFromJson()` → JDBC Template 批量 INSERT 勋章，不涉及数据清空
 - **业务数据清理**：`POST /api/admin/clear-data?scope=` → `DataImportService.clearAll()/clearUserData()/clearWordBookData()/clearArticleData()/clearClassicData()`，5 种 scope，全部 TRUNCATE TABLE，配合 `clear_data.sh` 使用
-- **选篇正文导入**：`POST /api/admin/import/articles` → `DataImportService.importArticlesFromJson()`，从知识库 articles.json 读取，幂等（先清空文章相关表后全量重插）
+- **选篇正文导入**：`POST /api/admin/import/articles` → `DataImportService.importArticlesFromJson()`，从知识库 11 个年级分文件 + 1 个壳文章文件合并后导入，幂等（先清空文章相关表后全量重插）
 - **单本词书导入**：`POST /api/admin/import/wordbook` → `DataImportService.importWordBook()`，接收 `SourceWordBook` JSON 请求体，幂等（只删该词书关联数据后重插，不影响其他词书/名篇/勋章/经典）
 - **典故注释导入**：`POST /api/admin/import/glossary/{articleId}` → `DataImportService.importGlossaryForArticle()`，幂等（先删后插）
 
@@ -129,7 +129,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 |:--:|------|------|------|
 | 0 | `clear_data.sh` | — | 清理业务数据（all/user/wordbook/article/classic 5 种 scope） |
 | 1 | `import_all.sh` | `source.json` | 勋章定义导入 `badge` 表 |
-| 2 | `import_articles.sh` | 知识库 `articles_*.json`（12 个分文件） | 选篇正文 + keyWord 标注 |
+| 2 | `import_articles.sh` | 知识库 `articles_*.json`（11 个年级分文件 + 1 个壳文章文件） | 选篇正文 + keyWord 标注 |
 | 3 | `import_glossaries.sh` | 知识库 `art_*.json` | 选篇典故注释 |
 | 4 | `import_wordbook.sh --all` | 知识库 `wb_*.json`（9 本） | 词书全量 |
 | 5 | `import_classic_list.sh` | 知识库 `classics.json` | 经典元数据（幂等 upsert） |
@@ -143,10 +143,10 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 | 脚本 | 用途 |
 |------|------|
-| `scripts/split_articles.py` | 单文件 articles.json 拆为 12 个分文件 |
-| `scripts/normalize_articles.py` | 补 wordType/wordBookId、删脏数据、补壳文章元数据 |
-| `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord |
-| `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子 |
+| `scripts/split_articles.py` | 拆分工具（articles.json → 11 个年级分文件 + 1 个壳文章文件） |
+| `scripts/normalize_articles.py` | articles_*.json 规范化：补 wordType/wordBookId、删脏数据、补壳文章元数据 |
+| `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord（读写 articles_*.json） |
+| `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子（读写 articles_*.json） |
 | `scripts/fill_kidref.py` | 词书 quizItem.kidRef 填充 |
 | `scripts/articles_io.py` | 公共 I/O 模块（以上脚本共用） |
 

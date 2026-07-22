@@ -39,15 +39,9 @@ metadata:
 
 ---
 
-## 数据模型（v2 架构，2026-07-16 重构完成）
+## 数据模型
 
-词书从"复制数据"改为"引用选篇 keyWords"，消除了双端维护的数据冗余。
-
-**核心变化**：
-- `correctMeaningIndex` 消失 → 正确答案 = `quizItem.definition`，直接从 article_keyword 取
-- `meanings[]` 消失 → 词不再维护义项列表，义项信息来自 keyWordRefs 引用的文章 keyWords
-- 句子原文/翻译/出处 → quizItem 直接存储（由后端 join article_sentence + article 填充）
-- `wordId` → `entryId`，`sentenceId` → `quizItemId`（全链路字段名统一）
+词书通过 kid 引用选篇 keyWords，选篇 keyWords 是唯一权威数据源。`quizItem.definition` 直接从 article_keyword 取，quizItem 直接存储 sentenceText/sentenceTranslation/sentenceSource。
 
 核心类型见 [[classical-chinese-data-model]]，这里只列学习板块最常涉及的：
 
@@ -56,7 +50,7 @@ metadata:
 | `IWordBook` | `id, name, category, studyMode? ('standard'|'identify_first'|'readonly'), identifyPrompt?, examLevel? ('zhongkao'|'gaokao'|'all'), initialized?, totalWords, wordEntries: IWordEntry[]` |
 | `IWordEntry` | `id, character, pinyin, wordType? ('shi'|'xu'|'tongjia'|'gujinyi'|'huoyong'), characterType?, explanation?, oracleForm?, examFrequency?, mnemonic?, similarHomophones[], similarShapes[], keyWordRefs: IKeyWordRef[], quizItems?: IQuizItem[], usages?: IWordUsage[]` |
 | `IKeyWordRef` | `kid, word?, definition?, sentenceText?, sentenceTranslation?, articleId?, articleTitle?`（kid 引用选篇 keyWords，义项信息来自 article_keyword） |
-| `IQuizItem` | `id, kidRef, targetWord, definition（正确答案，不再需要 correctMeaningIndex 桥接）, difficulty, distractors[], sentenceText?, sentenceTranslation?, sentenceSource?, articleId?, audioUrl?` |
+| `IQuizItem` | `id, kidRef, targetWord, definition, difficulty, distractors[], sentenceText?, sentenceTranslation?, sentenceSource?, articleId?, audioUrl?` |
 | `IWordUsage` | `usageType, definition, exampleSentence, exampleTranslation, exampleSource`（readonly 词书专用） |
 | `ITodayTask` | `date, wordBookId, reviewWords[], newWords[], totalWords` |
 | `ITodayWord` | `entryId, character, isReview, reviewStage?, quizItems: IQuizItem[]` |
@@ -65,15 +59,6 @@ metadata:
 | `IMistakeSentence` | `quizItemId, sentenceText, wrongAnswer, correctAnswer, errorCount, consecutiveCorrect` |
 | `IBadge` | `id, name, description, icon, category ('streak')` |
 | `IVocabularyItem` | `wordId, character, masteryLevel ('new'|'difficult'|'unclear'|'familiar'|'mastered')` |
-
-### 新旧对比
-
-| 方面 | 旧架构（重构前） | 新架构（v2） |
-|------|-----------------|-------------|
-| 字词释义 | 选篇 keyWords + 词书 meanings 两处维护 | 选篇 keyWords 唯一权威，词书通过 kid 引用 |
-| 答题 | sentences 数组 + correctMeaningIndex 桥接 | quizItems 数组，definition 直接来自 article_keyword |
-| 句子文本 | 走 kidRef→article_keyword→article_sentence 链路 | quizItem 直接存储 sentenceText/sentenceTranslation/sentenceSource |
-| 增量选篇 | 新增选篇→手动同步到词书 | 新增选篇→标注 keyWords→词书自动可见 |
 
 ### 9 本词书清单
 
@@ -107,14 +92,12 @@ metadata:
 | 表 | 用途 |
 |----|------|
 | `word_book` | 词书元数据（含 `exam_level`、`initialized`） |
-| `word_book_entry` | 词条数据（替代旧 word 表），含 similar_homophones/similar_shapes JSON 列 |
-| `word_entry_keyword_ref` | 词条→article_keyword 引用（替代旧 meaning 表） |
-| `quiz_item` | 答题项（替代旧 sentence 表），直接存储 sentenceText/sentenceTranslation/sentenceSource |
-| `quiz_distractor` | 答题干扰项（替代旧 sentence_distractor 表） |
+| `word_book_entry` | 词条数据，含 similar_homophones/similar_shapes JSON 列 |
+| `word_entry_keyword_ref` | 词条→article_keyword 引用 |
+| `quiz_item` | 答题项，直接存储 sentenceText/sentenceTranslation/sentenceSource |
+| `quiz_distractor` | 答题干扰项 |
 | `word_usage` | 虚词用法详解（readonly 词书专用） |
 | `study_task` | 今日任务 |
-
-**已废弃的表**（重构后删除）：`word`, `meaning`, `sentence`, `sentence_distractor`, `similar_homophone`, `similar_shape`, `article_related_word`, `meaning_sentence`
 
 | API | 方法/路径 | 用途 |
 |-----|-----------|------|
@@ -143,8 +126,8 @@ metadata:
 每日任务生成 → 句子答题 → 纠错（正确/错误/不知道）→ 字总结 → 学习完成
 ```
 
-- **答题逻辑**：正确答案 = `quizItem.definition`，直接从 article_keyword 取，不再需要 `correctMeaningIndex` 桥接。`showMeaningQuestion()` 中 `correctAnswer = sent.definition`
-- **字总结**：义项列表由 quizItem 驱动，短例句从 quizItem.sentenceText 取（不再走 kidRef→article_sentence 长句链路）
+- **答题逻辑**：正确答案 = `quizItem.definition`，直接从 article_keyword 取。`showMeaningQuestion()` 中 `correctAnswer = sent.definition`
+- **字总结**：义项列表由 quizItem 驱动，短例句从 quizItem.sentenceText 取
 - **艾宾浩斯**：0→+1d→+2d→+4d→+7d→+15d→+30d→done。答对 stage+1，答错/不知道 reset 到 0。客户端调度（`utils/ebbinghaus.ts`），服务端只记录答案
 - **复习优先于新学**。复习和新学各自独立乱序（Fisher-Yates），复习仍优先
 - **一字多句**：每个字通过多个 quizItems 连续展示，全部答完后进入字总结
@@ -160,7 +143,7 @@ metadata:
 - **移出**：答对时该句 `consecutiveCorrect + 1`，达到阈值（默认 3）后该句子移出；所有句子移出后整字消失
 - **展示**：卡片按字折叠，展开后按句子分块（虚线分隔）；筛选：全部/高频/近期
 - 后端 `study_mistake` + `study_mistake_sentence` 两张表，`submitAnswer` 中自动收录/更新/移出
-- 句子文本直接从 quizItem 取（不再走 kidRef→article_keyword→article_sentence 旧路径）
+- 句子文本直接从 quizItem 取
 
 ---
 
@@ -197,7 +180,7 @@ metadata:
 - ✅ 文言文虚词深度解析（54 词，readonly 模式）
 - ✅ 两种学习模式（standard + identify_first）
 - ✅ 核心学习回路（答题→纠错→字总结→完成）
-- ✅ 架构重构（词书引用选篇 keyWords，消除双端数据冗余）
+- ✅ 词书选篇架构（词书通过 kid 引用选篇 keyWords）
 - ✅ 错题本（自动收录/移出）
 - ✅ 全局搜索
 - ✅ 勋章系统（8 枚累计天数勋章）
@@ -215,8 +198,7 @@ metadata:
 - ✅ 分享跟踪与门禁（member_level + 金石契）
 - ✅ 会员级别系统
 - ✅ 首页艾宾浩斯提示
-- ✅ 词书选篇架构重构（v2）—— keyWordRefs/quizItems 替代 meanings/sentences，correctMeaningIndex 消失
-- ✅ quizItem.kidRef 全覆盖（2026-07-17）：452 条空 kidRef → 0，8 本词书 1365 条全补齐
+- ✅ quizItem.kidRef 全覆盖：452 条空 kidRef → 0，8 本词书 1365 条全补齐
 
 ### 待开发
 （无）
@@ -226,8 +208,8 @@ metadata:
 | 脚本 | 用途 |
 |------|------|
 | `scripts/fill_kidref.py` | 词书 quizItem.kidRef 填充（word+definition 语义匹配 + sentenceText 消歧） |
-| `scripts/normalize_articles.py` | articles.json 规范化（wordType/wordBookId 补全、脏数据清理） |
-| `scripts/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles.json |
+| `scripts/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理） |
+| `scripts/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles_*.json |
 
 ## 关键文件索引
 
@@ -254,7 +236,7 @@ metadata:
 | 前端 | `typings/index.d.ts` | 类型定义（IWordEntry, IQuizItem, IKeyWordRef 等） |
 | 后端 | `controller/WordBookController.java` | 词书 API |
 | 后端 | `controller/StudyController.java` | 学习 API |
-| 后端 | `service/DataImportService.java` | importWordBook() 幂等导入（新格式） |
+| 后端 | `service/DataImportService.java` | importWordBook() 幂等导入 |
 | 后端 | `service/StudyService.java` | 学习核心逻辑（quizItem 驱动） |
 | 后端 | `service/ContentService.java` | getWordDetail（义项列表由 quizItem 驱动） |
 | 后端 | `src/main/resources/source.json` | 全量冷启动数据 |

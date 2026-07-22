@@ -1,4 +1,4 @@
-<!-- 经典阅读页 v2 支持 full/chunked + strip/list/accordion/author -->
+<!-- 经典阅读页 支持 full/chunked + strip/list/accordion/author -->
 <view class="page-classic-reader">
   <!-- 加载态 -->
   <block wx:if="{{loading}}">

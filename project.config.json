@@ -3,10 +3,6 @@
   "packOptions": {
     "ignore": [
       {
-        "value": ".eslintrc.js",
-        "type": "file"
-      },
-      {
         "value": "assets/share-poster.png",
         "type": "file"
       },
@@ -15,11 +11,23 @@
         "type": "file"
       },
       {
-        "value": "temp",
+        "value": ".claude",
         "type": "folder"
       },
       {
-        "value": "tools",
+        "value": "data",
+        "type": "folder"
+      },
+      {
+        "value": "docs",
+        "type": "folder"
+      },
+      {
+        "value": "scripts",
+        "type": "folder"
+      },
+      {
+        "value": "temp",
         "type": "folder"
       }
     ],
