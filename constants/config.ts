@@ -26,6 +26,9 @@ export const MAX_DAILY_REVIEW_LIMIT = 15;
 /** 分享门禁：连续打卡满 N 天后需先分享才能继续学习。-1 表示关闭此限制 */
 export const SHARE_GATE_STREAK_DAYS = 10;
 
+/** 学习码过期天数：30 天不活跃即失效 */
+export const REDEEM_CODE_EXPIRE_DAYS = 30;
+
 // ============================================
 // 等级体系
 // ============================================

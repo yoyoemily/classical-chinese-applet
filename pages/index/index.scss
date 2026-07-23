@@ -466,7 +466,7 @@
   }
 
   // ==========================================
-  // 分享门禁弹窗
+  // 学习码门禁弹窗（三阶段）
   // ==========================================
   &__gate-overlay {
     position: fixed;
@@ -501,16 +501,92 @@
     font-weight: 600;
     color: var(--color-text-primary);
     text-align: center;
+
+    &--pact {
+      margin-bottom: $spacing-md;
+    }
   }
 
   &__gate-desc {
     font-size: $font-size-sm;
     color: var(--color-text-secondary);
     text-align: center;
+    line-height: 1.6;
     margin-bottom: $spacing-sm;
   }
 
-  &__gate-share-btn {
+  // 服务号二维码
+  &__gate-qrcode {
+    width: 320rpx;
+    height: 320rpx;
+    background-color: var(--color-bg-card);
+    border-radius: $radius-base;
+    @include flex-center;
+    overflow: hidden;
+    border: 2rpx solid var(--color-border-light);
+  }
+
+  &__gate-qrcode-img {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__gate-qrcode-hint {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    text-align: center;
+  }
+
+  // 学习码输入
+  &__gate-input-wrap {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 2rpx solid var(--color-border);
+    border-radius: $radius-base;
+    overflow: hidden;
+  }
+
+  &__gate-input-prefix {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: rgba($color-primary, 0.06);
+    letter-spacing: 2rpx;
+    flex-shrink: 0;
+  }
+
+  &__gate-input {
+    flex: 1;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-md;
+    color: var(--color-text-primary);
+    letter-spacing: 4rpx;
+    height: 72rpx;
+
+    &--full {
+      text-align: center;
+      letter-spacing: 8rpx;
+      font-size: $font-size-lg;
+    }
+  }
+
+  &__gate-error {
+    font-size: $font-size-xs;
+    color: var(--color-error);
+    text-align: center;
+    width: 100%;
+  }
+
+  &__gate-input-hint {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+    text-align: center;
+  }
+
+  // 通用按钮
+  &__gate-btn {
     width: 100%;
     height: 88rpx;
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
@@ -524,12 +600,97 @@
     &::after {
       border: none;
     }
+
+    &--hover {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+
+    // 签订契约按钮
+    &--pact {
+      background: linear-gradient(135deg, #d4a12a, #b8860b);
+    }
+
+    &--disabled {
+      opacity: 0.4;
+    }
   }
 
-  &__gate-alt {
+  // 返回关注
+  &__gate-back {
     font-size: $font-size-sm;
     color: var(--color-primary);
     padding: $spacing-sm;
+    text-align: center;
+
+    &--active {
+      opacity: 0.6;
+    }
+  }
+
+  // 阶段三：金石契
+  &__gate-pact-text {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+    text-align: center;
+    line-height: 2;
+
+    &--bold {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      padding-bottom: $spacing-sm;
+      border-bottom: 2rpx solid rgba(212, 161, 42, 0.4);
+    }
+  }
+
+  &__gate-pact-footer {
+    margin-top: $spacing-sm;
+    font-size: $font-size-sm;
+    color: #b8860b;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  &__gate-pact-check {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-base;
+    padding: $spacing-sm 0;
+    justify-content: center;
+  }
+
+  &__gate-pact-check-finger {
+    font-size: 40rpx;
+    animation: page-index-finger-point 0.8s ease-in-out infinite alternate;
+  }
+
+  &__gate-pact-check-box {
+    width: 36rpx;
+    height: 36rpx;
+    border-radius: 6rpx;
+    border: 3rpx solid var(--color-text-hint);
+    @include flex-center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &--checked {
+      background-color: #d4a12a;
+      border-color: #d4a12a;
+    }
+  }
+
+  &__gate-pact-check-mark {
+    color: #ffffff;
+    font-size: 28rpx;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__gate-pact-check-label {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
   }
 
 }
@@ -543,5 +704,14 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes page-index-finger-point {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(8rpx);
   }
 }

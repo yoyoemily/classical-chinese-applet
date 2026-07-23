@@ -27,7 +27,7 @@ function getBaseUrl(): string {
     const { envVersion } = wx.getAccountInfoSync().miniProgram;
     return envVersion === 'release'
       ? 'https://wyq.yinqueai.com'
-      : 'https://wyq.yinqueai.com';
+      : 'http://localhost:8080';
   } catch {
     return 'https://wyq.yinqueai.com';
   }
@@ -199,6 +199,14 @@ export function request<T = unknown>(options: IRequestOptions): Promise<T> {
                 });
               })
               .catch(reject);
+          } else if (resData && resData.message) {
+            // 400 等业务错误：优先展示后端的 message
+            wx.showToast({
+              title: resData.message,
+              icon: 'none',
+              duration: 2000,
+            });
+            reject(new Error(resData.message));
           } else {
             const errMsg: string = `请求错误 ${statusCode}`;
             wx.showToast({

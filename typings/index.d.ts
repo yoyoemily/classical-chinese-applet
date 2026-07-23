@@ -337,6 +337,21 @@ export interface IUserProfile {
 }
 
 // ============================================
+// 学习码门禁 / 会员状态
+// ============================================
+
+export interface IMemberStatus {
+  /** 契约会员级别：0=未签约 1=已签约（永不失效） */
+  memberLevel: number;
+  /** 学习码是否已验证 */
+  codeVerified: boolean;
+  /** 学习码是否有效（30 天活跃窗口内） */
+  codeActive: boolean;
+  /** 最后活跃时间 */
+  lastActiveAt?: string;
+}
+
+// ============================================
 // 学习会话状态
 // ============================================
 export type SessionMode = 'review' | 'new'

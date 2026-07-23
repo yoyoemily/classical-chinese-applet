@@ -190,13 +190,90 @@
 
   </block>
 
-  <!-- 分享门禁弹窗：打卡满N天需分享才能继续 -->
-  <view class="page-index__gate-overlay" wx:if="{{showShareGate}}">
-    <view class="page-index__gate-modal">
-      <view class="page-index__gate-emoji">🎉</view>
-      <view class="page-index__gate-title">你已经坚持学习了 {{shareGateDays}} 天！</view>
-      <view class="page-index__gate-desc">分享给朋友，即可继续打卡学习</view>
-      <button class="page-index__gate-share-btn" bindtap="onGoToPoster">现在去前往分享</button>
+  <!-- 学习码门禁弹窗：打卡满N天需关注公众号验证码 -->
+  <view class="page-index__gate-overlay" wx:if="{{showGate}}">
+    <view class="page-index__gate-modal" catchtap="noop">
+
+      <!-- ===== 阶段一：引导关注公众号 ===== -->
+      <block wx:if="{{gateStep === 1}}">
+        <text class="page-index__gate-emoji">🎉</text>
+        <text class="page-index__gate-title">你已经坚持学习了 {{shareGateDays}} 天！</text>
+        <text class="page-index__gate-desc">
+          关注公众号，获取永久学习码
+        </text>
+        <!-- 服务号二维码占位（后续替换为真实二维码） -->
+        <view class="page-index__gate-qrcode">
+          <image
+            class="page-index__gate-qrcode-img"
+            src="/assets/qrcode-mp.jpg"
+            mode="aspectFit"
+          />
+        </view>
+        <text class="page-index__gate-qrcode-hint">长按识别二维码关注公众号</text>
+        <button
+          class="page-index__gate-btn"
+          hover-class="page-index__gate-btn--hover"
+          bindtap="onGoToInputCode"
+        >我已关注，输入学习码</button>
+      </block>
+
+      <!-- ===== 阶段二：输入学习码 ===== -->
+      <block wx:if="{{gateStep === 2}}">
+        <text class="page-index__gate-emoji">🔑</text>
+        <text class="page-index__gate-title">输入学习码</text>
+        <text class="page-index__gate-desc">
+          请在公众号回复的消息中找到您的学习码并输入
+        </text>
+        <view class="page-index__gate-input-wrap">
+          <input
+            class="page-index__gate-input page-index__gate-input--full"
+            type="number"
+            maxlength="6"
+            placeholder="输入6位数字学习码"
+            value="{{redeemCode}}"
+            bindinput="onInputCode"
+          />
+        </view>
+        <text
+          wx:if="{{codeError}}"
+          class="page-index__gate-error"
+        >{{codeError}}</text>
+        <button
+          class="page-index__gate-btn"
+          hover-class="page-index__gate-btn--hover"
+          bindtap="onVerifyCode"
+        >确认验证</button>
+        <view
+          class="page-index__gate-back"
+          hover-class="page-index__gate-back--active"
+          bindtap="onGoBackToQrcode"
+        >还没关注？返回查看公众号</view>
+      </block>
+
+      <!-- ===== 阶段三：签金石契（仅首次） ===== -->
+      <block wx:if="{{gateStep === 3}}">
+        <text class="page-index__gate-emoji">📜</text>
+        <text class="page-index__gate-title page-index__gate-title--pact">金石契</text>
+        <text class="page-index__gate-pact-text">君以分享托付文言雀</text>
+        <text class="page-index__gate-pact-text">文言雀亦以赤诚报君</text>
+        <text class="page-index__gate-pact-text page-index__gate-pact-text--bold">此约既成，金石不渝</text>
+        <!-- 签订契约复选框 -->
+        <view class="page-index__gate-pact-check" bindtap="onTogglePactCheck">
+          <text class="page-index__gate-pact-check-finger">👉</text>
+          <view class="page-index__gate-pact-check-box {{pactChecked ? 'page-index__gate-pact-check-box--checked' : ''}}">
+            <text wx:if="{{pactChecked}}" class="page-index__gate-pact-check-mark">✓</text>
+          </view>
+          <text class="page-index__gate-pact-check-label">余今签契，行之以诚</text>
+        </view>
+        <button
+          class="page-index__gate-btn page-index__gate-btn--pact {{pactChecked ? '' : 'page-index__gate-btn--disabled'}}"
+          hover-class="page-index__gate-btn--hover"
+          bindtap="onSignPact"
+          disabled="{{!pactChecked}}"
+        >签订契约</button>
+        <text class="page-index__gate-pact-footer">契约既签，永久免费学习</text>
+      </block>
+
     </view>
   </view>
 

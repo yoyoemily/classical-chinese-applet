@@ -1,6 +1,6 @@
 ---
 name: backend-infrastructure
-description: Spring Boot 3.2 后端微服务，位于 /Users/zhutx/IdeaProjects/classical-chinese/，完整对接小程序 15 个 API
+description: Spring Boot 3.2 后端微服务，位于 /Users/zhutx/IdeaProjects/classical-chinese/，完整对接小程序 17 个 API
 metadata:
   type: project
   node_type: memory
@@ -16,13 +16,13 @@ metadata:
 |----|------|
 | 框架 | Spring Boot 3.2.1 + Java 17 |
 | ORM | MyBatis-Plus 3.5.5（BaseMapper，零 SQL） |
-| 数据库 | MySQL 8.0，库名 `classical_chinese`，24 张表 |
+| 数据库 | MySQL 8.0，库名 `classical_chinese`，27 张表 |
 | `word_book` 表新增 | `exam_level` VARCHAR(10) DEFAULT 'zhongkao'（考试级别）、`initialized` TINYINT(1) DEFAULT 0（数据是否已初始化） |
 | 端口 | `8080` |
 | 基包 | `com.bogutongjin` |
 | 工具 | Hutool 5.8、JWT 0.12、Lombok、pinyin4j 2.5.1 |
 
-### 工程结构（85+ 源文件）
+### 工程结构
 
 ```
 src/main/java/com/bogutongjin/
@@ -31,30 +31,31 @@ src/main/java/com/bogutongjin/
 ├── annotation/  # @CurrentUser（注入当前用户 ID 的 Controller 参数注解）
 ├── util/        # JwtUtil（JWT 签发/解析/校验）、PinyinUtils（生僻字拼音，pinyin4j）
 ├── config/      # MyBatis-Plus 分页、跨域、LoginInterceptor、CurrentUserResolver、WebMvcConfig
-├── entity/      # 23 个实体
-├── mapper/      # 23 个 Mapper
-├── dto/         # SourceData + LoginRequest + SubmitAnswerRequest 等请求 DTO（5 个）
-├── service/     # 12 个 Service：Auth（微信登录+JWT）、WordBook、Study、Progress、Vocabulary、Checkin、Badge、User、Article、Classic、Content、Feedback、DataImport
-└── controller/  # 13 个 Controller：Auth + 12 业务 + 管理导入，完整覆盖前端 16 个 API + 登录 + 导入
+├── entity/      # 24 个实体（含 RedeemCode）
+├── mapper/      # 25 个 Mapper（含 RedeemCodeMapper）
+├── dto/         # SourceData + LoginRequest + SubmitAnswerRequest 等请求 DTO（11 个，含 VerifyCodeRequest）
+├── service/     # 12 个 Service：Auth、WordBook、Study、Progress、Vocabulary、Checkin、Badge、User、Article、Classic、Content、Feedback、DataImport
+└── controller/  # 14 个 Controller：Auth + 12 业务 + Import，完整覆盖前端 18+ 个 API + 登录 + 导入
 ```
 
-### API 对照（13 个 Controller → 17 个 HTTP 端点）
+### API 对照
 
 | Controller | 端点 |
 |------------|------|
 | AuthController | `POST /api/auth/login`（微信 code → JWT） |
 | WordBookController | `GET /api/wordbooks`、`GET /api/wordbooks/:id` |
-| StudyController | `GET /api/study/today`、`POST /api/study/answer`、`POST /api/study/complete` |
+| StudyController | `GET /api/study/today`、`POST /api/study/answer`、`POST /api/study/complete`、`POST /api/study/word-complete`、`POST /api/study/audio-complete` |
 | ProgressController | `GET /api/progress` |
 | VocabularyController | `GET /api/vocabulary` |
 | CheckinController | `GET /api/checkin` |
 | BadgeController | `GET /api/badges` |
-| UserController | `GET /api/user/profile`、`GET /api/user/info`、`PUT /api/user/info` |
+| UserController | `GET /api/user/profile`、`GET /api/user/info`、`PUT /api/user/info`、`POST /api/user/pact`、`POST /api/user/verify-code`、`GET /api/user/member-status`、`POST /api/user/clear-data`、`POST /api/user/recover-data` |
 | ArticleController | `GET /api/articles`、`GET /api/articles/:id` |
-| ClassicController | `GET /api/classics?category=` |
+| ClassicController | `GET /api/classics?category=`、`GET /api/classics/:id`、`GET /api/classics/:id/content/:nodeId` |
 | ContentController | `GET /api/words/:id`、`GET /api/full-text/:sentenceId` |
 | FeedbackController | `POST /api/feedback` |
-| ImportController | `POST /api/admin/import`、`POST /api/admin/import/articles`、`POST /api/admin/import/wordbook`、`POST /api/admin/import/glossary/{articleId}`、`POST /api/admin/clear-data?scope=`（管理后台） |
+| SuggestionController | `POST /api/suggestion` |
+| ImportController | `POST /api/admin/import`、`POST /api/admin/import/articles`、`POST /api/admin/import/wordbook`、`POST /api/admin/import/glossary/{articleId}`、`POST /api/admin/clear-data?scope=`、`POST /api/admin/generate-code`（管理后台） |
 
 响应格式统一为 `{code: 0, message: "ok", data: ...}`。
 
@@ -71,7 +72,7 @@ AuthService.code2session(code) → 微信 API → openId
 JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
     ↓ 返回 { token, userId } → 小程序存储
 后续请求: request.ts 自动带 Authorization: Bearer <token>
-    ↓ LoginInterceptor 解析 JWT → request.setAttribute("userId")
+    ↓ LoginInterceptor 解析 JWT → request.setAttribute("userId") + 更新 last_active_at
     ↓ CurrentUserResolver → @CurrentUser Long userId → Controller
 401 → request.ts 自动 reLogin()（防并发）→ 重试原请求
 ```
@@ -80,21 +81,32 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 - JWT 仅含 `sub`（userId），无其他敏感信息
 - 新用户自动创建：首次 `wx.login()` 自动在 `user` 表创建记录，无需注册流程
 - 防并发登录：`request.ts` 中 `isLoggingIn` + `loginPromise` 复用
-- 放行路径：`/api/auth/login`、`/api/admin/import`
+- 放行路径：`/api/auth/login`、`/api/admin/**`
 - Controller 层改造（`@RequestParam` → `@CurrentUser`），Service 层无感
+- LoginInterceptor 每次请求更新 `user.last_active_at`，用于 30 天活跃窗口判断
 
 **生产环境**：`WECHAT_APP_SECRET` 已配置真实值，微信登录正常对接。
 
 **前端侧**：`app.ts` onLaunch 调用 `reLogin()`（从 `request.ts` 导入）；`request.ts` 自动带 token + 401 re-login；`constants/config.ts` 中 `STORAGE_KEYS.TOKEN = 'authToken'`。
 
+### 学习码门禁（2026-07-23 已实现）
+
+- **表**：`redeem_code`（28 号表）— 6 位纯数字兑换码
+- **user 表**：新增 `last_active_at` 列，LoginInterceptor 每次请求自动更新
+- **API**：`POST /api/user/verify-code`（验证码）、`GET /api/user/member-status`（会员状态快照，含 30 天活跃判断）、`POST /api/admin/generate-code`（管理端生成码）
+- **门禁逻辑**：`streak >= 10 && (memberLevel < 1 || !codeActive)` — 签约一次永久有效，学习码 30 天不活跃自动失效
+- **signPact**：新增前置校验——必须有已验证的学习码（status=1）
+- **getUserProfile**：返回 `codeVerified` 和 `codeActive` 字段供前端判断门禁分支
+- 详见 [[redeem-code-plan]]
+
 ### 数据导入
 
-- 源文件：`src/main/resources/source.json`（8 本词书 + 8 勋章 + 36 部经典著作；选篇正文已独立到知识库 `文言文/选篇/正文/articles_*.json`）
+- 源文件：`src/main/resources/source.json`（8 本词书 + 8 勋章 + 52 部经典著作；选篇正文已独立到知识库 `文言文/选篇/正文/articles_*.json`）
 - 与知识库 `~/knowledge_library/文言文/词书/` 下的独立 JSON 文件内容一致
 - 每字含 `wordType` 字段（实词/虚词/通假字）
 - `word` 表含 `word_type` 列，DataImportService 导入时写入
 - `WordBookService.getWordBookDetail()` 和 `ContentService.getWordDetail()` 均返回 `wordType`
-- 建表：`data/schema.sql`（24 张表）
+- 建表：`data/schema.sql`（27 张表 + redeem_code）
 - **全量导入**：`POST /api/admin/import` → `DataImportService.importFromJson()` → JDBC Template 批量 INSERT 勋章，不涉及数据清空
 - **业务数据清理**：`POST /api/admin/clear-data?scope=` → `DataImportService.clearAll()/clearUserData()/clearWordBookData()/clearArticleData()/clearClassicData()`，5 种 scope，全部 TRUNCATE TABLE，配合 `clear_data.sh` 使用
 - **选篇正文导入**：`POST /api/admin/import/articles` → `DataImportService.importArticlesFromJson()`，从知识库 11 个年级分文件 + 1 个壳文章文件合并后导入，幂等（先清空文章相关表后全量重插）
@@ -157,3 +169,4 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 [[study-section]]
 [[articles-section]]
 [[classics-section]]
+[[redeem-code-plan]]

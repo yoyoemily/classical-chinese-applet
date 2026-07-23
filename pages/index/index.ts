@@ -1,4 +1,4 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges, signPact } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges, verifyCode, signPact } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
@@ -67,10 +67,22 @@ interface IIndexData {
   memberLevel: number;
   /** 用户昵称 */
   nickName: string;
-  /** 分享门禁弹窗 */
-  showShareGate: boolean;
+  /** 学习码是否有效（30 天活跃窗口内） */
+  codeActive: boolean;
+  /** 学习码是否已验证 */
+  codeVerified: boolean;
+  /** 学习码门禁弹窗是否显示 */
+  showGate: boolean;
+  /** 学习码门禁弹窗当前阶段：1=关注公众号 2=输入学习码 3=签金石契 */
+  gateStep: 1 | 2 | 3;
   /** 分享门禁天数（-1 表示关闭） */
   shareGateDays: number;
+  /** 用户输入的学习码 */
+  redeemCode: string;
+  /** 签订契约复选框 */
+  pactChecked: boolean;
+  /** 学习码验证错误信息 */
+  codeError: string;
   /** 数据清除恢复截止时间 */
   recoveryDeadline?: string;
 }
@@ -101,9 +113,15 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     mistakeCount: 0,
     nextBadge: null,
     memberLevel: 0,
-    showShareGate: false,
     nickName: '',
+    codeActive: false,
+    codeVerified: false,
+    showGate: false,
+    gateStep: 1,
     shareGateDays: SHARE_GATE_STREAK_DAYS,
+    redeemCode: '',
+    pactChecked: false,
+    codeError: '',
   },
 
   // ==========================================
@@ -115,7 +133,8 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onShow(): void {
-    // 从其他页面返回时刷新数据（用户可能切换了词书、完成了学习）
+    // 每次从其他页面返回时，重置门禁状态、刷新数据
+    this.setData({ showGate: false });
     this.loadData();
   },
 
@@ -207,6 +226,8 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         nextBadge,
         memberLevel: profile.memberLevel,
         nickName: profile.nickName || '',
+        codeVerified: profile.codeVerified || false,
+        codeActive: profile.codeActive !== undefined ? profile.codeActive : true,
       });
 
       // 检测是否处于数据清除恢复期内
@@ -284,7 +305,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/book-select/index' });
   },
 
-  /** 点击"开始学习" → 清空旧汇总缓存 → 跳转学习页 */
+  /** 点击"开始学习" → 清空旧汇总缓存 → 跳转学习页（或触发门禁） */
   onTapStartLearning(): void {
     const { todayTask } = this.data;
     if (todayTask.newWords === 0 && todayTask.reviewWords === 0) {
@@ -295,11 +316,23 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       }
       return;
     }
-    // 打卡满10天 → 进入第11天，必须分享过
-    if (SHARE_GATE_STREAK_DAYS !== -1 && this.data.streak >= SHARE_GATE_STREAK_DAYS && this.data.memberLevel < 1) {
-      this.setData({ showShareGate: true });
+
+    // 门禁：打卡满 N 天，且（未签契 或 学习码已过期）
+    if (
+      SHARE_GATE_STREAK_DAYS !== -1 &&
+      this.data.streak >= SHARE_GATE_STREAK_DAYS &&
+      (this.data.memberLevel < 1 || !this.data.codeActive)
+    ) {
+      this.setData({
+        showGate: true,
+        gateStep: 1,
+        redeemCode: '',
+        pactChecked: false,
+        codeError: '',
+      });
       return;
     }
+
     clearStudySummary();
     wx.navigateTo({ url: '/pages/study/index' });
   },
@@ -342,20 +375,75 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/calendar/index' });
   },
 
-  /** 关闭分享门禁弹窗 */
-  onCloseShareGate(): void {
-    this.setData({ showShareGate: false });
+  // ==========================================
+  // 学习码门禁弹窗
+  // ==========================================
+
+  /** 阶段一 → 阶段二：我已关注，去输入学习码 */
+  onGoToInputCode(): void {
+    this.setData({ gateStep: 2, codeError: '' });
   },
 
-  /** 引导去保存海报 */
-  onGoToPoster(): void {
-    this.setData({ showShareGate: false });
-    wx.switchTab({ url: '/pages/mine/index' });
+  /** 阶段二 → 阶段一：返回查看公众号 */
+  onGoBackToQrcode(): void {
+    this.setData({ gateStep: 1 });
   },
 
-  /** 分享（门禁弹窗的转发按钮 + 右上角菜单） */
+  /** 输入学习码 */
+  onInputCode(e: WechatMiniprogram.InputEvent): void {
+    this.setData({ redeemCode: e.detail.value, codeError: '' });
+  },
+
+  /** 阶段二：确认验证学习码 */
+  async onVerifyCode(): Promise<void> {
+    const code = this.data.redeemCode.trim();
+    if (!code) {
+      this.setData({ codeError: '请输入学习码' });
+      return;
+    }
+
+    try {
+      const result = await verifyCode(code);
+      if (result.valid) {
+        // 验证成功
+        if (result.memberLevel >= 1) {
+          // 已签契 → 直接关闭弹窗，开始学习
+          this.setData({
+            codeActive: true,
+            codeVerified: true,
+          });
+          clearStudySummary();
+          wx.navigateTo({ url: '/pages/study/index' });
+        } else {
+          // 未签契 → 进入阶段三
+          this.setData({ gateStep: 3, codeVerified: true, codeActive: true });
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '验证失败';
+      this.setData({ codeError: msg });
+    }
+  },
+
+  /** 阶段三：切换签订契约复选框 */
+  onTogglePactCheck(): void {
+    this.setData({ pactChecked: !this.data.pactChecked });
+  },
+
+  /** 阶段三：签订契约 */
+  async onSignPact(): Promise<void> {
+    if (!this.data.pactChecked) return;
+    try {
+      await signPact();
+    } catch { /* 网络失败不阻塞 */ }
+    // 刷新 profile 并开始学习
+    this.loadData();
+    clearStudySummary();
+    wx.navigateTo({ url: '/pages/study/index' });
+  },
+
+  /** 分享（右上角菜单） */
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
-    signPact().catch(() => {});
     return {
       title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
       path: '/pages/index/index',
