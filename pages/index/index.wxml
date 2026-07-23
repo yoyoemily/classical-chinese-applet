@@ -222,14 +222,14 @@
         <text class="page-index__gate-emoji">🔑</text>
         <text class="page-index__gate-title">输入学习码</text>
         <text class="page-index__gate-desc">
-          请在公众号回复的消息中找到您的学习码并输入
+          请在公众号回复消息中找到学习码
         </text>
         <view class="page-index__gate-input-wrap">
           <input
             class="page-index__gate-input page-index__gate-input--full"
             type="digit"
-            maxlength="6"
-            placeholder="输入6位数字学习码"
+            maxlength="8"
+            placeholder="输入8位学习码"
             value="{{redeemCode}}"
             bindinput="onInputCode"
           />

@@ -393,10 +393,10 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ gateStep: 1 });
   },
 
-  /** 输入学习码（仅允许数字，最多 6 位） */
+  /** 输入学习码（仅允许数字，最多 8 位） */
   onInputCode(e: WechatMiniprogram.InputEvent): void {
     const raw = e.detail.value || '';
-    const filtered = raw.replace(/\D/g, '').slice(0, 6);
+    const filtered = raw.replace(/\D/g, '').slice(0, 8);
     this.setData({ redeemCode: filtered, codeError: '' });
   },
 
