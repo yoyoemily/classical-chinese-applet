@@ -587,8 +587,10 @@
 
   // 通用按钮
   &__gate-btn {
-    width: 100%;
+    width: auto;
+    min-width: 320rpx;
     height: 88rpx;
+    padding: 0 $spacing-xl;
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     border-radius: $radius-lg;
     color: #ffffff;
@@ -596,6 +598,7 @@
     font-weight: 500;
     @include flex-center;
     border: none;
+    white-space: nowrap;
 
     &::after {
       border: none;

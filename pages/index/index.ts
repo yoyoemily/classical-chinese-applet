@@ -67,10 +67,10 @@ interface IIndexData {
   memberLevel: number;
   /** 用户昵称 */
   nickName: string;
-  /** 学习码是否有效（30 天活跃窗口内） */
-  codeActive: boolean;
-  /** 学习码是否已验证 */
-  codeVerified: boolean;
+  /** 学习码状态：-1=从没绑过 1=有效 2=已过期 */
+  codeStatus: number;
+  /** 学习码是否已过期（已验证但 30 天不活跃） */
+  codeExpired: boolean;
   /** 学习码门禁弹窗是否显示 */
   showGate: boolean;
   /** 学习码门禁弹窗当前阶段：1=关注公众号 2=输入学习码 3=签金石契 */
@@ -114,8 +114,8 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     nextBadge: null,
     memberLevel: 0,
     nickName: '',
-    codeActive: false,
-    codeVerified: false,
+    codeStatus: -1,
+    codeExpired: false,
     showGate: false,
     gateStep: 1,
     shareGateDays: SHARE_GATE_STREAK_DAYS,
@@ -226,8 +226,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         nextBadge,
         memberLevel: profile.memberLevel,
         nickName: profile.nickName || '',
-        codeVerified: profile.codeVerified || false,
-        codeActive: profile.codeActive !== undefined ? profile.codeActive : true,
+        codeStatus: profile.codeStatus || -1,
       });
 
       // 检测是否处于数据清除恢复期内
@@ -317,18 +316,23 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       return;
     }
 
-    // 门禁：打卡满 N 天，且（未签契 或 学习码已过期）
+    // 门禁：打卡满 N 天，且（未签契 或 码不有效）
     if (
       SHARE_GATE_STREAK_DAYS !== -1 &&
       this.data.streak >= SHARE_GATE_STREAK_DAYS &&
-      (this.data.memberLevel < 1 || !this.data.codeActive)
+      (this.data.memberLevel < 1 || this.data.codeStatus !== 1)
     ) {
+      // 码有效但未签契 → 直接进入签契阶段
+      const skipQrcode = this.data.codeStatus === 1 && this.data.memberLevel < 1;
+      // 码过期
+      const codeExpired = this.data.codeStatus === 2;
       this.setData({
         showGate: true,
-        gateStep: 1,
+        gateStep: skipQrcode ? 3 : 1,
         redeemCode: '',
         pactChecked: false,
         codeError: '',
+        codeExpired,
       });
       return;
     }
@@ -389,9 +393,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ gateStep: 1 });
   },
 
-  /** 输入学习码 */
+  /** 输入学习码（仅允许数字，最多 6 位） */
   onInputCode(e: WechatMiniprogram.InputEvent): void {
-    this.setData({ redeemCode: e.detail.value, codeError: '' });
+    const raw = e.detail.value || '';
+    const filtered = raw.replace(/\D/g, '').slice(0, 6);
+    this.setData({ redeemCode: filtered, codeError: '' });
   },
 
   /** 阶段二：确认验证学习码 */
@@ -407,16 +413,15 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       if (result.valid) {
         // 验证成功
         if (result.memberLevel >= 1) {
-          // 已签契 → 直接关闭弹窗，开始学习
+          // 已签契 → 关闭弹窗，刷新数据，用户自行点击开始学习
           this.setData({
-            codeActive: true,
-            codeVerified: true,
+            codeStatus: 1,
+            showGate: false,
           });
-          clearStudySummary();
-          wx.navigateTo({ url: '/pages/study/index' });
+          this.loadData();
         } else {
           // 未签契 → 进入阶段三
-          this.setData({ gateStep: 3, codeVerified: true, codeActive: true });
+          this.setData({ gateStep: 3, codeStatus: 1 });
         }
       }
     } catch (err: unknown) {
@@ -436,10 +441,9 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     try {
       await signPact();
     } catch { /* 网络失败不阻塞 */ }
-    // 刷新 profile 并开始学习
+    // 关闭弹窗，刷新数据，用户自行点击开始学习
+    this.setData({ showGate: false });
     this.loadData();
-    clearStudySummary();
-    wx.navigateTo({ url: '/pages/study/index' });
   },
 
   /** 分享（右上角菜单） */

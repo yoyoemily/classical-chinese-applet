@@ -196,10 +196,10 @@
 
       <!-- ===== 阶段一：引导关注公众号 ===== -->
       <block wx:if="{{gateStep === 1}}">
-        <text class="page-index__gate-emoji">🎉</text>
-        <text class="page-index__gate-title">你已经坚持学习了 {{shareGateDays}} 天！</text>
+        <text class="page-index__gate-emoji">{{codeExpired ? '⏰' : '🎉'}}</text>
+        <text class="page-index__gate-title">{{codeExpired ? '好久不见！请更新学习码' : '你已经坚持学习了 ' + shareGateDays + ' 天！'}}</text>
         <text class="page-index__gate-desc">
-          关注公众号，获取永久学习码
+          {{codeExpired ? '关注公众号，获取新的学习码' : '关注公众号，获取永久学习码'}}
         </text>
         <!-- 服务号二维码占位（后续替换为真实二维码） -->
         <view class="page-index__gate-qrcode">
@@ -209,12 +209,12 @@
             mode="aspectFit"
           />
         </view>
-        <text class="page-index__gate-qrcode-hint">长按识别二维码关注公众号</text>
-        <button
+        <text class="page-index__gate-qrcode-hint">长按或扫码关注公众号</text>
+        <view
           class="page-index__gate-btn"
           hover-class="page-index__gate-btn--hover"
           bindtap="onGoToInputCode"
-        >我已关注，输入学习码</button>
+        >我已关注，输入学习码</view>
       </block>
 
       <!-- ===== 阶段二：输入学习码 ===== -->
@@ -227,7 +227,7 @@
         <view class="page-index__gate-input-wrap">
           <input
             class="page-index__gate-input page-index__gate-input--full"
-            type="number"
+            type="digit"
             maxlength="6"
             placeholder="输入6位数字学习码"
             value="{{redeemCode}}"
@@ -238,11 +238,11 @@
           wx:if="{{codeError}}"
           class="page-index__gate-error"
         >{{codeError}}</text>
-        <button
+        <view
           class="page-index__gate-btn"
           hover-class="page-index__gate-btn--hover"
           bindtap="onVerifyCode"
-        >确认验证</button>
+        >确认验证</view>
         <view
           class="page-index__gate-back"
           hover-class="page-index__gate-back--active"
@@ -265,12 +265,11 @@
           </view>
           <text class="page-index__gate-pact-check-label">余今签契，行之以诚</text>
         </view>
-        <button
+        <view
           class="page-index__gate-btn page-index__gate-btn--pact {{pactChecked ? '' : 'page-index__gate-btn--disabled'}}"
           hover-class="page-index__gate-btn--hover"
           bindtap="onSignPact"
-          disabled="{{!pactChecked}}"
-        >签订契约</button>
+        >签订契约</view>
         <text class="page-index__gate-pact-footer">契约既签，永久免费学习</text>
       </block>
 

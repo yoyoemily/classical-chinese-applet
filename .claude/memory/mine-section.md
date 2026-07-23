@@ -128,36 +128,27 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 
 ### 门禁机制
 
-- 连续打卡满 `SHARE_GATE_STREAK_DAYS` 天（默认 10，-1 关闭）后，首页点击「开始学习」弹出分享门禁弹窗，引导到 mine 页面
-- 门禁弹窗无关闭按钮，必须点击跳转
+- 连续打卡满 `SHARE_GATE_STREAK_DAYS` 天（默认 0=关闭，-1=关闭）后，首页点击「开始学习」弹出学习码门禁弹窗（三阶段）
+- 门禁弹窗无关闭按钮，必须完成流程
+- 详细设计见 [[redeem-code-plan]]
 
-### mine 页弹窗交互（两阶段）
+### mine 页分享海报（简化版）
 
-**阶段一：海报 + 按钮**
-- 非会员（`memberLevel < 1`）：「保存图片」+「分享朋友圈」并排；「分享朋友圈」初始 disabled，保存图片成功后激活 → 进入阶段二
-- 已是会员（`memberLevel >= 1`）：仅「保存图片」
-
-**阶段二：金石契（契约签订）**
-- 海报消失 → 白底卡片 → 文案：
-  ```
-  君以分享托付文言雀
-  文言雀亦以赤诚报君
-  此约既成，金石不渝
-  ```
-- 复选框「余今签契，行之以诚」→ 「签订契约」按钮
-- 签订成功后调用 `POST /api/user/pact`，后端 `user.member_level` 设为 1
+- 点击「分享给朋友」→ 从后端下载海报 → 弹出单阶段弹窗 → 「保存图片」
+- 不再有"分享出去→签契"的二阶段流程，签契逻辑已移至首页门禁
+- 金石契弹窗（`showNuoDialog`）保持不变，仅用于已签契会员查看
 
 ### 「契约会员」标签
 
 - mine 页 `memberLevel >= 1` 时，头像下方显示金色渐变「契约会员」标签
-- 标签带 shimmer 动画，点击弹出金石契弹窗（与阶段二文案一致，多一枚"契"字红色印章旋转 overlay）
+- 标签带 shimmer 动画，点击弹出金石契弹窗（契约文案 + "契"字红色印章旋转 overlay）
 - 底部：「您已签订契约，永久免费学习」
 
 ### 海报生成
 
 - 脚本：`scripts/generate_poster.py`（Pillow 合成 720×1280）
 - 素材：`assets/share-poster-bg.png` + `assets/qrcode.jpg` → 输出 `assets/share-poster.png`
-- 图片部署：后端 `resources/static/assets/`，前端 `onSavePoster` 根据环境自动切换 download URL
+- 图片部署：后端 `resources/static/assets/`，前端 `onSavePoster` 走固定 URL `https://wyq.yinqueai.com/assets/share-poster.png`
 - 字体：行楷 SC Bold（主标题"文言雀"）+ 华文楷体 SC Regular（其余文字），macOS 系统自带
 - **注意**：小程序不支持直接保存项目内静态资源，必须通过 URL 下载到本地再保存
 
@@ -166,10 +157,10 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 层 | 文件 | 关键位置 |
 |----|------|---------|
 | 后端 API | `POST /api/user/pact` | `UserService.signPact()` 设置 memberLevel=1 |
-| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel` |
-| 前端 mine 页 | `pages/mine/index.*` | 两阶段弹窗 + 契约会员标签 + 金石契弹窗 |
+| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`codeStatus` |
+| 前端 mine 页 | `pages/mine/index.*` | 单阶段海报弹窗 + 契约会员标签 + 金石契弹窗 |
 | 前端门禁常量 | `constants/config.ts` | `SHARE_GATE_STREAK_DAYS` |
-| 前端首页 | `pages/index/index.ts` | `onTapStart()` 检查分享门禁 |
+| 前端首页 | `pages/index/index.ts` | `onTapStartLearning()` 检查门禁 |
 | 海报脚本 | `scripts/generate_poster.py` | Pillow 合成逻辑 |
 
 ---
