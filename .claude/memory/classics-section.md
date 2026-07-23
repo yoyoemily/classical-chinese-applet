@@ -26,8 +26,8 @@ metadata:
 
 > **互补关系**：知识库 readme 覆盖**数据编撰**（JSON 格式、loadMode/navMode 完整说明、10 部经典组合对照表、标注标准、导入命令、数据约定），本文件覆盖**代码集成**（页面/API/后端表/集成流程/关键文件索引）。确定 navMode 时看知识库，写代码时看本文件。
 
-- **经典数据唯一权威源**：`~/Documents/knowledge_library/文言文/经典/`
-- **目录说明**：`~/Documents/knowledge_library/文言文/经典/readme.md` — **必读**，记录了 3 种数据结构 + 2 种 loadMode × 4 种 navMode 完整说明 + 10 部经典典型组合对照 + 5 步集成流程 + 数据约定 + 当前状态表。新增经典时以知识库 readme 为准
+- **经典数据唯一权威源**：`~/knowledge_library/文言文/经典/`
+- **目录说明**：`~/knowledge_library/文言文/经典/readme.md` — **必读**，记录了 3 种数据结构 + 2 种 loadMode × 4 种 navMode 完整说明 + 10 部经典典型组合对照 + 5 步集成流程 + 数据约定 + 当前状态表。新增经典时以知识库 readme 为准
 - **子目录结构**：每部经典一个子目录（如 `孙子兵法/`、`老子/`、`世说新语/`），内含 `chapters.json` 或 `entries.json`
 
 ---
@@ -238,7 +238,7 @@ curl -X POST http://localhost:8080/api/admin/import/classic/31/batch \
 
 ### 1. 知识库 JSON → 后端导入
 
-在知识库 `~/Documents/knowledge_library/文言文/经典/<经典名>/` 编写 JSON（正文 + 译文），校验并导入（命令见知识库 readme）。`DataImportService.importClassicBook()` 自动检测 JSON 格式：有 `entries` 字段走选集型二级导入，否则走章节型一级导入。无需修改导入代码。
+在知识库 `~/knowledge_library/文言文/经典/<经典名>/` 编写 JSON（正文 + 译文），校验并导入（命令见知识库 readme）。`DataImportService.importClassicBook()` 自动检测 JSON 格式：有 `entries` 字段走选集型二级导入，否则走章节型一级导入。无需修改导入代码。
 
 **选集型 entry 的 author/era/background 字段**：若每条 entry 有独立作者且需要在阅读时显示（如唐诗三百首阅读《蜀道难》时标题显示"唐 · 李白"），应在 entry 上填 `era`。`author` 通常无需逐条填写——导入逻辑自动继承父 group 的 `title`（如 group 标题"李白"→ 所有子 entry 的 author 自动为"李白"）。仅当 group 不是作者名（如"其他"分组）或需覆盖时，才在 entry 上显式指定 `author`。
 
@@ -374,8 +374,8 @@ mock 数据精简到几条即可——只验证 TOC 导航和内容渲染。
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/Documents/knowledge_library/文言文/经典/readme.md` | **必读**——完整 loadMode/navMode 说明 + 所有命令模板 |
-| 知识库 | `~/Documents/knowledge_library/文言文/经典/<经典名>/` | 各经典 JSON 数据唯一权威源 |
+| 知识库 | `~/knowledge_library/文言文/经典/readme.md` | **必读**——完整 loadMode/navMode 说明 + 所有命令模板 |
+| 知识库 | `~/knowledge_library/文言文/经典/<经典名>/` | 各经典 JSON 数据唯一权威源 |
 | 后端 schema | `data/schema.sql` | `classic_chapter` 含 `parent_id` 支持二级树（共 4 张表） |
 | 后端 entity | `entity/ClassicChapter.java` | 含 `parentId` 字段 |
 | 后端 dto | `dto/SourceData.java` | `SourceClassicChapter.entries` + `SourceAnthologyEntry` |

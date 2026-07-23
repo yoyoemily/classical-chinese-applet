@@ -90,7 +90,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 ### 数据导入
 
 - 源文件：`src/main/resources/source.json`（8 本词书 + 8 勋章 + 36 部经典著作；选篇正文已独立到知识库 `文言文/选篇/正文/articles_*.json`）
-- 与知识库 `~/Documents/knowledge_library/文言文/词书/` 下的独立 JSON 文件内容一致
+- 与知识库 `~/knowledge_library/文言文/词书/` 下的独立 JSON 文件内容一致
 - 每字含 `wordType` 字段（实词/虚词/通假字）
 - `word` 表含 `word_type` 列，DataImportService 导入时写入
 - `WordBookService.getWordBookDetail()` 和 `ContentService.getWordDetail()` 均返回 `wordType`

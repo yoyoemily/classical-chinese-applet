@@ -4,6 +4,7 @@
 - [📋 选篇调整工作流程](article-adjustment-workflow.md) — 独立 SOP：句子增删/移位、keyWords 标注、典故注释、词书同步、导入数据库、完成后检查清单。触发词：调整选篇、修改选篇、优化选篇
 - [🔍 选篇 keyWords 词书交叉核对](articles-section.md) — ✅ 已完成。2,030→1,634 条，100% 词书覆盖 + wordBookId + wordType 一致。keyWord 标注标准见 [[article-adjustment-workflow]]#3
 - [📝 选篇典故注释](articles-section.md) — ✅ 已完成。187 篇 2,125 条典故注释全部深度审查扩充并导入数据库。注释标准已融合到 [[article-adjustment-workflow]]#4
+- [🔧 选篇 keyWord 标注纠错流程](article-keyword-correction.md) — 发现标注有误时的标准修复流程：定位→检查词书引用→清理→修改JSON→导入→验证。触发词：标注有误、取消标注、纠错 keyWord
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/分享流程/金石契/海报生成/页面结构
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引

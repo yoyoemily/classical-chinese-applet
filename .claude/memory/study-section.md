@@ -33,8 +33,8 @@ metadata:
 
 > **互补关系**：知识库 readme 覆盖**数据编撰**（JSON 格式、标注标准、导入命令、文件清单），本文件覆盖**代码集成**（页面/API/后端表/业务逻辑/关键文件索引）。做数据时看知识库，写代码时看本文件。
 
-- **词书数据唯一权威源**：`~/Documents/knowledge_library/文言文/词书/`
-- **目录说明**：`~/Documents/knowledge_library/文言文/词书/readme.md` — 记录了文件清单、导入命令、参考资料子目录（`中考词书参考资料/`、`高考词书参考资料/`）、数据约定
+- **词书数据唯一权威源**：`~/knowledge_library/文言文/词书/`
+- **目录说明**：`~/knowledge_library/文言文/词书/readme.md` — 记录了文件清单、导入命令、参考资料子目录（`中考词书参考资料/`、`高考词书参考资料/`）、数据约定
 - **词书 JSON 文件**：中考 4 本已完成（共 279 词），高考 4 本已完成（共 268 词），虚词深度解析 1 本（54 词）。文件名和具体词数见知识库 readme 的文件清单表
 
 ---
@@ -159,7 +159,7 @@ metadata:
 
 ### 新增一本词书
 
-1. 在知识库 `~/Documents/knowledge_library/文言文/词书/` 编写词书 JSON（**100% 取自教材真实出处**，格式见知识库 readme）
+1. 在知识库 `~/knowledge_library/文言文/词书/` 编写词书 JSON（**100% 取自教材真实出处**，格式见知识库 readme）
 2. 校验 + 导入后端（幂等，命令见知识库 readme）
 3. 前端 `mock/wordBooks.ts` 新增精简 mock 数据（验证用）
 4. `pages/book-select/` 无需改动——词书列表从 API 拉取，新词书自动出现
@@ -215,8 +215,8 @@ metadata:
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/Documents/knowledge_library/文言文/词书/readme.md` | 词书目录说明 |
-| 知识库 | `~/Documents/knowledge_library/文言文/词书/wb_*.json` | 词书唯一权威数据源（9 本） |
+| 知识库 | `~/knowledge_library/文言文/词书/readme.md` | 词书目录说明 |
+| 知识库 | `~/knowledge_library/文言文/词书/wb_*.json` | 词书唯一权威数据源（9 本） |
 | 前端 | `pages/study/index.*` | 核心学习页（含 preStep 屏幕） |
 | 前端 | `pages/word-summary/index.*` | 字总结（义项列表由 quizItem 驱动） |
 | 前端 | `pages/study-complete/index.*` | 学习完成 |

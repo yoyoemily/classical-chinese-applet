@@ -24,11 +24,11 @@ metadata:
 
 > **互补关系**：知识库 readme 覆盖**数据编撰**（JSON 格式、标注标准、判断口诀、导入命令），本文件覆盖**代码集成**（页面/API/后端表/阅读模式/关键文件索引）。做典故注释时看知识库，写代码时看本文件。
 
-- **典故注释唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/典故注释/`
-- **目录说明**：`~/Documents/knowledge_library/文言文/选篇/典故注释/readme.md` — 记录了文件格式、标注标准（标注什么/不标什么/判断口诀）、导入命令、维护流程。写典故注释时以此为准
+- **典故注释唯一权威源**：`~/knowledge_library/文言文/选篇/典故注释/`
+- **目录说明**：`~/knowledge_library/文言文/选篇/典故注释/readme.md` — 记录了文件格式、标注标准（标注什么/不标什么/判断口诀）、导入命令、维护流程。写典故注释时以此为准
 - **典故注释 JSON 文件**：179 个文件（`art_001.json` ~ `art_187.json`，含跳过/删除的 ID），共 2,125 条注释，全部已导入数据库，均 126 字/条（8 批梳理后）
-- **选篇正文唯一权威源**：`~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json`（11 个年级分文件 + 1 个壳文章文件）— 300 篇（教材 179 篇 + 壳文章 121 篇），1,634 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
-- **正文目录说明**：`~/Documents/knowledge_library/文言文/选篇/正文/readme.md` — 格式、字段说明、数据约束
+- **选篇正文唯一权威源**：`~/knowledge_library/文言文/选篇/正文/articles_*.json`（11 个年级分文件 + 1 个壳文章文件）— 300 篇（教材 179 篇 + 壳文章 121 篇），1,634 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
+- **正文目录说明**：`~/knowledge_library/文言文/选篇/正文/readme.md` — 格式、字段说明、数据约束
 - **数据约束**：标注时以知识库 `articles_*.json` 正文为准，不参考 mock（mock 只有 4 篇，句子拆分可能不一致）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验
 
 ---
@@ -250,10 +250,10 @@ articles_*.json 规范化：
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（11 个年级分文件 + 1 个壳文章文件，共 300 篇，1,634 条 keyWords，全部含 kid/wordBookId/wordType） |
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/正文/readme.md` | 选篇正文目录说明 |
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/readme.md` | 典故注释目录说明 |
-| 知识库 | `~/Documents/knowledge_library/文言文/选篇/典故注释/art_*.json` | 典故注释唯一权威源（全部完成） |
+| 知识库 | `~/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（11 个年级分文件 + 1 个壳文章文件，共 300 篇，1,634 条 keyWords，全部含 kid/wordBookId/wordType） |
+| 知识库 | `~/knowledge_library/文言文/选篇/正文/readme.md` | 选篇正文目录说明 |
+| 知识库 | `~/knowledge_library/文言文/选篇/典故注释/readme.md` | 典故注释目录说明 |
+| 知识库 | `~/knowledge_library/文言文/选篇/典故注释/art_*.json` | 典故注释唯一权威源（全部完成） |
 | 前端 | `pages/article-list/index.*` | 选篇列表（三行筛选：文体 + 学段/其他 + 年级弹出面板） |
 | 前端 | `pages/article-reader/index.*` | 名篇阅读器（3 种模式） |
 | 前端 | `utils/tts.ts` | 语音播报（名篇阅读页使用） |

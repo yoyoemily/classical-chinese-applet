@@ -130,7 +130,7 @@ curl -X POST {BASE_URL}/api/admin/import/articles \
     -d "$(python3 -c "
 import json, glob, os
 d = []
-for f in sorted(glob.glob(os.path.expanduser('~/Documents/knowledge_library/文言文/选篇/正文/articles_*.json'))):
+for f in sorted(glob.glob(os.path.expanduser('~/knowledge_library/文言文/选篇/正文/articles_*.json'))):
     with open(f) as fp: d.extend(json.load(fp))
 print(json.dumps(d, ensure_ascii=False))
 ")"
@@ -138,12 +138,12 @@ print(json.dumps(d, ensure_ascii=False))
 # 典故注释 —— 单篇导入
 curl -X POST {BASE_URL}/api/admin/import/glossary/{articleId} \
     -H "Content-Type: application/json" \
-    -d @$HOME/Documents/knowledge_library/文言文/选篇/典故注释/{articleId}.json
+    -d @$HOME/knowledge_library/文言文/选篇/典故注释/{articleId}.json
 
 # 词书 —— 单本导入
 curl -X POST {BASE_URL}/api/admin/import/wordbook \
     -H "Content-Type: application/json" \
-    -d @$HOME/Documents/knowledge_library/文言文/词书/{wordbookFile}.json
+    -d @$HOME/knowledge_library/文言文/词书/{wordbookFile}.json
 ```
 
 **BASE_URL**：本地 `http://localhost:8080`，线上 `https://wyq.yinqueai.com`。
@@ -190,3 +190,5 @@ python3 scripts/validate_keywords.py
 此脚本应作为标注完成后的**硬性校验步骤**，不通过不得导入数据库。
 
 [[articles-section]]
+
+> **纠错场景**：如果是要取消已有的 keyWord 标注（而非新增/修改），走 [[article-keyword-correction]] 流程——定位→检查词书引用→清理→删除→导入。
