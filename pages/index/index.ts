@@ -50,6 +50,8 @@ interface IIndexData {
     reviewWords: number;
     /** 预估耗时（分钟） */
     estimatedMinutes: number;
+    /** 今日跨词书新学词数是否已达上限 */
+    dailyNewLimitReached: boolean;
   };
   /** 连续打卡天数 */
   streak: number;
@@ -91,6 +93,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       newWords: 0,
       reviewWords: 0,
       estimatedMinutes: 0,
+      dailyNewLimitReached: false,
     },
     streak: 0,
     checkedIn: false,
@@ -195,6 +198,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
           newWords: task.newWords.length,
           reviewWords: task.reviewWords.length,
           estimatedMinutes: task.estimatedMinutes,
+          dailyNewLimitReached: task.dailyNewLimitReached || false,
         },
         streak: progress.currentStreak,
         checkedIn,
@@ -284,7 +288,11 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   onTapStartLearning(): void {
     const { todayTask } = this.data;
     if (todayTask.newWords === 0 && todayTask.reviewWords === 0) {
-      wx.showToast({ title: '今日任务已完成', icon: 'success' });
+      if (todayTask.dailyNewLimitReached) {
+        wx.showToast({ title: '今日新学词数已达上限，明天再来吧。', icon: 'none' });
+      } else {
+        wx.showToast({ title: '今日任务已完成', icon: 'success' });
+      }
       return;
     }
     // 打卡满10天 → 进入第11天，必须分享过

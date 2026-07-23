@@ -273,6 +273,8 @@ export interface ITodayTask {
   newWords: ITodayWord[]
   totalWords: number
   estimatedMinutes: number
+  /** 今日跨词书新学词数是否已达上限 */
+  dailyNewLimitReached?: boolean
 }
 
 // ============================================

@@ -131,7 +131,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       ]).catch(() => [null, null] as const);
 
       if (!task || task.totalWords === 0) {
-        wx.showToast({ title: '今日没有需要学习的字', icon: 'none' });
+        const msg = task?.dailyNewLimitReached ? '今日新学词数已达上限，明天再来吧' : '今日没有需要学习的字';
+        wx.showToast({ title: msg, icon: 'none' });
         setTimeout(() => wx.navigateBack(), 1500);
         return;
       }
