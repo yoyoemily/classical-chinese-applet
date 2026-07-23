@@ -95,51 +95,17 @@
   </view>
 
   <!-- 分享海报弹窗 -->
-  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="{{shareConfirmed ? '' : 'onCloseShare'}}">
+  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="onCloseShare">
     <view class="page-mine__poster-modal" catchtap="noop">
-      <view class="page-mine__poster-close" wx:if="{{!shareConfirmed}}" bindtap="onCloseShare">✕</view>
+      <view class="page-mine__poster-close" bindtap="onCloseShare">✕</view>
 
-      <!-- 阶段一：海报 + 操作按钮 -->
-      <block wx:if="{{!shareConfirmed}}">
-        <image
-          class="page-mine__poster-image"
-          src="{{posterTempPath}}"
-          mode="widthFix"
-        />
-        <view class="page-mine__poster-actions">
-          <view class="page-mine__poster-btn-row">
-            <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
-            <button
-              wx:if="{{memberLevel < 1}}"
-              class="page-mine__poster-btn-row-link {{posterSaved ? '' : 'page-mine__poster-btn-row-link--disabled'}}"
-              bindtap="onConfirmShare"
-              disabled="{{!posterSaved}}"
-            >我要分享</button>
-          </view>
-        </view>
-      </block>
-
-      <!-- 阶段二：签订契约（替换海报） -->
-      <view class="page-mine__poster-trust" wx:else>
-        <text class="page-mine__poster-trust-icon">📜</text>
-        <text class="page-mine__poster-trust-title">金石契</text>
-        <text class="page-mine__poster-trust-text">君以分享托付文言雀</text>
-        <text class="page-mine__poster-trust-text">文言雀亦以赤诚报君</text>
-        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--pact">此约既成，金石不渝</text>
-        <!-- 签订契约复选框 -->
-        <view class="page-mine__poster-trust-check" bindtap="onTogglePactCheck">
-          <text class="page-mine__poster-trust-check-finger">👉</text>
-          <view class="page-mine__poster-trust-check-box {{pactChecked ? 'page-mine__poster-trust-check-box--checked' : ''}}">
-            <text wx:if="{{pactChecked}}" class="page-mine__poster-trust-check-mark">✓</text>
-          </view>
-          <text class="page-mine__poster-trust-check-label">余今签契，行之以诚</text>
-        </view>
-        <button
-          class="page-mine__poster-trust-btn {{pactChecked ? '' : 'page-mine__poster-trust-btn--disabled'}}"
-          bindtap="onConfirmPact"
-          disabled="{{!pactChecked}}"
-        >签订契约</button>
-        <text class="page-mine__poster-trust-footer">契约既签，永久免费学习</text>
+      <image
+        class="page-mine__poster-image"
+        src="{{posterTempPath}}"
+        mode="widthFix"
+      />
+      <view class="page-mine__poster-actions">
+        <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
       </view>
     </view>
   </view>

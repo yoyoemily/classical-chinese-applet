@@ -324,14 +324,8 @@
     gap: $spacing-sm;
   }
 
-  &__poster-btn-row {
-    width: 100%;
-    display: flex;
-    gap: $spacing-sm;
-  }
-
   &__poster-save {
-    flex: 1;
+    width: 100%;
     padding: $spacing-md 0;
     background-color: var(--color-primary);
     color: #ffffff;
@@ -340,138 +334,6 @@
     border-radius: $radius-base;
     text-align: center;
     @include active(rgba(74, 106, 94, 0.8));
-
-    &::after {
-      border: none;
-    }
-  }
-
-  &__poster-btn-row-link {
-    flex: 1;
-    padding: $spacing-md 0;
-    background-color: var(--color-accent);
-    color: #ffffff;
-    font-size: $font-size-md;
-    font-weight: 500;
-    border-radius: $radius-base;
-    text-align: center;
-    @include active(rgba(201, 169, 110, 0.8));
-
-    &--disabled {
-      opacity: 0.5;
-      background-color: rgba(74, 106, 94, 0.04);
-      color: var(--color-primary);
-      border: 2rpx solid var(--color-primary);
-    }
-
-    &::after {
-      border: none;
-    }
-  }
-
-  // -------- 签订契约（替换海报） --------
-  &__poster-trust {
-    width: 100%;
-    min-height: 480rpx;
-    @include flex-column;
-    @include flex-center;
-    padding: $spacing-xl $spacing-lg;
-    border-radius: $radius-base;
-    background-color: var(--color-bg-white);
-    gap: $spacing-base;
-  }
-
-  &__poster-trust-icon {
-    font-size: 72rpx;
-    line-height: 1;
-  }
-
-  &__poster-trust-title {
-    font-size: $font-size-xxl;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    text-align: center;
-    margin-bottom: $spacing-md;
-  }
-
-  &__poster-trust-text {
-    font-size: $font-size-md;
-    color: var(--color-text-secondary);
-    text-align: center;
-    line-height: 2;
-
-    &--pact {
-      font-weight: 600;
-      color: var(--color-text-primary);
-      padding-bottom: $spacing-sm;
-      border-bottom: 2rpx solid rgba(212, 161, 42, 0.4);
-    }
-  }
-
-  &__poster-trust-footer {
-    margin-top: $spacing-base;
-    font-size: $font-size-sm;
-    color: #b8860b;
-    text-align: center;
-    font-weight: 500;
-  }
-
-  &__poster-trust-check {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    margin-top: $spacing-base;
-    padding: $spacing-sm 0;
-    justify-content: center;
-  }
-
-  &__poster-trust-check-finger {
-    font-size: 40rpx;
-    animation: finger-point 0.8s ease-in-out infinite alternate;
-  }
-
-  &__poster-trust-check-box {
-    width: 36rpx;
-    height: 36rpx;
-    border-radius: 6rpx;
-    border: 3rpx solid var(--color-text-hint);
-    @include flex-center;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-
-    &--checked {
-      background-color: #d4a12a;
-      border-color: #d4a12a;
-    }
-  }
-
-  &__poster-trust-check-mark {
-    color: #ffffff;
-    font-size: 28rpx;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  &__poster-trust-check-label {
-    font-size: $font-size-sm;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-  }
-
-  &__poster-trust-btn {
-    width: 70%;
-    margin-top: $spacing-lg;
-    padding: $spacing-sm 0;
-    background: linear-gradient(135deg, #d4a12a, #b8860b);
-    color: #ffffff;
-    font-size: $font-size-md;
-    font-weight: 500;
-    border-radius: $radius-base;
-    text-align: center;
-
-    &--disabled {
-      opacity: 0.4;
-    }
 
     &::after {
       border: none;
@@ -576,15 +438,6 @@
 // ============================================
 // 全局动画
 // ============================================
-@keyframes finger-point {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(8rpx);
-  }
-}
-
 @keyframes nuo-shimmer {
   0%, 100% {
     box-shadow: 0 0 8rpx rgba(212, 161, 42, 0.4), inset 0 1rpx 0 rgba(255, 255, 255, 0.3);
