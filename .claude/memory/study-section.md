@@ -211,6 +211,12 @@ metadata:
 | `scripts/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理） |
 | `scripts/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles_*.json |
 
+### 词书释义标准化（2026-07 完成）
+
+- 标准义项表：`~/knowledge_library/文言文/词书/definition_standard.json`（229字/826义项/243合并别名）
+- 8 本词书 quizItem.definition 已统一映射，删除 37 条重复 quizItem，全部已导入后端
+- 详细计划见 [[definition-normalization-plan]]
+
 ## 关键文件索引
 
 | 层 | 文件 | 角色 |
