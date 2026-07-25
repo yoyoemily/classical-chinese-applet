@@ -5,7 +5,12 @@ Fill missing quizItems in word book JSON files.
 For each keyWordRef that has no corresponding quizItem (matched by kidRef),
 generate a new quizItem using data from the article keywords.
 
-Usage: python3 scripts/fill_missing_quizitems.py
+Usage:
+  python3 scripts/fill_missing_quizitems.py
+  python3 scripts/fill_missing_quizitems.py --no-standard   # skip standard-def mapping
+
+The script maps quizItem definitions to the standard definition table
+(definition_standard.json) before writing, to prevent near-synonym drift.
 """
 
 import json
@@ -17,6 +22,7 @@ import sys
 # ── config ──────────────────────────────────────────────────────────
 WB_DIR = os.path.expanduser('~/knowledge_library/文言文/词书/')
 ARTICLES_DIR = os.path.expanduser('~/knowledge_library/文言文/选篇/正文/')
+STANDARD_DEF_PATH = os.path.join(WB_DIR, 'definition_standard.json')
 
 # Word books to process (exclude readonly)
 TARGET_BOOKS = [
@@ -79,6 +85,56 @@ def safe_str(s):
 def normalize_defn(d):
     """Normalize definition for comparison."""
     return re.sub(r'[：:，,、。（(）)\s（）]', '', d)
+
+
+# ── standard-definition mapping ─────────────────────────────────────
+
+def load_standard_defs(path=None):
+    """Load the standard definition table.
+
+    Returns a dict: {(character, normalized_def): standard_key}
+    The table maps both keys and aliases to their canonical key.
+    """
+    if path is None:
+        path = STANDARD_DEF_PATH
+    try:
+        with open(path) as f:
+            raw = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f'  WARNING: Cannot load standard-def table ({e}), skipping mapping')
+        return {}
+
+    table = {}
+    total_aliases = 0
+    for char, entries in raw.items():
+        for entry in entries:
+            key = entry.get('key', '')
+            # Map the canonical key itself (so unchanged defs stay consistent)
+            table[(char, normalize_defn(key))] = key
+            for alias in entry.get('aliases', []):
+                table[(char, normalize_defn(alias))] = key
+                total_aliases += 1
+
+    chars = len(raw)
+    entries_count = sum(len(v) for v in raw.values())
+    print(f'  Loaded standard-def table: {chars} chars, {entries_count} entries, '
+          f'{total_aliases} alias mappings')
+    return table
+
+
+def map_to_standard_def(char, raw_definition, standard_table):
+    """Map a raw definition to the standard canonical key.
+
+    Returns (canonical_def, was_mapped: bool).
+    If no match found, returns the original definition unchanged.
+    """
+    if not standard_table:
+        return raw_definition, False
+    norm = normalize_defn(raw_definition)
+    canonical = standard_table.get((char, norm))
+    if canonical is not None:
+        return canonical, True
+    return raw_definition, False
 
 
 # ── load articles ────────────────────────────────────────────────────
@@ -195,8 +251,8 @@ def pick_distractors(own_definition, existing_quizitems, newly_generated_defs,
 
 # ── process a single word book ───────────────────────────────────────
 
-def process_wordbook(fname, kw_map, start_id):
-    """Process one word book file. Returns (added_count, next_id)."""
+def process_wordbook(fname, kw_map, start_id, standard_table=None):
+    """Process one word book file. Returns (added_count, next_id, mapped_count)."""
     fpath = os.path.join(WB_DIR, fname)
     with open(fpath) as f:
         wb = json.load(f)
@@ -205,10 +261,11 @@ def process_wordbook(fname, kw_map, start_id):
     study_mode = wb.get('studyMode', 'standard')
     if study_mode == 'readonly':
         print(f'\n  {name}: readonly, skipping')
-        return 0, start_id
+        return 0, start_id, 0
 
     next_id = start_id
     total_added = 0
+    total_mapped = 0
     entries_modified = 0
 
     for entry in wb.get('wordEntries', []):
@@ -242,7 +299,16 @@ def process_wordbook(fname, kw_map, start_id):
                 print(f'    WARNING: kid {kid} not found in articles, skipping')
                 continue
 
-            definition = info['definition']
+            raw_definition = info['definition']
+            definition, was_mapped = map_to_standard_def(
+                char, raw_definition, standard_table
+            )
+            if was_mapped and definition != raw_definition:
+                total_mapped += 1
+                print(f'    Mapped [{char}] "{raw_definition}" → "{definition}"')
+            elif not was_mapped and standard_table:
+                print(f'    WARNING: [{char}] no standard match for "{raw_definition}"')
+
             sentence = info['sentence']
             translation = info['translation']
             article_title = info['article_title']
@@ -277,38 +343,50 @@ def process_wordbook(fname, kw_map, start_id):
     with open(fpath, 'w') as f:
         json.dump(wb, f, ensure_ascii=False, indent=2)
 
-    print(f'  {name}: added {total_added} quizItems across {entries_modified} characters')
-    return total_added, next_id
+    print(f'  {name}: added {total_added} quizItems ({total_mapped} standard-mapped) across {entries_modified} characters')
+    return total_added, next_id, total_mapped
 
 
 # ── main ─────────────────────────────────────────────────────────────
 
 def main():
+    no_standard = '--no-standard' in sys.argv
+
     print('=== Fill Missing QuizItems ===\n')
 
     # 1. Load article keyword map
-    print('[1/4] Loading article keywords...')
+    print('[1/5] Loading article keywords...')
     kw_map = load_article_kw_map()
 
-    # 2. Find global max quizItem ID
-    print('\n[2/4] Finding global max quizItem ID...')
+    # 2. Load standard definition table
+    standard_table = None
+    if not no_standard:
+        print('\n[2/5] Loading standard definition table...')
+        standard_table = load_standard_defs()
+    else:
+        print('\n[2/5] Skipping standard definition table (--no-standard flag)')
+
+    # 3. Find global max quizItem ID
+    print('\n[3/5] Finding global max quizItem ID...')
     max_id = find_global_max_id()
     print(f'  Global max: s_c_{max_id:04d}')
     next_id = max_id + 1
 
-    # 3. Process each word book
-    print('\n[3/4] Processing word books...')
+    # 4. Process each word book
+    print('\n[4/5] Processing word books...')
     grand_total = 0
+    grand_mapped = 0
     for fname in TARGET_BOOKS:
         fpath = os.path.join(WB_DIR, fname)
         if not os.path.exists(fpath):
             print(f'  {fname}: not found, skipping')
             continue
-        added, next_id = process_wordbook(fname, kw_map, next_id)
+        added, next_id, mapped = process_wordbook(fname, kw_map, next_id, standard_table)
         grand_total += added
+        grand_mapped += mapped
 
-    # 4. Validate
-    print(f'\n[4/4] Validating JSON syntax...')
+    # 5. Validate
+    print(f'\n[5/5] Validating JSON syntax...')
     all_ok = True
     for fname in TARGET_BOOKS:
         fpath = os.path.join(WB_DIR, fname)
@@ -322,7 +400,7 @@ def main():
             print(f'  ❌ {fname}: {e}')
             all_ok = False
 
-    print(f'\n=== Done: {grand_total} quizItems added ===')
+    print(f'\n=== Done: {grand_total} quizItems added, {grand_mapped} standard-mapped ===')
 
     if not all_ok:
         print('⚠️  Some files have JSON errors! Check above.')

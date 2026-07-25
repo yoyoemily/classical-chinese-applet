@@ -28,6 +28,7 @@ metadata:
 - 不要批量读取所有页面/组件文件
 - 板块文件已经记录了该板块的全部信息，足够回答问题
 - 不要主动读 git log、git diff、git status（除非用户明确要求结合 git）
+- **不要执行 `git add`、`git commit`、`git push` 等 git 写操作。用户自己操作 git 提交。**
 
 ### 2. "更新记忆"时的行为
 

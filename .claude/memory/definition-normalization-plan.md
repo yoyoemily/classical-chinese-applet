@@ -1,78 +1,134 @@
 ---
 name: definition-normalization-plan
-description: 词书 quizItem 释义统一规范化实施计划——清理近义表述不统一+导入重复，建立标准义项表+标注规范
+description: 词书 quizItem 释义统一规范化——Phase 3 完成，8 本词书 100% 标准化，进入 Phase 4 逐字审计
 metadata:
   type: project
 ---
 
 # 词书 quizItem 释义统一规范化
 
-## Context
+## 当前阶段（2026-07-25）
 
-摸底发现 8 本非 readonly 词书中存在以下问题：
+**Phase 3 已完成。** 8 本词书 1,427 条 quizItem 全部标准化（100%）。标准义项表扩展至 408 字 / 1,005 义项。
 
-| 问题类型 | 说明 |
-|---------|------|
-| A. 导入重复 | 同定义 + 同出处的真正冗余 quizItem |
-| B. 近义表述不统一 | 同义但文字不一致，如"进入"与"进入，与出相对"、"窄"与"窄，不宽阔"、"处于，在"与"处在、处于" |
+### 已完成的工作
 
-**根因**：quizItem 的 definition 在词书编撰时直接从选篇 keyWord 的 definition 复制。不同人/不同时期的标注习惯不统一，导致同一个义项在不同文章中定义文字不一致。
+| 阶段 | 内容 | 状态 |
+|------|------|:--:|
+| Phase 1 | 标准义项表提取、去重、三轮审计（408字/993义项） | ✅ |
+| Phase 2 | 建立长远规范 | ✅ |
+| Phase 3 | 清理所有脏数据，8本词书100%标准化 | ✅ |
 
-**当前影响**：用户搜索一个字时，义项列表冗余混乱——明明是一个意思，却分成多条（如"处于，在"和"处在、处于"），用户体验差。
+**Phase 2 产出**：
+- 知识库 `选篇/正文/readme.md` 新增「keyWord definition 标注规范」章节（6节：唯一规范源、查找与匹配流程、扩充标准表、各词类 format 约定、aliases 字段、维护规则）
+- 项目记忆 `articles-section.md`、`study-section.md` 已同步更新
 
-## 核心思路
+| 轮次 | 操作 | 变化 | 义项数 |
+|------|------|:--:|:--:|
+| 原始 | 从 quizItem 提取去重 | — | 1066 |
+| 第1轮 | 删例句（65条）、补空数组（厝/陇/乎）、合并引号重复（6条）、修复格式 | 🗑➕🔗✏️ | 1005 |
+| 第2轮 | 近义合并（9组）、修复格式（4处）、近义合并（3组） | 🔗✏️ | 993 |
+| 第3轮 | 格式统一（5处：句号→冒号、半角→全角括号） | ✏️ | 993 |
 
-建立**"字 × 义项"标准定义表**（`definition_standard.json`）作为唯一规范源：
+### 合并清单（可回溯）
 
-- 选篇 keyWord 的 definition 可自由标注（保持灵活性）
-- 词书 quizItem 的 definition **不再直接从选篇复制，而是映射到标准定义**
-- 未来新增选篇 → keyWord 标注者参考标准定义表，选最接近的匹配
+**近义合并（9组，语义相同、例句佐证）**：
+- 胜：禁得住/经得住 → "禁得住，能承担"
+- 兴：兴起/掀起 → "兴起，掀起"
+- 微：微小/轻微 → "微小，轻微"
+- 安：安稳/舒适 → "安定，安稳"
+- 说：讲谈/陈述解说 → "讲，陈述"
+- 汤：同烫/通烫 → "通"烫"，用热水焐、加热"
+- 病：责备羞辱/辱耻辱 → "责备，羞辱"
+- 易：交换/替换 → "换，交换，替换"
+- 郤：两个通"隙" → "通"隙"，空隙、隔阂、嫌怨"
 
-## 执行进度
+**近义合并（3组）**：
+- 右：较高地位/引申为上 → "较高的地位，上（古代以右为尊）"
+- 望：希望打算/盼望期望 → "希望，盼望，期望"
+- 素：向来一向/平常 → "向来，一向，平常"
 
-### ✅ Phase 1：生成标准义项表（已完成）
+**修复清单**：
+- 类：去前导句号
+- 何：口语化→正式
+- 汤：同→通
+- 坐：去(l)前缀
+- 恶：句号→逗号
+- 效：效任务→任务责任
+- 奇：去括号冗余
+- 书：句号→冒号
+- 是：句号→冒号
+- 远/请/亲戚：半角括号→全角
 
-- 产出：`~/knowledge_library/文言文/词书/definition_standard.json`
-- 规模：229 字、826 个标准义项、243 条合并别名
-- 方法：人工逐字审计 + 脚本辅助，合并原则——明确是同一义项的才合并，不确定的保持分开
-- 脏数据标记：部分虚词（与、且、为、之、乎、也、于、其、则、因、所、焉、者）的 quizItem definition 含原始例句而非义项描述，已识别但暂未修复（不在本次清理范围）
+**补充空数组（从 article_keyword 补）**：
+- 厝：通"措"，放置
+- 陇：通"垄"，土埂、山冈阻隔
+- 乎：重写5条标准虚词义项
 
-### ✅ Phase 2：修正词书 JSON（已完成）
+### 标准表当前状态
 
-- 标准化 284 条 quizItem definition
-- 删除 37 条重复 quizItem（同 entry 内同 definition + 同 sentenceSource）
-- 8 本词书全部 JSON 校验通过
+- 文件：`~/knowledge_library/文言文/词书/definition_standard.json`
+- 规模：408 字 / 993 义项
+- 质量：0 空数组、0 脏数据（例句）、0 重复、格式统一
+- 备份：`definition_standard.json.bak`（原始 1066 义项，可删除）
 
-### ✅ Phase 3：导入后端 + 验证（已完成）
+## 待办
 
-- 8 本词书全部幂等导入后端（code=0）
-- 待验证：搜索高频问题字（居/乘/见/入/以/归/去/亡/善/故/道/何）+ 学习页答题回路
+### Phase 3：清理虚词脏数据 ✅
 
-### ⬜ Phase 4：建立长远规范
+**2026-07-25 第二轮完成**——78 条脏数据全部清理：
 
-1. `~/knowledge_library/文言文/选篇/正文/readme.md` 增加"keyWord definition 标注规范"章节，引用标准义项表
-2. `scripts/fill_missing_quizitems.py` 改造：definition 生成时查标准表映射
-3. 更新项目记忆（[[study-section]]、[[articles-section]]）
+| 类别 | 处理 | 数量 |
+|------|:--:|:--:|
+| C类-纯词性标签 | 根据句子语境匹配标准义项 | 9→✔️ |
+| D类-虚词例句 | 逐条判断虚词用法→标准义项（乎/其/且/所/为/焉/也/因/于/与/则/者/之/而） | 65→✔️ |
+| 边缘个例 | 读音→义项、教程体→标准表述、空定义补充 | 4→✔️ |
+| 标准表扩充 | 新增 12 条义项（除去去掉、双层的夹层的、代词你、处所 等） | 12→✔️ |
 
-### ⬜ Phase 5：清理脏数据
+**最终结果**：
+- 8 本词书 1,427 条 quizItem，**100% 标准化**（含 `wb_gaokao_shixu` 620/620）
+- `definition_standard.json` 扩展至 408 字 / 1,005 义项
+- 所有 quizItem ID 均未变更，符合 [[quizitem-id-invariance-rule]]
 
-部分虚词 quizItem 的 definition 是原始例句而非义项描述（约 55 条），需要在知识库词书 JSON 中修复后重新导入。
+> ⚠️ 词书修复后暂不导入，等工作全部完成再统一导入。
+
+### Phase 4：逐字人工审计 ⬜（低优先级）
+
+当前 993 义项是自动合并的结果，未做逐字人工核对。后续可逐字审阅：
+- 义项是否准确（definition 本身有无错误）
+- 义项是否完整（有无遗漏常用义）
+- alias 标注（同一义的不同表述）
+
+此项耗时长、需人工判断，不阻塞当前工作。
 
 ## 涉及文件
 
 | 文件 | 状态 |
 |------|------|
-| `~/knowledge_library/文言文/词书/definition_standard.json` | ✅ 已创建（229字/826义项/243合并别名） |
-| `~/knowledge_library/文言文/词书/wb_*.json`（8 本非 readonly） | ✅ 已修正并导入后端 |
-| `scripts/fill_missing_quizitems.py` | ⬜ 待改造 |
-| `~/knowledge_library/文言文/选篇/正文/readme.md` | ⬜ 待增加标注规范章节 |
+| `~/knowledge_library/文言文/词书/definition_standard.json` | ✅ 三轮审计完成（408字/993义项） |
+| `~/knowledge_library/文言文/词书/definition_standard.json.bak` | 原始备份（1066义项，确认无误后可删除） |
+| `~/knowledge_library/文言文/词书/definition_standard_v1.json.bak` | 旧表备份（已废弃） |
+| `~/knowledge_library/文言文/词书/wb_*.json`（8 本非 readonly） | ⬜ 7本 100% 达标，1本剩余76条虚词例句+纯词性标签 |
+| `scripts/fill_missing_quizitems.py` | ✅ 已改造（自动映射标准义项表） |
+| `~/knowledge_library/文言文/选篇/正文/readme.md` | ✅ 已增加标注规范章节（Phase 2 完成） |
 
 ## 后续会话恢复指引
 
-1. 读取本文件和 [[study-section]]、[[articles-section]] 即可了解项目状态
-2. 标准义项表位于 `~/knowledge_library/文言文/词书/definition_standard.json`
-3. 8 本词书已标准化并导入后端（code=0），可直接进入 Phase 4
-4. 词书备份文件 `*.bak` 可删除（确认无误后）
+**触发词**：继续标准化、继续义项标准化
 
-[[study-section]]
-[[articles-section]]
+**当前状态**：Phase 3 已完成！8 本词书全部 100% 标准化。下一步是 Phase 4 逐字人工审计（低优先级）。
+
+### 当前词书数据状态
+
+- `definition_standard.json`：408 字 / 1,005 义项（已验证，无空数组、无重复）
+- `wb_zhongkao_shixu.json`：100% ✅
+- `wb_zhongkao_tongjia.json`：100% ✅
+- `wb_zhongkao_gujinyi.json`：100% ✅
+- `wb_zhongkao_cileihuoyong.json`：100% ✅
+- `wb_gaokao_tongjia.json`：100% ✅
+- `wb_gaokao_gujinyi.json`：100% ✅
+- `wb_gaokao_cileihuoyong.json`：100% ✅
+- `wb_gaokao_shixu.json`：100% ✅（620/620 条均在标准表中）
+- `wb_function_words.json`：readonly 词书，不参与标准化
+
+> ⚠️ 词书修复后**尚未导入后端**，需执行导入命令使修改生效。导入前建议先备份数据库 quiz_item 表。导入后 quizItem.id 不变，用户数据不受影响。

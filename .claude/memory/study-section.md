@@ -211,11 +211,18 @@ metadata:
 | `scripts/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理） |
 | `scripts/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles_*.json |
 
-### 词书释义标准化（2026-07 完成）
+### 词书释义标准化（2026-07-25 Phase 3 完成）
 
-- 标准义项表：`~/knowledge_library/文言文/词书/definition_standard.json`（229字/826义项/243合并别名）
-- 8 本词书 quizItem.definition 已统一映射，删除 37 条重复 quizItem，全部已导入后端
+- 标准义项表：`definition_standard.json`（408字/1005义项），Phase 1-2 三轮审计完成
+- **Phase 3 第二轮完成**：78 条脏数据全部清理（C类纯词性标签 9 条 + D类虚词例句 65 条 + 边缘个例 4 条）
+- **8 本词书 1,427 条 quizItem 100% 标准化**，所有 ID 未变更
+- 标准表扩充 12 条义项
 - 详细计划见 [[definition-normalization-plan]]
+
+### 待办
+
+- Phase 4：逐字人工审计（低优先级）
+- 词书修复后统一导入后端
 
 ## 关键文件索引
 

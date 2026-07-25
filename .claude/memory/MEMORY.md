@@ -10,5 +10,6 @@
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/分享流程/金石契/海报生成/页面结构
 - [🎬 抖音宣传视频脚本](douyin-promo-video-script.md) — 61 秒完整脚本+实战制作步骤，19 张截图+2 个即梦AI素材+剪映逐帧合成，覆盖学习/选篇/经典三板块。触发词：宣传视频、抖音脚本、视频制作、promo video
-- [📋 词书释义统一规范化计划](definition-normalization-plan.md) — quizItem definition 近义表述不统一（~45 处）+导入重复（~25 处）的清理计划，含标准义项表+标注规范+导入脚本改造。触发词：释义统一、definition 规范、义项重复、近义合并
+- [📋 词书释义统一规范化计划](definition-normalization-plan.md) — Phase 1-2 完成，Phase 3 进行中（94.0% 已标准化，剩余 76 条虚词例句+纯词性标签）。触发词：释义统一、definition 规范、义项标准化、继续标准化
+- [🔒 quizItem ID 不可变性原则](quizitem-id-invariance-rule.md) — 删除不复用，新增用新ID。触发词：quiz_item_id、导入词书、ID 复用
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引

@@ -167,9 +167,11 @@ articles_*.json 规范化：
 | `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord 条目 |
 | `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子到 articles_*.json |
 
-### keyWord definition 标注规范（2026-07 建立）
+### keyWord definition 标注规范（2026-07 建立，Phase 2 完成）
 
-标准义项表 `definition_standard.json` 位于知识库词书目录，是 quizItem definition 的唯一规范源。新增 keyWord 的 definition 标注应参考该表，从已有义项中选择最接近的匹配，不再自由发挥。详见 [[definition-normalization-plan]]。
+标准义项表 `definition_standard.json`（408字/993义项）位于知识库词书目录，是 keyWord definition 的唯一规范源。新增或修改 keyWord 的 definition 时必须从标准表中选取已有义项，原文复制到 definition 字段，不做任何同义改写。标准表无匹配时先扩充标准表再引用。
+
+完整标注规范见知识库 `文言文/选篇/正文/readme.md` →「keyWord definition 标注规范」章节，含 6 节：唯一规范源、查找与匹配流程、扩充标准表、各词类 format 约定、aliases 字段、维护规则。详见 [[definition-normalization-plan]]。
 
 ---
 
