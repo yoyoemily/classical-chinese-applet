@@ -211,18 +211,16 @@ metadata:
 | `scripts/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理） |
 | `scripts/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles_*.json |
 
-### 词书释义标准化（2026-07-25 Phase 3 完成）
+### 词书释义标准化（全部完成）
 
-- 标准义项表：`definition_standard.json`（408字/1005义项），Phase 1-2 三轮审计完成
-- **Phase 3 第二轮完成**：78 条脏数据全部清理（C类纯词性标签 9 条 + D类虚词例句 65 条 + 边缘个例 4 条）
-- **8 本词书 1,427 条 quizItem 100% 标准化**，所有 ID 未变更
-- 标准表扩充 12 条义项
-- 详细计划见 [[definition-normalization-plan]]
+- **标准义项表**：`~/knowledge_library/文言文/词书/definition_standard.json`（408 字 / 1,005 义项），是 keyWord definition 的**唯一规范源**
+- **8 本词书 1,427 条 quizItem 100% 标准化**，所有 ID 未变更，已导入后端
+- 后续新增或修改 keyWord definition 时，必须从标准义项表中选取已有义项，原文复制不做同义改写；无匹配则先扩充标准表再引用
+- 标注规范详见知识库 `文言文/选篇/正文/readme.md` →「keyWord definition 标注规范」章节
 
 ### 待办
 
-- Phase 4：逐字人工审计（低优先级）
-- 词书修复后统一导入后端
+（无）
 
 ## 关键文件索引
 

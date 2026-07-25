@@ -33,7 +33,11 @@ metadata:
 
 > ⚠️ **【最重要的一课】2026-07-21 高一下补齐踩坑**：4 首诗词 36 个 keyWord 中仅 1 个与词书对应，其余全为地名/典故/文化隐喻（"坼""乾坤""故国""星河""门外楼头""西江""北斗""姹紫嫣红""朝飞暮卷"等）。根因是没有逐字核对词书，凭感觉把"有文化内涵"的词全标成了 keyWord。**keyWord 的唯一判定标准是：该字/词是否在 8 本打卡型词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。** 不在词书 = 不是 keyWord（有典故价值的归 glossary）。
 
-**数据关系**：选篇 keyWords 是唯一权威源，词书通过 `kid` 引用。标注新选篇时，以 **8 本打卡型词书**（中考/高考 × shixu/tongjia/gujinyi/cileihuoyong）的 `wordEntries` 作为**唯一参照**——词书定义了"哪些字是考点"，选篇负责"这些考点在具体语境中怎么用"。
+**数据关系**：选篇 keyWords 是唯一权威源，词书通过 `kid` 引用。标注新选篇时：
+
+- **词书**（8 本打卡型）的 `wordEntries[].character` 定义"哪些字是考点"——不在词书中的字不标 keyWord
+- **标准义项表** `definition_standard.json`（408 字 / 1,005 义项）定义每个考点字的**规范义项表述**——keyWord 的 `definition` 字段必须从标准表中原文复制，不做同义改写
+- **选篇 keyWords** 关联两者：用词书确定的考点字，从标准表取匹配句中用法的义项，通过 `kid` + `wordBookId` 双向关联
 
 > 注：`wb_function_words.json`（文言文虚词深度解析）不参与 keyWord 核对。它是阅读型词书，无 quizItems（0 题），不驱动打卡学习回路。其 54 个虚词中 38 个已在打卡型词书中，保持独立浏览即可。
 
@@ -43,7 +47,7 @@ metadata:
 |-------------------|-------------------------------|
 | 词书中有该字 + 义项匹配句中用法 | 地名、人名、年号 |
 | 必须关联 `wordBookId` | 器物、草木、动物 |
-| 定义来自词书 explanation | 官职、制度、文化隐喻 |
+| 定义来自标准义项表 `definition_standard.json` | 官职、制度、文化隐喻 |
 | | 典故、名句、哲理表达 |
 | | 多字词（如"乾坤""星河""西江"），即使含有词书字也不标 |
 | | 词书中有该字但义项不匹配句中用法 |
@@ -57,7 +61,7 @@ metadata:
 ```json
 {
   "word": "字",
-  "definition": "结合句中用法，从词书 explanation 中提取匹配的义项，简洁表述",
+  "definition": "从标准义项表 definition_standard.json 中选取匹配句中用法的义项，原文复制不做同义改写",
   "wordType": "shi/xu/tongjia/gujinyi/huoyong",
   "kid": "kw_{articleId}_s{sentenceIndex:02d}_{word}_{序号}",
   "wordBookId": "词书 ID（必填，不能为 null）"
@@ -67,6 +71,7 @@ metadata:
 **约束**：
 - ⚠️ **不在词书中的字绝不标 keyWord**——标了也无法关联 `wordBookId`，学习回路中不会出现，标注毫无意义
 - ⚠️ **`wordBookId` 必填**，不能为 null/空——无词书可关联的字若确有文化价值，归 glossary
+- ⚠️ **`definition` 必须从标准义项表中取值**：`~/knowledge_library/文言文/词书/definition_standard.json`（408 字 / 1,005 义项）是唯一规范源。在表中找到匹配该字+句中用法的义项，**原文复制**到 `definition` 字段，不做任何同义改写。若标准表中无匹配义项，**先与用户确认后再扩充标准表**（新增义项），不得自行决定扩充
 - `kid` 序号从 0 开始递增，同句同字可以有多个序号（如不同义项来自不同词书）
 - 同句同字有多个 kid 时，`definition` 应区分（如"介词/连词：和、跟、同" vs "和、同"）
 - kid 全局唯一，新增前先确认不重复
@@ -165,6 +170,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 - [ ] 所有 glossary 的 `sentenceIndex` 与当前句子编号一致
 - [ ] kid 全局唯一，无重复
 - [ ] **每个 keyWord 的 `word` 在 8 本打卡型词书中有对应 `character`，且义项匹配句中用法**（运行 `scripts/validate_keywords.py` 交叉验证）
+- [ ] **每个 keyWord 的 `definition` 原文来自标准义项表**，未做同义改写；如有新增义项已与用户确认并扩充标准表
 - [ ] **每个 keyWord 的 `wordBookId` 非空**，指向正确的词书
 - [ ] JSON 校验通过
 - [ ] 数据已导入数据库

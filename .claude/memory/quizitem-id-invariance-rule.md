@@ -37,5 +37,4 @@ quiz_item.id  ←──  quiz_distractor.quiz_item_id         (干扰项，幂�
 - 后续任何词书编辑工作都必须遵守此原则
 - 当前 quizItem ID 最大值为 `s_c_1468`（wb_gaokao_tongjia.json），新增 ID 从 `s_c_1469` 起
 
-[[definition-normalization-plan]]
 [[study-section]]
