@@ -6,6 +6,9 @@
 - [🔍 选篇 keyWords 词书交叉核对](articles-section.md) — ✅ 已完成。2,030→1,634 条，100% 词书覆盖 + wordBookId + wordType 一致。keyWord 标注标准见 [[article-adjustment-workflow]]#3
 - [📝 选篇典故注释](articles-section.md) — ✅ 已完成。187 篇 2,125 条典故注释全部深度审查扩充并导入数据库。注释标准已融合到 [[article-adjustment-workflow]]#4
 - [🔧 选篇 keyWord 标注纠错流程](article-keyword-correction.md) — 发现标注有误时的标准修复流程：定位→检查词书引用→清理→修改JSON→导入→验证。触发词：标注有误、取消标注、纠错 keyWord
+- [🔧 quizItem 释义错误修复流程](quiz-item-definition-fix.md) — 答题正确答案有误的标准修复流程：定位quizItem→核对keyWord→修正definition→重导入。触发词：正确答案有误、释义错误、definition 不对、答案错了
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/分享流程/金石契/海报生成/页面结构
+- [🎬 抖音宣传视频脚本](douyin-promo-video-script.md) — 61 秒完整脚本+实战制作步骤，19 张截图+2 个即梦AI素材+剪映逐帧合成，覆盖学习/选篇/经典三板块。触发词：宣传视频、抖音脚本、视频制作、promo video
+- [📋 词书释义统一规范化计划](definition-normalization-plan.md) — quizItem definition 近义表述不统一（~45 处）+导入重复（~25 处）的清理计划，含标准义项表+标注规范+导入脚本改造。触发词：释义统一、definition 规范、义项重复、近义合并
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
