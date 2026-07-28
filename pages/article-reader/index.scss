@@ -107,10 +107,38 @@
     }
   }
 
+  // 标注标准入口（tab 栏下方紧贴，仅典故注释 tab 可见）
+  &__annotation-guide-entry {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8rpx;
+    padding: 14rpx 0;
+    background: linear-gradient(180deg, rgba(201, 169, 110, 0.1), rgba(201, 169, 110, 0.04));
+    border-bottom: 1rpx solid rgba(201, 169, 110, 0.15);
+    transition: background 0.2s;
+    &:active { background: rgba(201, 169, 110, 0.15); }
+  }
+  &__annotation-guide-icon {
+    font-size: 24rpx;
+    line-height: 1;
+  }
+  &__annotation-guide-label {
+    font-size: 26rpx;
+    color: var(--color-accent, #c9a96e);
+    line-height: 1;
+  }
+  &__annotation-guide-arrow {
+    font-size: 26rpx;
+    color: var(--color-accent, #c9a96e);
+    margin-left: 2rpx;
+    line-height: 1;
+  }
+
   // ---------- 正文容器 ----------
   &__body {
     flex: 1;
-    padding: $spacing-xl $spacing-lg 0;
+    padding: $spacing-sm $spacing-lg 0;
   }
   &__body-spacer { height: $spacing-md; }
 
@@ -560,6 +588,84 @@
     font-weight: 500;
     &:active { opacity: 0.85; }
     &--loading { opacity: 0.6; pointer-events: none; }
+  }
+
+  // 标注说明弹窗
+  &__annotation-guide-mask {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4); z-index: 300;
+    @include flex-center;
+    animation: fadeInSimple 0.2s ease;
+  }
+  &__annotation-guide-modal {
+    width: 620rpx;
+    max-height: 64vh;
+    background: #fff;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.12);
+    animation: vocabSlideUp 0.25s ease;
+  }
+  &__annotation-guide-header {
+    @include flex-between;
+    padding: $spacing-lg;
+    border-bottom: 1rpx solid var(--color-border-light);
+  }
+  &__annotation-guide-title {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  &__annotation-guide-close {
+    @include flex-center;
+    width: 56rpx; height: 56rpx;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+    &:active { background: var(--color-bg-hover); }
+  }
+  &__annotation-guide-body {
+    padding: $spacing-lg;
+    max-height: 48vh;
+  }
+  &__annotation-guide-section {
+    margin-bottom: $spacing-lg;
+    &:last-child { margin-bottom: 0; }
+  }
+  &__annotation-guide-subtitle {
+    display: block;
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: $spacing-base;
+  }
+  &__annotation-guide-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+  &__annotation-guide-item {
+    padding: 8rpx 20rpx;
+    background: rgba(74, 106, 94, 0.06);
+    border-radius: $radius-sm;
+    font-size: 24rpx;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    &--no {
+      background: rgba(180, 100, 80, 0.06);
+      color: var(--color-text-hint);
+    }
+  }
+  &__annotation-guide-tip {
+    display: flex;
+    flex-direction: column;
+    gap: 8rpx;
+    & text {
+      font-size: 24rpx;
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+    }
   }
 
   // +XP 动效

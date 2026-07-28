@@ -16,6 +16,12 @@
     <text class="page-classic__intro-desc">五十余部传世典籍 · 涵泳其间，与古贤对话</text>
   </view>
 
+  <!-- 顶部公告栏 -->
+  <view class="page-classic__notice-bar">
+    <text class="page-classic__notice-bar-icon">📣</text>
+    <text class="page-classic__notice-bar-text">平台将于八月份完成全部经典导入与详尽标注，助您畅读原典</text>
+  </view>
+
   <!-- 加载中 -->
   <view class="page-classic__loading" wx:if="{{loading}}">
     <view class="page-classic__loading-spinner"></view>

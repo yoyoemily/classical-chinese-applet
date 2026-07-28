@@ -92,6 +92,14 @@
       background: linear-gradient(135deg, rgba(#faad14, 0.12), rgba(#faad14, 0.06));
       border-color: #c99a3b;
     }
+    &--wrong {
+      background: rgba(255,77,79,0.08);
+      border-color: var(--color-error);
+      border-style: solid;
+      .page-study__dont-know-title { color: var(--color-error); }
+      .page-study__dont-know-hint { color: #e08580; }
+      .page-study__dont-know-icon { filter: grayscale(1) brightness(0.9); }
+    }
   }
   &__dont-know-icon {
     font-size: 44rpx;
@@ -108,7 +116,7 @@
     color: #8b6914;
   }
   &__dont-know-hint {
-    font-size: $font-size-xs;
+    font-size: $font-size-sm;
     color: #b8954a;
     line-height: 1.4;
   }
@@ -136,7 +144,7 @@
     padding: $spacing-md 0;
     margin-top: $spacing-sm;
     & text {
-      font-size: $font-size-sm;
+      font-size: 28rpx;
       color: var(--color-text-hint);
       text-decoration: underline;
       text-underline-offset: 4rpx;

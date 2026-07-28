@@ -60,6 +60,13 @@
       </view>
     </view>
 
+    <!-- 标注标准入口（仅典故注释 tab） -->
+    <view class="page-article-reader__annotation-guide-entry" wx:if="{{readingMode === 'glossary'}}" bindtap="onTapAnnotationGuide">
+      <text class="page-article-reader__annotation-guide-icon">🔍</text>
+      <text class="page-article-reader__annotation-guide-label">平台典故注释标准</text>
+      <text class="page-article-reader__annotation-guide-arrow">▸</text>
+    </view>
+
     <!-- ============================================= -->
     <!-- 模式一：通篇阅读（原文，段落可展开译文，生词高亮可点击）   -->
     <!-- ============================================= -->
@@ -265,6 +272,45 @@
             <text>{{feedbackSubmitting ? '提交中...' : '提交反馈'}}</text>
           </view>
         </view>
+      </view>
+    </view>
+
+    <!-- 典故注释标注说明弹窗 -->
+    <view class="page-article-reader__annotation-guide-mask" wx:if="{{showAnnotationGuide}}" bindtap="onCloseAnnotationGuide">
+      <view class="page-article-reader__annotation-guide-modal" catchtap="">
+        <view class="page-article-reader__annotation-guide-header">
+          <text class="page-article-reader__annotation-guide-title">平台典故注释标准</text>
+          <view class="page-article-reader__annotation-guide-close" bindtap="onCloseAnnotationGuide"><text>✕</text></view>
+        </view>
+        <scroll-view class="page-article-reader__annotation-guide-body" scroll-y enhanced show-scrollbar="{{false}}">
+          <view class="page-article-reader__annotation-guide-section">
+            <text class="page-article-reader__annotation-guide-subtitle">✅ 标注什么</text>
+            <view class="page-article-reader__annotation-guide-list">
+              <view class="page-article-reader__annotation-guide-item"><text>地名、人名、年号</text></view>
+              <view class="page-article-reader__annotation-guide-item"><text>器物、草木、动物</text></view>
+              <view class="page-article-reader__annotation-guide-item"><text>官职、制度</text></view>
+              <view class="page-article-reader__annotation-guide-item"><text>文化隐喻、典故</text></view>
+              <view class="page-article-reader__annotation-guide-item"><text>名句、哲理表达</text></view>
+            </view>
+          </view>
+          <view class="page-article-reader__annotation-guide-section">
+            <text class="page-article-reader__annotation-guide-subtitle">✗ 不标什么</text>
+            <view class="page-article-reader__annotation-guide-list">
+              <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>动词、形容词——词书已覆盖</text></view>
+              <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>虚词——词书已覆盖</text></view>
+              <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>代词——词书已覆盖</text></view>
+              <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>常见名词（春/年/山/日）——现代汉语常用</text></view>
+            </view>
+          </view>
+          <view class="page-article-reader__annotation-guide-section">
+            <text class="page-article-reader__annotation-guide-subtitle">判断口诀</text>
+            <view class="page-article-reader__annotation-guide-tip">
+              <text>① 学生不看解释就知道 → 不标</text>
+              <text>② 有文化背景可讲、能提升阅读乐趣 → 标</text>
+              <text>③ 词书已覆盖的实词/虚词 → 不标</text>
+            </view>
+          </view>
+        </scroll-view>
       </view>
     </view>
   </block>

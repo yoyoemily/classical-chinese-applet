@@ -125,11 +125,11 @@
       </view>
 
       <!-- 不知道按钮 —— 始终显示 -->
-      <view class="page-study__dont-know-card" bindtap="onTapDontKnow" hover-class="page-study__dont-know-card--hover">
+      <view class="page-study__dont-know-card {{showWrong && selectedIndex === -1 ? 'page-study__dont-know-card--wrong' : ''}}" bindtap="onTapDontKnow" hover-class="page-study__dont-know-card--hover">
         <view class="page-study__dont-know-icon">🤔</view>
         <view class="page-study__dont-know-body">
           <text class="page-study__dont-know-title">不知道</text>
-          <text class="page-study__dont-know-hint">拿不准就点这里，乱选没有意义</text>
+          <text class="page-study__dont-know-hint">拿不准就点这里，蒙对会干扰复习节奏，没有意义</text>
         </view>
       </view>
 

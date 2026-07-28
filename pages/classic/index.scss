@@ -60,6 +60,35 @@
   }
 
   // ==========================================
+  // 顶部公告栏
+  // ==========================================
+  &__notice-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: 16rpx $spacing-base;
+    background: linear-gradient(135deg, rgba($color-accent, 0.15), rgba($color-accent, 0.06));
+    border-top: 2rpx solid rgba($color-accent, 0.25);
+    border-bottom: 2rpx solid rgba($color-accent, 0.25);
+  }
+
+  &__notice-bar-icon {
+    font-size: $font-size-base;
+    flex-shrink: 0;
+  }
+
+  &__notice-bar-text {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $color-accent;
+    line-height: 1.6;
+  }
+
+  // ==========================================
+  // 加载与错误状态
+
+  // ==========================================
   // 加载与错误状态
   // ==========================================
   &__loading {
