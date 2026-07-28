@@ -12,6 +12,10 @@ export interface IAppOption {
     todayTask?: ITodayTask
     /** 登录 Promise，页面可 await 它确保登录完成后再请求 */
     loginPromise?: Promise<void>
+    /** 小程序码 scene 参数（一次性的，reLogin 读取后清除） */
+    launchScene?: string
+    /** 启动时的 query 参数（一次性的，reLogin 读取后清除） */
+    launchQuery?: Record<string, string>
   }
   $emit?: (event: string, ...args: unknown[]) => void
   $on?: (event: string, callback: (...args: unknown[]) => void) => void
@@ -349,6 +353,11 @@ export interface IMemberStatus {
   codeActive: boolean;
   /** 最后活跃时间 */
   lastActiveAt?: string;
+}
+
+/** 邀请统计 */
+export interface IInviteStats {
+  totalInvited: number;
 }
 
 // ============================================

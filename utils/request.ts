@@ -1,4 +1,4 @@
-import type { IApiResponse } from '../typings/index';
+import type { IApiResponse, IAppOption } from '../typings/index';
 import { STORAGE_KEYS } from '../constants/config';
 
 /** 请求配置项 */
@@ -27,7 +27,7 @@ function getBaseUrl(): string {
     const { envVersion } = wx.getAccountInfoSync().miniProgram;
     return envVersion === 'release'
       ? 'https://wyq.yinqueai.com'
-      : 'https://wyq.yinqueai.com';
+      : 'http://localhost:8080';
   } catch {
     return 'https://wyq.yinqueai.com';
   }
@@ -68,17 +68,34 @@ export function reLogin(): Promise<string> {
   if (!isLoggingIn) {
     isLoggingIn = true;
     loginPromise = new Promise<string>((resolve, reject) => {
+      // 读取小程序码 scene / 分享卡片 inviter 参数（一次性的）
+      const app = getApp<IAppOption>();
+      const scene = app.globalData.launchScene;
+      const inviter = app.globalData.launchQuery?.inviter;
+
+      // 清除，防止下次登录重复使用
+      app.globalData.launchScene = undefined;
+      app.globalData.launchQuery = undefined;
+
       wx.login({
         success: (loginRes) => {
+          // 组装 login body（scene 优先 > inviter）
+          const loginData: Record<string, unknown> = { code: loginRes.code };
+          if (scene) loginData.scene = scene;
+          else if (inviter) loginData.inviterId = Number(inviter);
+
           wx.request({
             url: `${BASE_URL}/api/auth/login`,
             method: 'POST',
             header: { 'content-type': 'application/json' },
-            data: { code: loginRes.code },
+            data: loginData,
             success: (resp) => {
               const body = resp.data as { code: number; data?: { token: string } };
               if (resp.statusCode === 200 && body.code === 0 && body.data?.token) {
                 wx.setStorageSync(STORAGE_KEYS.TOKEN, body.data.token);
+                if (body.data.userId) {
+                  wx.setStorageSync(STORAGE_KEYS.USER_ID, body.data.userId);
+                }
                 resolve(body.data.token);
               } else {
                 reject(new Error(body.message || '登录失败'));
@@ -161,6 +178,40 @@ export function request<T = unknown>(options: IRequestOptions): Promise<T> {
               resolve(resData.data);
             } else {
               const errMsg: string = resData.message || '请求失败';
+              // 后端返回"用户不存在"→ token 指向的用户已被删除，清 token 重新登录
+              if (resData.code === 10003 && !isAuthRequest) {
+                console.log('[Request] 用户不存在，清除 token 重新登录...');
+                wx.removeStorageSync(STORAGE_KEYS.TOKEN);
+                wx.removeStorageSync(STORAGE_KEYS.USER_ID);
+                reLogin()
+                  .then(() => {
+                    mergedOptions.header = {
+                      ...mergedOptions.header,
+                      Authorization: `Bearer ${getToken()}`,
+                    };
+                    wx.request({
+                      url: fullUrl,
+                      method: mergedOptions.method,
+                      data: cleanData,
+                      header: mergedOptions.header,
+                      timeout: mergedOptions.timeout,
+                      success(retryRes) {
+                        const retryData = retryRes.data as IApiResponse<T>;
+                        if (retryRes.statusCode === 200 && retryData.code === 0) {
+                          resolve(retryData.data);
+                        } else {
+                          reject(new Error(retryData.message || '请求失败'));
+                        }
+                      },
+                      fail: reject,
+                      complete() {
+                        if (mergedOptions.showLoading) hideLoading();
+                      },
+                    });
+                  })
+                  .catch(reject);
+                return;
+              }
               wx.showToast({
                 title: errMsg,
                 icon: 'none',

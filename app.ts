@@ -4,7 +4,7 @@ import { STORAGE_KEYS } from './constants/config';
 import { reLogin } from './utils/request';
 
 App<IAppOption>({
-  onLaunch(): void {
+  onLaunch(options: WechatMiniprogram.App.LaunchShowOption): void {
     // 获取系统信息（使用新版 API 替代已废弃的 wx.getSystemInfoSync）
     const systemInfo = {
       ...wx.getWindowInfo(),
@@ -16,6 +16,9 @@ App<IAppOption>({
 
     // 恢复当前词书选择
     this.globalData.currentWordBookId = getCurrentBookId();
+
+    // 解析小程序码 scene、分享卡片 inviter 参数（一次性的，reLogin 读取后清除）
+    this.captureLaunchParams(options);
 
     // 注册全局错误监听
     wx.onError((error: string): void => {
@@ -30,16 +33,35 @@ App<IAppOption>({
     this.globalData.loginPromise = this.doLogin();
   },
 
-  onShow(): void {
-    // 小程序切前台时检查 token 是否过期，过期则重新登录
+  onShow(options: WechatMiniprogram.App.LaunchShowOption): void {
+    // 小程序切前台时检查 token 是否过期/无效，过期则重新登录
     const token = wx.getStorageSync(STORAGE_KEYS.TOKEN);
     if (!token) {
       this.globalData.loginPromise = this.doLogin();
     }
+    // 切前台时也可能有新的 scene 参数（从小程序码进来）
+    this.captureLaunchParams(options);
   },
 
   onHide(): void {
     // 小程序切后台
+  },
+
+  /**
+   * 捕获启动参数中的 scene 和 inviter，存入 globalData 供 reLogin 使用。
+   * scene 来自小程序码扫码，inviter 来自分享卡片 path 参数。
+   */
+  captureLaunchParams(options: WechatMiniprogram.App.LaunchShowOption): void {
+    const scene = decodeURIComponent(options.query?.scene || '');
+    if (scene) {
+      this.globalData.launchScene = scene;
+      console.log('[App] 捕获 scene:', scene);
+    }
+    const inviter = options.query?.inviter;
+    if (inviter) {
+      this.globalData.launchQuery = { inviter };
+      console.log('[App] 捕获 inviter:', inviter);
+    }
   },
 
   /**
@@ -63,5 +85,7 @@ App<IAppOption>({
     currentWordBookId: undefined,
     todayTask: undefined,
     loginPromise: undefined as Promise<void> | undefined,
+    launchScene: undefined,
+    launchQuery: undefined,
   },
 });

@@ -77,6 +77,7 @@ export const STORAGE_KEYS = {
   CACHED_ANSWERS: 'cachedAnswers',
   USER_PROFILE: 'userProfile',
   TOKEN: 'authToken',
+  USER_ID: 'userId',
 } as const;
 
 // ============================================

@@ -374,6 +374,51 @@ export async function saveUserInfo(profile: IUserProfile): Promise<void> {
 }
 
 // ============================================
+// 邀请追踪 — 动态海报 + 邀请统计
+// ============================================
+
+const BASE_URL = (() => {
+  try {
+    const { envVersion } = wx.getAccountInfoSync().miniProgram;
+    return envVersion === 'release'
+      ? 'https://wyq.yinqueai.com'
+      : 'https://wyq.yinqueai.com';
+  } catch {
+    return 'https://wyq.yinqueai.com';
+  }
+})();
+
+/**
+ * 获取用户专属海报（动态生成，含小程序码）。
+ * 使用 wx.downloadFile 绕过 header 限制，token 以 query param 传入。
+ * @returns 临时文件路径
+ */
+export function fetchInvitePoster(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const token = wx.getStorageSync('authToken') || '';
+    const url = `${BASE_URL}/api/invite/poster?token=${encodeURIComponent(token)}&t=${Date.now()}`;
+    wx.downloadFile({
+      url,
+      success: (res) => {
+        if (res.statusCode === 200) {
+          resolve(res.tempFilePath);
+        } else {
+          reject(new Error('海报下载失败'));
+        }
+      },
+      fail: reject,
+    });
+  });
+}
+
+/**
+ * 获取当前用户的邀请统计
+ */
+export async function fetchInviteStats(): Promise<{ totalInvited: number }> {
+  return get('/api/invite/stats');
+}
+
+// ============================================
 // 签订契约
 // ============================================
 export async function signPact(): Promise<{ memberLevel: number }> {

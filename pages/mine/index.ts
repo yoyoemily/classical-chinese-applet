@@ -1,7 +1,8 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, signPact, fetchBadges } from '../../api/index';
+import { fetchUserProfile, signPact, fetchBadges, fetchInvitePoster } from '../../api/index';
+import { STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
 
@@ -142,34 +143,22 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url });
   },
 
-  /** 打开分享海报弹窗（从后端下载海报） */
+  /** 打开分享海报弹窗（从后端动态生成含用户专属小程序码的海报） */
   async onTapShare(): Promise<void> {
     // 先打开弹窗（loading 状态）
     this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false, pactChecked: false, posterTempPath: '' });
 
-    const POSTER_URL = this.getPosterUrl();
-    wx.showLoading({ title: '加载海报...' });
+    wx.showLoading({ title: '生成海报...' });
 
-    wx.downloadFile({
-      url: POSTER_URL,
-      success: (res) => {
-        wx.hideLoading();
-        if (res.statusCode === 200) {
-          this.setData({ posterTempPath: res.tempFilePath });
-        } else {
-          wx.showToast({ title: '海报加载失败', icon: 'none' });
-        }
-      },
-      fail: () => {
-        wx.hideLoading();
-        wx.showToast({ title: '海报加载失败', icon: 'none' });
-      },
-    });
-  },
-
-  /** 计算海报 URL */
-  getPosterUrl(): string {
-    return 'https://wyq.yinqueai.com/assets/share-poster.png';
+    try {
+      const tempPath = await fetchInvitePoster();
+      wx.hideLoading();
+      this.setData({ posterTempPath: tempPath });
+    } catch (err) {
+      wx.hideLoading();
+      console.error('生成海报失败:', err);
+      wx.showToast({ title: '海报生成失败，请重试', icon: 'none' });
+    }
   },
 
   /** 关闭海报弹窗 */
@@ -243,11 +232,12 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ showNuoDialog: false });
   },
 
-  /** 分享给微信好友（原生菜单） */
+  /** 分享给微信好友（原生菜单，携带 inviter 参数追踪推广） */
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
+    const cachedUserId = wx.getStorageSync(STORAGE_KEYS.USER_ID) || '';
     return {
       title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
-      path: '/pages/index/index',
+      path: cachedUserId ? `/pages/index/index?inviter=${cachedUserId}` : '/pages/index/index',
       imageUrl: '/assets/share-poster.png',
     };
   },
