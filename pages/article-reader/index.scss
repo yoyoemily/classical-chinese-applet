@@ -112,7 +112,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8rpx;
     padding: 14rpx 0;
     background: linear-gradient(180deg, rgba(201, 169, 110, 0.1), rgba(201, 169, 110, 0.04));
     border-bottom: 1rpx solid rgba(201, 169, 110, 0.15);
@@ -127,14 +126,15 @@
     font-size: 26rpx;
     color: var(--color-accent, #c9a96e);
     line-height: 1;
+    margin-left: 12rpx;
   }
   &__annotation-guide-arrow {
     font-size: 40rpx;
     color: var(--color-accent, #c9a96e);
-    margin-left: 4rpx;
     line-height: 1;
+    margin-left: 2rpx;
     position: relative;
-    top: -4rpx;
+    top: -3rpx;
   }
 
   // ---------- 正文容器 ----------

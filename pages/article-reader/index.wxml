@@ -279,10 +279,17 @@
     <view class="page-article-reader__annotation-guide-mask" wx:if="{{showAnnotationGuide}}" bindtap="onCloseAnnotationGuide">
       <view class="page-article-reader__annotation-guide-modal" catchtap="">
         <view class="page-article-reader__annotation-guide-header">
-          <text class="page-article-reader__annotation-guide-title">平台典故注释标准</text>
+          <text class="page-article-reader__annotation-guide-title">典故注释标准</text>
           <view class="page-article-reader__annotation-guide-close" bindtap="onCloseAnnotationGuide"><text>✕</text></view>
         </view>
         <scroll-view class="page-article-reader__annotation-guide-body" scroll-y enhanced show-scrollbar="{{false}}">
+          <view class="page-article-reader__annotation-guide-section">
+            <view class="page-article-reader__annotation-guide-tip">
+              <text>① 不看解释就知道的 → 不标</text>
+              <text>② 有文化背景可讲、能提升阅读乐趣 → 标</text>
+              <text>③ 词书已覆盖的实词/虚词 → 不标</text>
+            </view>
+          </view>
           <view class="page-article-reader__annotation-guide-section">
             <text class="page-article-reader__annotation-guide-subtitle">✅ 标注什么</text>
             <view class="page-article-reader__annotation-guide-list">
@@ -300,14 +307,6 @@
               <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>虚词——词书已覆盖</text></view>
               <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>代词——词书已覆盖</text></view>
               <view class="page-article-reader__annotation-guide-item page-article-reader__annotation-guide-item--no"><text>常见名词（春/年/山/日）——现代汉语常用</text></view>
-            </view>
-          </view>
-          <view class="page-article-reader__annotation-guide-section">
-            <text class="page-article-reader__annotation-guide-subtitle">判断口诀</text>
-            <view class="page-article-reader__annotation-guide-tip">
-              <text>① 学生不看解释就知道 → 不标</text>
-              <text>② 有文化背景可讲、能提升阅读乐趣 → 标</text>
-              <text>③ 词书已覆盖的实词/虚词 → 不标</text>
             </view>
           </view>
         </scroll-view>
