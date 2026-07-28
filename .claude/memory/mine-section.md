@@ -132,14 +132,14 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 - 门禁弹窗无关闭按钮，必须完成流程
 - 详细设计见 [[redeem-code-plan]]
 
-### mine 页分享海报（二阶段，2026-07-29 升级为动态海报）
+### mine 页分享海报（单阶段，2026-07-29 升级为动态海报，同日简化为纯海报分享）
 
-- 点击「分享给朋友」→ 后端动态生成用户专属海报 → 弹窗 → 「保存图片」+「我要分享」（仅非会员可见）
+- 点击「分享给朋友」→ 后端动态生成用户专属海报 → 弹窗展示 → 底部「保存图片」+ 提示"保存图片后，前往朋友圈发布"
 - 海报含用户专属小程序码（scene=`i_{userId}`），扫码进入时自动记录邀请关系
-- 「我要分享」进入二阶段：海报替换为金石契契约内容 → 复选框"余今签契，行之以诚"（手指动画）→ 「签订契约」
-- 签订后调用 `POST /api/user/pact`（`signPact()`，无学习码前置校验）→ 关闭弹窗 → 刷新 profile → 获得「契约会员」标签
-- 金石契弹窗（`showNuoDialog`）保持不变，仅用于已签契会员查看
-- `onShareAppMessage` 分享卡片 path 携带 `?inviter={userId}`，追踪聊天分享来源
+- 卡片转发（`onShareAppMessage`）和朋友圈分享（`onShareTimeline`）通过右上角 ··· 原生菜单触发，均携带 `inviter={userId}` 追踪推广
+- **会员升级**：当某用户推广数达到 6 时，`InviteService.bindInviter()` 自动将 `member_level` 设为 1（仅升级不降级）
+- 无签契环节——推广数自动决定会员身份
+- 金石契弹窗（`showNuoDialog`）保留，供已获契约会员查看
 
 ### 邀请追踪（2026-07-29 新增）
 
@@ -147,10 +147,10 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 - **invite_record 表**：邀请明细（inviter_id/invitee_id/scene_code/source_type/bound_at），scene_code 唯一
 - **小程序码生成**：后端 `InviteService.generatePoster()` 调 `wxacode.getUnlimited`（`weixin-java-miniapp:4.7.0`），scene 格式 `i_{userId}`，颜色深绿 #2e5d3c，透明底色
 - **海报合成**：模板图 `share-poster-template.png`（720×1280，不含码）→ Java 2D 将 430px 小程序码缩放至 220px → 贴到模板 (250, 830) 带白底圆角卡片
-- **绑定时机**：`AuthService.login()` 中，scene/inviterId 传入 → `InviteService.bindInviter()` 事务：写 invitee.invited_by + inviter.invited_count+1 + 回填 invite_record
+- **绑定时机**：`AuthService.login()` 中，scene/inviterId 传入 → `InviteService.bindInviter()` 事务：写 invitee.invited_by + inviter.invited_count+1 + 推广达6自动memberLevel=1 + 回填 invite_record
 - **登录链路**：app.ts `captureLaunchParams()` 解析 scene/inviter → globalData → `request.ts reLogin()` 携带到 login body
 - **内存缓存**：`ConcurrentHashMap<Long, byte[]>` + 1h TTL，微信侧 `wxacode.getUnlimited` 同 scene+page 天然缓存
-- **防刷**：扫自己码跳过；invited_by 已有值不覆盖；scene_code 唯一索引
+- **防刷**：扫自己码跳过；invited_by 已有值不覆盖；scene_code 唯一索引；memberLevel 已为 1 不重复升级
 
 ### 海报生成
 
@@ -213,12 +213,12 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 前端设置 | `pages/settings/index.*` | 学习参数设置 |
 | 前端搜索 | `pages/search/index.*` | 全局搜索 |
 | 前端常量 | `constants/config.ts` | `LEVEL_THRESHOLDS`、`RANK_TITLES`、`calcLevel()`、分享门禁常量 |
-| 前端 API | `api/index.ts` | `fetchUserProfile()`、`fetchBadges()`、`signPact()`、`fetchInvitePoster()`、`fetchInviteStats()` |
+| 前端 API | `api/index.ts` | `fetchUserProfile()`、`fetchBadges()`、`fetchInvitePoster()`、`fetchInviteStats()` |
 | 后端等级 | `UserService.java` | `LEVEL_THRESHOLDS` + `calcLevel()` + `getUserProfile()` |
 | 后端 XP | `StudyService.java` | `completeWord()` 判新学词（createdAt < todayStart）+ 即时写入 `user.total_xp`；`submitAnswer()` 和 `completeStudy()` 不再写 XP |
 | 后端 API | `StudyController.java` | `POST /api/study/word-complete` |
 | 后端勋章 | `StudyService.java` | `checkNewBadges()` |
-| 后端契约 | `UserService.java` | `signPact()` |
+| 后端契约 | `InviteService.java` | `bindInviter()` 事务：invited_count+1 → 推广达 6 自动 memberLevel=1 |
 | 后端邀请 | `InviteService.java` | `generatePoster()` wxacode+合成、`bindInviter()` 事务绑定 |
 | 后端邀请 API | `InviteController.java` | `GET /api/invite/poster`、`GET /api/invite/stats` |
 | 后端配置 | `WechatMaConfig.java` / `WechatMaProperties.java` | WxMaService Bean（仿 WechatMpConfig 模式） |
@@ -226,7 +226,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 海报模板脚本 | `scripts/generate_poster_template.py` | Pillow 合成 720×1280 无码模板 |
 | 海报旧脚本 | `scripts/generate_poster.py` | 含静态码旧版（已不用） |
 | 前端链路 | `app.ts` / `utils/request.ts` | `captureLaunchParams()` 解析 scene → `reLogin()` 携带到 login body |
-| 前端 my 页 | `pages/mine/index.ts` | `onTapShare` 动态海报 + `onShareAppMessage` 带 inviter |
+| 前端 my 页 | `pages/mine/index.ts` | `onTapShare` 动态海报 + `onShareAppMessage` + `onShareTimeline` 带 inviter |
 
 [[study-section]]
 

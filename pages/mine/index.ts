@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, signPact, fetchBadges, fetchInvitePoster } from '../../api/index';
+import { fetchUserProfile, fetchBadges, fetchInvitePoster } from '../../api/index';
 import { STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
@@ -25,16 +25,10 @@ interface IMineData {
   menuItems: IMenuItem[];
   loading: boolean;
   showSharePoster: boolean;
-  /** 海报是否已保存成功 */
-  posterSaved: boolean;
-  /** 是否已点击「我要分享」（显示契约内容） */
-  shareConfirmed: boolean;
   /** 会员级别（0=非会员，1=金石契） */
   memberLevel: number;
   /** 金石契约窗 */
   showNuoDialog: boolean;
-  /** 签订契约复选框 */
-  pactChecked: boolean;
   /** 下一枚勋章信息 */
   nextBadge: NextBadgeInfo | null;
   /** 数据清除恢复截止时间 */
@@ -61,11 +55,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     ],
     loading: false,
     showSharePoster: false,
-    posterSaved: false,
-    shareConfirmed: false,
     memberLevel: 0,
     showNuoDialog: false,
-    pactChecked: false,
     nextBadge: null,
     posterTempPath: '',
   },
@@ -74,7 +65,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   onShow(): void {
     // 从其他页面返回时刷新数据，并重置海报弹窗状态
-    this.setData({ showSharePoster: false, posterSaved: false, shareConfirmed: false, posterTempPath: '' });
+    this.setData({ showSharePoster: false, posterTempPath: '' });
     this.loadProfile();
   },
 
@@ -145,8 +136,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 打开分享海报弹窗（从后端动态生成含用户专属小程序码的海报） */
   async onTapShare(): Promise<void> {
-    // 先打开弹窗（loading 状态）
-    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false, pactChecked: false, posterTempPath: '' });
+    this.setData({ showSharePoster: true, posterTempPath: '' });
 
     wx.showLoading({ title: '生成海报...' });
 
@@ -166,27 +156,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ showSharePoster: false, posterTempPath: '' });
   },
 
-  /** 进入签订契约阶段二 */
-  onConfirmShare(): void {
-    this.setData({ shareConfirmed: true });
-  },
-
-  /** 切换契约复选框 */
-  onTogglePactCheck(): void {
-    this.setData({ pactChecked: !this.data.pactChecked });
-  },
-
-  /** 签订契约并关闭 */
-  async onConfirmPact(): Promise<void> {
-    if (!this.data.pactChecked) return;
-    try {
-      await signPact();
-    } catch { /* 网络失败不阻塞 */ }
-    this.setData({ showSharePoster: false });
-    this.loadProfile();
-  },
-
-  /** 保存海报到相册（复用已下载的临时路径） */
+  /** 保存海报到相册 */
   onSavePoster(): void {
     const tempPath = this.data.posterTempPath;
     if (!tempPath) {
@@ -200,7 +170,6 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       success: () => {
         wx.hideLoading();
         wx.showToast({ title: '图片已保存', icon: 'success', duration: 1500 });
-        this.setData({ posterSaved: true });
       },
       fail: (err) => {
         wx.hideLoading();
@@ -238,6 +207,16 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     return {
       title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
       path: cachedUserId ? `/pages/index/index?inviter=${cachedUserId}` : '/pages/index/index',
+      imageUrl: '/assets/share-poster.png',
+    };
+  },
+
+  /** 分享到朋友圈（携带 inviter 参数追踪推广） */
+  onShareTimeline(): WechatMiniprogram.Page.CustomShareContent {
+    const cachedUserId = wx.getStorageSync(STORAGE_KEYS.USER_ID) || '';
+    return {
+      title: '文言雀——无障碍畅读传世经典，领略古贤智慧',
+      query: cachedUserId ? `inviter=${cachedUserId}` : '',
       imageUrl: '/assets/share-poster.png',
     };
   },
