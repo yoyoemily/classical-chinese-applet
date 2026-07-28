@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchBadges } from '../../api/index';
+import { fetchUserProfile, signPact, fetchBadges } from '../../api/index';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
 
@@ -26,10 +26,14 @@ interface IMineData {
   showSharePoster: boolean;
   /** 海报是否已保存成功 */
   posterSaved: boolean;
+  /** 是否已点击「我要分享」（显示契约内容） */
+  shareConfirmed: boolean;
   /** 会员级别（0=非会员，1=金石契） */
   memberLevel: number;
   /** 金石契约窗 */
   showNuoDialog: boolean;
+  /** 签订契约复选框 */
+  pactChecked: boolean;
   /** 下一枚勋章信息 */
   nextBadge: NextBadgeInfo | null;
   /** 数据清除恢复截止时间 */
@@ -57,8 +61,10 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     loading: false,
     showSharePoster: false,
     posterSaved: false,
+    shareConfirmed: false,
     memberLevel: 0,
     showNuoDialog: false,
+    pactChecked: false,
     nextBadge: null,
     posterTempPath: '',
   },
@@ -67,7 +73,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   onShow(): void {
     // 从其他页面返回时刷新数据，并重置海报弹窗状态
-    this.setData({ showSharePoster: false, posterSaved: false, posterTempPath: '' });
+    this.setData({ showSharePoster: false, posterSaved: false, shareConfirmed: false, posterTempPath: '' });
     this.loadProfile();
   },
 
@@ -139,7 +145,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   /** 打开分享海报弹窗（从后端下载海报） */
   async onTapShare(): Promise<void> {
     // 先打开弹窗（loading 状态）
-    this.setData({ showSharePoster: true, posterSaved: false, posterTempPath: '' });
+    this.setData({ showSharePoster: true, posterSaved: false, shareConfirmed: false, pactChecked: false, posterTempPath: '' });
 
     const POSTER_URL = this.getPosterUrl();
     wx.showLoading({ title: '加载海报...' });
@@ -169,6 +175,26 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
   /** 关闭海报弹窗 */
   onCloseShare(): void {
     this.setData({ showSharePoster: false, posterTempPath: '' });
+  },
+
+  /** 进入签订契约阶段二 */
+  onConfirmShare(): void {
+    this.setData({ shareConfirmed: true });
+  },
+
+  /** 切换契约复选框 */
+  onTogglePactCheck(): void {
+    this.setData({ pactChecked: !this.data.pactChecked });
+  },
+
+  /** 签订契约并关闭 */
+  async onConfirmPact(): Promise<void> {
+    if (!this.data.pactChecked) return;
+    try {
+      await signPact();
+    } catch { /* 网络失败不阻塞 */ }
+    this.setData({ showSharePoster: false });
+    this.loadProfile();
   },
 
   /** 保存海报到相册（复用已下载的临时路径） */

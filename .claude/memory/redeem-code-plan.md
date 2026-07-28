@@ -76,9 +76,9 @@ ALTER TABLE `user` ADD COLUMN last_active_at DATETIME COMMENT '最后活跃时�
 
 **门禁条件**：`streak >= SHARE_GATE_STREAK_DAYS && (memberLevel < 1 || codeStatus !== 1)`
 
-### 1.4 signPact() 新增前置校验
+### 1.4 signPact() ~~新增前置校验~~（2026-07-28 已移除）
 
-`signPact()` 现在要求必须有已验证的学习码（status=1），否则抛出 BusinessException "请先关注公众号获取学习码"。
+`signPact()` 之前要求必须有已验证的学习码（status=1），否则抛出 BusinessException "请先关注公众号获取学习码"。**2026-07-28 已移除此前置校验**——mine 页二阶段签契不再依赖学习码，签契与学习码脱钩。仅保留用户存在检查和已会员幂等。
 
 ### 1.5 新增 API
 

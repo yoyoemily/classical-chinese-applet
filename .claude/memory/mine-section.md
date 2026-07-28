@@ -132,10 +132,11 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 - 门禁弹窗无关闭按钮，必须完成流程
 - 详细设计见 [[redeem-code-plan]]
 
-### mine 页分享海报（简化版）
+### mine 页分享海报（二阶段，2026-07-28 恢复）
 
-- 点击「分享给朋友」→ 从后端下载海报 → 弹出单阶段弹窗 → 「保存图片」
-- 不再有"分享出去→签契"的二阶段流程，签契逻辑已移至首页门禁
+- 点击「分享给朋友」→ 从后端下载海报 → 弹出双按钮弹窗 → 「保存图片」+「我要分享」（仅非会员可见）
+- 「我要分享」进入二阶段：海报替换为金石契契约内容 → 复选框"余今签契，行之以诚"（手指动画）→ 「签订契约」
+- 签订后调用 `POST /api/user/pact`（`signPact()`，无学习码前置校验）→ 关闭弹窗 → 刷新 profile → 获得「契约会员」标签
 - 金石契弹窗（`showNuoDialog`）保持不变，仅用于已签契会员查看
 
 ### 「契约会员」标签
@@ -156,7 +157,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 
 | 层 | 文件 | 关键位置 |
 |----|------|---------|
-| 后端 API | `POST /api/user/pact` | `UserService.signPact()` 设置 memberLevel=1 |
+| 后端 API | `POST /api/user/pact` | `UserService.signPact()` 设置 memberLevel=1，无前置校验 |
 | 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`codeStatus` |
 | 前端 mine 页 | `pages/mine/index.*` | 单阶段海报弹窗 + 契约会员标签 + 金石契弹窗 |
 | 前端门禁常量 | `constants/config.ts` | `SHARE_GATE_STREAK_DAYS` |
