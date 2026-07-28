@@ -22,7 +22,7 @@ const DEFAULT_OPTIONS: Required<Pick<IRequestOptions, 'method' | 'showLoading' |
 };
 
 /** 基础请求 URL，开发/体验版走本地，正式版走线上 */
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   try {
     const { envVersion } = wx.getAccountInfoSync().miniProgram;
     return envVersion === 'release'
