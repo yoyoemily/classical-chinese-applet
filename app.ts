@@ -50,8 +50,12 @@ App<IAppOption>({
   /**
    * 捕获启动参数中的 scene 和 inviter，存入 globalData 供 reLogin 使用。
    * scene 来自小程序码扫码，inviter 来自分享卡片 path 参数。
+   * 如果上一轮 scene 已被 reLogin 消费，不再覆盖（防止 stale scene 残留）。
    */
   captureLaunchParams(options: WechatMiniprogram.App.LaunchShowOption): void {
+    if (this.globalData.launchSceneConsumed) {
+      return;
+    }
     const scene = decodeURIComponent(options.query?.scene || '');
     if (scene) {
       this.globalData.launchScene = scene;
@@ -87,5 +91,6 @@ App<IAppOption>({
     loginPromise: undefined as Promise<void> | undefined,
     launchScene: undefined,
     launchQuery: undefined,
+    launchSceneConsumed: false,
   },
 });

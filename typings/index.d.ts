@@ -16,6 +16,8 @@ export interface IAppOption {
     launchScene?: string
     /** 启动时的 query 参数（一次性的，reLogin 读取后清除） */
     launchQuery?: Record<string, string>
+    /** launchScene 是否已被 reLogin 消费（防止 onShow 重复写入 stale scene） */
+    launchSceneConsumed?: boolean
   }
   $emit?: (event: string, ...args: unknown[]) => void
   $on?: (event: string, callback: (...args: unknown[]) => void) => void
@@ -222,6 +224,7 @@ export interface IUserProgress {
   checkinDates: string[]
   currentStreak: number
   longestStreak: number
+  checkinDays: number
   totalXP: number
   wordProgresses: Record<string, IWordProgress>
 }
@@ -358,6 +361,8 @@ export interface IMemberStatus {
 /** 邀请统计 */
 export interface IInviteStats {
   totalInvited: number;
+  /** 升级为契约会员所需的推广人数阈值 */
+  memberThreshold: number;
 }
 
 // ============================================

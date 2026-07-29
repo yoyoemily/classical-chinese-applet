@@ -301,11 +301,11 @@ export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUs
   return get('/api/badges');
 }
 
-export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; memberLevel: number; nickName: string; avatarUrl: string; recoveryDeadline?: string; codeStatus?: number }> {
+export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; longestStreak: number; checkinDays: number; memberLevel: number; nickName: string; avatarUrl: string; recoveryDeadline?: string; codeStatus?: number }> {
   if (USE_MOCK) {
     const progress = getProgress();
     const levelInfo = calcLevel(progress.totalXP);
-    return { ...levelInfo, totalXP: progress.totalXP, currentStreak: progress.currentStreak, avatarUrl: '', nickName: '', memberLevel: 0 };
+    return { ...levelInfo, totalXP: progress.totalXP, currentStreak: progress.currentStreak, avatarUrl: '', nickName: '', memberLevel: 0, checkinDays: 0 };
   }
   return get('/api/user/profile');
 }

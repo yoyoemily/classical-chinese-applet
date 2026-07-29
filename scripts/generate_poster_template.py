@@ -122,11 +122,8 @@ def main():
     canvas.paste(base, (0, 0))
     draw = ImageDraw.Draw(canvas)
 
-    # 顶部品牌文字
-    font_brand = load_font(FONT_SIZE_BRAND)
-    draw_brand_with_lines(draw, TITLE_BRAND, TITLE_BRAND_TOP_Y, font_brand, COLOR_MUTED)
-
     # 主标题
+    font_brand = load_font(FONT_SIZE_BRAND)
     font_main = load_font(FONT_SIZE_MAIN_TITLE, FONT_PATH_XINGKAI)
     draw_centered_text(draw, MAIN_TITLE, MAIN_TITLE_Y, font_main, COLOR_PRIMARY)
 

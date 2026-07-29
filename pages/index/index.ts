@@ -1,6 +1,6 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges, verifyCode, signPact } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
-import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, SHARE_GATE_STREAK_DAYS } from '../../constants/config';
+import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, GATE_ACCUMULATED_DAYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
 
@@ -67,24 +67,12 @@ interface IIndexData {
   memberLevel: number;
   /** 用户昵称 */
   nickName: string;
-  /** 学习码状态：-1=从没绑过 1=有效 2=已过期 */
-  codeStatus: number;
-  /** 学习码是否已过期（已验证但 30 天不活跃） */
-  codeExpired: boolean;
-  /** 学习码门禁弹窗是否显示 */
-  showGate: boolean;
-  /** 学习码门禁弹窗当前阶段：1=关注公众号 2=输入学习码 3=签金石契 */
-  gateStep: 1 | 2 | 3;
-  /** 分享门禁天数（-1 表示关闭） */
-  shareGateDays: number;
-  /** 用户输入的学习码 */
-  redeemCode: string;
-  /** 签订契约复选框 */
-  pactChecked: boolean;
-  /** 学习码验证错误信息 */
-  codeError: string;
+  /** 累计打卡天数 */
+  checkinDays: number;
   /** 数据清除恢复截止时间 */
   recoveryDeadline?: string;
+  /** 门禁弹窗 */
+  showGate: boolean;
 }
 
 // ============================================
@@ -114,14 +102,8 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     nextBadge: null,
     memberLevel: 0,
     nickName: '',
-    codeStatus: -1,
-    codeExpired: false,
+    checkinDays: 0,
     showGate: false,
-    gateStep: 1,
-    shareGateDays: SHARE_GATE_STREAK_DAYS,
-    redeemCode: '',
-    pactChecked: false,
-    codeError: '',
   },
 
   // ==========================================
@@ -226,7 +208,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         nextBadge,
         memberLevel: profile.memberLevel,
         nickName: profile.nickName || '',
-        codeStatus: profile.codeStatus || -1,
+        checkinDays: profile.checkinDays || 0,
       });
 
       // 检测是否处于数据清除恢复期内
@@ -316,24 +298,13 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       return;
     }
 
-    // 门禁：打卡满 N 天，且（未签契 或 码不有效）
+    // 门禁：累计打卡满 N 天 + 非契约会员 → 弹窗引导
     if (
-      SHARE_GATE_STREAK_DAYS !== -1 &&
-      this.data.streak >= SHARE_GATE_STREAK_DAYS &&
-      (this.data.memberLevel < 1 || this.data.codeStatus !== 1)
+      GATE_ACCUMULATED_DAYS !== -1 &&
+      this.data.checkinDays >= GATE_ACCUMULATED_DAYS &&
+      this.data.memberLevel < 1
     ) {
-      // 码有效但未签契 → 直接进入签契阶段
-      const skipQrcode = this.data.codeStatus === 1 && this.data.memberLevel < 1;
-      // 码过期
-      const codeExpired = this.data.codeStatus === 2;
-      this.setData({
-        showGate: true,
-        gateStep: skipQrcode ? 3 : 1,
-        redeemCode: '',
-        pactChecked: false,
-        codeError: '',
-        codeExpired,
-      });
+      this.setData({ showGate: true });
       return;
     }
 
@@ -380,70 +351,18 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   },
 
   // ==========================================
-  // 学习码门禁弹窗
+  // 门禁弹窗
   // ==========================================
 
-  /** 阶段一 → 阶段二：我已关注，去输入学习码 */
-  onGoToInputCode(): void {
-    this.setData({ gateStep: 2, codeError: '' });
-  },
-
-  /** 阶段二 → 阶段一：返回查看公众号 */
-  onGoBackToQrcode(): void {
-    this.setData({ gateStep: 1 });
-  },
-
-  /** 输入学习码（仅允许数字，最多 8 位） */
-  onInputCode(e: WechatMiniprogram.InputEvent): void {
-    const raw = e.detail.value || '';
-    const filtered = raw.replace(/\D/g, '').slice(0, 8);
-    this.setData({ redeemCode: filtered, codeError: '' });
-  },
-
-  /** 阶段二：确认验证学习码 */
-  async onVerifyCode(): Promise<void> {
-    const code = this.data.redeemCode.trim();
-    if (!code) {
-      this.setData({ codeError: '请输入学习码' });
-      return;
-    }
-
-    try {
-      const result = await verifyCode(code);
-      if (result.valid) {
-        // 验证成功
-        if (result.memberLevel >= 1) {
-          // 已签契 → 关闭弹窗，刷新数据，用户自行点击开始学习
-          this.setData({
-            codeStatus: 1,
-            showGate: false,
-          });
-          this.loadData();
-        } else {
-          // 未签契 → 进入阶段三
-          this.setData({ gateStep: 3, codeStatus: 1 });
-        }
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : '验证失败';
-      this.setData({ codeError: msg });
-    }
-  },
-
-  /** 阶段三：切换签订契约复选框 */
-  onTogglePactCheck(): void {
-    this.setData({ pactChecked: !this.data.pactChecked });
-  },
-
-  /** 阶段三：签订契约 */
-  async onSignPact(): Promise<void> {
-    if (!this.data.pactChecked) return;
-    try {
-      await signPact();
-    } catch { /* 网络失败不阻塞 */ }
-    // 关闭弹窗，刷新数据，用户自行点击开始学习
+  /** 关闭门禁弹窗 */
+  onCloseGate(): void {
     this.setData({ showGate: false });
-    this.loadData();
+  },
+
+  /** 跳转我的页面 */
+  onGoToMine(): void {
+    this.setData({ showGate: false });
+    wx.switchTab({ url: '/pages/mine/index' });
   },
 
   /** 分享（右上角菜单） */

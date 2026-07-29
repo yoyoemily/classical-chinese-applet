@@ -70,12 +70,15 @@ export function reLogin(): Promise<string> {
     loginPromise = new Promise<string>((resolve, reject) => {
       // 读取小程序码 scene / 分享卡片 inviter 参数（一次性的）
       const app = getApp<IAppOption>();
-      const scene = app.globalData.launchScene;
-      const inviter = app.globalData.launchQuery?.inviter;
+      const scene = app?.globalData?.launchScene;
+      const inviter = app?.globalData?.launchQuery?.inviter;
 
-      // 清除，防止下次登录重复使用
-      app.globalData.launchScene = undefined;
-      app.globalData.launchQuery = undefined;
+      // 清除，防止下次登录重复使用；标记已消费，防止 onShow 重复写入 stale scene
+      if (app?.globalData) {
+        app.globalData.launchScene = undefined;
+        app.globalData.launchQuery = undefined;
+        app.globalData.launchSceneConsumed = true;
+      }
 
       wx.login({
         success: (loginRes) => {

@@ -62,9 +62,14 @@
     </view>
   </view>
 
-  <!-- 分享按钮 -->
+  <!-- 分享按钮：非会员 → 成为契约会员入口，会员 → 分享海报 -->
   <view class="page-mine__share">
-    <view class="page-mine__share-btn" bindtap="onTapShare">
+    <!-- 非会员：我要永久免费学习 -->
+    <view wx:if="{{memberLevel === 0}}" class="page-mine__share-btn--cta" bindtap="onTapBecomeMember">
+      <text class="page-mine__share-label--cta">我要永久免费学习</text>
+    </view>
+    <!-- 会员：分享给朋友 -->
+    <view wx:else class="page-mine__share-btn" bindtap="onTapShare">
       <text class="page-mine__share-icon">📤</text>
       <text class="page-mine__share-label">分享给朋友</text>
     </view>
@@ -106,8 +111,32 @@
       />
       <view class="page-mine__poster-actions">
         <button class="page-mine__poster-save" bindtap="onSavePoster">保存图片</button>
-        <text class="page-mine__poster-hint">保存图片后，前往朋友圈发布</text>
       </view>
+    </view>
+  </view>
+
+  <!-- 成为契约会员弹窗（非会员专用） -->
+  <view class="page-mine__contract-overlay" wx:if="{{showContractDialog}}" bindtap="onCloseContractDialog">
+    <view class="page-mine__contract-modal" catchtap="noop">
+      <view class="page-mine__contract-modal-close" bindtap="onCloseContractDialog">✕</view>
+      <text class="page-mine__contract-modal-title">成为契约会员</text>
+      <text class="page-mine__contract-modal-text">将海报分享给朋友，当有 {{memberThreshold}} 位新学友通过海报进入时，解锁永久免费学习。</text>
+
+      <!-- 进度 -->
+      <view class="page-mine__contract-progress">
+        <text class="page-mine__contract-progress-label">当前完成</text>
+        <view class="page-mine__contract-progress-bar">
+          <view class="page-mine__contract-progress-fill" style="width: {{contractPercent}}%;"></view>
+        </view>
+        <text class="page-mine__contract-progress-count">{{totalInvited}}/{{memberThreshold}}</text>
+      </view>
+
+      <view class="page-mine__contract-modal-pact">
+        <text>君以分享托付文言雀</text>
+        <text>文言雀亦以赤诚报君</text>
+      </view>
+
+      <button class="page-mine__contract-modal-btn" bindtap="onGeneratePosterFromContract">生成专属海报</button>
     </view>
   </view>
 

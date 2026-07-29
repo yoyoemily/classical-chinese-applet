@@ -128,38 +128,53 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 
 ### 门禁机制
 
-- 连续打卡满 `SHARE_GATE_STREAK_DAYS` 天（默认 0=关闭，-1=关闭）后，首页点击「开始学习」弹出学习码门禁弹窗（三阶段）
-- 门禁弹窗无关闭按钮，必须完成流程
-- 详细设计见 [[redeem-code-plan]]
+- 累计打卡满 `GATE_ACCUMULATED_DAYS` 天（默认 10，-1=关闭）+ 非契约会员 → 首页点击「开始学习」弹出门禁弹窗
+- 弹窗文案："你已累计学习 N 天" + "成为契约会员，才能继续学习"
+- 点击「成为契约会员」→ `wx.switchTab` 跳转「我的」页面；弹窗底部有「暂不」可关闭
+- **不再依赖微信公众号，不再需要学习码**。详细旧方案见 [[redeem-code-plan]]（已废弃）
 
-### mine 页分享海报（单阶段，2026-07-29 升级为动态海报，同日简化为纯海报分享）
+### mine 页分享海报（2026-07-29 升级为动态海报，同日简化为纯海报分享，同日新增契约会员入口，同日审查优化绑定逻辑）
 
-- 点击「分享给朋友」→ 后端动态生成用户专属海报 → 弹窗展示 → 底部「保存图片」+ 提示"保存图片后，前往朋友圈发布"
+- **非会员（memberLevel=0）**：分享区域显示"我要永久免费学习"绿色实心按钮，点击弹出「成为契约会员」弹窗
+  - 弹窗内容：说明文案（将海报分享给朋友，当有 N 位新学友通过海报进入时解锁永久免费学习）+ 进度条（`totalInvited/memberThreshold`）+ 契约文案"君以分享托付文言雀，文言雀亦以赤诚报君" + "生成专属海报"按钮
+  - 阈值 N 由后端配置 `invite.member-threshold`（默认 5），前端通过 `GET /api/invite/stats` → `{ totalInvited, memberThreshold }` 读取
+  - 点击"生成专属海报"前检查头像和昵称是否已设置，未设置则弹窗提示"请先设置头像和昵称"，点"去设置"跳转个人信息页
+  - `onTapBecomeMember` 打开弹窗时会先刷新 `fetchUserProfile()` 拿到最新头像昵称，再拉 `fetchInviteStats()` 获取邀请进度（含 `memberThreshold`）
+  - 后台 `getInviteCount` 直接读 `user.invited_count`（`bindInviter` 事务中 +1），确保准确性
+  - 契约会员弹窗在 `onShow` 中随海报弹窗一起 reset；跳转个人信息页前也会关闭
+- **会员（memberLevel>=1）**：分享区域保持原有"分享给朋友"虚线按钮，点击直接生成海报
+- 点击「分享给朋友」→ 后端动态生成用户专属海报 → 弹窗展示 → 底部「保存图片」
 - 海报含用户专属小程序码（scene=`i_{userId}`），扫码进入时自动记录邀请关系
+- 海报后端合成时，上半部分绘制圆形头像（120px，4px 白色描边，水平居中，Y=116）→「{昵称} 邀你打卡文言雀」（Bold 30px SansSerif 深灰色，Y=290），下半部分小程序码白底卡片圆角 24px，下方"长按或扫码进入"灰色提示。头像从 `user.avatarUrl` 下载（末尾 /132→/0 取原图），下载失败静默跳过
 - 卡片转发（`onShareAppMessage`）和朋友圈分享（`onShareTimeline`）通过右上角 ··· 原生菜单触发，均携带 `inviter={userId}` 追踪推广
-- **会员升级**：当某用户推广数达到 6 时，`InviteService.bindInviter()` 自动将 `member_level` 设为 1（仅升级不降级）
+- **会员升级**：当某用户推广数达到 `invite.member-threshold`（默认 5）时，`InviteService.bindInviter()` 自动将 `member_level` 设为 1（仅升级不降级）
 - 无签契环节——推广数自动决定会员身份
 - 金石契弹窗（`showNuoDialog`）保留，供已获契约会员查看
 
-### 邀请追踪（2026-07-29 新增）
+### 邀请追踪（2026-07-29 新增，同日审查优化）
 
 - **user 表**：`invited_by`（上级ID，首次登录写入不可修改）+ `invited_count`（推广数，自治 +1）
 - **invite_record 表**：邀请明细（inviter_id/invitee_id/scene_code/source_type/bound_at），scene_code 唯一
+- **绑定逻辑**（三重防重复）：① invited_by 非空直接返回 ② `UPDATE WHERE invited_by IS NULL` CAS 原子写入 ③ `@Transactional` 事务保证
+- **升级逻辑**（三重防错）：`memberLevel=0 AND invitedCount >= memberThreshold` 原子更新，只升不降
 - **小程序码生成**：后端 `InviteService.generatePoster()` 调 `wxacode.getUnlimited`（`weixin-java-miniapp:4.7.0`），scene 格式 `i_{userId}`，颜色深绿 #2e5d3c，透明底色
 - **海报合成**：模板图 `share-poster-template.png`（720×1280，不含码）→ Java 2D 将 430px 小程序码缩放至 220px → 贴到模板 (250, 830) 带白底圆角卡片
-- **绑定时机**：`AuthService.login()` 中，scene/inviterId 传入 → `InviteService.bindInviter()` 事务：写 invitee.invited_by + inviter.invited_count+1 + 推广达6自动memberLevel=1 + 回填 invite_record
-- **登录链路**：app.ts `captureLaunchParams()` 解析 scene/inviter → globalData → `request.ts reLogin()` 携带到 login body
+- **绑定时机**：`AuthService.login()` 中，scene/inviterId 传入 → `InviteService.bindInviter()` 事务
+- **登录链路**：app.ts `captureLaunchParams()` 解析 scene/inviter → globalData → `request.ts reLogin()` 携带到 login body；`launchSceneConsumed` 标记防 stale scene 残留
+- **invite_record 写入**：海报扫码预写（`ensureInviteRecord`，sourceType=0）+ 卡片分享 on-the-fly INSERT（sourceType=1）
 - **内存缓存**：`ConcurrentHashMap<Long, byte[]>` + 1h TTL，微信侧 `wxacode.getUnlimited` 同 scene+page 天然缓存
-- **防刷**：扫自己码跳过；invited_by 已有值不覆盖；scene_code 唯一索引；memberLevel 已为 1 不重复升级
+- **配置化阈值**：`application.yml` → `invite.member-threshold: 5`，`InviteService` 注入，前端通过 `/api/invite/stats` 读取
+- **防刷**：扫自己码跳过；invited_by 已有值不覆盖；scene_code 唯一索引；memberLevel 已为 1 不重复升级；老用户温启动不绑定
 
 ### 海报生成
 
-- 模板脚本：`scripts/generate_poster_template.py`（Pillow 合成 720×1280，不含小程序码）→ `assets/share-poster-template.png`
+- 模板脚本：`scripts/generate_poster_template.py`（Pillow 合成 720×1280，不含小程序码，不含顶部品牌文字）→ `assets/share-poster-template.png`
 - 原始脚本：`scripts/generate_poster.py`（含静态码的旧版，已不用于线上）
-- 服务端合成：Java 2D BufferedImage + Graphics2D，圆角白底卡片 + 缩放小程序码
+- 服务端合成：Java 2D BufferedImage + Graphics2D，上半部分绘制"{昵称} 邀你打卡文言雀"，二维码白底圆角卡片（24px 圆角）+ 缩放小程序码 + 下方"长按或扫码进入"提示
 - 模板部署：后端 `resources/static/assets/share-poster-template.png`
 - 海报 API：`GET /api/invite/poster?token=xxx`（加入 WebMvcConfig exclude 列表，Controller 手动解析 JWT）
-- 字体：行楷 SC Bold（主标题"文言雀"）+ 华文楷体 SC Regular（其余文字），macOS 系统自带（仅模板生成时用，服务端不处理字体）
+- 邀请统计 API：`GET /api/invite/stats` → `Result.ok(Map.of("totalInvited", count))`，读 `user.invited_count`
+- 字体：SansSerif Bold 30px（邀请文案）/ SansSerif Plain 22px（提示文字）
 
 
 ### 关键代码
@@ -167,11 +182,15 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 层 | 文件 | 关键位置 |
 |----|------|---------|
 | 后端 API | `POST /api/user/pact` | `UserService.signPact()` 设置 memberLevel=1，无前置校验 |
-| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`codeStatus` |
-| 前端 mine 页 | `pages/mine/index.*` | 单阶段海报弹窗 + 契约会员标签 + 金石契弹窗 |
-| 前端门禁常量 | `constants/config.ts` | `SHARE_GATE_STREAK_DAYS` |
-| 前端首页 | `pages/index/index.ts` | `onTapStartLearning()` 检查门禁 |
-| 海报脚本 | `scripts/generate_poster.py` | Pillow 合成逻辑 |
+| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`longestStreak` |
+| 前端 mine 页 | `pages/mine/index.*` | 非会员CTA按钮 + 契约会员弹窗（进度条 `totalInvited/memberThreshold` + 生成海报） + 会员分享按钮 + 金石契弹窗 |
+| 前端门禁常量 | `constants/config.ts` | `GATE_ACCUMULATED_DAYS`（默认 10，-1 关闭） |
+| 前端首页 | `pages/index/index.ts` | `onTapStartLearning()` 检查门禁：`longestStreak >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」|
+| 前端首页弹窗 | `pages/index/index.*` | `showGate` → 弹窗有「成为契约会员」按钮（`wx.switchTab` 跳转我的）和「暂不」关闭 |
+| 前端首页数据 | `pages/index/index.ts` | `loadData()` 从 profile 取 `longestStreak` |
+| 后端邀请统计 | `GET /api/invite/stats` | 返回 `{ totalInvited, memberThreshold }`，读 `user.invited_count` + `InviteService.getMemberThreshold()` |
+| 后端海报合成 | `InviteService.java` | `compositePoster()` 绘制圆形头像 + 邀请文案 + 二维码白底卡片（圆角24px）+ 提示文字；`downloadAndCropCircle()` 下载头像并圆形裁剪 |
+| 后端配置 | `application.yml` | `invite.member-threshold: 5` 推广升级阈值 |
 
 ---
 
@@ -212,21 +231,21 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 前端日历 | `pages/calendar/index.*` | 打卡日历月视图 |
 | 前端设置 | `pages/settings/index.*` | 学习参数设置 |
 | 前端搜索 | `pages/search/index.*` | 全局搜索 |
-| 前端常量 | `constants/config.ts` | `LEVEL_THRESHOLDS`、`RANK_TITLES`、`calcLevel()`、分享门禁常量 |
-| 前端 API | `api/index.ts` | `fetchUserProfile()`、`fetchBadges()`、`fetchInvitePoster()`、`fetchInviteStats()` |
+| 前端常量 | `constants/config.ts` | `LEVEL_THRESHOLDS`、`RANK_TITLES`、`calcLevel()`、`GATE_ACCUMULATED_DAYS` |
+| 前端 API | `api/index.ts` | `fetchUserProfile()`（返回含 `longestStreak`）、`fetchBadges()`、`fetchInvitePoster()`、`fetchInviteStats()` |
 | 后端等级 | `UserService.java` | `LEVEL_THRESHOLDS` + `calcLevel()` + `getUserProfile()` |
 | 后端 XP | `StudyService.java` | `completeWord()` 判新学词（createdAt < todayStart）+ 即时写入 `user.total_xp`；`submitAnswer()` 和 `completeStudy()` 不再写 XP |
 | 后端 API | `StudyController.java` | `POST /api/study/word-complete` |
 | 后端勋章 | `StudyService.java` | `checkNewBadges()` |
-| 后端契约 | `InviteService.java` | `bindInviter()` 事务：invited_count+1 → 推广达 6 自动 memberLevel=1 |
-| 后端邀请 | `InviteService.java` | `generatePoster()` wxacode+合成、`bindInviter()` 事务绑定 |
-| 后端邀请 API | `InviteController.java` | `GET /api/invite/poster`、`GET /api/invite/stats` |
+| 后端契约 | `InviteService.java` | `bindInviter()` 事务：invited_count+1 → 推广达 `memberThreshold` 自动 memberLevel=1；三重防重复 + 只升不降 |
+| 后端邀请 | `InviteService.java` | `generatePoster()` 合成海报（含邀请文案+二维码+提示文字）、`getInviteCount()` 读 user.invited_count |
+| 后端邀请 API | `InviteController.java` | `GET /api/invite/poster`（手动JWT，返回PNG）、`GET /api/invite/stats`（`Result.ok(Map.of(...))`） |
 | 后端配置 | `WechatMaConfig.java` / `WechatMaProperties.java` | WxMaService Bean（仿 WechatMpConfig 模式） |
 | 后端数据 | `source.json` | `badges[]` 8 枚勋章定义 |
 | 海报模板脚本 | `scripts/generate_poster_template.py` | Pillow 合成 720×1280 无码模板 |
 | 海报旧脚本 | `scripts/generate_poster.py` | 含静态码旧版（已不用） |
-| 前端链路 | `app.ts` / `utils/request.ts` | `captureLaunchParams()` 解析 scene → `reLogin()` 携带到 login body |
-| 前端 my 页 | `pages/mine/index.ts` | `onTapShare` 动态海报 + `onShareAppMessage` + `onShareTimeline` 带 inviter |
+| 前端链路 | `app.ts` / `utils/request.ts` | `captureLaunchParams()` 解析 scene → `reLogin()` 携带到 login body → `launchSceneConsumed` 防残留；401 自动 re-login |
+| 前端 my 页 | `pages/mine/index.ts` | `onTapBecomeMember`（刷新profile+拉stats含threshold）、`onGeneratePosterFromContract`（校验头像昵称→关弹窗→`onTapShare`）、`onTapShare`（生成海报弹窗）、`onShareAppMessage` + `onShareTimeline` 带 inviter |
 
 [[study-section]]
 

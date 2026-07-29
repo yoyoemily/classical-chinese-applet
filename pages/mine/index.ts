@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchBadges, fetchInvitePoster } from '../../api/index';
+import { fetchUserProfile, fetchBadges, fetchInvitePoster, fetchInviteStats } from '../../api/index';
 import { STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
@@ -35,6 +35,14 @@ interface IMineData {
   recoveryDeadline?: string;
   /** 从后端下载的海报临时路径（用于弹窗展示和保存） */
   posterTempPath: string;
+  /** 成为契约会员弹窗 */
+  showContractDialog: boolean;
+  /** 已邀请人数 */
+  totalInvited: number;
+  /** 契约进度百分比 */
+  contractPercent: number;
+  /** 契约会员升级阈值 */
+  memberThreshold: number;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -59,13 +67,17 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     showNuoDialog: false,
     nextBadge: null,
     posterTempPath: '',
+    showContractDialog: false,
+    totalInvited: 0,
+    contractPercent: 0,
+    memberThreshold: 5,
   },
 
   onLoad(): void {},
 
   onShow(): void {
-    // 从其他页面返回时刷新数据，并重置海报弹窗状态
-    this.setData({ showSharePoster: false, posterTempPath: '' });
+    // 从其他页面返回时刷新数据，并重置弹窗状态
+    this.setData({ showSharePoster: false, showContractDialog: false, posterTempPath: '' });
     this.loadProfile();
   },
 
@@ -189,6 +201,54 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
         }
       },
     });
+  },
+
+  /** 点击「成为契约会员」→ 拉取邀请进度并弹出弹窗 */
+  async onTapBecomeMember(): Promise<void> {
+    this.setData({ showContractDialog: true });
+
+    try {
+      // 刷新用户信息（确保头像昵称最新）和邀请统计并行
+      const profileResult = await fetchUserProfile();
+      this.setData({
+        avatarUrl: profileResult.avatarUrl,
+        userName: profileResult.nickName || '学友',
+      });
+
+      const stats = await fetchInviteStats();
+      const totalInvited = stats.totalInvited || 0;
+      const memberThreshold = stats.memberThreshold || 5;
+      const contractPercent = Math.round((totalInvited / memberThreshold) * 100);
+      this.setData({ totalInvited, contractPercent, memberThreshold });
+    } catch (err) {
+      console.error('获取数据失败:', err);
+    }
+  },
+
+  /** 关闭契约会员弹窗 */
+  onCloseContractDialog(): void {
+    this.setData({ showContractDialog: false });
+  },
+
+  /** 从契约会员弹窗中生成专属海报 → 检查头像昵称 → 关闭契约弹窗，打开海报弹窗 */
+  onGeneratePosterFromContract(): void {
+    if (!this.data.avatarUrl || this.data.userName === '学友') {
+      wx.showModal({
+        title: '提示',
+        content: '生成专属海报，需设置头像和昵称',
+        confirmText: '去设置',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            this.onCloseContractDialog();
+            wx.navigateTo({ url: '/pages/profile-edit/index' });
+          }
+        },
+      });
+      return;
+    }
+    this.onCloseContractDialog();
+    this.onTapShare();
   },
 
   /** 点击「金石契」标签 → 弹出弹窗 */
