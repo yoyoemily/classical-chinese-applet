@@ -6,6 +6,7 @@
 - [🔧 选篇 keyWord 标注纠错流程](article-keyword-correction.md) — 发现标注有误时的标准修复流程：定位→检查词书引用→清理→修改JSON→导入→验证。触发词：标注有误、取消标注、纠错 keyWord
 - [🔧 quizItem 释义错误修复流程](quiz-item-definition-fix.md) — 答题正确答案有误的标准修复流程：定位quizItem→核对keyWord→修正definition→重导入。触发词：正确答案有误、释义错误、definition 不对、答案错了
 - [🔍 quizItem 释义全量排查报告（2026-07-30）](quiz-item-definition-audit-2026-07-30.md) — 1,427 条 quizItem 4 轮专项扫描结果 + 5 阶段修复计划。触发词：正确答案错误、释义排查、definition 审计
+- [📋 8本打卡型词书逐字审核（2026-07-30）](word-book-audit-2026-07-30.md) — 546字1427题地毯式审核，6点检查流程，逐字过例句/译文/正确选项/选项去重/kidRef/句子缺失。触发词：逐字审核、打卡字词审核、词书地毯式排查
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
 - [🔗 邀请追踪体系](invite-referral-system.md) — 分享海报动态生成+专属小程序码+邀请关系绑定全链路，user表/邀请明细表前后端完整方案。2026-07-29 审查优化：CAS绑定/只升不降/配置化阈值/stale scene防残留。触发词：邀请、推广、海报、小程序码、invite、referral
