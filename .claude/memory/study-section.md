@@ -192,7 +192,7 @@ metadata:
 - ✅ 错误反馈（学习页 + 字总结页）
 - ✅ 学习顺序（顺序/乱序，复习和新学各自独立 shuffle）
 - ✅ 答题音效反馈（utils/audio-feedback.ts，WebAudioContext 合成）
-- ✅ 诗句库扩充至 20 条（constants/config.ts ENCOURAGEMENT_POEMS）
+- ✅ 诗句库扩充至 44 条（constants/config.ts ENCOURAGEMENT_POEMS）
 - ✅ 出处链接到选篇阅读（articleId 关联）
 - ✅ 「我的」页面勋章入口调整至右上角胶囊按钮
 - ✅ 分享跟踪与门禁（member_level + 金石契）
