@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, fetchBadges, fetchInvitePoster, fetchInviteStats } from '../../api/index';
+import { fetchUserProfile, signPact, fetchBadges, fetchInvitePoster } from '../../api/index';
 import { STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
@@ -25,24 +25,20 @@ interface IMineData {
   menuItems: IMenuItem[];
   loading: boolean;
   showSharePoster: boolean;
+  /** 是否已点击「签订契约」（显示契约内容） */
+  shareConfirmed: boolean;
   /** 会员级别（0=非会员，1=金石契） */
   memberLevel: number;
   /** 金石契约窗 */
   showNuoDialog: boolean;
+  /** 签订契约复选框 */
+  pactChecked: boolean;
   /** 下一枚勋章信息 */
   nextBadge: NextBadgeInfo | null;
   /** 数据清除恢复截止时间 */
   recoveryDeadline?: string;
   /** 从后端下载的海报临时路径（用于弹窗展示和保存） */
   posterTempPath: string;
-  /** 成为契约会员弹窗 */
-  showContractDialog: boolean;
-  /** 已邀请人数 */
-  totalInvited: number;
-  /** 契约进度百分比 */
-  contractPercent: number;
-  /** 契约会员升级阈值 */
-  memberThreshold: number;
 }
 
 Page<IMineData, WechatMiniprogram.Page.CustomOption>({
@@ -63,21 +59,19 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     ],
     loading: false,
     showSharePoster: false,
+    shareConfirmed: false,
     memberLevel: 0,
     showNuoDialog: false,
+    pactChecked: false,
     nextBadge: null,
     posterTempPath: '',
-    showContractDialog: false,
-    totalInvited: 0,
-    contractPercent: 0,
-    memberThreshold: 5,
   },
 
   onLoad(): void {},
 
   onShow(): void {
     // 从其他页面返回时刷新数据，并重置弹窗状态
-    this.setData({ showSharePoster: false, showContractDialog: false, posterTempPath: '' });
+    this.setData({ showSharePoster: false, shareConfirmed: false, posterTempPath: '' });
     this.loadProfile();
   },
 
@@ -148,7 +142,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 打开分享海报弹窗（从后端动态生成含用户专属小程序码的海报） */
   async onTapShare(): Promise<void> {
-    this.setData({ showSharePoster: true, posterTempPath: '' });
+    this.setData({ showSharePoster: true, shareConfirmed: false, pactChecked: false, posterTempPath: '' });
 
     wx.showLoading({ title: '生成海报...' });
 
@@ -203,51 +197,28 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     });
   },
 
-  /** 点击「成为契约会员」→ 拉取邀请进度并弹出弹窗 */
-  async onTapBecomeMember(): Promise<void> {
-    this.setData({ showContractDialog: true });
+  /** 进入签订契约阶段二 */
+  onConfirmShare(): void {
+    this.setData({ shareConfirmed: true });
+  },
 
+  /** 切换契约复选框 */
+  onTogglePactCheck(): void {
+    this.setData({ pactChecked: !this.data.pactChecked });
+  },
+
+  /** 签订契约并关闭 */
+  async onConfirmPact(): Promise<void> {
+    if (!this.data.pactChecked) return;
     try {
-      // 刷新用户信息（确保头像昵称最新）和邀请统计并行
-      const profileResult = await fetchUserProfile();
-      this.setData({
-        avatarUrl: profileResult.avatarUrl,
-        userName: profileResult.nickName || '学友',
-      });
-
-      const stats = await fetchInviteStats();
-      const totalInvited = stats.totalInvited || 0;
-      const memberThreshold = stats.memberThreshold || 5;
-      const contractPercent = Math.round((totalInvited / memberThreshold) * 100);
-      this.setData({ totalInvited, contractPercent, memberThreshold });
-    } catch (err) {
-      console.error('获取数据失败:', err);
-    }
+      await signPact();
+    } catch { /* 网络失败不阻塞 */ }
+    this.setData({ showSharePoster: false });
+    this.loadProfile();
   },
 
-  /** 关闭契约会员弹窗 */
-  onCloseContractDialog(): void {
-    this.setData({ showContractDialog: false });
-  },
-
-  /** 从契约会员弹窗中生成专属海报 → 检查头像昵称 → 关闭契约弹窗，打开海报弹窗 */
-  onGeneratePosterFromContract(): void {
-    if (!this.data.avatarUrl || this.data.userName === '学友') {
-      wx.showModal({
-        title: '提示',
-        content: '生成专属海报，需设置头像和昵称',
-        confirmText: '去设置',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            this.onCloseContractDialog();
-            wx.navigateTo({ url: '/pages/profile-edit/index' });
-          }
-        },
-      });
-      return;
-    }
-    this.onCloseContractDialog();
+  /** 点击「成为契约会员」→ 直接打开海报弹窗 */
+  onTapBecomeMember(): void {
     this.onTapShare();
   },
 

@@ -131,6 +131,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 - 累计打卡满 `GATE_ACCUMULATED_DAYS` 天（默认 10，-1=关闭）+ 非契约会员 → 首页点击「开始学习」弹出门禁弹窗
 - 弹窗文案："你已累计学习 N 天" + "成为契约会员，才能继续学习"
 - 点击「成为契约会员」→ `wx.switchTab` 跳转「我的」页面；弹窗底部有「暂不」可关闭
+- **累计天数来源**：`user.checkin_days`（每次首次打卡 +1），门禁使用 `checkinDays` 字段，非 `longestStreak`（历史最长连续天数）
 - **不再依赖微信公众号，不再需要学习码**。详细旧方案见 [[redeem-code-plan]]（已废弃）
 
 ### mine 页分享海报（2026-07-29 升级为动态海报，同日简化为纯海报分享，同日新增契约会员入口，同日审查优化绑定逻辑）
@@ -182,12 +183,13 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 层 | 文件 | 关键位置 |
 |----|------|---------|
 | 后端 API | `POST /api/user/pact` | `UserService.signPact()` 设置 memberLevel=1，无前置校验 |
-| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`longestStreak` |
+| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`longestStreak`、`checkinDays` |
+| 后端打卡 | `StudyService.java` / `UserMapper.java` | `completeStudy()` 当日首次打卡时 `updateCheckinDays(userId)` SQL 原子 +1；`UserMapper.updateCheckinDays()` |
 | 前端 mine 页 | `pages/mine/index.*` | 非会员CTA按钮 + 契约会员弹窗（进度条 `totalInvited/memberThreshold` + 生成海报） + 会员分享按钮 + 金石契弹窗 |
 | 前端门禁常量 | `constants/config.ts` | `GATE_ACCUMULATED_DAYS`（默认 10，-1 关闭） |
-| 前端首页 | `pages/index/index.ts` | `onTapStartLearning()` 检查门禁：`longestStreak >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」|
+| 前端首页 | `pages/index/index.ts` | `onTapStartLearning()` 检查门禁：`checkinDays >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」|
 | 前端首页弹窗 | `pages/index/index.*` | `showGate` → 弹窗有「成为契约会员」按钮（`wx.switchTab` 跳转我的）和「暂不」关闭 |
-| 前端首页数据 | `pages/index/index.ts` | `loadData()` 从 profile 取 `longestStreak` |
+| 前端首页数据 | `pages/index/index.ts` | `loadData()` 从 profile 取 `checkinDays` |
 | 后端邀请统计 | `GET /api/invite/stats` | 返回 `{ totalInvited, memberThreshold }`，读 `user.invited_count` + `InviteService.getMemberThreshold()` |
 | 后端海报合成 | `InviteService.java` | `compositePoster()` 绘制圆形头像 + 邀请文案 + 二维码白底卡片（圆角24px）+ 提示文字；`downloadAndCropCircle()` 下载头像并圆形裁剪 |
 | 后端配置 | `application.yml` | `invite.member-threshold: 5` 推广升级阈值 |

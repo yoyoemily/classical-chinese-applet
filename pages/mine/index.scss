@@ -340,8 +340,14 @@
     gap: $spacing-sm;
   }
 
-  &__poster-save {
+  &__poster-btn-row {
     width: 100%;
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__poster-save {
+    flex: 1;
     margin: 0;
     padding: $spacing-md 0;
     background-color: var(--color-primary);
@@ -357,130 +363,132 @@
     }
   }
 
-  // -------- 成为契约会员弹窗（非会员） --------
-  &__contract-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-    @include flex-center;
-    padding: $spacing-xl;
-  }
-
-  &__contract-modal {
-    position: relative;
-    width: 100%;
-    max-width: 560rpx;
-    background-color: var(--color-bg-white);
-    border-radius: $radius-lg;
-    @include flex-column;
-    align-items: center;
-    padding: $spacing-xl $spacing-lg;
-    gap: $spacing-base;
-  }
-
-  &__contract-modal-close {
-    position: absolute;
-    top: $spacing-md;
-    right: $spacing-md;
-    width: 48rpx;
-    height: 48rpx;
-    border-radius: $radius-round;
-    background-color: rgba(0, 0, 0, 0.06);
-    color: var(--color-text-hint);
-    font-size: $font-size-base;
-    @include flex-center;
-    line-height: 1;
-  }
-
-  &__contract-modal-icon {
-    font-size: 72rpx;
-    line-height: 1;
-  }
-
-  &__contract-modal-title {
-    font-size: $font-size-xxl;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    text-align: center;
-  }
-
-  &__contract-modal-text {
-    font-size: $font-size-base;
-    color: var(--color-text-secondary);
-    text-align: center;
-    line-height: 1.8;
-
-    &--bold {
-      font-weight: 600;
-      color: var(--color-primary);
-    }
-  }
-
-  // 进度条
-  &__contract-progress {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: $spacing-base;
-    padding: $spacing-base;
-    background-color: var(--color-bg-page);
-    border-radius: $radius-base;
-  }
-
-  &__contract-progress-label {
-    font-size: $font-size-sm;
-    color: var(--color-text-hint);
-    flex-shrink: 0;
-  }
-
-  &__contract-progress-bar {
+  &__poster-btn-row-link {
     flex: 1;
-    height: 12rpx;
-    border-radius: 6rpx;
-    background-color: var(--color-border-light);
-    overflow: hidden;
-  }
-
-  &__contract-progress-fill {
-    height: 100%;
-    border-radius: 6rpx;
-    background: linear-gradient(90deg, var(--color-accent-light), var(--color-accent));
-    transition: width 0.4s ease;
-  }
-
-  &__contract-progress-count {
-    font-size: $font-size-sm;
-    color: var(--color-text-primary);
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  // 契约文案
-  &__contract-modal-pact {
-    @include flex-column;
-    align-items: center;
-    font-size: $font-size-md;
-    color: #b8860b;
-    font-weight: 500;
-    text-align: center;
-    line-height: 2;
-  }
-
-  &__contract-modal-btn {
-    width: 100%;
-    margin: 0;
     padding: $spacing-md 0;
-    background-color: var(--color-primary);
+    background-color: var(--color-accent);
     color: #ffffff;
     font-size: $font-size-md;
     font-weight: 500;
     border-radius: $radius-base;
     text-align: center;
-    @include active(rgba(74, 106, 94, 0.8));
+    @include active(rgba(201, 169, 110, 0.8));
+
+    &--disabled {
+      opacity: 0.5;
+      background-color: rgba(74, 106, 94, 0.04);
+      color: var(--color-primary);
+      border: 2rpx solid var(--color-primary);
+    }
+
+    &::after {
+      border: none;
+    }
+  }
+
+  // -------- 签订契约（阶段二） --------
+  &__poster-trust {
+    width: 100%;
+    min-height: 480rpx;
+    @include flex-column;
+    @include flex-center;
+    padding: $spacing-xl $spacing-lg;
+    border-radius: $radius-base;
+    background-color: var(--color-bg-white);
+    gap: $spacing-base;
+  }
+
+  &__poster-trust-icon {
+    font-size: 72rpx;
+    line-height: 1;
+  }
+
+  &__poster-trust-title {
+    font-size: $font-size-xxl;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin-bottom: $spacing-md;
+  }
+
+  &__poster-trust-text {
+    font-size: $font-size-md;
+    color: var(--color-text-secondary);
+    text-align: center;
+    line-height: 2;
+
+    &--pact {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      padding-bottom: $spacing-sm;
+      border-bottom: 2rpx solid rgba(212, 161, 42, 0.4);
+    }
+  }
+
+  &__poster-trust-footer {
+    margin-top: $spacing-base;
+    font-size: $font-size-sm;
+    color: #b8860b;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  &__poster-trust-check {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-base;
+    padding: $spacing-sm 0;
+    justify-content: center;
+  }
+
+  &__poster-trust-check-finger {
+    font-size: 40rpx;
+    animation: finger-point 0.8s ease-in-out infinite alternate;
+  }
+
+  &__poster-trust-check-box {
+    width: 36rpx;
+    height: 36rpx;
+    border-radius: 6rpx;
+    border: 3rpx solid var(--color-text-hint);
+    @include flex-center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &--checked {
+      background-color: #d4a12a;
+      border-color: #d4a12a;
+    }
+  }
+
+  &__poster-trust-check-mark {
+    color: #ffffff;
+    font-size: 28rpx;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__poster-trust-check-label {
+    font-size: $font-size-sm;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  &__poster-trust-btn {
+    width: 70%;
+    margin-top: $spacing-lg;
+    padding: $spacing-sm 0;
+    background: linear-gradient(135deg, #d4a12a, #b8860b);
+    color: #ffffff;
+    font-size: $font-size-md;
+    font-weight: 500;
+    border-radius: $radius-base;
+    text-align: center;
+
+    &--disabled {
+      opacity: 0.4;
+    }
 
     &::after {
       border: none;
@@ -591,5 +599,14 @@
   }
   50% {
     box-shadow: 0 0 24rpx rgba(212, 161, 42, 0.7), inset 0 1rpx 0 rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes finger-point {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(8rpx);
   }
 }
