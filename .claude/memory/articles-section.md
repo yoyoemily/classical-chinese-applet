@@ -240,7 +240,7 @@ articles_*.json 规范化：
 | 数据源 | `articles_shell.json`（知识库），121 篇、339 句、339 条 keyWords |
 | 典故注释 | 无 |
 | 创作背景 | 无 |
-| 句子/译文 | 有句子 text 和 translation，仅为通过词书导入校验而存在；keyWord definition 基本为空，不影响——quizItem 自带 definition 副本 |
+| 句子/译文 | 有 keyWord 的句子必须 100% 有译文（导入代码强制校验，无译文抛异常）。keyWord definition 基本为空，不影响——quizItem 自带 definition 副本 |
 | title | 显示在词书打卡页面作为句子出处（如"廉颇蔺相如列传"），不可点击进入阅读 |
 
 **Why:** 大纲文章（教材 179 篇）覆盖面有限，quizItem 中大量句子不出自教材选篇。壳文章为这些句子提供 kid 锚点，让词书的每个 quizItem 都有合法的 kidRef 可依附。
