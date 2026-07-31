@@ -102,7 +102,6 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 ## 相关联记忆
 
 [[word-book-audit-fix-list]]
-[[quiz-item-definition-fix]]
-[[article-keyword-correction]]
+[[fix-guide]]
 [[study-section]]
 [[articles-section]]

@@ -197,4 +197,4 @@ python3 scripts/validate_keywords.py
 
 [[articles-section]]
 
-> **纠错场景**：如果是要取消已有的 keyWord 标注（而非新增/修改），走 [[article-keyword-correction]] 流程——定位→检查词书引用→清理→删除→导入。
+> **纠错场景**：如果是要取消已有的 keyWord 标注（而非新增/修改），走 [[fix-guide]]#五c-类修复-keyword-标注与-kidref检查点-（场景 3：删除 keyWord）流程——定位→检查词书引用→清理→删除→导入。

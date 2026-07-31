@@ -87,6 +87,5 @@ metadata:
 
 ## 相关联记忆
 
-[[quiz-item-definition-fix]]
-[[article-keyword-correction]]
+[[fix-guide]]
 [[word-book-audit]]

@@ -230,19 +230,20 @@ articles_*.json 规范化：
 
 ## 壳文章
 
-壳文章 (`art_shell_001` ~ `art_shell_121`) 是词书 keyWords 的句子上下文容器，不是用户可读的选篇。词书通过 `keyWordRefs[].kid` 引用选篇 keyWords，壳文章的句子和 keyWords 就是这些引用的落地锚点。
+壳文章 (`art_shell_001` ~ `art_shell_121`) 仅作为词书 quizItem 的 kid 锚点，不是用户可读的选篇。词书导入时 quizItem 从壳文章的 sentence/keyWord 拷贝所需字段后，运行时不再读壳文章。
 
 | 维度 | 行为 |
 |------|------|
-| 文章列表 | **不可见**。后端 `has_content = 0` 过滤 |
-| 文章详情 | API 无过滤，直接输 URL 可到达 |
+| 文章列表 | **不可见**。后端 `ArticleService.getArticles()` 以 `has_content = 1` 过滤，壳文章 `has_content = 0` 被排除 |
+| 文章详情 | API 无过滤，直接输 URL 可到，但用户正常路径下不会到达 |
 | 排序 | `sortOrder = 10000 + index`，排在大纲文章之后 |
 | 数据源 | `articles_shell.json`（知识库），121 篇、339 句、339 条 keyWords |
 | 典故注释 | 无 |
 | 创作背景 | 无 |
-| 译文 | 有 keyWord 的句子必须 100% 有译文 |
+| 句子/译文 | 有句子 text 和 translation，仅为通过词书导入校验而存在；keyWord definition 基本为空，不影响——quizItem 自带 definition 副本 |
+| title | 显示在词书打卡页面作为句子出处（如"廉颇蔺相如列传"），不可点击进入阅读 |
 
-**Why:** 大纲文章 77 篇覆盖面有限，壳文章补充更多句子场景，让词书的每个 keyWordRef 都有句子可依附。
+**Why:** 大纲文章（教材 179 篇）覆盖面有限，quizItem 中大量句子不出自教材选篇。壳文章为这些句子提供 kid 锚点，让词书的每个 quizItem 都有合法的 kidRef 可依附。
 
 ---
 

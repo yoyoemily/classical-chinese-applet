@@ -2,8 +2,7 @@
 - [📘 学习板块](study-section.md) — 9 本词书/学习回路/艾宾浩斯/错题本/语音播报/勋章打卡，关联知识库 文言文/词书/readme.md
 - [📙 选篇板块](articles-section.md) — 300 篇名篇（179 教材 + 121 壳）/3 种阅读模式/5 色分高亮/典故注释全部完成/keyWords 词书交叉核对 100% 通过，关联知识库 文言文/选篇/
 - [📋 选篇调整工作流程](article-adjustment-workflow.md) — 独立 SOP：句子增删/移位、keyWords 标注、典故注释、词书同步、导入数据库、完成后检查清单。触发词：调整选篇、修改选篇、优化选篇
-- [🔧 选篇 keyWord 标注纠错流程](article-keyword-correction.md) — 发现标注有误时的标准修复流程：定位→检查词书引用→清理→修改JSON→导入→验证。触发词：标注有误、取消标注、纠错 keyWord
-- [🔧 quizItem 释义错误修复流程](quiz-item-definition-fix.md) — 答题正确答案有误的标准修复流程：定位quizItem→核对keyWord→修正definition→重导入。触发词：正确答案有误、释义错误、definition 不对、答案错了
+- [🔧 修复总纲](fix-guide.md) — 全系统修复标准，按问题症状（9 个检查点）索引到 A/B/C/D 四类操作。触发词：修复问题、答案错了、释义错误、kidRef 错误、句子有误、选项重复、fix
 - [📋 8本打卡型词书逐字审核](word-book-audit.md) — 审核方法论+进度跟踪，9点检查流程，逐字过例句/译文/正确选项/选项去重/kidRef/句子缺失。触发词：逐字审核、打卡字词审核、词书地毯式排查
 - [🔧 词书审核修复清单](word-book-audit-fix-list.md) — 词书审核问题的标准记录模板，按🔴严重/🟡轻量分类记录。触发词：修复词书问题、fix quizItem
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
