@@ -9,5 +9,5 @@
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
 - [🔗 邀请追踪体系](invite-referral-system.md) — 分享海报动态生成+专属小程序码+邀请关系绑定全链路，user表/邀请明细表前后端完整方案。2026-07-29 审查优化：CAS绑定/只升不降/配置化阈值/stale scene防残留。触发词：邀请、推广、海报、小程序码、invite、referral
-- [🔒 quizItem ID 不可变性原则](quizitem-id-invariance-rule.md) — 删除不复用，新增用新ID。触发词：quiz_item_id、导入词书、ID 复用
+- [🚀 词书批量修复脚本](fix-gaokao-shixu-script.md) — .claude/scripts/fix_gaokao_shixu.py 模板，支持 #3/#4/#5/#8 四类批量修复。触发词：批量修复词书、fix wordbook batch
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
