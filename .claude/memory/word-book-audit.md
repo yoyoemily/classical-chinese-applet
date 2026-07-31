@@ -93,9 +93,10 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 
 全部问题已修复，详见 [[word-book-audit-fix-list]]。
 
-### 词书 2：中考通假字一本通 — ✅ 32/32 完成
+### 词书 2：中考通假字一本通 — ✅ 修复完成
 
 **审核时间**：2026-07-31
+**修复时间**：2026-07-31
 
 **最终统计**：
 - 34 entry（32 字有 quizItem，2 字空 entry：厝、陇）
