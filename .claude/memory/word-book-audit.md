@@ -74,7 +74,7 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 | 2 | 中考通假字一本通 | wb_zhongkao_tongjia | 35 | 待开始 |
 | 3 | 中考古今异义一本通 | wb_zhongkao_gujinyi | 50 | 待开始 |
 | 4 | 中考词类活用一本通 | wb_zhongkao_cileihuoyong | 26 | 待开始 |
-| 5 | 高考实词虚词一本通 | wb_gaokao_shixu | 135 | 待开始 |
+| 5 | 高考实词虚词一本通 | wb_gaokao_shixu | 135 | 🔴 审核中（50/135） |
 | 6 | 高考通假字一本通 | wb_gaokao_tongjia | 53 | 待开始 |
 | 7 | 高考古今异义一本通 | wb_gaokao_gujinyi | 50 | 待开始 |
 | 8 | 高考词类活用一本通 | wb_gaokao_cileihuoyong | 30 | 待开始 |
@@ -96,6 +96,29 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 ### 词书 2：中考通假字一本通 — 待开始
 
 （35 字，identify_first 模式。按上方工作范式逐字执行。）
+
+---
+
+### 词书 5：高考实词虚词一本通 — 🔴 审核中（50/135，已审至"类"字）
+
+**当前进度**：已审 1-50 字（爱→类），剩余 51-135（怜→之）共 85 字。
+
+> **重开会话接续点**：从第 51 字「怜」(wb_gk_051) 继续，依次执行 `audit_one_char.sh wb_gk_051`。
+
+**已审 1-50 字详见 [[word-book-audit-fix-list]] 中记录**。
+
+**阶段性统计（1-50字）**：
+- 🔴 #3 正确答案有误：10 处
+- 🔴 #4 选项包含性重复：16 处
+- 🔴 #5 干扰项含答案：1 处
+- 🔴 #8 kidRef 指向错误文章：12 处
+- 🟡 壳 kid：~200 条
+- ✅ 9/9 全部通过：约 15 字
+
+**重开会话指令**：
+```
+继续高考实词虚词一本通词书排查，从第51字"怜"开始，逐字9点表格输出
+```
 
 ---
 
