@@ -43,7 +43,7 @@ metadata:
 
 词书通过 kid 引用选篇 keyWords，选篇 keyWords 是唯一权威数据源。`quizItem.definition` 直接从 article_keyword 取，quizItem 直接存储 sentenceText/sentenceTranslation/sentenceSource。
 
-核心类型见 [[classical-chinese-data-model]]，这里只列学习板块最常涉及的：
+核心类型（学习板块最常涉及的）：
 
 | 类型 | 关键字段 |
 |------|---------|

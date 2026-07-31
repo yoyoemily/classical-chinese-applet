@@ -89,15 +89,9 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 **前端侧**：`app.ts` onLaunch 调用 `reLogin()`（从 `request.ts` 导入）；`request.ts` 自动带 token + 401 re-login；`constants/config.ts` 中 `STORAGE_KEYS.TOKEN = 'authToken'`。
 
-### 学习码门禁（2026-07-23 已实现）
+### 学习码门禁（已废弃）
 
-- **表**：`redeem_code`（28 号表）— 6 位纯数字兑换码
-- **user 表**：新增 `last_active_at` 列，LoginInterceptor 每次请求自动更新
-- **API**：`POST /api/user/verify-code`（验证码）、`GET /api/user/member-status`（会员状态快照，含 30 天活跃判断）、`POST /api/admin/generate-code`（管理端生成码）
-- **门禁逻辑**：`streak >= 10 && (memberLevel < 1 || !codeActive)` — 签约一次永久有效，学习码 30 天不活跃自动失效
-- **signPact**：新增前置校验——必须有已验证的学习码（status=1）
-- **getUserProfile**：返回 `codeVerified` 和 `codeActive` 字段供前端判断门禁分支
-- 详见 [[redeem-code-plan]]
+> 学习码方案已于 2026-07-29 废弃，改为累计打卡+跳转我的页面的简化方案。`redeem_code` 表和相关 API 仍保留在代码中但不再使用。
 
 ### 数据导入
 
@@ -169,4 +163,3 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 [[study-section]]
 [[articles-section]]
 [[classics-section]]
-[[redeem-code-plan]]
