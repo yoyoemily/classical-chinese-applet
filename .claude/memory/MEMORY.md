@@ -10,4 +10,5 @@
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
 - [🔗 邀请追踪体系](invite-referral-system.md) — 分享海报动态生成+专属小程序码+邀请关系绑定全链路，user表/邀请明细表前后端完整方案。2026-07-29 审查优化：CAS绑定/只升不降/配置化阈值/stale scene防残留。触发词：邀请、推广、海报、小程序码、invite、referral
 - [🚀 词书批量修复脚本](fix-gaokao-shixu-script.md) — .claude/scripts/fix_gaokao_shixu.py 模板，支持 #3/#4/#5/#8 四类批量修复。触发词：批量修复词书、fix wordbook batch
+- [🚫 禁止直接修改数据库](never-edit-database-directly.md) — 知识库JSON是唯一权威数据源，数据库是导入后的镜像，修复一律改JSON然后由用户导入
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
