@@ -7,7 +7,6 @@
   min-height: 100vh;
   background-color: var(--color-bg-page);
 
-  // ---------- 加载态 ----------
   &__loading {
     display: flex;
     align-items: center;
@@ -17,22 +16,25 @@
     color: var(--color-text-hint);
   }
 
-  // ---------- 滚动容器 ----------
   &__scroll {
     height: 100vh;
+    padding-top: $spacing-md;
   }
 
-  // ---------- 正文 ----------
-  &__article {
-    padding: $spacing-lg $spacing-base 0;
+  &__card {
+    margin: 0 $spacing-base;
+    padding: $spacing-xl $spacing-lg;
+    background-color: var(--color-bg-white);
+    border-radius: $radius-lg;
+    box-shadow: $shadow-sm;
   }
 
   &__header {
-    margin-bottom: $spacing-lg;
+    margin-bottom: $spacing-md;
   }
 
   &__title {
-    font-size: $font-size-lg;
+    font-size: $font-size-xl;
     font-weight: 700;
     color: var(--color-text-primary);
     display: block;
@@ -45,12 +47,19 @@
     color: var(--color-text-hint);
   }
 
-  // ---------- 正文（rich-text） ----------
-  &__content {
-    font-size: $font-size-base;
-    color: var(--color-text-secondary);
-    line-height: 2;
-    word-break: break-word;
+  &__divider {
+    height: 1rpx;
+    background-color: var(--color-border-light);
+    margin-bottom: $spacing-lg;
+  }
+
+  // 正文段距由外层 view 控制，不靠 rich-text
+  &__p {
+    margin-bottom: 40rpx;
+  }
+
+  &__p--last {
+    text-align: right;
   }
 
   &__bottom-placeholder {

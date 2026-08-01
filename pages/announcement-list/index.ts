@@ -52,7 +52,8 @@ Page<IAnnouncementListData, WechatMiniprogram.Page.CustomOption>({
       this.setData({ list, loading: false });
 
       if (rawList.length > 0) {
-        setAnnouncementLastReadId(rawList[0].id);
+        const maxId = Math.max(...rawList.map(item => item.id));
+        setAnnouncementLastReadId(maxId);
       }
     } catch {
       this.setData({ loading: false });

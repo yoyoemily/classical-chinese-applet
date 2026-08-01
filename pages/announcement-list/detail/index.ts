@@ -1,9 +1,11 @@
 // ============================================
 // 公告详情页
 // ============================================
+
 interface IAnnouncementDetailData {
   title: string;
-  content: string;
+  /** 段落列表：纯文本或带 <strong>/<br> 的 HTML 片段 */
+  paragraphs: string[];
   displayTime: string;
   loading: boolean;
 }
@@ -11,7 +13,7 @@ interface IAnnouncementDetailData {
 Page<IAnnouncementDetailData, WechatMiniprogram.Page.CustomOption>({
   data: {
     title: '',
-    content: '',
+    paragraphs: [],
     displayTime: '',
     loading: true,
   },
@@ -23,7 +25,7 @@ Page<IAnnouncementDetailData, WechatMiniprogram.Page.CustomOption>({
     if (data) {
       this.setData({
         title: data.title,
-        content: data.content,
+        paragraphs: this.splitParagraphs(data.content),
         displayTime: data.displayTime,
         loading: false,
       });
@@ -32,6 +34,24 @@ Page<IAnnouncementDetailData, WechatMiniprogram.Page.CustomOption>({
       wx.showToast({ title: '加载失败', icon: 'none' });
       wx.navigateBack();
     }
+  },
+
+  /** 把 HTML 按 <p> 切分成段落数组，去掉 <p> 标签本身，保留内部 <strong>/<br> */
+  splitParagraphs(html: string): string[] {
+    const result: string[] = [];
+    const pRegex = /<p>(.*?)<\/p>/gs;
+    let match: RegExpExecArray | null;
+    while ((match = pRegex.exec(html)) !== null) {
+      const inner = match[1]
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, '\'')
+        .replace(/&nbsp;/g, ' ');
+      result.push(inner);
+    }
+    return result;
   },
 
   /** 分享 */

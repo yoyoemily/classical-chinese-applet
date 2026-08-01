@@ -1,11 +1,9 @@
 <!-- 公告详情页 -->
 <view class="page-ad">
-  <!-- 加载态 -->
   <view wx:if="{{loading}}" class="page-ad__loading">
     <text>加载中...</text>
   </view>
 
-  <!-- 正文 -->
   <scroll-view
     wx:else
     class="page-ad__scroll"
@@ -13,12 +11,21 @@
     enhanced
     show-scrollbar="{{false}}"
   >
-    <view class="page-ad__article">
+    <view class="page-ad__card">
       <view class="page-ad__header">
         <text class="page-ad__title">{{title}}</text>
         <text class="page-ad__time">{{displayTime}}</text>
       </view>
-      <rich-text class="page-ad__content" nodes="{{content}}"></rich-text>
+      <view class="page-ad__divider"></view>
+
+      <block wx:for="{{paragraphs}}" wx:key="index">
+        <view wx:if="{{index < paragraphs.length - 1}}" class="page-ad__p">
+          <rich-text nodes="<p>{{item}}</p>"></rich-text>
+        </view>
+        <view wx:else class="page-ad__p--last">
+          <rich-text nodes="<p>{{item}}</p>"></rich-text>
+        </view>
+      </block>
     </view>
 
     <view class="page-ad__bottom-placeholder"></view>
