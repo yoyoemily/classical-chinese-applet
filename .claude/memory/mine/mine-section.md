@@ -126,134 +126,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 
 ## 分享流程与金石契
 
-### 门禁机制
-
-- 累计打卡满 `GATE_ACCUMULATED_DAYS` 天（默认 10，-1=关闭）+ 非契约会员 → 首页点击「开始学习」弹出门禁弹窗
-- 弹窗文案："你已累计学习 N 天" + "成为契约会员，才能继续学习"
-- 点击「成为契约会员」→ `wx.switchTab` 跳转「我的」页面；弹窗底部有「暂不」可关闭
-- **累计天数来源**：`user.checkin_days`（每次首次打卡 +1），门禁使用 `checkinDays` 字段，非 `longestStreak`（历史最长连续天数）
-- **不再依赖微信公众号，不再需要学习码**。
-
-### mine 页分享海报（2026-07-30 重构为二阶段签订契约流程）
-
-**交互流程**：
-
-- **非会员（memberLevel=0）**：分享区域显示"成为契约会员"绿色实心按钮
-  - 点击 → 直接打开海报弹窗（调用 `onTapBecomeMember()` → `onTapShare()`）
-  - 阶段一：专属海报图 + "保存海报"按钮 + "签订契约"按钮（始终可点击）
-  - 阶段二（点击"签订契约"后）：金石契签订 UI（📜 + 契约文案"君以分享托付文言雀，文言雀亦以赤诚报君，此约既成，金石不渝" + 👉 复选框"余今签契，行之以诚" + "签订契约"金色按钮 + 底部"契约既签，永久免费学习"）
-  - 勾选复选框后点"签订契约" → `POST /api/user/pact` → 刷新 profile 变为契约会员 → 关闭弹窗
-- **会员（memberLevel>=1）**：分享区域显示"分享给朋友"虚线按钮，点击直接生成专属海报（单阶段，无契约入口）
-- 海报含用户专属小程序码（scene=`i_{userId}`），扫码进入时自动记录邀请关系
-- 海报后端合成时，上半部分绘制圆形头像（120px，4px 白色描边，水平居中，Y=116）→「{昵称} 邀你打卡文言雀」（Bold 30px SansSerif 深灰色，Y=290），下半部分小程序码白底卡片圆角 24px，下方"长按或扫码进入"灰色提示。头像从 `user.avatarUrl` 下载（末尾 /132→/0 取原图），下载失败静默跳过
-- 卡片转发（`onShareAppMessage`）和朋友圈分享（`onShareTimeline`）通过右上角 ··· 原生菜单触发，均携带 `inviter={userId}` 追踪推广
-- **签订契约**：手动签契（`POST /api/user/pact`），不再依赖推广数自动升级。`InviteService.bindInviter()` 中的自动升级逻辑已删除
-- **海报不再缓存**：每次实时查数据库获取最新头像和昵称，删除了旧的 `ConcurrentHashMap` 1h TTL 内存缓存
-- 金石契弹窗（`showNuoDialog`）保留，供已获契约会员查看
-
-### 邀请追踪（2026-07-29 新增，同日审查优化）
-
-- **user 表**：`invited_by`（上级ID，首次登录写入不可修改）+ `invited_count`（推广数，自治 +1）
-- **invite_record 表**：邀请明细（inviter_id/invitee_id/scene_code/source_type/bound_at），scene_code 唯一
-- **绑定逻辑**（三重防重复）：① invited_by 非空直接返回 ② `UPDATE WHERE invited_by IS NULL` CAS 原子写入 ③ `@Transactional` 事务保证
-- **会员升级**：仅手动签契（`POST /api/user/pact` → `member_level=1`），推广数不再自动升级。`member-threshold` 配置仅保留用于参考
-- **小程序码生成**：后端 `InviteService.generatePoster()` 调 `wxacode.getUnlimited`（`weixin-java-miniapp:4.7.0`），scene 格式 `i_{userId}`，颜色深绿 #2e5d3c，透明底色
-- **海报合成**：模板图 `share-poster-template.png`（720×1280，不含码）→ Java 2D 将 430px 小程序码缩放至 220px → 贴到模板 (250, 830) 带白底圆角卡片
-- **绑定时机**：`AuthService.login()` 中，scene/inviterId 传入 → `InviteService.bindInviter()` 事务
-- **登录链路**：app.ts `captureLaunchParams()` 解析 scene/inviter → globalData → `request.ts reLogin()` 携带到 login body；`launchSceneConsumed` 标记防 stale scene 残留
-- **invite_record 写入**：海报扫码预写（`ensureInviteRecord`，sourceType=0）+ 卡片分享 on-the-fly INSERT（sourceType=1）
-- **海报不缓存**：`wxacode.getUnlimited` 微信侧已有缓存，每次生成海报实时查数据库取最新头像昵称
-- **配置化阈值**：`application.yml` → `invite.member-threshold: 5`，仅用于前端进度展示参考，不再自动升级
-- **防刷**：扫自己码跳过；invited_by 已有值不覆盖；scene_code 唯一索引；memberLevel 已为 1 不重复升级；老用户温启动不绑定
-
-### 海报生成
-
-- 模板脚本：`scripts/generate_poster_template.py`（Pillow 合成 720×1280，不含小程序码，不含顶部品牌文字）→ `assets/share-poster-template.png`
-- 原始脚本：`scripts/generate_poster.py`（含静态码的旧版，已不用于线上）
-- 服务端合成：Java 2D BufferedImage + Graphics2D，上半部分绘制"{昵称} 邀你打卡文言雀"，二维码白底圆角卡片（24px 圆角）+ 缩放小程序码 + 下方"长按或扫码进入"提示
-- 模板部署：后端 `resources/static/assets/share-poster-template.png`
-- 海报 API：`GET /api/invite/poster?token=xxx`（加入 WebMvcConfig exclude 列表，Controller 手动解析 JWT）
-- 邀请统计 API：`GET /api/invite/stats` → `Result.ok(Map.of("totalInvited", count))`，读 `user.invited_count`
-- 字体：SansSerif Bold 30px（邀请文案）/ SansSerif Plain 22px（提示文字）
-
-
-### 关键代码
-
-| 层 | 文件 | 关键位置 |
-|----|------|---------|
-| 后端 API | `POST /api/user/pact` | `UserService.signPact()` 设置 memberLevel=1，无前置校验 |
-| 后端 Profile | `GET /api/user/profile` | 返回 `memberLevel`、`longestStreak`、`checkinDays` |
-| 后端打卡 | `StudyService.java` / `UserMapper.java` | `completeStudy()` 当日首次打卡时 `updateCheckinDays(userId)` SQL 原子 +1；`UserMapper.updateCheckinDays()` |
-| 前端 mine 页 | `pages/mine/index.*` | 非会员CTA按钮"成为契约会员" + 二阶段海报弹窗（保存海报→签订契约） + 会员分享按钮 + 金石契弹窗 |
-| 前端门禁常量 | `constants/config.ts` | `GATE_ACCUMULATED_DAYS`（默认 10，-1 关闭） |
-| 前端首页 | `pages/index/index.ts` | `onTapStartLearning()` 检查门禁：`checkinDays >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」|
-| 前端首页弹窗 | `pages/index/index.*` | `showGate` → 弹窗有「成为契约会员」按钮（`wx.switchTab` 跳转我的）和「暂不」关闭 |
-| 前端首页数据 | `pages/index/index.ts` | `loadData()` 从 profile 取 `checkinDays` |
-| 后端邀请统计 | `GET /api/invite/stats` | 返回 `{ totalInvited, memberThreshold }`，读 `user.invited_count` + `InviteService.getMemberThreshold()` |
-| 后端海报合成 | `InviteService.java` | `compositePoster()` 绘制圆形头像 + 邀请文案 + 二维码白底卡片（圆角24px）+ 提示文字；`downloadAndCropCircle()` 下载头像并圆形裁剪 |
-| 后端配置 | `application.yml` | `invite.member-threshold: 5` 推广升级阈值 |
-
----
-
-## my 页面结构
-
-```
-┌──────────────────────────┐
-│  深绿色渐变头部            │
-│  [头像] 昵称 Lv.X 称号    │  ← 等级标签可点击跳转等级体系页
-│         契约会员(金色渐变)  │  ← memberLevel>=1 时显示
-│               🏅 N/8      │  ← 点击跳转勋章墙
-│  ┌─下一枚勋章进度条─────┐  │
-│  │ 🎖 勋章名    还差N天  │  │
-│  │ ████████░░░░░  N%   │  │
-│  └──────────────────────┘  │
-├──────────────────────────┤
-│  📜 成为契约会员（绿底白字）  │  ← memberLevel=0 时显示
-│  📤 分享给朋友（虚线按钮）  │  ← memberLevel>=1 时显示
-├──────────────────────────┤
-│  📅 打卡日历              │
-│  📝 错题本                │
-│  📖 生词本                │
-│  👤 个人信息              │
-│  ⚙️ 设置                  │
-├──────────────────────────┤
-│         文言雀            │
-└──────────────────────────┘
-```
-
----
-
-## 关键文件索引
-
-| 层 | 文件 | 角色 |
-|----|------|------|
-| 前端 mine | `pages/mine/index.*` | 个人中心主页面 |
-| 前端等级 | `pages/level-system/index.*` | 等级体系展示页 |
-| 前端勋章 | `pages/badges/index.*` | 勋章墙 |
-| 前端日历 | `pages/calendar/index.*` | 打卡日历月视图 |
-| 前端设置 | `pages/settings/index.*` | 学习参数设置 |
-| 前端搜索 | `pages/search/index.*` | 全局搜索 |
-| 前端常量 | `constants/config.ts` | `LEVEL_THRESHOLDS`、`RANK_TITLES`、`calcLevel()`、`GATE_ACCUMULATED_DAYS` |
-| 前端 API | `api/index.ts` | `fetchUserProfile()`（返回含 `longestStreak`）、`fetchBadges()`、`fetchInvitePoster()`、`fetchInviteStats()` |
-| 后端等级 | `UserService.java` | `LEVEL_THRESHOLDS` + `calcLevel()` + `getUserProfile()` |
-| 后端 XP | `StudyService.java` | `completeWord()` 判新学词（createdAt < todayStart）+ 即时写入 `user.total_xp`；`submitAnswer()` 和 `completeStudy()` 不再写 XP |
-| 后端 API | `StudyController.java` | `POST /api/study/word-complete` |
-| 后端勋章 | `StudyService.java` | `checkNewBadges()` |
-| 后端契约 | `InviteService.java` | `bindInviter()` 事务：invited_count+1 → 推广达 `memberThreshold` 自动 memberLevel=1；三重防重复 + 只升不降 |
-| 后端邀请 | `InviteService.java` | `generatePoster()` 合成海报（含邀请文案+二维码+提示文字）、`getInviteCount()` 读 user.invited_count |
-| 后端邀请 API | `InviteController.java` | `GET /api/invite/poster`（手动JWT，返回PNG）、`GET /api/invite/stats`（`Result.ok(Map.of(...))`） |
-| 后端配置 | `WechatMaConfig.java` / `WechatMaProperties.java` | WxMaService Bean（仿 WechatMpConfig 模式） |
-| 后端数据 | `source.json` | `badges[]` 8 枚勋章定义 |
-| 海报模板脚本 | `scripts/generate_poster_template.py` | Pillow 合成 720×1280 无码模板 |
-| 海报旧脚本 | `scripts/generate_poster.py` | 含静态码旧版（已不用） |
-| 前端链路 | `app.ts` / `utils/request.ts` | `captureLaunchParams()` 解析 scene → `reLogin()` 携带到 login body → `launchSceneConsumed` 防残留；401 自动 re-login |
-| 前端 my 页 | `pages/mine/index.ts` | `onTapBecomeMember`（→`onTapShare`直接生成海报）、`onTapShare`（二阶段海报弹窗：阶段一海报+保存+签订契约按钮，阶段二金石契签订UI）、`onConfirmShare`（进入阶段二）、`onTogglePactCheck`（复选框）、`onConfirmPact`（调 `signPact` → 刷新profile → 关闭）、`onSavePoster`（保存海报到相册）、`onShareAppMessage` + `onShareTimeline` 带 inviter |
-
----
-
-## 待办
-
-（音频听读 XP 已于 2026-07-17 完成，详见下方"音频听读 XP"章节）
+邀请体系的完整信息（门禁机制、二阶段签订契约流程、海报生成、绑定逻辑、数据库设计、全链路图、核心文件索引）见 [[invite-referral-system]]。
 
 ---
 
@@ -291,6 +164,24 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 前端 | `pages/article-list/index.*` | 已读标记 + `onShow` 刷新 |
 | 前端 | `pages/classic-reader/index.*` | `onEnded` → API + TOC 圆点标记 + XP 动效 |
 | 前端 | `pages/level-system/index.wxml` | XP 规则文案更新 |
+
+## 关键文件索引
+
+| 层 | 文件 | 角色 |
+|----|------|------|
+| 前端 mine | `pages/mine/index.*` | 个人中心主页面 |
+| 前端等级 | `pages/level-system/index.*` | 等级体系展示页 |
+| 前端勋章 | `pages/badges/index.*` | 勋章墙 |
+| 前端日历 | `pages/calendar/index.*` | 打卡日历月视图 |
+| 前端设置 | `pages/settings/index.*` | 学习参数设置 |
+| 前端搜索 | `pages/search/index.*` | 全局搜索 |
+| 前端常量 | `constants/config.ts` | `LEVEL_THRESHOLDS`、`RANK_TITLES`、`calcLevel()` |
+| 前端 API | `api/index.ts` | `fetchUserProfile()`、`fetchBadges()` |
+| 后端等级 | `UserService.java` | `LEVEL_THRESHOLDS` + `calcLevel()` + `getUserProfile()` |
+| 后端 XP | `StudyService.java` | `completeWord()` 判新学词 + 即时写入 `user.total_xp`；`completeAudioListen()` 音频听读 XP |
+| 后端勋章 | `StudyService.java` | `checkNewBadges()` |
+| 后端数据 | `source.json` | `badges[]` 8 枚勋章定义 |
+| 邀请体系 | — | 完整信息见 [[invite-referral-system]] |
 
 ## 相关联记忆
 

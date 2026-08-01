@@ -1,6 +1,6 @@
 ---
 name: invite-referral-system
-description: 分享海报动态生成 + 邀请追踪体系（2026-07-29 上线，2026-07-29 审查优化）—— 小程序码+合成/邀请关系绑定/前后端全链路
+description: 分享海报动态生成 + 邀请追踪体系（2026-07-29 上线，2026-07-30 重构为手动签契）—— 小程序码+合成/邀请关系绑定/前后端全链路
 metadata:
   type: project
 ---
@@ -11,7 +11,106 @@ metadata:
 
 用户点击"分享给朋友"→ 后端调用微信 `wxacode.getUnlimited` 生成含 `i_{userId}` 场景值的专属小程序码 → Java 2D 合成到海报模板上 → 返回。有人扫码进来 → `app.ts` 捕获 scene → `reLogin()` 携带到 login body → `AuthService.login()` 中 `InviteService.bindInviter()` 写入 `invited_by` + `invited_count+1` + 回填 `invite_record`。
 
-> 2026-07-29 审查通过：核心绑定逻辑（找上级/首次绑定/升级会员）完全正确。详见"绑定逻辑设计要点"。
+> **2026-07-30 重构**：签订契约改为手动签契（`POST /api/user/pact`），不再依赖推广数自动升级。`InviteService.bindInviter()` 中的自动升级逻辑已删除。`member-threshold` 配置仅保留用于前端进度展示参考。
+
+---
+
+## 前端交互
+
+### 门禁机制
+
+- 累计打卡满 `GATE_ACCUMULATED_DAYS` 天（默认 10，-1=关闭）+ 非契约会员 → 首页点击「开始学习」弹出门禁弹窗
+- 弹窗文案："你已累计学习 N 天" + "成为契约会员，才能继续学习"
+- 点击「成为契约会员」→ `wx.switchTab` 跳转「我的」页面；弹窗底部有「暂不」可关闭
+- 累计天数来源：`user.checkin_days`（每次首次打卡 +1），使用 `checkinDays` 字段，非 `longestStreak`
+- 不再依赖微信公众号，不再需要学习码
+
+### mine 页分享海报（二阶段签订契约流程）
+
+- **非会员（memberLevel=0）**：分享区域显示"成为契约会员"绿色实心按钮
+  - 点击 → 打开海报弹窗（阶段一：海报图 + "保存海报" + "签订契约"按钮）
+  - 阶段二（点击"签订契约"）：金石契签订 UI（📜 + 契约文案"君以分享托付文言雀，文言雀亦以赤诚报君，此约既成，金石不渝" + ☑ 复选框"余今签契，行之以诚" + "签订契约"金色按钮 + 底部"契约既签，永久免费学习"）
+  - 勾选复选框后点"签订契约" → `POST /api/user/pact` → 刷新 profile 变为契约会员 → 关闭弹窗
+- **会员（memberLevel>=1）**：分享区域显示"分享给朋友"虚线按钮，点击直接生成专属海报（单阶段，无契约入口）
+- 海报含用户专属小程序码（scene=`i_{userId}`），扫码进入时自动记录邀请关系
+- 卡片转发（`onShareAppMessage`）和朋友圈分享（`onShareTimeline`）通过右上角 ··· 原生菜单触发，均携带 `inviter={userId}` 追踪推广
+- 海报不缓存：每次实时查数据库获取最新头像和昵称
+- 金石契弹窗（`showNuoDialog`）保留，供已获契约会员查看
+
+### my 页面结构
+
+```
+┌──────────────────────────┐
+│  深绿色渐变头部            │
+│  [头像] 昵称 Lv.X 称号    │  ← 等级标签可点击跳转等级体系页
+│         契约会员(金色渐变)  │  ← memberLevel>=1 时显示
+│               🏅 N/8      │  ← 点击跳转勋章墙
+│  ┌─下一枚勋章进度条─────┐  │
+│  │ 🎖 勋章名    还差N天  │  │
+│  │ ████████░░░░░  N%   │  │
+│  └──────────────────────┘  │
+├──────────────────────────┤
+│  📜 成为契约会员（绿底白字）  │  ← memberLevel=0 时显示
+│  📤 分享给朋友（虚线按钮）  │  ← memberLevel>=1 时显示
+├──────────────────────────┤
+│  📅 打卡日历              │
+│  📝 错题本                │
+│  📖 生词本                │
+│  👤 个人信息              │
+│  ⚙️ 设置                  │
+├──────────────────────────┤
+│         文言雀            │
+└──────────────────────────┘
+```
+
+## 核心设计要点
+
+### 绑定逻辑（三重防重复）
+
+```java
+// Step 1: 自己扫自己 → 跳过
+if (inviterUserId.equals(inviteeUserId)) return;
+
+// Step 2: 已有上级 → 跳过（不覆盖）
+if (invitee.getInvitedBy() != null) return;
+
+// Step 3: CAS 原子写入（数据库层兜底）
+UPDATE user SET invited_by = ? WHERE id = ? AND invited_by IS NULL;
+// → 0 rows? 说明已被并发请求写入 → return
+
+// Step 4: 原子 +1（SQL 级别）
+UPDATE user SET invited_count = invited_count + 1 WHERE id = ?;
+```
+
+三道保险：应用层检查 + DB 层 CAS + `@Transactional` 事务。并发下只有第一个请求能写入 `invited_by` 并触发 `invited_count+1`。
+
+### 签订契约（手动）
+
+用户在我的页面完成二阶段交互（海报弹窗 → 金石契签订 UI → 勾选确认 → 点击"签订契约"），前端调用 `POST /api/user/pact` → `UserService.signPact()` 设置 `member_level=1`，无前置校验。不再依赖推广数自动升级。
+
+### anti-issues 已验证
+
+- **自己扫自己码**：Step 1 跳过
+- **老用户温启动扫码**：`onShow` 中 token 存在 → `doLogin()` 不触发；`launchSceneConsumed=true` → scene 不发给后端
+- **老用户冷启动扫码**：invited_by 为空时正常绑定（正确行为）
+- **已有上级的用户**：Step 2 不覆盖
+- **并发绑定同用户**：Step 3 CAS 保护，只触发一次 +1
+- **防刷**：扫自己码跳过；invited_by 非空不覆盖；scene_code 唯一索引；事务保证一致性
+
+### invite_record 写入策略
+
+| 邀请来源 | 预写时机 | bindInviter | sourceType |
+|---------|---------|-------------|------------|
+| 海报扫码 | `generatePoster` → `ensureInviteRecord()` | UPDATE 命中 | 0 |
+| 分享卡片 | 无预写 | UPDATE 未命中 → INSERT | 1 |
+
+`ensureInviteRecord` 的并发竞态通过 `try-catch(DuplicateKeyException)` 静默处理。
+
+### stale scene 防残留
+
+`reLogin()` 消费 scene 时设 `launchSceneConsumed = true`。`captureLaunchParams` 检测到该标记后跳过写入，防止 `onLaunch` 消费后 `onShow` 重新写回同一 scene。
+
+---
 
 ## 数据库
 
@@ -33,15 +132,42 @@ CREATE TABLE invite_record (
 );
 ```
 
+---
+
 ## 配置
 
 ```yaml
 # application.yml
 invite:
-  member-threshold: 5   # 推广人数达到此阈值后自动升级为契约会员
+  member-threshold: 5   # 仅用于前端进度展示参考，不再自动升级
 ```
 
-后端 `InviteService` 通过 `@Value("${invite.member-threshold:5}")` 注入，前端通过 `GET /api/invite/stats` → `{ totalInvited, memberThreshold }` 读取。前端 `mine/index.ts` 兜底默认值 `memberThreshold: 5`。
+---
+
+## 关键设计决策
+
+- **scene 格式**：`i_{userId}`（≤12 字符，32 字符限制内）
+- **小程序码参数**：width=430，isHyaline=true（透明底色），lineColor=#2e5d3c（深绿），page=pages/index/index
+- **海报合成**：模板 720×1280 → 小程序码缩放 430→220px → 贴到 (250, 830)，白底圆角卡片（24px 圆角）
+- **海报不再缓存**：每次实时查数据库获取最新头像和昵称
+- **token 传递**：海报 API 不走 LoginInterceptor（wx.downloadFile 无 header），token 走 query param，Controller 手动解析 JWT
+- **绑定时机**：`AuthService.login()` 中一次完成，无需前端额外调用
+- **登录链路**：`app.ts captureLaunchParams()` 解析 scene/inviter → globalData → `request.ts reLogin()` 携带到 login body；`launchSceneConsumed` 标记防 stale scene 残留
+
+---
+
+## 海报合成
+
+- **模板**：`scripts/generate_poster_template.py`（Pillow 合成 720×1280，不含小程序码）→ `assets/share-poster-template.png`
+- **服务端合成**：Java 2D BufferedImage + Graphics2D
+  - 上半部分：圆形头像（120px，4px 白色描边，水平居中，Y=116）→「{昵称} 邀你打卡文言雀」（Bold 30px SansSerif 深灰色，Y=290）
+  - 下半部分：小程序码白底卡片（24px 圆角）→ 下方"长按或扫码进入"（22px SansSerif 灰色）
+  - 头像从 `user.avatarUrl` 下载（末尾 /132→/0 取原图），下载失败静默跳过
+- **字体**：SansSerif Bold 30px（邀请文案）/ SansSerif Plain 22px（提示文字）
+- **API**：`GET /api/invite/poster?token=xxx`（加入 WebMvcConfig exclude 列表，Controller 手动解析 JWT）
+- **邀请统计 API**：`GET /api/invite/stats` → `Result.ok(Map.of("totalInvited", count, "memberThreshold", threshold))`
+
+---
 
 ## 核心文件
 
@@ -53,8 +179,8 @@ invite:
 | `config/WechatMaConfig.java` | WxMaService Bean（仿 WechatMpConfig 模式） |
 | `entity/InviteRecord.java` | invite_record 实体 |
 | `mapper/InviteRecordMapper.java` | MyBatis-Plus BaseMapper |
-| `service/InviteService.java` | `generatePoster()`：wxacode 生成 + Java 2D 海报合成 + 内存缓存 1h；`bindInviter()`：事务绑定邀请关系；`getInviteCount()`；`getMemberThreshold()` |
-| `controller/InviteController.java` | `GET /api/invite/poster?token=xxx`（exclude WebMvcConfig，手动解析 JWT）；`GET /api/invite/stats` → `{ totalInvited, memberThreshold }` |
+| `service/InviteService.java` | `generatePoster()`：wxacode 生成 + Java 2D 海报合成；`bindInviter()`：事务绑定邀请关系（不再自动升级）；`getInviteCount()`；`getMemberThreshold()` |
+| `controller/InviteController.java` | `GET /api/invite/poster?token=xxx`（exclude WebMvcConfig，手动 JWT）；`GET /api/invite/stats` |
 | `dto/LoginRequest.java` | 新增 `scene`、`inviterId` 字段 |
 | `service/AuthService.java` | `login()` 中调 `bindInviterIfNeeded()` 绑定邀请 |
 | `config/WebMvcConfig.java` | `/api/invite/poster` 加入 excludePathPatterns |
@@ -68,78 +194,15 @@ invite:
 | 文件 | 角色 |
 |------|------|
 | `app.ts` | `captureLaunchParams()` 解析 scene/inviter → globalData.launchScene/launchQuery；`launchSceneConsumed` 标记防 stale scene 残留 |
-| `utils/request.ts` | `reLogin()` 读取 launchScene → 携带到 login body；消费后设 `launchSceneConsumed=true`；登录成功缓存 userId；收到 10003 自动清 token 重登录 |
-| `typings/index.d.ts` | `IAppOption.globalData` 新增 `launchScene`/`launchQuery`/`launchSceneConsumed`；`IInviteStats` 含 `totalInvited`/`memberThreshold` |
-| `constants/config.ts` | `STORAGE_KEYS` 新增 `USER_ID` |
-| `api/index.ts` | `fetchInvitePoster()` wx.downloadFile 包装；`fetchInviteStats()` |
-| `pages/mine/index.ts` | `onTapShare` 用 `fetchInvitePoster`；`onShareAppMessage` path 带 `?inviter=`；`onTapBecomeMember` 读取 `memberThreshold` 动态计算进度 |
-| `scripts/generate_poster_template.py` | 生成无码模板图 |
+| `utils/request.ts` | `reLogin()` 读取 launchScene → 携带到 login body；消费后设 `launchSceneConsumed=true` |
+| `typings/index.d.ts` | `IAppOption.globalData` 新增 `launchScene`/`launchQuery`/`launchSceneConsumed`；`IInviteStats` |
+| `api/index.ts` | `fetchInvitePoster()` wx.downloadFile 包装；`fetchInviteStats()`；`signPact()` |
+| `pages/mine/index.ts` | `onTapBecomeMember`（→`onTapShare`直接生成海报）、`onTapShare`（二阶段海报弹窗：阶段一海报+保存+签订契约按钮，阶段二金石契签订UI）、`onConfirmShare`（进入阶段二）、`onTogglePactCheck`（复选框）、`onConfirmPact`（调 `signPact` → 刷新profile → 关闭）、`onSavePoster`（保存海报到相册）、`onShareAppMessage` + `onShareTimeline` 带 inviter |
+| `pages/index/index.ts` | `onTapStartLearning()` 门禁检查（`checkinDays >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」）。弹窗有「成为契约会员」按钮（`wx.switchTab` 跳转我的）和「暂不」关闭 |
+| `constants/config.ts` | `GATE_ACCUMULATED_DAYS`（默认 10，-1 关闭） |
+| `scripts/generate_poster_template.py` | 生成无码模板图（720×1280） |
 
-## 绑定逻辑设计要点
-
-### 关键点 1：准确识别上级用户
-
-- scene 格式 `i_{userId}`，服务端在 `generateWxacode` 中直接使用当前登录 userId 生成，不经过前端，无法伪造
-- 前端 scene 优先于 inviterId（分享卡片 inviter 参数可由前端篡改，优先级更低）
-- 解析逻辑：`parseInviterFromScene("i_123")` → `Long.parseLong(substring(2))` → 123
-
-### 关键点 2：仅首次绑定 +1，重复扫码不重复加
-
-```java
-// Step 3: invited_by 已有值 → 直接返回
-if (invitee.getInvitedBy() != null) return;
-
-// Step 4: CAS 原子更新（数据库层面兜底）
-UPDATE user SET invited_by = ? WHERE id = ? AND invited_by IS NULL;
-// → 0 rows? 说明已被并发请求写入 → return
-
-// Step 5: 原子 +1（SQL 级别原子操作）
-UPDATE user SET invited_count = invited_count + 1 WHERE id = ?;
-```
-
-三道保险：Step 3 应用层检查 + Step 4 DB 层 CAS + `@Transactional` 事务。并发下只有第一个请求能写入 `invited_by` 并触发 +1。
-
-### 关键点 3：invited_count 达阈值时升级 member_level
-
-```java
-// Step 6: 原子更新，只升不降
-UPDATE user SET member_level = 1
-WHERE id = ? AND member_level = 0 AND invited_count >= memberThreshold;
-```
-
-三条防线：`memberLevel=0`（已升级的不再改）+ `invitedCount >= memberThreshold`（不到阈值不触发）+ `@Transactional`（与 Step 5 同一事务）。
-
-### anti-issues 已验证
-
-- **自己扫自己码**：Step 2 `inviterUserId.equals(inviteeUserId)` → 跳过
-- **老用户温启动扫码**：`onShow` 中 token 存在 → `doLogin()` 不触发；`launchSceneConsumed=true` → `captureLaunchParams` 跳过 → scene 不发给后端。老用户不受影响
-- **老用户冷启动扫码**：invited_by 为空时正常绑定（正确行为，用户主动扫码）
-- **已有上级的用户**：Step 3 `invitedBy != null` → 不覆盖
-- **并发绑定同用户**：Step 4 CAS 保护，只触发一次 +1
-- **并发升级 memberLevel**：`eq(memberLevel, 0)` 条件，已升级的不会被重复写入
-
-### invite_record 写入策略
-
-| 邀请来源 | 预写时机 | bindInviter Step 7 | sourceType |
-|---------|---------|-------------------|------------|
-| 海报扫码 | `generatePoster` → `ensureInviteRecord()` | UPDATE 命中 | 0 |
-| 分享卡片 | 无预写 | UPDATE 未命中 → INSERT | 1 |
-
-`ensureInviteRecord` 的并发竞态通过 `try-catch(DuplicateKeyException)` 静默处理。
-
-### stale scene 防残留
-
-`reLogin()` 消费 scene 时设 `launchSceneConsumed = true`。`captureLaunchParams` 检测到该标记后跳过写入，防止 `onLaunch` 消费后 `onShow` 重新写回同一 scene。
-
-## 关键设计决策
-
-- **scene 格式**：`i_{userId}`（≤12 字符，32 字符限制内）
-- **小程序码参数**：width=430，isHyaline=true（透明底色），lineColor=#2e5d3c（深绿），page=pages/index/index
-- **海报合成**：模板 720×1280 → 小程序码缩放 430→220px → 贴到 (250, 830) 带 16px 白底圆角卡片
-- **token 传递**：海报 API 不走 LoginInterceptor（wx.downloadFile 无 header），token 走 query param，Controller 手动解析 JWT
-- **绑定时机**：AuthService.login() 中一次完成，无需前端额外调用
-- **防刷**：扫自己码跳过；invited_by 非空不覆盖；scene_code 唯一索引；事务保证 invited_count 一致性
-- **内存缓存**：ConcurrentHashMap<Long, byte[]> key=userId，1h TTL；微信侧 wxacode.getUnlimited 同 scene+page 天然缓存
+---
 
 ## 全链路
 
@@ -148,9 +211,8 @@ WHERE id = ? AND member_level = 0 AND invited_count >= memberThreshold;
   → fetchInvitePoster() → GET /api/invite/poster?token=xxx
   → InviteService.generatePoster(userId)
     → wxMaService.getQrcodeService().createWxaCodeUnlimitBytes(scene="i_{userId}", ...)
-    → 加载 classpath 模板图 + Java 2D 合成
+    → 加载 classpath 模板图 + Java 2D 合成（头像+文案+码+提示文字）
     → 写 invite_record(inviter_id, scene_code) 幂等
-    → 缓存 1h
   → 返回 PNG 字节流
   → 前端弹窗展示 → 用户保存/分享
 
@@ -168,12 +230,18 @@ WHERE id = ? AND member_level = 0 AND invited_count >= memberThreshold;
           3. invitee.invited_by != null? → 跳过（已有上级，不覆盖）
           4. UPDATE invitee SET invited_by = inviterUserId WHERE id=? AND invited_by IS NULL
           5. UPDATE inviter SET invited_count = invited_count + 1 WHERE id=?
-          6. UPDATE inviter SET member_level = 1 WHERE id=? AND member_level=0 AND invited_count>=memberThreshold
-          7. 回填 invite_record: UPDATE 优先（海报预写），未命中则 INSERT（卡片分享）
+          6. 回填 invite_record: UPDATE 优先（海报预写），未命中则 INSERT（卡片分享）
     → 签发 JWT
+
+用户 A 签订契约（在我的页面）
+  → 打开海报弹窗 → 点击"签订契约"进入阶段二
+  → 金石契 UI：📜 + 契约文案 + ☑ 复选框 + "签订契约"按钮
+  → 勾选后点击 → POST /api/user/pact → member_level=1
+  → 刷新 profile → 关闭弹窗
 ```
 
-## 后续可扩展
+---
 
-- invite_record 表做邀请排行榜
-- 邀请人获得 XP 奖励（在 bindInviter 中加一行 user.total_xp += N）
+## 相关联记忆
+
+无。邀请体系信息已全部在本文件中。
