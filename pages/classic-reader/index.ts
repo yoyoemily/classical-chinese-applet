@@ -538,7 +538,7 @@ Page<IClassicReaderData, WechatMiniprogram.Page.CustomOption>({
 	          className: this.data.meta?.name,
 	        },
 		      });
-	      wx.showToast({ title: '感谢反馈', icon: 'success' });
+	      wx.showToast({ title: '反馈已提交，可在「我的反馈」中查看回复', icon: 'success', duration: 2000 });
 	      this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
     } catch {
       wx.showToast({ title: '提交失败，请重试', icon: 'none' });

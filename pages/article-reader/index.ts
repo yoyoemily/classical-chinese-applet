@@ -519,8 +519,8 @@ import type { WordTypeCode } from '../../utils/wordType';
 	          articleTitle: this.data.article?.title,
 	        },
 	      });
-	      wx.showToast({ title: '感谢反馈', icon: 'success' });
-	      this.setData({ showFeedbackPanel: false, feedbackDescription: '' });
+	      wx.showToast({ title: '反馈已提交，可在「我的反馈」中查看回复', icon: 'success', duration: 2000 });
+	      this.setData({ showFeedbackPanel: false });
 	    } catch {
 	      wx.showToast({ title: '提交失败', icon: 'none' });
 	    } finally {

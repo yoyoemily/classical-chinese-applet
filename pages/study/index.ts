@@ -688,6 +688,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
         },
       });
       this.setData({ showFeedbackPanel: false, feedbackSubmitting: false });
+      wx.showToast({ title: '反馈已提交，可在「我的反馈」中查看回复', icon: 'success', duration: 2000 });
     } catch {
       wx.showToast({ title: '提交失败，请重试', icon: 'none' });
       this.setData({ feedbackSubmitting: false });

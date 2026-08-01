@@ -5,7 +5,7 @@ import { get, post, put, del, getBaseUrl } from '../utils/request';
 import type {
   IWordBook, IWordEntry, ITodayTask, IArticle, IApiResponse,
   IPaginationResult, IMistakeRecord, IBadge, IUserBadge, IUserProgress,
-  IFeedbackSubmitParams, IUserProfile, IWordSearchResult, IClassicItem,
+  IFeedbackSubmitParams, IFeedbackListResult, IFeedbackDetail, IUserProfile, IWordSearchResult, IClassicItem,
   IClassicBook, IClassicMeta, IContentBlock, IWordQuickItem,
   ISuggestionSubmitParams,
 } from '../typings/index.d';
@@ -447,6 +447,35 @@ export async function submitFeedback(data: IFeedbackSubmitParams): Promise<{ id:
     return { id: `fb_${Date.now()}` };
   }
   return post('/api/feedback', data);
+}
+
+/** 获取我的反馈列表 */
+export async function fetchMyFeedback(params: {
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<IFeedbackListResult> {
+  if (USE_MOCK) {
+    return { list: [], total: 0, page: 1, pageSize: 20, hasMore: false };
+  }
+  return get('/api/feedback', params as Record<string, unknown>);
+}
+
+/** 获取反馈详情 */
+export async function fetchFeedbackDetail(id: number): Promise<IFeedbackDetail> {
+  return get(`/api/feedback/${id}`);
+}
+
+/** 标记反馈为已读 */
+export async function markFeedbackRead(id: number): Promise<void> {
+  return put(`/api/feedback/${id}/read`);
+}
+
+/** 获取已处理未读的反馈数量 */
+export async function fetchUnreadFeedbackCount(): Promise<{ count: number }> {
+  if (USE_MOCK) {
+    return { count: 0 };
+  }
+  return get('/api/feedback/unread-count');
 }
 
 // ============================================

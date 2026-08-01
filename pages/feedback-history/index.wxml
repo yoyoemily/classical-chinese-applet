@@ -1,0 +1,197 @@
+<!-- 我的反馈历史页 -->
+<wxs module="fmt">
+var CATEGORY_MAP = {
+  sentence_text: '原文有误',
+  translation: '译文有误',
+  definition: '释义有误',
+  source: '出处有误',
+  annotation: '标注有误',
+  article_info: '文章信息',
+  other: '其他错误'
+};
+var SOURCE_MAP = {
+  learning: '学习答题',
+  word_summary: '字总结',
+  article_reader: '选篇阅读',
+  classic_reader: '经典阅读'
+};
+
+function categoryLabel(val) {
+  return CATEGORY_MAP[val] || val;
+}
+function sourceLabel(val) {
+  return SOURCE_MAP[val] || val;
+}
+function timeFormat(val) {
+  if (!val) return '';
+  // 兼容 "2026-07-30T10:00:00" 或 "2026-07-30 10:00:00"
+  var d = getDate(val.replace ? val.replace('T', ' ') : val);
+  var y = d.getFullYear();
+  var m = ('0' + (d.getMonth() + 1)).slice(-2);
+  var day = ('0' + d.getDate()).slice(-2);
+  var h = ('0' + d.getHours()).slice(-2);
+  var min = ('0' + d.getMinutes()).slice(-2);
+  return y + '-' + m + '-' + day + ' ' + h + ':' + min;
+}
+module.exports = {
+  categoryLabel: categoryLabel,
+  sourceLabel: sourceLabel,
+  timeFormat: timeFormat
+};
+</wxs>
+
+<view class="page-fh">
+  <scroll-view
+    class="page-fh__scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{loading}}"
+    bindrefresherrefresh="onPullDownRefresh"
+    bindscrolltolower="onReachBottom"
+  >
+    <!-- 空状态 -->
+    <view class="page-fh__empty" wx:if="{{!loading && list.length === 0}}">
+      <text class="page-fh__empty-icon">📋</text>
+      <text class="page-fh__empty-text">暂无反馈记录</text>
+      <text class="page-fh__empty-hint">提交错误反馈后，处理进度会显示在这里</text>
+    </view>
+
+    <!-- 反馈卡片列表 -->
+    <view class="page-fh__list" wx:if="{{list.length > 0}}">
+      <view
+        wx:for="{{list}}"
+        wx:key="id"
+        class="page-fh__card {{item.resolved === 1 && !item.readAt ? 'page-fh__card--unread' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onTapFeedback"
+      >
+        <!-- 卡片头部：状态 + 未读标记 -->
+        <view class="page-fh__card-header">
+          <view class="page-fh__status-row">
+            <!-- 未读红点 -->
+            <view
+              wx:if="{{item.resolved === 1 && !item.readAt}}"
+              class="page-fh__unread-dot"
+            ></view>
+            <!-- 状态标签 -->
+            <text class="page-fh__status {{item.resolved === 1 ? 'page-fh__status--resolved' : 'page-fh__status--pending'}}">
+              {{item.resolved === 1 ? '已回复' : '待处理'}}
+            </text>
+            <!-- 类别标签 -->
+            <text class="page-fh__tag">{{fmt.categoryLabel(item.category)}}</text>
+            <!-- 来源标签 -->
+            <text class="page-fh__tag page-fh__tag--source">{{fmt.sourceLabel(item.source)}}</text>
+          </view>
+          <text class="page-fh__time">{{fmt.timeFormat(item.createdAt)}}</text>
+        </view>
+
+        <!-- 描述 -->
+        <view class="page-fh__card-body">
+          <text class="page-fh__desc">{{item.description}}</text>
+        </view>
+
+        <!-- 关联信息 -->
+        <view class="page-fh__card-meta" wx:if="{{item.articleTitle || item.nodeTitle || item.className}}">
+          <text class="page-fh__meta-text" wx:if="{{item.className}}">📖 {{item.className}}</text>
+          <text class="page-fh__meta-text" wx:elif="{{item.articleTitle}}">📖 {{item.articleTitle}}</text>
+          <text class="page-fh__meta-text" wx:elif="{{item.nodeTitle}}">📄 {{item.nodeTitle}}</text>
+        </view>
+
+        <!-- 回复预览（已处理） -->
+        <view class="page-fh__card-reply" wx:if="{{item.resolved === 1 && item.reply}}">
+          <text class="page-fh__reply-label">管理员回复：</text>
+          <text class="page-fh__reply-text">{{item.reply}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多提示 -->
+    <view class="page-fh__load-more" wx:if="{{list.length > 0}}">
+      <text wx:if="{{loading}}">加载中...</text>
+      <text wx:elif="{{!hasMore}}">— 没有更多了 —</text>
+    </view>
+
+    <!-- 底部安全区 -->
+    <view class="page-fh__bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 详情弹层（bottom-sheet） -->
+  <view
+    class="page-fh__detail-mask"
+    wx:if="{{showDetail}}"
+    bindtap="onCloseDetail"
+  ></view>
+  <view class="page-fh__detail-panel {{showDetail ? 'page-fh__detail-panel--show' : ''}}">
+    <view wx:if="{{detailLoading}}" class="page-fh__detail-loading">
+      <text>加载中...</text>
+    </view>
+    <block wx:elif="{{selectedFeedback}}">
+      <!-- 弹层头部 -->
+      <view class="page-fh__detail-header">
+        <text class="page-fh__detail-title">反馈详情</text>
+        <view class="page-fh__detail-close" bindtap="onCloseDetail">✕</view>
+      </view>
+
+      <!-- 弹层内容 -->
+      <scroll-view class="page-fh__detail-body" scroll-y enhanced show-scrollbar="{{false}}">
+        <!-- 状态 -->
+        <view class="page-fh__detail-section">
+          <text class="page-fh__detail-label">处理状态</text>
+          <text class="page-fh__status {{selectedFeedback.resolved === 1 ? 'page-fh__status--resolved' : 'page-fh__status--pending'}}">
+            {{selectedFeedback.resolved === 1 ? '已处理' : '待处理'}}
+          </text>
+        </view>
+
+        <!-- 错误类型 -->
+        <view class="page-fh__detail-section">
+          <text class="page-fh__detail-label">错误类型</text>
+          <text class="page-fh__detail-value">{{fmt.categoryLabel(selectedFeedback.category)}}</text>
+        </view>
+
+        <!-- 来源 -->
+        <view class="page-fh__detail-section">
+          <text class="page-fh__detail-label">反馈来源</text>
+          <text class="page-fh__detail-value">{{fmt.sourceLabel(selectedFeedback.source)}}</text>
+        </view>
+
+        <!-- 描述 -->
+        <view class="page-fh__detail-section">
+          <text class="page-fh__detail-label">详细说明</text>
+          <text class="page-fh__detail-value page-fh__detail-value--desc">{{selectedFeedback.description || '无'}}</text>
+        </view>
+
+        <!-- 关联内容 -->
+        <view class="page-fh__detail-section" wx:if="{{selectedFeedback.sentenceText}}">
+          <text class="page-fh__detail-label">相关句子</text>
+          <text class="page-fh__detail-value">{{selectedFeedback.sentenceText}}</text>
+        </view>
+        <view class="page-fh__detail-section" wx:if="{{selectedFeedback.articleTitle}}">
+          <text class="page-fh__detail-label">关联文章</text>
+          <text class="page-fh__detail-value">{{selectedFeedback.articleTitle}}</text>
+        </view>
+        <view class="page-fh__detail-section" wx:if="{{selectedFeedback.nodeTitle}}">
+          <text class="page-fh__detail-label">关联章节</text>
+          <text class="page-fh__detail-value">{{selectedFeedback.nodeTitle}}</text>
+        </view>
+        <view class="page-fh__detail-section" wx:if="{{selectedFeedback.className}}">
+          <text class="page-fh__detail-label">关联经典</text>
+          <text class="page-fh__detail-value">{{selectedFeedback.className}}</text>
+        </view>
+
+        <!-- 提交时间 -->
+        <view class="page-fh__detail-section">
+          <text class="page-fh__detail-label">提交时间</text>
+          <text class="page-fh__detail-value">{{fmt.timeFormat(selectedFeedback.createdAt)}}</text>
+        </view>
+
+        <!-- 管理员回复 -->
+        <view class="page-fh__detail-reply" wx:if="{{selectedFeedback.resolved === 1 && selectedFeedback.reply}}">
+          <text class="page-fh__reply-label">管理员回复</text>
+          <text class="page-fh__reply-text">{{selectedFeedback.reply}}</text>
+        </view>
+      </scroll-view>
+    </block>
+  </view>
+</view>

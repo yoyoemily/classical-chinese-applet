@@ -22,6 +22,7 @@
     "pages/word-reader/index",
     "pages/level-system/index",
     "pages/feedback/index",
+    "pages/feedback-history/index",
     "pages/about/index"
   ],
   "window": {

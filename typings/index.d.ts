@@ -436,6 +436,58 @@ export interface IFeedbackSubmitParams {
 }
 
 // ============================================
+// 反馈历史（用户端查看）
+// ============================================
+
+/** 反馈列表项（精简，不含 context 详细字段） */
+export interface IFeedbackListItem {
+  id: number
+  category: string
+  source: string
+  description: string
+  nodeTitle?: string
+  articleTitle?: string
+  className?: string
+  resolved: number
+  reply?: string
+  readAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** 反馈详情（含完整 context + reply + readAt） */
+export interface IFeedbackDetail {
+  id: number
+  category: string
+  source: string
+  description: string
+  sentenceId?: string
+  wordId?: string
+  articleId?: string
+  readingMode?: string
+  classicId?: number
+  nodeId?: string
+  nodeTitle?: string
+  sentenceText?: string
+  articleTitle?: string
+  className?: string
+  resolved: number
+  reply?: string
+  readAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** 反馈列表分页结果 */
+export interface IFeedbackListResult {
+  list: IFeedbackListItem[]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+}
+
+// ============================================
 // 意见建议
 // ============================================
 /** 提交意见建议的请求参数 */

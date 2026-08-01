@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, signPact, fetchBadges, fetchInvitePoster } from '../../api/index';
+import { fetchUserProfile, signPact, fetchBadges, fetchInvitePoster, fetchUnreadFeedbackCount } from '../../api/index';
 import { STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
@@ -55,6 +55,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
       { key: 'profile', icon: '👤', label: '个人信息', url: '/pages/profile-edit/index' },
       { key: 'settings', icon: '⚙️', label: '系统设置', url: '/pages/settings/index' },
       { key: 'feedback', icon: '💬', label: '意见建议', url: '/pages/feedback/index' },
+      { key: 'feedbackHistory', icon: '📬', label: '我的反馈', url: '/pages/feedback-history/index' },
       { key: 'about', icon: '📖', label: '品牌故事', url: '/pages/about/index' },
     ],
     loading: false,
@@ -73,6 +74,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     // 从其他页面返回时刷新数据，并重置弹窗状态
     this.setData({ showSharePoster: false, shareConfirmed: false, posterTempPath: '' });
     this.loadProfile();
+    this.loadUnreadFeedbackCount();
   },
 
   /** 加载用户信息 */
@@ -97,10 +99,30 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
       // 勋章数据异步加载（不阻塞页面渲染）
       this.loadBadges();
+      this.loadUnreadFeedbackCount();
     } catch (err) {
       console.error('加载用户信息失败:', err);
       this.setData({ loading: false });
       wx.showToast({ title: '加载失败，请重试', icon: 'none' });
+    }
+  },
+
+  /** 加载未读反馈数量，更新菜单角标 */
+  async loadUnreadFeedbackCount(): Promise<void> {
+    try {
+      const result = await fetchUnreadFeedbackCount();
+      const menuItems = this.data.menuItems.map(item => {
+        if (item.key === 'feedbackHistory') {
+          return {
+            ...item,
+            suffix: result.count > 0 ? String(result.count) : undefined,
+          };
+        }
+        return item;
+      });
+      this.setData({ menuItems });
+    } catch {
+      // 静默失败，不阻塞页面
     }
   },
 
