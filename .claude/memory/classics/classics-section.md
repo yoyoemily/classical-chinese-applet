@@ -235,7 +235,7 @@ curl -X POST http://localhost:8080/api/admin/import/classic/31/batch \
 
 > JSON 校验 + 导入命令 + 数据约定见知识库 readme。以下记代码集成侧的改动点。
 
-> ⚠️ **【硬性规则】JSON 文件中禁止 ASCII 双引号 `"` 出现在字符串值内部。** 引用原文、引用说法时，必须使用 Unicode 中文引号 `"` `"`（即 `“` 和 `”`）。反例：`"孙子以"兵"指代军事"` 会破坏 JSON 结构。正例：`"孙子以“兵”指代军事"`。写完 JSON 必须 `python3 -c "import json; json.load(open('...'))"` 校验。详见 [[work-manual]]#9。
+> ⚠️ **【硬性规则】JSON 文件中禁止 ASCII 双引号 `”` 出现在字符串值内部。** 引用原文、引用说法时，必须使用 Unicode 中文引号 `”` `”`（即 `”` 和 `”`）。反例：`”孙子以”兵”指代军事”` 会破坏 JSON 结构。正例：`”孙子以”兵”指代军事”`。写完 JSON 必须 `python3 -c “import json; json.load(open('...'))”` 校验。
 
 ### 1. 知识库 JSON → 后端导入
 
@@ -460,5 +460,3 @@ mock 数据精简到几条即可——只验证 TOC 导航和内容渲染。
 | 前端 mock | `mock/classics.ts` | `getClassicMetaById()` + `getClassicMockContent()` |
 | 前端列表 | `pages/classic/index.*` | 列表页，API 拉取经典列表，三态切换（加载/错误/正常） |
 | 前端 API | `api/index.ts` | `fetchClassics()` / `fetchClassicMeta()` / `fetchClassicContent()` |
-
-[[backend-infrastructure]]

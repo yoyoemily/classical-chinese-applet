@@ -249,8 +249,6 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 前端链路 | `app.ts` / `utils/request.ts` | `captureLaunchParams()` 解析 scene → `reLogin()` 携带到 login body → `launchSceneConsumed` 防残留；401 自动 re-login |
 | 前端 my 页 | `pages/mine/index.ts` | `onTapBecomeMember`（→`onTapShare`直接生成海报）、`onTapShare`（二阶段海报弹窗：阶段一海报+保存+签订契约按钮，阶段二金石契签订UI）、`onConfirmShare`（进入阶段二）、`onTogglePactCheck`（复选框）、`onConfirmPact`（调 `signPact` → 刷新profile → 关闭）、`onSavePoster`（保存海报到相册）、`onShareAppMessage` + `onShareTimeline` 带 inviter |
 
-[[study-section]]
-
 ---
 
 ## 待办

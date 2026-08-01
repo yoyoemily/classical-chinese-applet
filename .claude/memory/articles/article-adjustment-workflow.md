@@ -159,7 +159,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 
 - 修改超过 30KB 的 JSON 前，先 `cp` 备份
 - 每次写入后 `python3 -c "import json; json.load(open('file'))"` 校验
-- 排除中文引号问题（ASCII `"` vs 中文 `"``"`），见 [[work-manual]]#9
+- 排除中文引号问题（ASCII `"` vs 中文 `"``"`）
 - 全部导入成功后删除 `.bak` 文件
 
 ### 8. 完成后检查清单
@@ -195,6 +195,4 @@ python3 scripts/validate_keywords.py
 
 此脚本应作为标注完成后的**硬性校验步骤**，不通过不得导入数据库。
 
-[[articles-section]]
-
-> **纠错场景**：如果是要取消已有的 keyWord 标注（而非新增/修改），走 [[fix-guide]]#五c-类修复-keyword-标注与-kidref检查点-（场景 3：删除 keyWord）流程——定位→检查词书引用→清理→删除→导入。
+> **纠错场景**：如果是要取消已有的 keyWord 标注（而非新增/修改），属于修复操作，流程为：定位→检查词书引用→清理→删除→导入。

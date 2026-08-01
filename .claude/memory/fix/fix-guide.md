@@ -37,8 +37,8 @@ articles_*.json（唯一权威源）
 | **kid 圣杯原则** | 已有 kid 永远不变。要么保留，要么整条删除。新增才生成新 kid | — |
 | **quizItem ID 不可变性** | 删除不复用，新增用新 ID。ID 被 `study_mistake_sentence` 和 `user_answer_history` FK 引用 | [[quizitem-id-invariance-rule]] |
 | **导入顺序铁律** | 先导入 articles（权威源），再导入词书（防火墙副本）。顺序反了，词书导入时 quizItem.definition 会从旧 article_keyword 重新拷贝，覆盖掉修正 | — |
-| **定义来源** | keyWord.definition 必须原文复制自 `definition_standard.json`，不做同义改写。标准表无匹配 → 先与用户确认后扩充标准表 | [[articles-section]] |
-| **JSON 安全** | 修改 >50KB JSON 前 `cp file file.bak`；改后 `python3 -c "import json; json.load(open('file'))"` 校验；字符串值内禁止 ASCII `"`，引用原文用中文引号 `""` | [[work-manual]]#9 #10 |
+| **定义来源** | keyWord.definition 必须原文复制自 `definition_standard.json`，不做同义改写。标准表无匹配 → 先与用户确认后扩充标准表 | — |
+| **JSON 安全** | 修改 >50KB JSON 前 `cp file file.bak`；改后 `python3 -c "import json; json.load(open('file'))"` 校验；字符串值内禁止 ASCII `"`，引用原文用中文引号 `""` | — |
 
 ### 词书 quizItem 字段 vs article_keyword 字段对照
 

@@ -177,5 +177,3 @@ WHERE id = ? AND member_level = 0 AND invited_count >= memberThreshold;
 
 - invite_record 表做邀请排行榜
 - 邀请人获得 XP 奖励（在 bindInviter 中加一行 user.total_xp += N）
-
-[[mine-section]]

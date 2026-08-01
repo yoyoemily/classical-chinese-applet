@@ -127,7 +127,7 @@ article_keyword.kid  ←──  quiz_item.kid_ref（quizItem→源 keyword 引�
 
 > 标注标准、判断口诀、完整维护流程见知识库 readme。以下只记代码集成侧的关键约束。
 
-> ⚠️ **【硬性规则】JSON 文件中禁止 ASCII 双引号 `"` 出现在字符串值内部。** 引用原文时用中文引号 `"` `"`（`"` 和 `"`）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验。详见 [[work-manual]]#9。
+> ⚠️ **【硬性规则】JSON 文件中禁止 ASCII 双引号 `"` 出现在字符串值内部。** 引用原文时用中文引号 `"` `"`（`"` 和 `"`）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验。
 
 179 篇全部已完成（2,125 条注释，均 126 字/条），后续只做修改/增补：
 
@@ -216,8 +216,6 @@ articles_*.json 规范化：
 
 选篇 keyWords 是唯一权威数据源，词书通过 kid 引用。articles_*.json 所有 keyWord 含 `kid`（全局唯一 ID，格式 `kw_{articleId}_s{sentenceIndex:02d}_{word}_{序号}`）、`wordType`、`matchWord` 字段。词书 JSON 使用 `wordEntries[].keyWordRefs[] + quizItems[]` 格式。
 
-详细记录见 [[study-section]]#数据模型。
-
 ### 待办
 
 - 无。所有核心工作已全部完成。
@@ -272,5 +270,3 @@ articles_*.json 规范化：
 | 后端 | `controller/ImportController.java` | `POST /api/admin/import/articles`（全量导入选篇正文+壳文章） |
 | 后端 | `controller/ImportController.java` | `POST /api/admin/import/glossary/{articleId}` |
 | 后端 | `src/main/resources/source.json` | 冷启动数据（词书+勋章+经典，不含选篇正文） |
-
-[[study-section]]

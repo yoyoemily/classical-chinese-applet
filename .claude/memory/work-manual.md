@@ -15,11 +15,12 @@ metadata:
 
 | 用户说 | 读取哪些文件 |
 |--------|-------------|
-| **继续项目** | `CLAUDE.md` + `.claude/memory/MEMORY.md` + 三个板块文件（`study-section.md`、`articles-section.md`、`classics-section.md`、`mine-section.md`） |
-| **继续学习板块** | `.claude/memory/study-section.md`（无需读 CLAUDE.md 和其他记忆） |
-| **继续选篇板块** | `.claude/memory/articles-section.md`（无需读 CLAUDE.md 和其他记忆） |
-| **继续经典板块** | `.claude/memory/classics-section.md`（无需读 CLAUDE.md 和其他记忆） |
-| **继续我的板块** | `.claude/memory/mine-section.md`（无需读 CLAUDE.md 和其他记忆） |
+| **继续项目** | `CLAUDE.md` + `.claude/memory/MEMORY.md` + 四个板块目录（`study/`、`articles/`、`classics/`、`mine/`） |
+| **继续学习板块** | `.claude/memory/study/study-section.md`（无需读其他记忆，CLAUDE.md 始终在上下文） |
+| **继续选篇板块** | `.claude/memory/articles/articles-section.md`（无需读其他记忆，CLAUDE.md 始终在上下文） |
+| **继续经典板块** | `.claude/memory/classics/classics-section.md`（无需读其他记忆，CLAUDE.md 始终在上下文） |
+| **继续我的板块** | `.claude/memory/mine/mine-section.md`（无需读其他记忆，CLAUDE.md 始终在上下文） |
+| **继续修复问题** | `.claude/memory/fix/fix-guide.md`（无需读其他记忆，CLAUDE.md 始终在上下文） |
 
 以上触发词严格匹配，不确认、不追问，直接读取对应文件即可回答问题。**除非用户明确说"结合 git"**，否则不查 git log/diff。
 
@@ -195,3 +196,14 @@ rm <target_file>.bak
 3. 标准义项表：`~/knowledge_library/文言文/词书/definition_standard.json`
 
 改完后校验 JSON 语法，然后告知用户执行导入（顺序：先 articles 全量，再词书）。
+
+### 12. 【硬性规则】禁止自动调用导入 API
+
+**修改知识库 JSON 后，禁止自动调用后端的导入 API（如 `POST /api/admin/import` 等）。** 导入操作必须由用户在微信开发者工具中手动完成。
+
+**Why:** 导入操作会写入数据库，涉及生产数据变更，必须由用户亲自确认和执行。AI 自动导入跳过了用户的审核环节，一旦 JSON 有误，数据库会直接污染。
+
+**How to apply:**
+- 修改完知识库 JSON 后，只做语法校验（如 `python3 -m json.tool`）
+- 告知用户："数据已修改完毕，请手动调用导入 API 同步到数据库（顺序：先 articles 全量，再词书）"
+- 不要在告知用户之前或之后自己执行 `curl` 调用导入接口

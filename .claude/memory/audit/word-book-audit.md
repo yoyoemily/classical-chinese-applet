@@ -45,7 +45,7 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 | ⑧ | kidRef 是否存在+指向句子是否匹配sentenceSource |
 | ⑨ | 非壳文章：sentence需在article_sentence中。壳文章标"—" |
 
-> **壳文章**：词书 keyWords 的句子容器，非用户可读。详见 [[articles-section]]#壳文章。
+> **壳文章**：词书 keyWords 的句子容器，非用户可读。
 
 ### 严重度
 
@@ -341,5 +341,3 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 [[word-book-audit-fix-list]]
 [[word-book-audit-table-enforcement]]
 [[fix-guide]]
-[[study-section]]
-[[articles-section]]

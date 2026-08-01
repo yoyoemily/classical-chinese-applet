@@ -253,4 +253,3 @@ metadata:
 | 后端 | `src/main/resources/source.json` | 全量冷启动数据 |
 
 [[backend-infrastructure]]
-[[articles-section]]

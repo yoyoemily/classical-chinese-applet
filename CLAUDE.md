@@ -81,12 +81,12 @@ request.ts 每次请求自动带 Authorization: Bearer <token>
 
 | 板块 | 关联页面 | 知识库 | 记忆文件 |
 |------|---------|--------|---------|
-| 学习 | index, study, word-summary, study-complete, book-select, book-detail, mistake-book, vocabulary, badges, calendar, search | `文言文/词书/readme.md` | `study-section.md` |
-| 选篇 | article-list, article-reader | `文言文/选篇/典故注释/readme.md` | `articles-section.md` |
-| 经典 | classic, classic-reader | `文言文/经典/readme.md` | `classics-section.md` |
-| 我的 | mine, level-system, badges, calendar, settings, profile-edit | — | `mine-section.md` |
+| 学习 | index, study, word-summary, study-complete, book-select, book-detail, mistake-book, vocabulary, badges, calendar, search | `文言文/词书/readme.md` | `study/study-section.md` |
+| 选篇 | article-list, article-reader | `文言文/选篇/典故注释/readme.md` | `articles/articles-section.md` |
+| 经典 | classic, classic-reader | `文言文/经典/readme.md` | `classics/classics-section.md` |
+| 我的 | mine, level-system, badges, calendar, settings, profile-edit | — | `mine/mine-section.md` |
 
-> 说"继续学习板块"/"继续选篇板块"/"继续经典板块"时，直接读对应记忆文件即可，无需读 CLAUDE.md 或其他文件（触发词规则见 `work-manual.md`）。
+> 说"继续学习板块"/"继续选篇板块"/"继续经典板块"/"继续我的板块"/"继续修复问题"时，直接读对应目录下的记忆文件即可，无需再读其他文件（CLAUDE.md 始终在会话上下文中，触发词规则详见 `work-manual.md`）。
 
 ## 后端工程
 

@@ -41,4 +41,3 @@ metadata:
 
 [[fix-guide]]
 [[word-book-audit]]
-[[work-manual]]

@@ -159,7 +159,3 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 - 所有脚本默认 dry-run，必须加 `--apply` 才写入
 - 分文件写入前会自动备份（`.bak`），完成后删除
 - `article_keyword.kid` 全局唯一，`fill_kidref.py` 最后一步自动检测重复
-
-[[study-section]]
-[[articles-section]]
-[[classics-section]]
