@@ -158,7 +158,7 @@ invite:
 
 ## 海报合成
 
-- **模板**：`scripts/generate_poster_template.py`（Pillow 合成 720×1280，不含小程序码）→ `assets/share-poster-template.png`
+- **模板**：`.claude/memory/mine/generate_poster_template.py`（Pillow 合成 720×1280，不含小程序码）→ `assets/share-poster-template.png`
 - **服务端合成**：Java 2D BufferedImage + Graphics2D
   - 上半部分：圆形头像（120px，4px 白色描边，水平居中，Y=116）→「{昵称} 邀你打卡文言雀」（Bold 30px SansSerif 深灰色，Y=290）
   - 下半部分：小程序码白底卡片（24px 圆角）→ 下方"长按或扫码进入"（22px SansSerif 灰色）
@@ -200,7 +200,7 @@ invite:
 | `pages/mine/index.ts` | `onTapBecomeMember`（→`onTapShare`直接生成海报）、`onTapShare`（二阶段海报弹窗：阶段一海报+保存+签订契约按钮，阶段二金石契签订UI）、`onConfirmShare`（进入阶段二）、`onTogglePactCheck`（复选框）、`onConfirmPact`（调 `signPact` → 刷新profile → 关闭）、`onSavePoster`（保存海报到相册）、`onShareAppMessage` + `onShareTimeline` 带 inviter |
 | `pages/index/index.ts` | `onTapStartLearning()` 门禁检查（`checkinDays >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」）。弹窗有「成为契约会员」按钮（`wx.switchTab` 跳转我的）和「暂不」关闭 |
 | `constants/config.ts` | `GATE_ACCUMULATED_DAYS`（默认 10，-1 关闭） |
-| `scripts/generate_poster_template.py` | 生成无码模板图（720×1280） |
+| `.claude/memory/mine/generate_poster_template.py` | 生成无码模板图（720×1280） |
 
 ---
 

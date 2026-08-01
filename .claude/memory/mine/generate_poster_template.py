@@ -6,7 +6,7 @@
 运行时由后端 Java 合成用户专属 wxacode。
 
 用法：
-    python3 scripts/generate_poster_template.py
+    python3 .claude/memory/mine/generate_poster_template.py
 
 输出：
     assets/share-poster-template.png

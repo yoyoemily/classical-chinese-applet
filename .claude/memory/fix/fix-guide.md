@@ -279,7 +279,7 @@ python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词�
 **第 1 步：检查词书引用（关键！）**
 
 ```sql
--- 在数据库中检查（通过 audit_one_char.sh 或直接查 DB）
+-- 在数据库中检查（通过 .claude/memory/audit/audit_one_char.sh 或直接查 DB）
 SELECT * FROM word_entry_keyword_ref WHERE kid = 'kw_xxx';
 SELECT * FROM quiz_item WHERE kid_ref = 'kw_xxx';
 ```
@@ -319,7 +319,7 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 - 移位后必须更新 kid 中的 `sXX` 编号
 - 修改译文后必须校验原文与译文分句数一致（`split(/[。！？；]/)` 非空段数相等）
 - 新增句子后检查是否需要新增 keyWord
-- 标注完成后运行 `python3 scripts/validate_keywords.py` 交叉验证
+- 标注完成后运行 `python3 .claude/memory/articles/validate_keywords.py` 交叉验证
 
 ---
 

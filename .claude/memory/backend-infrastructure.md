@@ -149,13 +149,13 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 | 脚本 | 用途 |
 |------|------|
-| `scripts/split_articles.py` | 拆分工具（articles.json → 11 个年级分文件 + 1 个壳文章文件） |
-| `scripts/normalize_articles.py` | articles_*.json 规范化：补 wordType/wordBookId、删脏数据、补壳文章元数据 |
-| `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord（读写 articles_*.json） |
-| `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子（读写 articles_*.json） |
-| `scripts/fill_kidref.py` | 词书 quizItem.kidRef 填充 |
-| `scripts/articles_io.py` | 公共 I/O 模块（以上脚本共用） |
+| `.claude/memory/articles/split_articles.py` | 拆分工具（articles.json → 11 个年级分文件 + 1 个壳文章文件） |
+| `.claude/memory/articles/normalize_articles.py` | articles_*.json 规范化：补 wordType/wordBookId、删脏数据、补壳文章元数据 |
+| `.claude/memory/articles/add_missing_keywords.py` | 为已有句子新增缺失 keyWord（读写 articles_*.json） |
+| `.claude/memory/articles/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子（读写 articles_*.json） |
+| `.claude/memory/articles/fill_kidref.py` | 词书 quizItem.kidRef 填充 |
+| `.claude/memory/articles/articles_io.py` | 公共 I/O 模块（以上脚本共用） |
 
 - 所有脚本默认 dry-run，必须加 `--apply` 才写入
 - 分文件写入前会自动备份（`.bak`），完成后删除
-- `article_keyword.kid` 全局唯一，`fill_kidref.py` 最后一步自动检测重复
+- `article_keyword.kid` 全局唯一，`.claude/memory/articles/fill_kidref.py` 最后一步自动检测重复

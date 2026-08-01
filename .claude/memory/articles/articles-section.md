@@ -163,9 +163,9 @@ articles_*.json 规范化：
 
 | 脚本 | 用途 |
 |------|------|
-| `scripts/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理、壳文章元数据修复） |
-| `scripts/add_missing_keywords.py` | 为已有句子新增缺失 keyWord 条目 |
-| `scripts/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子到 articles_*.json |
+| `.claude/memory/articles/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理、壳文章元数据修复） |
+| `.claude/memory/articles/add_missing_keywords.py` | 为已有句子新增缺失 keyWord 条目 |
+| `.claude/memory/articles/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子到 articles_*.json |
 
 ### keyWord definition 标注规范（2026-07 建立，Phase 2 完成）
 

@@ -169,7 +169,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 - [ ] 所有 keyWord 的 `kid` 中的 `sXX` 编号与当前 sentenceIndex 一致
 - [ ] 所有 glossary 的 `sentenceIndex` 与当前句子编号一致
 - [ ] kid 全局唯一，无重复
-- [ ] **每个 keyWord 的 `word` 在 8 本打卡型词书中有对应 `character`，且义项匹配句中用法**（运行 `scripts/validate_keywords.py` 交叉验证）
+- [ ] **每个 keyWord 的 `word` 在 8 本打卡型词书中有对应 `character`，且义项匹配句中用法**（运行 `.claude/memory/articles/validate_keywords.py` 交叉验证）
 - [ ] **每个 keyWord 的 `definition` 原文来自标准义项表**，未做同义改写；如有新增义项已与用户确认并扩充标准表
 - [ ] **每个 keyWord 的 `wordBookId` 非空**，指向正确的词书
 - [ ] JSON 校验通过
@@ -183,7 +183,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 
 ```bash
 # 校验全部选篇 keyWords 的词书覆盖率
-python3 scripts/validate_keywords.py
+python3 .claude/memory/articles/validate_keywords.py
 ```
 
 脚本行为：

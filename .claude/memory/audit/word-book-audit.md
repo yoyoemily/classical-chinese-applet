@@ -10,8 +10,8 @@ metadata:
 ### 取数：一条命令搞定
 
 ```bash
-bash .claude/scripts/audit_one_char.sh <entry_id>
-# 示例：bash .claude/scripts/audit_one_char.sh wb_c_001
+bash .claude/memory/audit/audit_one_char.sh <entry_id>
+# 示例：bash .claude/memory/audit/audit_one_char.sh wb_c_001
 ```
 
 依赖：Docker MySQL 容器 `mysql-8.4` 必须在运行。脚本输出 5 块数据：
@@ -62,7 +62,7 @@ bash .claude/scripts/audit_one_char.sh <entry_id>
 ### 工作流程
 
 1. 在下方词书列表状态表中标记当前审核的词书为"进行中"
-2. 逐字执行 `audit_one_char.sh`，9 点检查，逐字输出表格
+2. 逐字执行 `.claude/memory/audit/audit_one_char.sh`，9 点检查，逐字输出表格
 3. 发现的问题按 🔴/🟡/🟢 分类记录到 [[word-book-audit-fix-list]]
 4. 审核完成后在 fix-list 中标记修复进度，本文件更新统计摘要
 

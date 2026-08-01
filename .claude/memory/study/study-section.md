@@ -207,9 +207,9 @@ metadata:
 
 | 脚本 | 用途 |
 |------|------|
-| `scripts/fill_kidref.py` | 词书 quizItem.kidRef 填充（word+definition 语义匹配 + sentenceText 消歧） |
-| `scripts/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理） |
-| `scripts/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles_*.json |
+| `.claude/memory/articles/fill_kidref.py` | 词书 quizItem.kidRef 填充（word+definition 语义匹配 + sentenceText 消歧） |
+| `.claude/memory/articles/normalize_articles.py` | articles_*.json 规范化（wordType/wordBookId 补全、脏数据清理） |
+| `.claude/memory/articles/backfill_sentences.py` | 从词书 quizItem 回填缺失句子到 articles_*.json |
 
 ### 词书释义标准化（全部完成）
 

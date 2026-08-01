@@ -1,8 +1,8 @@
 #!/bin/bash
 # ============================================================
 # 词书地毯式审核 - 单字数据提取脚本
-# 用法: bash .claude/scripts/audit_one_char.sh <entry_id>
-# 示例: bash .claude/scripts/audit_one_char.sh wb_c_001
+# 用法: bash .claude/memory/audit/audit_one_char.sh <entry_id>
+# 示例: bash .claude/memory/audit/audit_one_char.sh wb_c_001
 #
 # 依赖: Docker MySQL 容器 mysql-8.4 必须在运行
 # 输出: 该字全部 quizItem + kidRef 交叉验证，供 9 点检查使用

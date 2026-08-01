@@ -1,6 +1,6 @@
 """
 articles.json 多文件读写工具函数。
-共享于 scripts/ 下的所有维护脚本。
+共享于 .claude/memory/articles/ 下的所有维护脚本。
 
 拆分后的文件结构（12 个文件）：
   articles_grade7a.json  ~ articles_grade12a.json  (11 个教材级文件)

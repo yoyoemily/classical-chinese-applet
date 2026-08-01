@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 词书审核 - 选项重复自动检测
-用法: python3 .claude/scripts/audit_duplicates.py <entry_id>
+用法: python3 .claude/memory/audit/audit_duplicates.py <entry_id>
 输出: 疑似重复标记，供人眼复核
 """
 import sys

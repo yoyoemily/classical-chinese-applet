@@ -6,9 +6,9 @@
 并按年级统计命中率。不在任何词书中的 keyWord 建议移入 glossary。
 
 Usage:
-  python3 scripts/validate_keywords.py           # 全文报告
-  python3 scripts/validate_keywords.py --grade grade10b  # 只检查指定年级
-  python3 scripts/validate_keywords.py --miss-only       # 只输出遗漏条目
+  python3 .claude/memory/articles/validate_keywords.py           # 全文报告
+  python3 .claude/memory/articles/validate_keywords.py --grade grade10b  # 只检查指定年级
+  python3 .claude/memory/articles/validate_keywords.py --miss-only       # 只输出遗漏条目
 """
 
 import json, os, sys, glob, argparse
