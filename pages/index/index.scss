@@ -398,10 +398,19 @@
     padding: $spacing-md 0 0;
   }
 
+  // 开始学习操作区（按钮 + 绝对定位铃铛）
+  &__task-action {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   // 开始学习 CTA 按钮
   &__task-btn {
     @include flex-center;
-    flex: 1;
+    width: 100%;
+    max-width: 560rpx;
     height: 96rpx;
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     border-radius: $radius-lg;
@@ -421,6 +430,51 @@
       opacity: 0.9;
       transform: scale(0.98);
     }
+  }
+
+  // ==========================================
+  // 公告铃铛（绝对定位在按钮左侧）
+  // ==========================================
+  &__announce-bell {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 72rpx;
+    height: 72rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-round;
+    background-color: var(--color-bg-card);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+
+    &--hover {
+      opacity: 0.7;
+    }
+
+    // 未读 → 铃铛摇晃动画
+    &--unread .page-index__announce-bell-icon {
+      animation: page-index-bell-ring 2s ease-in-out infinite;
+      transform-origin: top center;
+    }
+  }
+
+  &__announce-bell-icon {
+    font-size: 36rpx;
+    line-height: 1;
+  }
+
+  &__announce-bell-dot {
+    position: absolute;
+    top: 10rpx;
+    right: 14rpx;
+    width: 14rpx;
+    height: 14rpx;
+    border-radius: $radius-round;
+    background-color: $color-error;
+    border: 2rpx solid var(--color-bg-card);
   }
 
   // ==========================================
@@ -555,4 +609,13 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+// 铃铛摇晃动画
+@keyframes page-index-bell-ring {
+  0%, 100%         { transform: rotate(0deg); }
+  5%, 25%          { transform: rotate(-15deg); }
+  15%, 35%         { transform: rotate(15deg); }
+  45%, 65%         { transform: rotate(-10deg); }
+  55%, 75%         { transform: rotate(10deg); }
 }

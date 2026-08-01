@@ -1,0 +1,59 @@
+// ============================================
+// 公告详情页
+// ============================================
+@import '../../../styles/variables';
+
+.page-ad {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+
+  // ---------- 加载态 ----------
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 280rpx;
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+
+  // ---------- 滚动容器 ----------
+  &__scroll {
+    height: 100vh;
+  }
+
+  // ---------- 正文 ----------
+  &__article {
+    padding: $spacing-lg $spacing-base 0;
+  }
+
+  &__header {
+    margin-bottom: $spacing-lg;
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    display: block;
+    margin-bottom: $spacing-sm;
+    line-height: 1.4;
+  }
+
+  &__time {
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+
+  // ---------- 正文（rich-text） ----------
+  &__content {
+    font-size: $font-size-base;
+    color: var(--color-text-secondary);
+    line-height: 2;
+    word-break: break-word;
+  }
+
+  &__bottom-placeholder {
+    height: calc(#{$spacing-xl} + var(--safe-area-bottom));
+  }
+}

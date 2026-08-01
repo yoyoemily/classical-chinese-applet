@@ -1,4 +1,4 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges } from '../../api/index';
+import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges, fetchAnnouncementUnread } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, GATE_ACCUMULATED_DAYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
@@ -73,6 +73,8 @@ interface IIndexData {
   recoveryDeadline?: string;
   /** 门禁弹窗 */
   showGate: boolean;
+  /** 是否有未读公告 */
+  hasUnreadAnnouncement: boolean;
 }
 
 // ============================================
@@ -104,6 +106,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     nickName: '',
     checkinDays: 0,
     showGate: false,
+    hasUnreadAnnouncement: false,
   },
 
   // ==========================================
@@ -215,6 +218,9 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       if (profile.recoveryDeadline) {
         this.setData({ recoveryDeadline: profile.recoveryDeadline });
       }
+
+      // 检查未读公告（静默非阻塞）
+      this.checkUnreadAnnouncement();
     } catch (err) {
       console.error('加载首页数据失败:', err);
       wx.showToast({ title: '加载失败，请下拉重试', icon: 'none' });
@@ -348,6 +354,21 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   /** 点击打卡日历入口 */
   onTapCalendar(): void {
     wx.navigateTo({ url: '/pages/calendar/index' });
+  },
+
+  /** 检查未读公告（静默非阻塞） */
+  async checkUnreadAnnouncement(): Promise<void> {
+    try {
+      const result = await fetchAnnouncementUnread();
+      this.setData({ hasUnreadAnnouncement: result.hasUnread });
+    } catch {
+      // 静默失败
+    }
+  },
+
+  /** 点击公告铃铛 → 跳转公告列表 */
+  onTapAnnouncement(): void {
+    wx.navigateTo({ url: '/pages/announcement-list/index' });
   },
 
   // ==========================================

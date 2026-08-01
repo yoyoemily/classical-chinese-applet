@@ -8,6 +8,7 @@ import type {
   IFeedbackSubmitParams, IFeedbackListResult, IFeedbackDetail, IUserProfile, IWordSearchResult, IClassicItem,
   IClassicBook, IClassicMeta, IContentBlock, IWordQuickItem,
   ISuggestionSubmitParams,
+  IAnnouncement, IAnnouncementUnread,
 } from '../typings/index.d';
 import { wordTypeToGroupKey, QUICK_GROUP_ORDER } from '../utils/wordType';
 
@@ -256,8 +257,10 @@ export async function fetchWordsByType(): Promise<Record<string, IWordQuickItem[
   if (USE_MOCK) {
     const books = loadWordBooks();
     const result: Record<string, IWordQuickItem[]> = {};
+    const seen: Record<string, Set<string>> = {};
     for (const key of QUICK_GROUP_ORDER) {
       result[key] = [];
+      seen[key] = new Set();
     }
     for (const book of books) {
       const full = loadWordBookData(book.id);
@@ -266,6 +269,9 @@ export async function fetchWordsByType(): Promise<Record<string, IWordQuickItem[
         const key = wordTypeToGroupKey(full.wordEntries[0]?.wordType);
         if (!key) continue;
         for (const entry of full.wordEntries) {
+          // 同一分组内同一 character 只保留首次出现
+          if (seen[key].has(entry.character)) continue;
+          seen[key].add(entry.character);
           result[key].push({
             entryId: entry.id,
             character: entry.character,
@@ -531,4 +537,25 @@ export async function fetchClassicContent(classicId: number, nodeId: string): Pr
     return content;
   }
   return get(`/api/classics/${classicId}/content/${nodeId}`);
+}
+
+// ============================================
+// 系统公告
+// ============================================
+
+/** 获取公告列表 */
+export async function fetchAnnouncements(): Promise<IAnnouncement[]> {
+  if (USE_MOCK) {
+    return [];
+  }
+  return get('/api/announcements');
+}
+
+/** 获取未读公告状态 */
+export async function fetchAnnouncementUnread(): Promise<IAnnouncementUnread> {
+  if (USE_MOCK) {
+    return { hasUnread: false, latestId: 0 };
+  }
+  const { getAnnouncementLastReadId } = require('../utils/storage');
+  return get(`/api/announcements/unread?lastReadId=${getAnnouncementLastReadId()}`);
 }

@@ -1,0 +1,105 @@
+// ============================================
+// 系统公告列表页
+// ============================================
+@import '../../styles/variables';
+
+.page-al {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+
+  // ---------- 加载态 ----------
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 280rpx;
+    font-size: $font-size-base;
+    color: var(--color-text-hint);
+  }
+
+  // ---------- 空状态 ----------
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 200rpx;
+
+    &-icon {
+      font-size: 96rpx;
+      margin-bottom: $spacing-md;
+    }
+
+    &-text {
+      font-size: $font-size-md;
+      color: var(--color-text-secondary);
+      margin-bottom: $spacing-sm;
+    }
+
+    &-hint {
+      font-size: $font-size-sm;
+      color: var(--color-text-hint);
+    }
+  }
+
+  // ---------- 滚动容器 ----------
+  &__scroll {
+    height: 100vh;
+  }
+
+  // ---------- 列表 ----------
+  &__list {
+    padding: $spacing-base;
+  }
+
+  // ---------- 列表项 ----------
+  &__item {
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-md;
+    margin-bottom: $spacing-sm;
+    background-color: var(--color-bg-white);
+    border-radius: $radius-md;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+
+    &--hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__item-title {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    margin-bottom: $spacing-xs;
+  }
+
+  &__item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__item-time {
+    font-size: $font-size-xs;
+    color: var(--color-text-hint);
+  }
+
+  &__item-arrow {
+    font-size: 32rpx;
+    color: var(--color-text-hint);
+    line-height: 1;
+  }
+
+  // ---------- 底部 ----------
+  &__footer {
+    text-align: center;
+    padding: $spacing-lg;
+    font-size: $font-size-sm;
+    color: var(--color-text-hint);
+  }
+
+  &__bottom-placeholder {
+    height: calc(#{$spacing-xl} + var(--safe-area-bottom));
+  }
+}

@@ -78,6 +78,7 @@ export const STORAGE_KEYS = {
   USER_PROFILE: 'userProfile',
   TOKEN: 'authToken',
   USER_ID: 'userId',
+  ANNOUNCEMENT_LAST_READ: 'announcementLastRead',
 } as const;
 
 // ============================================

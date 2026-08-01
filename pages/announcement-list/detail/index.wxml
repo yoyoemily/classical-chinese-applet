@@ -1,0 +1,26 @@
+<!-- 公告详情页 -->
+<view class="page-ad">
+  <!-- 加载态 -->
+  <view wx:if="{{loading}}" class="page-ad__loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 正文 -->
+  <scroll-view
+    wx:else
+    class="page-ad__scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="page-ad__article">
+      <view class="page-ad__header">
+        <text class="page-ad__title">{{title}}</text>
+        <text class="page-ad__time">{{displayTime}}</text>
+      </view>
+      <rich-text class="page-ad__content" nodes="{{content}}"></rich-text>
+    </view>
+
+    <view class="page-ad__bottom-placeholder"></view>
+  </scroll-view>
+</view>

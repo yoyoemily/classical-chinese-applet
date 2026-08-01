@@ -374,3 +374,19 @@ export function markAudioListened(key: string): void {
   listened[key] = true;
   wx.setStorageSync(AUDIO_LISTENED_KEY, JSON.stringify(listened));
 }
+
+// ============================================
+// 系统公告已读记录
+// ============================================
+
+/** 获取用户最后已读的公告 ID（未读取过则返回 0） */
+export function getAnnouncementLastReadId(): number {
+  const raw = wx.getStorageSync(STORAGE_KEYS.ANNOUNCEMENT_LAST_READ);
+  const parsed = typeof raw === 'number' ? raw : Number(raw);
+  return parsed > 0 ? parsed : 0;
+}
+
+/** 记录用户最后已读的公告 ID */
+export function setAnnouncementLastReadId(announcementId: number): void {
+  wx.setStorageSync(STORAGE_KEYS.ANNOUNCEMENT_LAST_READ, announcementId);
+}

@@ -23,7 +23,9 @@
     "pages/level-system/index",
     "pages/feedback/index",
     "pages/feedback-history/index",
-    "pages/about/index"
+    "pages/about/index",
+    "pages/announcement-list/index",
+    "pages/announcement-list/detail/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4a6a5e",

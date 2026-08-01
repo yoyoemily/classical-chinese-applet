@@ -144,12 +144,22 @@
         <text>预计 {{todayTask.estimatedMinutes}} 分钟</text>
       </view>
 
-      <!-- 开始学习 CTA -->
-      <button
-        class="page-index__task-btn"
-        hover-class="page-index__task-btn--hover"
-        bindtap="onTapStartLearning"
-      >开 始 学 习</button>
+      <!-- 开始学习区域（按钮 + 公告铃铛） -->
+      <view class="page-index__task-action">
+        <button
+          class="page-index__task-btn"
+          hover-class="page-index__task-btn--hover"
+          bindtap="onTapStartLearning"
+        >开 始 学 习</button>
+        <view
+          class="page-index__announce-bell {{hasUnreadAnnouncement ? 'page-index__announce-bell--unread' : ''}}"
+          bindtap="onTapAnnouncement"
+          hover-class="page-index__announce-bell--hover"
+        >
+          <text class="page-index__announce-bell-icon">🔔</text>
+          <view wx:if="{{hasUnreadAnnouncement}}" class="page-index__announce-bell-dot"></view>
+        </view>
+      </view>
 
       <view class="page-index__task-tip">艾宾浩斯遗忘曲线，智能安排复习节奏</view>
     </view>

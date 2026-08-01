@@ -1,0 +1,46 @@
+<!-- 系统公告列表页 -->
+<view class="page-al">
+  <!-- 加载态 -->
+  <view wx:if="{{loading}}" class="page-al__loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{list.length === 0}}" class="page-al__empty">
+    <text class="page-al__empty-icon">📢</text>
+    <text class="page-al__empty-text">暂无公告</text>
+    <text class="page-al__empty-hint">系统公告会在这里展示</text>
+  </view>
+
+  <!-- 公告列表 -->
+  <scroll-view
+    wx:else
+    class="page-al__scroll"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="page-al__list">
+      <view
+        wx:for="{{list}}"
+        wx:key="id"
+        class="page-al__item"
+        hover-class="page-al__item--hover"
+        data-index="{{index}}"
+        bindtap="onTapItem"
+      >
+        <text class="page-al__item-title">{{item.title}}</text>
+        <view class="page-al__item-meta">
+          <text class="page-al__item-time">{{item.displayTime}}</text>
+          <text class="page-al__item-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="page-al__footer">
+      <text>— 已经到底了 —</text>
+    </view>
+
+    <view class="page-al__bottom-placeholder"></view>
+  </scroll-view>
+</view>
