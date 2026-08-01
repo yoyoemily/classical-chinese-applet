@@ -76,13 +76,13 @@ module.exports = {
               class="page-fh__unread-dot"
             ></view>
             <!-- 状态标签 -->
-            <text class="page-fh__status {{item.resolved === 1 ? 'page-fh__status--resolved' : 'page-fh__status--pending'}}">
+            <view class="page-fh__status {{item.resolved === 1 ? 'page-fh__status--resolved' : 'page-fh__status--pending'}}">
               {{item.resolved === 1 ? '已回复' : '待处理'}}
-            </text>
+            </view>
             <!-- 类别标签 -->
-            <text class="page-fh__tag">{{fmt.categoryLabel(item.category)}}</text>
+            <view class="page-fh__tag">{{fmt.categoryLabel(item.category)}}</view>
             <!-- 来源标签 -->
-            <text class="page-fh__tag page-fh__tag--source">{{fmt.sourceLabel(item.source)}}</text>
+            <view class="page-fh__tag page-fh__tag--source">{{fmt.sourceLabel(item.source)}}</view>
           </view>
           <text class="page-fh__time">{{fmt.timeFormat(item.createdAt)}}</text>
         </view>
@@ -139,9 +139,9 @@ module.exports = {
         <!-- 状态 -->
         <view class="page-fh__detail-section">
           <text class="page-fh__detail-label">处理状态</text>
-          <text class="page-fh__status {{selectedFeedback.resolved === 1 ? 'page-fh__status--resolved' : 'page-fh__status--pending'}}">
+          <view class="page-fh__status {{selectedFeedback.resolved === 1 ? 'page-fh__status--resolved' : 'page-fh__status--pending'}}">
             {{selectedFeedback.resolved === 1 ? '已处理' : '待处理'}}
-          </text>
+          </view>
         </view>
 
         <!-- 错误类型 -->

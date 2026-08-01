@@ -76,10 +76,14 @@
   }
 
   &__status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: $font-size-xs;
-    padding: 2rpx 12rpx;
+    padding: 4rpx 16rpx;
     border-radius: 20rpx;
     font-weight: 500;
+    white-space: nowrap;
 
     &--pending {
       background-color: #fff7e6;
@@ -93,9 +97,13 @@
   }
 
   &__tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: $font-size-xs;
-    padding: 2rpx 10rpx;
+    padding: 4rpx 12rpx;
     border-radius: $radius-sm;
+    white-space: nowrap;
     background-color: #f0f0f0;
     color: var(--color-text-hint);
 
@@ -233,13 +241,13 @@
   }
 
   &__detail-section {
-    margin-bottom: $spacing-md;
+    margin-bottom: 28rpx;
   }
 
   &__detail-label {
     font-size: $font-size-sm;
     color: var(--color-text-hint);
-    margin-bottom: $spacing-xs;
+    margin-bottom: 6rpx;
     display: block;
   }
 
