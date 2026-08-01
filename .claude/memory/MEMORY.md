@@ -1,14 +1,7 @@
 - [工作手册](work-manual.md) — 与 Claude Code 协作的工作约定：触发词/更新记忆/确认原则/前端薄层原则/硬性规则
 - [📘 学习板块](study-section.md) — 9 本词书/学习回路/艾宾浩斯/错题本/语音播报/勋章打卡，关联知识库 文言文/词书/readme.md
 - [📙 选篇板块](articles-section.md) — 300 篇名篇（179 教材 + 121 壳）/3 种阅读模式/5 色分高亮/典故注释全部完成/keyWords 词书交叉核对 100% 通过，关联知识库 文言文/选篇/
-- [📋 选篇调整工作流程](article-adjustment-workflow.md) — 独立 SOP：句子增删/移位、keyWords 标注、典故注释、词书同步、导入数据库、完成后检查清单。触发词：调整选篇、修改选篇、优化选篇
-- [🔧 修复总纲](fix-guide.md) — 全系统修复标准，按问题症状（9 个检查点）索引到 A/B/C/D 四类操作。触发词：修复问题、答案错了、释义错误、kidRef 错误、句子有误、选项重复、fix
-- [📋 8本打卡型词书逐字审核](word-book-audit.md) — 审核方法论+进度跟踪，9点检查流程，逐字过例句/译文/正确选项/选项去重/kidRef/句子缺失。触发词：逐字审核、打卡字词审核、词书地毯式排查
-- [🚫 逐字表格铁律](word-book-audit-table-enforcement.md) — 词书地毯式排查必须逐字9点表格形式反馈，严禁跳过、批量合并或只汇总
-- [🔧 词书审核修复清单](word-book-audit-fix-list.md) — 词书审核问题的标准记录模板，按🔴严重/🟡轻量分类记录。触发词：修复词书问题、fix quizItem
 - [📗 经典板块](classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
-- [🔗 邀请追踪体系](invite-referral-system.md) — 分享海报动态生成+专属小程序码+邀请关系绑定全链路，user表/邀请明细表前后端完整方案。2026-07-29 审查优化：CAS绑定/只升不降/配置化阈值/stale scene防残留。触发词：邀请、推广、海报、小程序码、invite、referral
-- [🚀 词书批量修复脚本](fix-gaokao-shixu-script.md) — .claude/scripts/fix_gaokao_shixu.py 模板，支持 #3/#4/#5/#8 四类批量修复。触发词：批量修复词书、fix wordbook batch
-- [🚫 禁止直接修改数据库](never-edit-database-directly.md) — 知识库JSON是唯一权威数据源，数据库是导入后的镜像，修复一律改JSON然后由用户导入
+- [🔧 修复总纲](fix-guide.md) — 全系统修复标准，按问题症状（9 个检查点）索引到 A/B/C/D 四类操作。触发词：修复问题、答案错了、释义错误、kidRef 错误、句子有误、选项重复、fix
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引

@@ -293,3 +293,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 前端 | `pages/article-list/index.*` | 已读标记 + `onShow` 刷新 |
 | 前端 | `pages/classic-reader/index.*` | `onEnded` → API + TOC 圆点标记 + XP 动效 |
 | 前端 | `pages/level-system/index.wxml` | XP 规则文案更新 |
+
+## 相关联记忆
+
+[[invite-referral-system]]
