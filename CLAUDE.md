@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 文言雀——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。18 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。
 
-详情见 `.claude/memory/` 目录及 `MEMORY.md` 索引。
+详情见 `.claude/memory/` 目录及 `.claude/memory/MEMORY.md` 索引。
 
 ## 开发环境
 
