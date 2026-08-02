@@ -316,7 +316,7 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 
 涉及结构变化时，严格按照 [[article-adjustment-workflow]] 执行，关键约束：
 
-- 移位后必须更新 kid 中的 `sXX` 编号
+- 旧 kid 永远不动（kid 圣杯原则），新 kid 使用未被占用的最大编号。`sXX` 与数组位置不对齐是允许的
 - 修改译文后必须校验原文与译文分句数一致（`split(/[。！？；]/)` 非空段数相等）
 - 新增句子后检查是否需要新增 keyWord
 - 标注完成后运行 `python3 .claude/memory/articles/validate_keywords.py` 交叉验证

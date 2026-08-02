@@ -13,8 +13,8 @@ Usage:
 
 import json, os, sys, glob, argparse
 
-WB_DIR = os.path.expanduser("~/Documents/knowledge_library/文言文/词书")
-ARTICLES_DIR = os.path.expanduser("~/Documents/knowledge_library/文言文/选篇/正文")
+WB_DIR = os.path.expanduser("~/knowledge_library/文言文/词书")
+ARTICLES_DIR = os.path.expanduser("~/knowledge_library/文言文/选篇/正文")
 
 
 def load_word_books():
