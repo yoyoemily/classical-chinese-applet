@@ -92,6 +92,41 @@ export async function fetchTodayTask(
   return task;
 }
 
+/** 今日学习摘要（轻量，仅数字 + 词进度，无题目数据。用于首页） */
+export async function fetchTodaySummary(
+  wordBookId: string,
+  dailyNew?: number,
+  dailyReview?: number
+): Promise<{
+  newWords: number;
+  reviewWords: number;
+  totalWords: number;
+  estimatedMinutes: number;
+  dailyNewLimitReached: boolean;
+  wordsLearned: number;
+  wordsMastered: number;
+  wordProgresses: Record<string, { stage: number | string; correctCount: number; wrongCount: number; resetCount: number }>;
+}> {
+  if (USE_MOCK) {
+    const task = generateTodayTask(wordBookId);
+    if (!task) throw new Error('无法生成今日任务');
+    return {
+      newWords: task.newWords.length,
+      reviewWords: task.reviewWords.length,
+      totalWords: task.totalWords,
+      estimatedMinutes: task.estimatedMinutes,
+      dailyNewLimitReached: task.dailyNewLimitReached || false,
+      wordsLearned: 0,
+      wordsMastered: 0,
+      wordProgresses: {},
+    };
+  }
+  const params: Record<string, unknown> = { wordBookId };
+  if (dailyNew !== undefined) params.dailyNew = dailyNew;
+  if (dailyReview !== undefined) params.dailyReview = dailyReview;
+  return get('/api/study/today-summary', params);
+}
+
 export async function submitAnswer(data: {
   wordBookId: string; entryId: string; quizItemId: string;
   selectedOption: number; correct: boolean;

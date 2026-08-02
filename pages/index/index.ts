@@ -1,4 +1,4 @@
-import { fetchWordBooks, fetchProgress, fetchTodayTask, fetchMistakeCount, fetchUserProfile, fetchBadges, fetchAnnouncementUnread } from '../../api/index';
+import { fetchWordBooks, fetchTodaySummary, fetchMistakeCount, fetchUserProfile, fetchBadges, fetchAnnouncementUnread } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
 import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, GATE_ACCUMULATED_DAYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
@@ -159,10 +159,10 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         } catch { /* use defaults */ }
       }
 
-      // 并行拉取进度、今日任务、勋章、错题数、用户信息（词书列表已缓存）
-      const [progress, task, badgeResult, mistakesCount, profile] = await Promise.all([
-        fetchProgress(bookId),
-        fetchTodayTask(bookId, dailyNew, dailyReview),
+      // 并行拉取摘要、勋章、错题数、用户信息（词书列表已缓存）
+      // 用轻量 today-summary 代替 fetchProgress + fetchTodayTask，避免重复加载大表
+      const [summary, badgeResult, mistakesCount, profile] = await Promise.all([
+        fetchTodaySummary(bookId, dailyNew, dailyReview),
         fetchBadges(),
         fetchMistakeCount(),
         fetchUserProfile(),
@@ -175,9 +175,9 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       const totalWords = currentBook?.totalWords ?? 0;
       const percent =
         totalWords > 0
-          ? Math.round((progress.wordsMastered / totalWords) * 100)
+          ? Math.round((summary.wordsMastered / totalWords) * 100)
           : 0;
-      const distribution = this.computeDistribution(progress, progress.wordsMastered);
+      const distribution = this.computeDistribution(summary.wordProgresses, summary.wordsMastered);
 
       // 前端计算下一枚勋章
       const userBadgeIds = new Set(badgeResult.userBadges.map(ub => ub.badgeId));
@@ -194,17 +194,17 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         currentBook,
         progress: {
           percent,
-          mastered: progress.wordsMastered,
+          mastered: summary.wordsMastered,
           total: totalWords,
           distribution,
         },
         todayTask: {
-          newWords: task.newWords.length,
-          reviewWords: task.reviewWords.length,
-          estimatedMinutes: task.estimatedMinutes,
-          dailyNewLimitReached: task.dailyNewLimitReached || false,
+          newWords: summary.newWords,
+          reviewWords: summary.reviewWords,
+          estimatedMinutes: summary.estimatedMinutes,
+          dailyNewLimitReached: summary.dailyNewLimitReached || false,
         },
-        streak: progress.currentStreak,
+        streak: summary.wordsLearned > 0 ? profile.currentStreak : 0,
         checkedIn,
         loading: false,
         mistakeCount,
@@ -243,10 +243,9 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
    * 分类规则与词汇页 masteryLevel 计算保持一致
    */
   computeDistribution(
-    progress: IUserProgress,
+    wordProgresses: Record<string, { stage: number | string; correctCount: number; wrongCount: number; resetCount: number }>,
     _totalMastered: number,
   ): IDistributionItem[] {
-    const { wordProgresses } = progress;
     const counts: Record<string, number> = {
       difficult: 0,
       unclear: 0,
