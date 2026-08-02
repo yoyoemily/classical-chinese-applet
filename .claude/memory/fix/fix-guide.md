@@ -319,6 +319,7 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 - 旧 kid 永远不动（kid 圣杯原则），新 kid 使用未被占用的最大编号。`sXX` 与数组位置不对齐是允许的
 - 修改译文后必须校验原文与译文分句数一致（`split(/[。！？；]/)` 非空段数相等）
 - 新增句子后检查是否需要新增 keyWord
+- **新增句子后反向搜索词书 quizItem**：用新句子的关键词 grep 词书 JSON，检查是否有 quizItem 的 sentenceText 匹配新句但 kidRef 指错，如有则修正（D 类缺句几乎必然伴随 C 类 kidRef 错指）
 - 标注完成后运行 `python3 .claude/memory/articles/validate_keywords.py` 交叉验证
 
 ---

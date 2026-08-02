@@ -22,7 +22,7 @@ metadata:
 
 ### 2. 句子增删/移位
 
-1. 在 `articles_*.json` 中修改 `sentences` 数组（插入/删除/移位）
+1. 在 `articles_*.json` 中修改 `sentences` 数组（插入/删除/移位），定位缺失句子时**以标准原文为准**，逐段对比确认缺失内容
 2. 同步修改 `art_XXX.json` 中 `sentences` 数组占位，并重新编号 `sentenceIndex`（从 0 连续）
 3. **kid 圣杯原则优先于编号美观：旧 kid 永远不动，新 kid 用未被占用的编号**
    - keyWord 没有独立的 `sentenceIndex` 字段，编号嵌在 `kid` 字符串中（格式 `kw_{articleId}_s{XX}_{word}_{序号}`）
@@ -30,6 +30,7 @@ metadata:
    - **反例（禁止）**：插入 4 句后，把原 S2–S7 共 26 个 kid 全部从 `s02`–`s07` 改为 `s06`–`s11`——这违反圣杯原则，且需要同步更新词书 `word_entry_keyword_ref` 和 `quiz_item.kid_ref`，风险极高
    - glossary 的 `sentenceIndex` 是独立字段，**需要同步修正**（它不是 kid，修改不影响其他表）
 4. **修改译文后必须校验原文与译文的分句数一致**：逐句释义模式的 `buildClauses()` 按标点位置索引配对原文与译文分句，若某句的原文和译文 `split(/[。！？；]/)` 后非空段数不等，会导致子句释义全部错位。修改时用脚本对比每句的分句数，确保一一对应
+5. **【关键】新增句子后搜寻词书 quizItem 的 kidRef 错指**：新增的句子在选篇中本来不存在，但词书的 quizItem 可能早已引用了该句内容（sentenceText 匹配），只是 kidRef 指向了其他文章中同字同义的 keyWord。新增 keyWord 后，必须在词书中反向搜索：**用新句子的关键词（如开头几个字）在词书 JSON 中 grep，找到 sentenceText 匹配的 quizItem，将其 kidRef 修正为新的正确 kid**。详见 [[fix-guide]] 检查点 ⑧（C 类修复）
 
 ### 3. keyWords 标注标准
 
@@ -171,6 +172,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 - [ ] 所有 keyWord 的 `kid` 全局唯一，`sXX` 不重复（与当前 sentenceIndex 不一致是允许的，旧 kid 编号不随句子移位修改）
 - [ ] 所有 glossary 的 `sentenceIndex` 与当前句子编号一致
 - [ ] kid 全局唯一，无重复
+- [ ] **已反向搜寻词书 quizItem**：用新增句子的关键词 grep 词书 JSON，检查是否有 quizItem 的 sentenceText 匹配新句但 kidRef 仍指向旧 kid，如有则修正 kidRef + sentenceText + sentenceTranslation
 - [ ] **每个 keyWord 的 `word` 在 8 本打卡型词书中有对应 `character`，且义项匹配句中用法**（运行 `.claude/memory/articles/validate_keywords.py` 交叉验证）
 - [ ] **每个 keyWord 的 `definition` 原文来自标准义项表**，未做同义改写；如有新增义项已与用户确认并扩充标准表
 - [ ] **每个 keyWord 的 `wordBookId` 非空**，指向正确的词书
