@@ -12,6 +12,9 @@
         <text class="page-study__mode">{{modeLabel}}</text>
         <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
       </view>
+      <view wx:if="{{canPickWord}}" class="page-study__debug-picker-trigger" bindtap="onOpenWordPicker" hover-class="page-study__debug-picker-trigger--hover">
+        <text>选字</text>
+      </view>
     </view>
 
     <view class="page-study__prestep-body">
@@ -66,6 +69,9 @@
       <view class="page-study__meta">
         <text class="page-study__mode">{{modeLabel}}</text>
         <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
+      </view>
+      <view wx:if="{{canPickWord}}" class="page-study__debug-picker-trigger" bindtap="onOpenWordPicker" hover-class="page-study__debug-picker-trigger--hover">
+        <text>选字</text>
       </view>
     </view>
 
@@ -196,6 +202,31 @@
         </view>
       </view>
     </view>
+  </view>
+
+  <!-- 调试：任意选字浮层 -->
+  <view wx:if="{{canPickWord && showWordPicker}}" class="page-study__word-picker-mask" bindtap="onCloseWordPicker"></view>
+  <view wx:if="{{canPickWord}}" class="page-study__word-picker-panel {{showWordPicker ? 'page-study__word-picker-panel--show' : ''}}">
+    <view class="page-study__word-picker-header">
+      <text class="page-study__word-picker-title">选择字词</text>
+      <view class="page-study__word-picker-close" bindtap="onCloseWordPicker" hover-class="page-study__word-picker-close--hover">
+        <text>✕</text>
+      </view>
+    </view>
+    <scroll-view class="page-study__word-picker-body" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="page-study__word-picker-chips">
+        <view
+          wx:for="{{wordPickerFiltered}}"
+          wx:key="entryId"
+          class="page-study__word-picker-chip"
+          data-entry-id="{{item.entryId}}"
+          bindtap="onPickWord"
+          hover-class="page-study__word-picker-chip--hover"
+        >
+          <text class="page-study__word-picker-chip-text">{{item.character}}</text>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
 </view>

@@ -42,6 +42,25 @@ export async function fetchWordBookDetail(bookId: string): Promise<IWordBook> {
   return get(`/api/wordbooks/${bookId}`);
 }
 
+/** 词书快捷选字列表（按字数→拼音排序） */
+export async function fetchWordBookQuickWords(bookId: string): Promise<IWordQuickItem[]> {
+  if (USE_MOCK) {
+    const book = loadWordBookData(bookId);
+    if (!book) return [];
+    return book.wordEntries
+      .sort((a, b) => {
+        const lenA = a.character.length;
+        const lenB = b.character.length;
+        if (lenA !== lenB) return lenA - lenB;
+        const pyA = a.pinyin || a.character;
+        const pyB = b.pinyin || b.character;
+        return pyA.localeCompare(pyB, 'zh');
+      })
+      .map(e => ({ entryId: e.id, character: e.character, pinyin: e.pinyin }));
+  }
+  return get(`/api/wordbooks/${bookId}/quick-words`);
+}
+
 // ============================================
 // 学习
 // ============================================

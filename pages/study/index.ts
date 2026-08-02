@@ -1,10 +1,10 @@
 import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold, initStudySummary, incrementStudySummary, getStudySummary } from '../../utils/storage';
-import { fetchTodayTask, fetchWordBookDetail, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
+import { fetchTodayTask, fetchWordBookDetail, fetchWordBookQuickWords, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { playCorrectSound, playWrongSound, playCompleteSound, destroyAudioContext } from '../../utils/audio-feedback';
-import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRESTEP_PROMPTS } from '../../constants/config';
-import type { IStudySession, IWordEntry, IQuizItem, FeedbackCategory } from '../../typings/index.d';
+import { STORAGE_KEYS, DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, PRESTEP_PROMPTS, ENABLE_WORD_PICKER } from '../../constants/config';
+import type { IStudySession, IWordEntry, IQuizItem, FeedbackCategory, IWordQuickItem } from '../../typings/index.d';
 import { wordTypeLabel } from '../../utils/wordType';
 
 interface IStudyData {
@@ -53,6 +53,11 @@ interface IStudyData {
   preStepCorrectIndices: number[];
   showPreStepCorrect: boolean;
   showPreStepWrong: boolean;
+
+  // 调试功能：任意选字
+  canPickWord: boolean;
+  showWordPicker: boolean;
+  wordPickerFiltered: IWordQuickItem[];
 }
 
 const FEEDBACK_CATEGORIES: { key: FeedbackCategory; label: string }[] = [
@@ -77,6 +82,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     preStepPrompt: '', sentenceChars: [], preStepSelectedIndices: [],
     preStepMaxSelect: 1, preStepCorrectChar: '', preStepCorrectIndices: [],
     showPreStepCorrect: false, showPreStepWrong: false,
+    canPickWord: ENABLE_WORD_PICKER, showWordPicker: false, wordPickerFiltered: [],
   },
 
   _session: null as IStudySession | null,
@@ -693,6 +699,77 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       wx.showToast({ title: '提交失败，请重试', icon: 'none' });
       this.setData({ feedbackSubmitting: false });
     }
+  },
+
+  // ==========================================
+  // 调试功能：任意选字
+  // ==========================================
+
+  onOpenWordPicker(): void {
+    this.setData({ showWordPicker: true, wordPickerFiltered: [] });
+    fetchWordBookQuickWords(this._bookId).then(list => {
+      this.setData({ wordPickerFiltered: list });
+    }).catch(() => {
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    });
+  },
+
+  onCloseWordPicker(): void {
+    this.setData({ showWordPicker: false });
+  },
+
+  onPickWord(e: WechatMiniprogram.BaseEvent): void {
+    const entryId = e.currentTarget.dataset.entryId as string;
+    this.setData({ showWordPicker: false });
+
+    const s = this._session;
+    if (!s) return;
+
+    // 情况 1: 该词已在会话中 → 跳到该位置
+    const existingIdx = s.words.findIndex(w => w.entryId === entryId);
+    if (existingIdx >= 0) {
+      s.currentWordIndex = existingIdx;
+      s.currentSentenceIndex = 0;
+      this._preStepDoneForCurrentWord = false;
+      saveSession(s);
+      this.setData({ completedWords: s.currentWordIndex });
+      this.showNextQuestion();
+      return;
+    }
+
+    // 情况 2: 词不在会话中 → 从 _wordsMap 合成 ITodayWord
+    const entry = this._wordsMap[entryId];
+    if (!entry) {
+      wx.showToast({ title: '未找到该字', icon: 'none' });
+      return;
+    }
+    if (!entry.quizItems || entry.quizItems.length === 0) {
+      wx.showToast({ title: '该字没有题目数据', icon: 'none' });
+      return;
+    }
+
+    const synthetic = {
+      entryId: entry.id,
+      character: entry.character,
+      isReview: false,
+      quizItems: entry.quizItems,
+    };
+
+    // 在当前位置插入，成为"下一个"
+    s.words.splice(s.currentWordIndex, 0, synthetic);
+    s.currentSentenceIndex = 0;
+    this._preStepDoneForCurrentWord = false;
+
+    // 更新 totalWords 和 dotsArray
+    const newLen = s.words.length;
+    this.setData({
+      totalWords: newLen,
+      dotsArray: Array.from({ length: Math.min(newLen, 10) }, (_, i) => i),
+      completedWords: s.currentWordIndex,
+    });
+
+    saveSession(s);
+    this.showNextQuestion();
   },
 
   onShareAppMessage(): WechatMiniprogram.Page.CustomShareContent {
