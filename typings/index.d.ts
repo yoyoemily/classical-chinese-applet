@@ -18,12 +18,6 @@ export interface IAppOption {
     launchQuery?: Record<string, string>
     /** launchScene 是否已被 reLogin 消费（防止 onShow 重复写入 stale scene） */
     launchSceneConsumed?: boolean
-    /** 公告详情中转数据（列表页 → 详情页） */
-    _announcementForDetail?: {
-      title: string
-      content: string
-      displayTime: string
-    }
   }
   $emit?: (event: string, ...args: unknown[]) => void
   $on?: (event: string, callback: (...args: unknown[]) => void) => void
@@ -638,15 +632,27 @@ export interface IClassicBook {
 // 系统公告
 // ============================================
 
-/** 单条系统公告 */
+/** 公告列表项（不含正文，列表页使用） */
 export interface IAnnouncement {
+  /** 公告唯一 ID */
+  id: number
+  /** 公告标题 */
+  title: string
+  /** 是否置顶 */
+  isPinned: boolean
+  /** 发布时间（后端已格式化为 yyyy-MM-dd HH:mm，前端直接展示） */
+  publishTime: string
+}
+
+/** 公告详情（含正文，详情页使用） */
+export interface IAnnouncementDetail {
   /** 公告唯一 ID */
   id: number
   /** 公告标题 */
   title: string
   /** 公告正文 */
   content: string
-  /** 发布时间（ISO 字符串） */
+  /** 发布时间（后端已格式化为 yyyy-MM-dd HH:mm，前端直接展示） */
   publishTime: string
 }
 

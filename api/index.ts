@@ -8,7 +8,7 @@ import type {
   IFeedbackSubmitParams, IFeedbackListResult, IFeedbackDetail, IUserProfile, IWordSearchResult, IClassicItem,
   IClassicBook, IClassicMeta, IContentBlock, IWordQuickItem,
   ISuggestionSubmitParams,
-  IAnnouncement, IAnnouncementUnread,
+  IAnnouncement, IAnnouncementDetail, IAnnouncementUnread,
 } from '../typings/index.d';
 import { wordTypeToGroupKey, QUICK_GROUP_ORDER } from '../utils/wordType';
 
@@ -543,12 +543,17 @@ export async function fetchClassicContent(classicId: number, nodeId: string): Pr
 // 系统公告
 // ============================================
 
-/** 获取公告列表 */
+/** 获取公告列表（不含正文） */
 export async function fetchAnnouncements(): Promise<IAnnouncement[]> {
   if (USE_MOCK) {
     return [];
   }
   return get('/api/announcements');
+}
+
+/** 获取公告详情（含正文） */
+export async function fetchAnnouncementDetail(id: number): Promise<IAnnouncementDetail> {
+  return get(`/api/announcements/${id}`);
 }
 
 /** 获取未读公告状态 */

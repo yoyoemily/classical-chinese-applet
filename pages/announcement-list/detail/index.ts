@@ -1,6 +1,7 @@
 // ============================================
 // 公告详情页
 // ============================================
+import { fetchAnnouncementDetail } from '../../../api/index';
 
 interface IAnnouncementDetailData {
   title: string;
@@ -18,19 +19,30 @@ Page<IAnnouncementDetailData, WechatMiniprogram.Page.CustomOption>({
     loading: true,
   },
 
-  onLoad(): void {
-    const app = getApp<IAppOption>();
-    const data = app.globalData._announcementForDetail;
+  /** 公告 ID（从 onLoad query 中获取） */
+  _id: 0,
 
-    if (data) {
+  onLoad(query: Record<string, string | undefined>): void {
+    const id = Number(query.id);
+    if (id) {
+      this._id = id;
+      this.loadDetail(id);
+    } else {
+      wx.showToast({ title: '参数错误', icon: 'none' });
+      wx.navigateBack();
+    }
+  },
+
+  async loadDetail(id: number): Promise<void> {
+    try {
+      const detail = await fetchAnnouncementDetail(id);
       this.setData({
-        title: data.title,
-        paragraphs: this.splitParagraphs(data.content),
-        displayTime: data.displayTime,
+        title: detail.title,
+        paragraphs: this.splitParagraphs(detail.content),
+        displayTime: detail.publishTime,
         loading: false,
       });
-      delete app.globalData._announcementForDetail;
-    } else {
+    } catch {
       wx.showToast({ title: '加载失败', icon: 'none' });
       wx.navigateBack();
     }

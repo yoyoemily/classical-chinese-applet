@@ -101,7 +101,7 @@ module.exports = {
 
         <!-- 回复预览（已处理） -->
         <view class="page-fh__card-reply" wx:if="{{item.resolved === 1 && item.reply}}">
-          <text class="page-fh__reply-label">管理员回复：</text>
+          <text class="page-fh__reply-label">开发者回复：</text>
           <text class="page-fh__reply-text">{{item.reply}}</text>
         </view>
       </view>
@@ -186,9 +186,9 @@ module.exports = {
           <text class="page-fh__detail-value">{{fmt.timeFormat(selectedFeedback.createdAt)}}</text>
         </view>
 
-        <!-- 管理员回复 -->
+        <!-- 开发者回复 -->
         <view class="page-fh__detail-reply" wx:if="{{selectedFeedback.resolved === 1 && selectedFeedback.reply}}">
-          <text class="page-fh__reply-label">管理员回复</text>
+          <text class="page-fh__reply-label">开发者回复</text>
           <text class="page-fh__reply-text">{{selectedFeedback.reply}}</text>
         </view>
       </scroll-view>

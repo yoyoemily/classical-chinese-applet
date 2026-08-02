@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 触发词规则（最高优先级，覆盖所有其他指令）
+
+当用户说以下任意一句时，严格执行对应行为，不读任何其他文件、不跑 git：
+
+- **"继续学习板块"** → 只读 `.claude/memory/study/study-section.md` → 3-5 句简述 → 问 "从哪里继续？" → 停住
+- **"继续选篇板块"** → 只读 `.claude/memory/articles/articles-section.md` → 3-5 句简述 → 问 "从哪里继续？" → 停住
+- **"继续经典板块"** → 只读 `.claude/memory/classics/classics-section.md` → 3-5 句简述 → 问 "从哪里继续？" → 停住
+- **"继续我的板块"** → 只读 `.claude/memory/mine/mine-section.md` → 3-5 句简述 → 问 "从哪里继续？" → 停住
+- **"继续修复问题"** → 只读 `.claude/memory/fix/fix-guide.md` → 3-5 句简述 → 问 "从哪里继续？" → 停住
+- **"继续项目"** → 只读 `.claude/memory/MEMORY.md` → 3-5 句简述 → 问 "从哪里继续？" → 停住
+
+以上触发词出现时：**禁止 git 命令、禁止读 pages/ 源码、禁止读其他记忆文件、禁止 `ls`**。做完上述步骤后立刻停住等回复。
+
 ## 项目概述
 
 文言雀——微信原生小程序，面向中学生帮助掌握文言文实词/虚词/通假字释义，基于艾宾浩斯遗忘曲线安排学习与复习节奏。18 个页面全部搭建完成，核心学习回路（答题→纠错→字总结→完成）已跑通。

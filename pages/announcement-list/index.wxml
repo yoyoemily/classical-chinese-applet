@@ -29,7 +29,9 @@
         data-index="{{index}}"
         bindtap="onTapItem"
       >
-        <text class="page-al__item-title">{{item.title}}</text>
+        <text class="page-al__item-title">
+          <text wx:if="{{item.isPinned}}" class="page-al__item-badge">置顶</text>{{item.title}}
+        </text>
         <view class="page-al__item-meta">
           <text class="page-al__item-time">{{item.displayTime}}</text>
           <text class="page-al__item-arrow">›</text>
