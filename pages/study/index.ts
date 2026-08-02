@@ -1,5 +1,5 @@
 import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold, initStudySummary, incrementStudySummary, getStudySummary } from '../../utils/storage';
-import { fetchTodayTask, fetchWordBookDetail, fetchWordBookQuickWords, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
+import { fetchTodayTask, fetchWordBooks, fetchWordBookQuickWords, fetchWordDetail, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { playCorrectSound, playWrongSound, playCompleteSound, destroyAudioContext } from '../../utils/audio-feedback';
@@ -131,10 +131,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       const bookId = getCurrentBookId();
       this._bookId = bookId;
 
-      const [task, book] = await Promise.all([
-        fetchTodayTask(bookId, dailyNew, dailyReview),
-        fetchWordBookDetail(bookId),
-      ]).catch(() => [null, null] as const);
+      const task = await fetchTodayTask(bookId, dailyNew, dailyReview);
 
       if (!task || task.totalWords === 0) {
         const msg = task?.dailyNewLimitReached ? '今日新学词数已达上限，明天再来吧' : '今日没有需要学习的字';
@@ -142,14 +139,14 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
         setTimeout(() => wx.navigateBack(), 1500);
         return;
       }
-      if (book) {
-        wx.setNavigationBarTitle({ title: book.name });
-        // 缓存词书的学习模式和前置提示文案
-        this._hasPreStep = book.studyMode === 'identify_first';
-        this._bookIdentifyPrompt = (book as unknown as Record<string, unknown>).identifyPrompt as string || '';
-        for (const e of book.wordEntries) {
-          this._wordsMap[e.id] = e;
-        }
+
+      // 轻量拉取词书元数据（不含 wordEntries，避免和 fetchTodayTask 重复查询）
+      const books = await fetchWordBooks();
+      const bookMeta = books.find(b => b.id === bookId);
+      if (bookMeta) {
+        wx.setNavigationBarTitle({ title: bookMeta.name });
+        this._hasPreStep = bookMeta.studyMode === 'identify_first';
+        this._bookIdentifyPrompt = (bookMeta as unknown as Record<string, unknown>).identifyPrompt as string || '';
       }
       // 根据设置决定是否乱序（复习和新学各自独立 shuffle，复习仍优先）
       if (settings.studyOrder === 1) {
@@ -718,7 +715,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     this.setData({ showWordPicker: false });
   },
 
-  onPickWord(e: WechatMiniprogram.BaseEvent): void {
+  async onPickWord(e: WechatMiniprogram.BaseEvent): Promise<void> {
     const entryId = e.currentTarget.dataset.entryId as string;
     this.setData({ showWordPicker: false });
 
@@ -737,8 +734,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       return;
     }
 
-    // 情况 2: 词不在会话中 → 从 _wordsMap 合成 ITodayWord
-    const entry = this._wordsMap[entryId];
+    // 情况 2: 词不在会话中 → 按需获取字词详情
+    const entry = await fetchWordDetail(entryId);
     if (!entry) {
       wx.showToast({ title: '未找到该字', icon: 'none' });
       return;
@@ -747,6 +744,9 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       wx.showToast({ title: '该字没有题目数据', icon: 'none' });
       return;
     }
+
+    // 缓存到 _wordsMap 以便后续回路使用
+    this._wordsMap[entryId] = entry;
 
     const synthetic = {
       entryId: entry.id,
