@@ -62,16 +62,18 @@
   <block wx:if="{{screen === 'question'}}">
     <!-- 顶部进度 -->
     <view class="page-study__header">
-      <view class="page-study__dots">
-        <view wx:for="{{dotsArray}}" wx:key="*this" class="page-study__dot {{index < completedWords ? 'page-study__dot--filled' : ''}}"></view>
-        <text wx:if="{{totalWords > 10}}" class="page-study__dots-extra">+{{totalWords - 10}}</text>
-      </view>
-      <view class="page-study__meta">
-        <text class="page-study__mode">{{modeLabel}}</text>
+      <view class="page-study__header-left">
+        <view class="page-study__dots">
+          <view wx:for="{{dotsArray}}" wx:key="*this" class="page-study__dot {{index < completedWords ? 'page-study__dot--filled' : ''}}"></view>
+          <text wx:if="{{totalWords > 10}}" class="page-study__dots-extra">+{{totalWords - 10}}</text>
+        </view>
         <text class="page-study__counter">{{completedWords + 1}}/{{totalWords}} 个词</text>
+        <text class="page-study__mode">{{modeLabel}}</text>
       </view>
-      <view wx:if="{{canPickWord}}" class="page-study__debug-picker-trigger" bindtap="onOpenWordPicker" hover-class="page-study__debug-picker-trigger--hover">
-        <text>选字</text>
+      <view class="page-study__header-right">
+        <view wx:if="{{canPickWord}}" class="page-study__debug-picker-trigger" bindtap="onOpenWordPicker" hover-class="page-study__debug-picker-trigger--hover">
+          <text>选字</text>
+        </view>
       </view>
     </view>
 
