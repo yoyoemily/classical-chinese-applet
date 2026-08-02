@@ -27,7 +27,7 @@ export const MAX_DAILY_REVIEW_LIMIT = 15;
 export const GATE_ACCUMULATED_DAYS = 10;
 
 /** 学习页"任意选字"调试功能开关。true 开启，false 关闭 */
-export const ENABLE_WORD_PICKER = true;
+export const ENABLE_WORD_PICKER = false;
 
 /** 学习码过期天数：30 天不活跃即失效 */
 export const REDEEM_CODE_EXPIRE_DAYS = 30;
