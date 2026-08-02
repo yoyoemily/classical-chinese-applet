@@ -299,6 +299,12 @@ export async function searchWords(keyword: string): Promise<IWordSearchResult[]>
         }
       }
     }
+    // 按字数（单字→多字）→拼音排序
+    results.sort((a, b) => {
+      const lenDiff = a.character.length - b.character.length;
+      if (lenDiff !== 0) return lenDiff;
+      return (a.pinyin || a.character).localeCompare(b.pinyin || b.character, 'zh');
+    });
     return results;
   }
   return get('/api/words/search', { keyword });
@@ -333,6 +339,14 @@ export async function fetchWordsByType(): Promise<Record<string, IWordQuickItem[
           });
         }
       }
+    }
+    // 每组内按字数（单字→多字）→拼音排序
+    for (const key of Object.keys(result)) {
+      result[key].sort((a, b) => {
+        const lenDiff = a.character.length - b.character.length;
+        if (lenDiff !== 0) return lenDiff;
+        return (a.pinyin || a.character).localeCompare(b.pinyin || b.character, 'zh');
+      });
     }
     return result;
   }

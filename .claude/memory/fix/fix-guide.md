@@ -71,6 +71,7 @@ articles_*.json（唯一权威源）
 | 8 | 例句译文有误 | ② | **D** | [六、D 类：句子/译文/出处](#六d-类修复句子译文出处检查点-) |
 | 9 | 句子在选篇 article_sentence 中不存在 | ⑨ | **D** | [六、D 类：句子/译文/出处](#六d-类修复句子译文出处检查点-) |
 | 10 | 某个 keyWord 不应该标注（不在词书中、义项不匹配、误标） | — | **C** | [五、C 类](#五c-类修复-keyword-标注与-kidref检查点-) |
+| 11 | 文章标注了 keyWord，但词书没收录对应例句（quizItems 漏收） | ⑩ | **E** | [七、E 类：词书漏收例句](#七e-类修复词书漏收例句检查点-) |
 
 ---
 
@@ -87,7 +88,7 @@ articles_*.json（唯一权威源）
 1. 备份：`cp ~/knowledge_library/文言文/词书/wb_xxx.json ~/knowledge_library/文言文/词书/wb_xxx.json.bak`
 2. 修改词书 JSON（示例见下方各场景）
 3. 校验：`python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词书/wb_xxx.json'))"`
-4. **通知用户执行导入**（导入命令见[七、导入命令速查](#七导入命令速查)）
+4. **通知用户执行导入**（导入命令见[八、导入命令速查](#八导入命令速查)）
 5. 前端验证：打开小程序 → 词书 → 学习，确认问题已修复
 
 ### ④⑤ 选项/干扰项修改
@@ -215,7 +216,7 @@ python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/选�
 python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词书/wb_xxx.json'))"
 ```
 
-**通知用户按顺序执行导入**：先导入选篇正文，再导入词书。导入命令见[七、导入命令速查](#七导入命令速查)。
+**通知用户按顺序执行导入**：先导入选篇正文，再导入词书。导入命令见[八、导入命令速查](#八导入命令速查)。
 
 #### 第 6 步：前端验证
 
@@ -252,7 +253,7 @@ python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词�
 2. 确认该句中已有匹配的 keyWord（含正确的 definition）→ 取它的 kid
 3. 改词书 JSON 中 quizItem 的 `kidRef` 为该 kid
 4. 如 definition 也需同步修正 → 同时改 definition
-5. **通知用户执行导入**：先导入 articles（全量），再导入词书。导入命令见[七、导入命令速查](#七导入命令速查)。
+5. **通知用户执行导入**：先导入 articles（全量），再导入词书。导入命令见[八、导入命令速查](#八导入命令速查)。
 
 ### 场景 2：kidRef 指错，正确文章中无匹配 keyWord → 新增 keyWord
 
@@ -270,7 +271,7 @@ python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词�
 
 2. kid 全局唯一，序号从 0 起递增
 3. 改词书 JSON 中 quizItem 的 `kidRef` 为新 kid
-4. **通知用户执行导入**：先导入 articles（全量），再导入词书。导入命令见[七、导入命令速查](#七导入命令速查)。
+4. **通知用户执行导入**：先导入 articles（全量），再导入词书。导入命令见[八、导入命令速查](#八导入命令速查)。
 
 ### 场景 3：keyWord 不应标注（删除 keyWord）
 
@@ -294,7 +295,7 @@ SELECT * FROM quiz_item WHERE kid_ref = 'kw_xxx';
 
 kid 永远不修改——要么保留，要么整条删除。如果同一句中还有其他 keyWord，只删这一个。
 
-**第 4 步：校验 → 通知用户导入**（先 articles 全文导入，如改了词书则后导词书。导入命令见[七、导入命令速查](#七导入命令速查)）
+**第 4 步：校验 → 通知用户导入**（先 articles 全文导入，如改了词书则后导词书。导入命令见[八、导入命令速查](#八导入命令速查)）
 
 ### 选篇结构调整
 
@@ -310,7 +311,7 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 
 ### 纯译文/出处修改（不涉及结构变化）
 
-只改 articles JSON 中对应 sentence 的 `translation` 或 article 的 `title`/`author`/`dynasty` 字段 → 通知用户全量导入 articles → 重导词书同步 quizItem 副本字段。导入命令见[七、导入命令速查](#七导入命令速查)。
+只改 articles JSON 中对应 sentence 的 `translation` 或 article 的 `title`/`author`/`dynasty` 字段 → 通知用户全量导入 articles → 重导词书同步 quizItem 副本字段。导入命令见[八、导入命令速查](#八导入命令速查)。
 
 ### 句子增删/移位/译文分句对齐
 
@@ -324,11 +325,137 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 
 ---
 
-## 七、导入命令速查
+## 七、E 类修复：词书漏收例句（检查点 ⑩）
 
-> ⚠️ **导入由用户自行执行**。以下命令供用户参考，修复完成后告知用户需要执行哪些导入及执行顺序。
+**适用场景**：文章句子的 keyWord 标注正确（wordType/wordBookId/kid/definition 都对），但词书没收录对应 quizItem，用户在该词书里看不到这个句子的打卡题。
+
+**症状特征**：
+- 用户在选篇阅读时看到某个字标注了古今异义/实词/虚词等
+- 但去对应词书学习时，这个字的打卡题里没有该句
+
+**根因**：词书 JSON 的 quizItems 和 keyWordRefs 是手动维护的，没有自动从文章标注同步。标注阶段可以做到句子级精准，但词书 JSON 维护时可能漏收。
+
+**操作范围**：articles JSON 的 `relatedWordIds` + 词书 JSON 的 `keyWordRefs` 和 `quizItems`。
+
+### 排查脚本
 
 ```bash
+python3 -c "
+import json
+
+# 1. 读文章，找到该字的所有 keyWord（含 kid、wordBookId、sentenceText）
+ARTICLE = '$(readlink -f ~/knowledge_library/文言文/选篇/正文/articles_grade7b.json)'
+WORD = '但'
+
+data = json.load(open(ARTICLE))
+for a in data:
+    for s in a['sentences']:
+        for kw in s.get('keyWords', []):
+            if kw['word'] == WORD:
+                print(f'文章 {a[\"id\"]} {a[\"title\"]}: {kw[\"kid\"]} wordBookId={kw[\"wordBookId\"]} \"{s[\"text\"][:40]}\"')
+" 2>/dev/null
+
+# 2. 读词书，找到该字的 keyWordRefs 和 quizItems
+echo '---'
+python3 -c "
+import json
+WB = '$(readlink -f ~/knowledge_library/文言文/词书/wb_zhongkao_gujinyi.json)'
+WORD = '但'
+
+data = json.load(open(WB))
+for entry in data['wordEntries']:
+    if entry['character'] == WORD:
+        kids_in_refs = {r['kid'] for r in entry['keyWordRefs']}
+        kids_in_quiz = {qi['kidRef'] for qi in entry['quizItems']}
+        print(f'词书 {entry[\"id\"]} keyWordRefs: {sorted(kids_in_refs)}')
+        print(f'词书 {entry[\"id\"]} quizItems: {sorted(kids_in_quiz)}')
+        missing_refs = kids_in_quiz - kids_in_refs
+        if missing_refs: print(f'  ❌ quizItems 引用了但 keyWordRefs 没收录: {missing_refs}')
+        break
+"
+```
+
+### 修复步骤
+
+#### 第 1 步：确认文章标注完整
+
+确认文章句子中的 keyWord 包含正确的 `wordType`、`wordBookId`、`definition`（来自标准义项表）、`kid`。如果文章标注本身有问题，先按 B/C/D 类修复。
+
+#### 第 2 步：补 articles JSON 的 relatedWordIds
+
+文章级 `relatedWordIds` 应包含该字所属词书的 wordBookId。漏了会导致文章关联词书时找不到这个字。
+
+```json
+// articles_*.json 的 relatedWordIds 数组中追加
+"wb_c_238"  // 例如：古今异义
+```
+
+#### 第 3 步：补词书 JSON 的 keyWordRefs
+
+词书条目的 `keyWordRefs` 应包含该字在文章中所有 keyWord 的 kid：
+
+```json
+{
+  "kid": "kw_art_028_s02_但_0"  // 追加漏掉的引用
+}
+```
+
+#### 第 4 步：补词书 JSON 的 quizItems
+
+为每个漏收的句子创建 quizItem。ID 用全局最大编号 +1：
+
+```bash
+grep -roh '"id": "s_c_[0-9]*"' ~/knowledge_library/文言文/词书/ | sed 's/"id": "s_c_//' | sed 's/"//' | sort -n | tail -1
+```
+
+新增 quizItem 模板：
+
+```json
+{
+  "id": "s_c_1471",
+  "kidRef": "kw_art_028_s02_但_0",
+  "targetWord": "但",
+  "difficulty": "basic",
+  "definition": "只、仅仅",
+  "distractors": ["但是", "然而", "不过"],
+  "sentenceText": "见其发矢十中八九，但微颔之。",
+  "sentenceTranslation": "看他射箭十支能中八九支，只是微微点头。",
+  "sentenceSource": "《卖油翁》"
+}
+```
+
+字段来源（防火墙原则）：
+
+| quizItem 字段 | 来源 |
+|---------------|------|
+| `kidRef` | 文章中对应 keyWord 的 `kid`（不改） |
+| `targetWord` | 词书条目 `entry.character` |
+| `definition` | 文章中 keyWord 的 `definition`（独立副本） |
+| `distractors` | 新造，与已有同字 quizItem 风格一致，不包含正确释义 |
+| `sentenceText` | 文章中 sentence 的 `text`（纯句子原文） |
+| `sentenceTranslation` | 文章中 sentence 的 `translation` |
+| `sentenceSource` | `《文章标题》` |
+| `difficulty` | 按句长和语境判断：短句/直译→`basic`，中长/需辨析→`medium` |
+
+#### 第 5 步：校验 + 导入
+
+```bash
+python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/选篇/正文/articles_*.json'))"
+python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词书/wb_*.json'))"
+```
+
+**通知用户执行导入**：先导入 articles（全量），再导入词书。命令见[八、导入命令速查](#八导入命令速查)。
+
+### 典型案例
+
+| 日期 | 文章 | 字 | 漏收词书 | 漏收句子 |
+|------|------|----|---------|---------|
+| 2026-08-02 | 卖油翁 | 但 | 中考古今异义一本通 | "见其发矢十中八九，但微颔之" + "无他，但手熟尔" |
+| 2026-08-02 | 卖油翁 | 知 | 中考实词虚词一本通 | "以我酌油知之" |
+
+---
+
+## 八、导入命令速查
 BASE_URL="http://localhost:8080"  # 本地
 # BASE_URL="https://wyq.yinqueai.com"  # 线上
 
@@ -354,7 +481,7 @@ print(json.dumps(d, ensure_ascii=False))
 
 ---
 
-## 八、相关联记忆
+## 九、相关联记忆
 
 ```
 修复总纲 ──┬── fix-guide.md（本文件）

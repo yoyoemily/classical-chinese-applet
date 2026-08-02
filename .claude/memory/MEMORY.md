@@ -1,5 +1,6 @@
 - [工作手册](work-manual.md) — 与 Claude Code 协作的工作约定：触发词/更新记忆/确认原则/前端薄层原则/硬性规则
 - [📘 学习板块](study/study-section.md) — 9 本词书/学习回路/艾宾浩斯/错题本/语音播报/勋章打卡，关联知识库 文言文/词书/readme.md
+- [📋 词书例句扩充实施方案](study/word-quiz-expansion-plan.md) — 8本词书按"每义项≥3条quizItem"标准，从选篇keyWord语料池补收例句，共541条缺口，分3批执行
 - [📙 选篇板块](articles/articles-section.md) — 300 篇名篇（179 教材 + 121 壳）/3 种阅读模式/5 色分高亮/典故注释全部完成/keyWords 词书交叉核对 100% 通过，关联知识库 文言文/选篇/
 - [📗 经典板块](classics/classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine/mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
