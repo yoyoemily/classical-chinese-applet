@@ -62,7 +62,6 @@ import type { WordTypeCode } from '../../utils/wordType';
 	  audioLoading: boolean;
 	  audioPlaying: boolean;
 	  /** 错误反馈 */
-  showAnnotationGuide: boolean;
 	  showFeedbackPanel: boolean;
 	  feedbackCategory: string;
 	  feedbackDescription: string;
@@ -86,8 +85,6 @@ import type { WordTypeCode } from '../../utils/wordType';
 	    showBackground: false,
 	    audioLoading: false,
 	    audioPlaying: false,
-	    showAnnotationGuide: false,
-    showAnnotationGuide: false,
     showFeedbackPanel: false,
 	    feedbackCategory: 'sentence_text',
 	    feedbackDescription: '',
@@ -467,19 +464,6 @@ import type { WordTypeCode } from '../../utils/wordType';
 	  onDismissXpAnimation(): void {
 	    this.setData({ xpAnimation: null });
 	  },
-
-  // ==========================================
-  // 典故注释标注说明
-  // ==========================================
-
-  onTapAnnotationGuide(): void {
-    this.setData({ showAnnotationGuide: true });
-  },
-
-  onCloseAnnotationGuide(): void {
-    this.setData({ showAnnotationGuide: false });
-  },
-
 	  // ==========================================
 	  // 错误反馈
 	  // ==========================================
