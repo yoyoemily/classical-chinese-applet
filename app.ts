@@ -34,13 +34,18 @@ App<IAppOption>({
   },
 
   onShow(options: WechatMiniprogram.App.LaunchShowOption): void {
+    // 尝试捕获 scene（每次 onShow 都可能来自新的扫码进入）
+    const hadScene = this.captureLaunchParams(options);
+
     // 小程序切前台时检查 token 是否过期/无效，过期则重新登录
     const token = wx.getStorageSync(STORAGE_KEYS.TOKEN);
     if (!token) {
       this.globalData.loginPromise = this.doLogin();
+    } else if (hadScene) {
+      // 有 token 但检测到新 scene → 重新登录以传递 scene 给后端绑定邀请关系
+      console.log('[App] onShow 检测到新 scene，触发 reLogin 绑定邀请');
+      this.globalData.loginPromise = this.doLogin();
     }
-    // 切前台时也可能有新的 scene 参数（从小程序码进来）
-    this.captureLaunchParams(options);
   },
 
   onHide(): void {
@@ -50,22 +55,36 @@ App<IAppOption>({
   /**
    * 捕获启动参数中的 scene 和 inviter，存入 globalData 供 reLogin 使用。
    * scene 来自小程序码扫码，inviter 来自分享卡片 path 参数。
-   * 如果上一轮 scene 已被 reLogin 消费，不再覆盖（防止 stale scene 残留）。
+   *
+   * 防重复：用 lastConsumedScene 记录全局已消费的 scene 值，
+   * 同一次冷启动 onLaunch → reLogin → onShow 带着同一 scene，跳过。
+   * 热启动扫码进入时 scene 值不同，允许重新捕获。
+   *
+   * @returns 是否捕获到新的 scene 或 inviter
    */
-  captureLaunchParams(options: WechatMiniprogram.App.LaunchShowOption): void {
-    if (this.globalData.launchSceneConsumed) {
-      return;
-    }
+  captureLaunchParams(options: WechatMiniprogram.App.LaunchShowOption): boolean {
     const scene = decodeURIComponent(options.query?.scene || '');
+    const inviter = options.query?.inviter;
+
+    if (!scene && !inviter) {
+      return false;
+    }
+
+    // 与上次已消费的 scene 相同 → 跳过（cold start onLaunch → onShow 重复）
+    if (scene && scene === this.globalData.lastConsumedScene) {
+      console.log('[App] scene 已被消费，跳过:', scene);
+      return false;
+    }
+
     if (scene) {
       this.globalData.launchScene = scene;
       console.log('[App] 捕获 scene:', scene);
     }
-    const inviter = options.query?.inviter;
     if (inviter) {
       this.globalData.launchQuery = { inviter };
       console.log('[App] 捕获 inviter:', inviter);
     }
+    return true;
   },
 
   /**
@@ -91,6 +110,6 @@ App<IAppOption>({
     loginPromise: undefined as Promise<void> | undefined,
     launchScene: undefined,
     launchQuery: undefined,
-    launchSceneConsumed: false,
+    lastConsumedScene: undefined,
   },
 });

@@ -16,8 +16,8 @@ export interface IAppOption {
     launchScene?: string
     /** 启动时的 query 参数（一次性的，reLogin 读取后清除） */
     launchQuery?: Record<string, string>
-    /** launchScene 是否已被 reLogin 消费（防止 onShow 重复写入 stale scene） */
-    launchSceneConsumed?: boolean
+    /** 全局已消费的 scene 值，用于防止 cold start 时 onLaunch→onShow 重复 */
+    lastConsumedScene?: string
   }
   $emit?: (event: string, ...args: unknown[]) => void
   $on?: (event: string, callback: (...args: unknown[]) => void) => void

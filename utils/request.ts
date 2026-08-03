@@ -73,11 +73,11 @@ export function reLogin(): Promise<string> {
       const scene = app?.globalData?.launchScene;
       const inviter = app?.globalData?.launchQuery?.inviter;
 
-      // 清除，防止下次登录重复使用；标记已消费，防止 onShow 重复写入 stale scene
+      // 记录本次消费的 scene，防止 cold start 时 onShow 带同一 scene 重复登录
       if (app?.globalData) {
+        if (scene) app.globalData.lastConsumedScene = scene;
         app.globalData.launchScene = undefined;
         app.globalData.launchQuery = undefined;
-        app.globalData.launchSceneConsumed = true;
       }
 
       wx.login({
