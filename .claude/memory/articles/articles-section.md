@@ -225,18 +225,35 @@ articles_*.json 规范化：
 
 壳文章 (`art_shell_001` ~ `art_shell_121`) 仅作为词书 quizItem 的 kid 锚点，不是用户可读的选篇。词书导入时 quizItem 从壳文章的 sentence/keyWord 拷贝所需字段后，运行时不再读壳文章。
 
+> ⚠️ **`hasContent = 0` 是壳文章的唯一判定标准，切勿根据 `art_shell_` ID 前缀做任何逻辑判断。** `art_shell_` 前缀只是历史命名习惯，目前仅用于导入时推导 `sortOrder`（offset 10000 起）。**运行时、前端、任何业务逻辑都只看 `hasContent`，不看 ID 前缀。** `hasContent` 字段在导入 JSON 中**必填**，缺失直接报错阻断导入。
+
 | 维度 | 行为 |
 |------|------|
-| 文章列表 | **不可见**。后端 `ArticleService.getArticles()` 以 `has_content = 1` 过滤，壳文章 `has_content = 0` 被排除 |
+| 文章列表 | **不可见**。后端 `ArticleService.getArticles()` 以 `has_content = 1` 过滤，`has_content = 0` 被排除 |
 | 文章详情 | API 无过滤，直接输 URL 可到，但用户正常路径下不会到达 |
 | 排序 | `sortOrder = 10000 + index`，排在大纲文章之后 |
-| 数据源 | `articles_shell.json`（知识库），121 篇、339 句、339 条 keyWords |
+| 数据源 | `articles_shell.json`（知识库），121 篇、339 句、339 条 keyWords，`hasContent = 0` |
 | 典故注释 | 无 |
 | 创作背景 | 无 |
 | 句子/译文 | 有 keyWord 的句子必须 100% 有译文（导入代码强制校验，无译文抛异常）。keyWord definition 基本为空，不影响——quizItem 自带 definition 副本 |
 | title | 显示在词书打卡页面作为句子出处（如"廉颇蔺相如列传"），不可点击进入阅读 |
 
 **Why:** 大纲文章（教材 179 篇）覆盖面有限，quizItem 中大量句子不出自教材选篇。壳文章为这些句子提供 kid 锚点，让词书的每个 quizItem 都有合法的 kidRef 可依附。
+
+### 将已有文章转为壳文章
+
+1. 在知识库对应的年级 JSON 中将该篇的 `hasContent` 改为 `0`，ID 不变
+2. 执行导入：`POST /api/admin/import/articles`
+3. **ID 不要改**——改了会波及 kid，影响 `quiz_item.kid_ref` 和 `word_entry_keyword_ref.kid`，导致用户数据断裂
+
+### `hasContent` 字段（2026-08-03 强制化）
+
+| 位置 | 用途 |
+|------|------|
+| `SourceArticle.hasContent` | JSON 数据反序列化，必填（`null` 则导入报错） |
+| `DataImportService.importArticles()` | 导入时直接使用该值，不从前缀推导 |
+| `ArticleService.getArticles()` | 运行时过滤：`has_content = 1` 才能出现在列表 |
+| 前端 | 无感知，仅展示 API 返回的数据 |
 
 ---
 
