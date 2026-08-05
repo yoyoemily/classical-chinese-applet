@@ -6,7 +6,7 @@
 
 | Item | Value |
 |------|-------|
-| Base Endpoint | `https://api.example.com`（开发时替换为正式地址） |
+| Base Endpoint | `https://wyq.yinqueai.com` |
 | Content-Type | `application/json` |
 | Authentication | Bearer Token（Header: `Authorization: Bearer <token>`） |
 | Server Time | UTC (ISO 8601) |
@@ -63,7 +63,7 @@ HTTP/1.1 400 Bad Request
 | 10001 | 参数错误 | 请求参数缺失或格式不正确 |
 | 10002 | 未授权 | Token 无效或已过期，需重新登录 |
 | 10401 | 登录已过期 | JWT Token 无效或已过期，需重新 login |
-| 10003 | 资源不存在 | 请求的词书/名篇/字词等不存在 |
+| 10003 | 资源不存在 | 请求的词书/名篇/字词/用户等不存在 |
 | 10004 | 今日任务已生成 | 今日学习任务已存在，无需重复请求 |
 | 10005 | 今日学习已完成 | 所有学习任务均已打勾，可调用 complete 收尾 |
 | 10006 | 操作失败 | 服务端处理异常，可重试 |
@@ -86,6 +86,8 @@ HTTP/1.1 400 Bad Request
 | Field | Type | Description |
 |-------|------|-------------|
 | `code` | String (Required) | `wx.login()` 返回的临时 code |
+| `scene` | String (Optional) | 小程序码 scene 值（格式 `i_{userId}`），扫码进入时携带 |
+| `inviterId` | Long (Optional) | 分享卡片 inviter 参数，通过 `onShareAppMessage` 路径传入 |
 
 #### Response Fields
 
@@ -154,7 +156,7 @@ Authorization: Bearer <token>
 | `data[].description` | String | 词书简介 |
 | `data[].category` | String | 分类：`middle_school` / `high_school` / `function` / `tongjia` / `ancient_modern` / `flexible_usage` |
 | `data[].coverColor` | String | 封面主题色，如 `#4a6a5e` |
-| `data[].studyMode` | String | 学习模式：`standard`（直接选题）或 `identify_first`（先识别目标字再选题） |
+| `data[].studyMode` | String | 学习模式：`standard`（直接选题）、`identify_first`（先识别目标字再选题）、`readonly`（纯阅读浏览） |
 | `data[].identifyPrompt` | String? | 前置步骤提示文案，仅 `identify_first` 模式有效 |
 | `data[].examLevel` | String | 考试级别：`zhongkao`（中考）或 `gaokao`（高考） |
 | `data[].initialized` | Boolean | 词书是否已完成数据初始化，`false` 时不可选择 |
@@ -206,55 +208,69 @@ HTTP/1.1 200 OK
 | `data.description` | String | 词书简介 |
 | `data.category` | String | 词书分类 |
 | `data.coverColor` | String | 封面主题色 |
-| `data.studyMode` | String | 学习模式：`standard` 或 `identify_first` |
+| `data.studyMode` | String | 学习模式：`standard` / `identify_first` / `readonly` |
 | `data.identifyPrompt` | String? | 前置步骤提示文案 |
 | `data.examLevel` | String | 考试级别：`zhongkao` 或 `gaokao` |
 | `data.initialized` | Boolean | 词书是否已完成数据初始化 |
 | `data.totalWords` | Integer | 字词总数 |
-| `data.words` | Array\<Word\> | 字词列表 |
+| `data.wordEntries` | Array\<IWordEntry\> | 字词列表 |
 
-**Word 对象：**
+**IWordEntry 对象：**
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | String | 字词 ID |
 | `character` | String | 汉字 |
 | `pinyin` | String | 拼音 |
+| `wordType` | String | 字词类型：`shi`(实词) / `xu`(虚词) / `tongjia`(通假字) / `gujinyi`(古今异义) / `huoyong`(词类活用) (Optional) |
 | `characterType` | String | 字型：象形字/指事字/会意字/形声字 (Optional) |
 | `explanation` | String | 字形解释 (Optional) |
 | `oracleForm` | String | 甲骨文图片 URL (Optional) |
 | `examFrequency` | String | 考试频次，如"5年3考" (Optional) |
-| `meanings` | Array\<Meaning\> | 义项列表 |
-| `sentences` | Array\<Sentence\> | 考题句子列表 |
+| `keyWordRefs` | Array\<IKeyWordRef\> | 义项引用列表（从名篇 keyWord 语料池关联） |
+| `quizItems` | Array\<IQuizItem\> | 答题项列表（从名篇句子自动生成） |
+| `usages` | Array\<IWordUsage\> | 虚词用法列表（readonly 词书专用） (Optional) |
 | `similarHomophones` | Array\<String\> | 同音易混字 |
 | `similarShapes` | Array\<String\> | 形近字 |
 | `mnemonic` | String | 记忆口诀 (Optional) |
-| `wordType` | String | 字词类型：`实词` / `虚词` / `通假字` (Optional) |
 
-**Meaning 对象：**
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `definition` | String | 释义说明 |
-| `pinyin` | String | 该义项的读音，多音字时区分 (Optional) |
-| `example` | String | 例句原文 |
-| `translation` | String | 例句翻译 (Optional) |
-| `source` | String | 例句出处，如"《论语·为政》" (Optional) |
-
-**Sentence 对象：**
+**IKeyWordRef 对象：**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | String | 句子 ID |
-| `text` | String | 句子原文 |
-| `source` | String | 句子出处 |
-| `translation` | String | 整句翻译 |
+| `kid` | String | 引用唯一标识 |
+| `word` | String | 从 article_keyword 解析的 word_text (Optional) |
+| `definition` | String | 从 article_keyword 解析的 definition (Optional) |
+| `sentenceText` | String | 所在句子原文 (Optional) |
+| `sentenceTranslation` | String | 所在句子译文 (Optional) |
+| `articleId` | String | 所在文章 ID (Optional) |
+| `articleTitle` | String | 所在文章标题 (Optional) |
+
+**IQuizItem 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String | 答题项 ID |
+| `kidRef` | String | 关联的 keyWordRef.kid |
 | `targetWord` | String | 考查的目标字 |
-| `correctMeaningIndex` | Integer | 正确答案在 `distractors[]` 中的序号（0-based） |
+| `definition` | String | 正确答案释义 = article_keyword.definition |
 | `difficulty` | String | 难度：`basic` / `medium` / `hard` |
 | `distractors` | Array\<String\> | 干扰项列表 |
+| `sentenceText` | String | 句子原文 (Optional) |
+| `sentenceTranslation` | String | 句子译文 (Optional) |
+| `sentenceSource` | String | 句子出处（文章标题） (Optional) |
 | `articleId` | String | 关联的名篇 ID (Optional) |
 | `audioUrl` | String | 预录音频 URL (Optional) |
+
+**IWordUsage 对象（readonly 词书）：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `usageType` | String | 用法类别 |
+| `definition` | String | 用法释义 |
+| `exampleSentence` | String | 例句原文 |
+| `exampleTranslation` | String | 例句翻译 |
+| `exampleSource` | String | 例句出处 |
 
 #### Example: Success
 
@@ -266,47 +282,83 @@ HTTP/1.1 200 OK
     "data": {
         "id": "wb_zhongkao_001",
         "name": "字海拾贝·中考篇",
-        "description": "涵盖中考大纲全部核心文言字词，包含实词、虚词、通假字三大类，覆盖七至九年级统编版教材全部重点字词。",
+        "description": "涵盖中考大纲全部核心文言字词...",
         "category": "middle_school",
         "coverColor": "#4a6a5e",
         "totalWords": 75,
-        "words": [
+        "wordEntries": [
             {
                 "id": "wb_mid_001_01",
                 "character": "而",
                 "pinyin": "ér",
+                "wordType": "xu",
                 "characterType": "象形字",
                 "explanation": "甲骨文像面颊胡须之形，本义为胡须。后假借为连词。",
                 "examFrequency": "5年4考",
-                "meanings": [
+                "keyWordRefs": [
                     {
+                        "kid": "kid_001_01_1",
+                        "word": "而",
                         "definition": "表示并列关系，可译为\"和\"\"又\"\"并且\"",
-                        "pinyin": "ér",
-                        "example": "敏而好学，不耻下问。",
-                        "translation": "聪敏并且爱好学习，不以向不如自己的人请教为耻。",
-                        "source": "《论语·公冶长》"
+                        "sentenceText": "敏而好学，不耻下问。",
+                        "sentenceTranslation": "聪敏并且爱好学习，不以向不如自己的人请教为耻。",
+                        "articleId": "art_001",
+                        "articleTitle": "论语·公冶长"
                     }
                 ],
-                "sentences": [
+                "quizItems": [
                     {
                         "id": "s_001_01_1",
-                        "text": "学而不思则罔，思而不学则殆。",
-                        "source": "《论语·为政》",
-                        "translation": "只学习而不思考就会迷惑。",
+                        "kidRef": "kid_001_01_1",
                         "targetWord": "而",
-                        "correctMeaningIndex": 1,
+                        "definition": "表示并列关系，可译为\"和\"\"又\"\"并且\"",
                         "difficulty": "basic",
-                        "distractors": ["和，又，并且", "地，着", "就，然后"],
+                        "distractors": ["地，着", "就，然后", "因为"],
+                        "sentenceText": "学而不思则罔，思而不学则殆。",
+                        "sentenceSource": "《论语·为政》",
                         "articleId": "art_002"
                     }
                 ],
                 "similarHomophones": ["尔", "耳", "儿"],
                 "similarShapes": ["面", "耐", "耍"],
-                "mnemonic": "而字本义是胡须，后借用为连词。记住四个主要用法：并列又，转折却，承接就，修饰着。",
-                "wordType": "虚词"
+                "mnemonic": "而字本义是胡须，后借用为连词。记住四个主要用法：并列又，转折却，承接就，修饰着。"
             }
         ]
     }
+}
+```
+
+---
+
+### 获取词书快捷选字列表
+
+返回指定词书下所有字词的精简列表（仅 id、character、pinyin），按字数→拼音排序，供学习页"任意选字"功能使用。
+
+**Endpoint:** `GET /api/wordbooks/:id/quick-words`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | String (Required) | 词书 ID |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].entryId` | String | 字词 ID |
+| `data[].character` | String | 汉字 |
+| `data[].pinyin` | String | 拼音 |
+
+```json
+HTTP/1.1 200 OK
+{
+    "code": 0,
+    "message": "ok",
+    "data": [
+        { "entryId": "wb_mid_001_01", "character": "而", "pinyin": "ér" },
+        { "entryId": "wb_mid_001_02", "character": "之", "pinyin": "zhī" }
+    ]
 }
 ```
 
@@ -339,16 +391,17 @@ HTTP/1.1 200 OK
 | `data.newWords` | Array\<TodayWord\> | 待新学的字词列表 |
 | `data.totalWords` | Integer | 今日总词数 |
 | `data.estimatedMinutes` | Integer | 预估用时（分钟） |
+| `data.dailyNewLimitReached` | Boolean | 今日跨词书新学词数是否已达上限 (Optional) |
 
 **TodayWord 对象：**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `wordId` | String | 字词 ID |
+| `entryId` | String | 字词 ID |
 | `character` | String | 汉字 |
 | `isReview` | Boolean | 是否为复习（true=复习，false=新学） |
 | `reviewStage` | Integer \| String | 当前复习阶段：0–6 或 `"done"` (Optional) |
-| `sentences` | Array\<Sentence\> | 该字的考题句子 |
+| `quizItems` | Array\<IQuizItem\> | 该字的答题项列表 |
 
 #### Example: Success
 
@@ -363,54 +416,84 @@ HTTP/1.1 200 OK
         "wordBookName": "字海拾贝·中考篇",
         "reviewWords": [
             {
-                "wordId": "wb_mid_001_01",
+                "entryId": "wb_mid_001_01",
                 "character": "而",
                 "isReview": true,
                 "reviewStage": 3,
-                "sentences": [
+                "quizItems": [
                     {
                         "id": "s_001_01_1",
-                        "text": "学而不思则罔，思而不学则殆。",
-                        "source": "《论语·为政》",
-                        "translation": "只学习而不思考就会迷惑。",
+                        "kidRef": "kid_001_01_1",
                         "targetWord": "而",
-                        "correctMeaningIndex": 1,
+                        "definition": "表示并列关系，可译为\"和\"\"又\"\"并且\"",
                         "difficulty": "basic",
-                        "distractors": ["和，又，并且", "地，着", "就，然后"]
+                        "distractors": ["地，着", "就，然后", "因为"],
+                        "sentenceText": "学而不思则罔，思而不学则殆。",
+                        "sentenceSource": "《论语·为政》"
                     }
                 ]
             }
         ],
         "newWords": [
             {
-                "wordId": "wb_mid_001_06",
+                "entryId": "wb_mid_001_06",
                 "character": "乃",
                 "isReview": false,
-                "sentences": [
+                "quizItems": [
                     {
                         "id": "s_001_06_1",
-                        "text": "乃悟前狼假寐，盖以诱敌。",
-                        "source": "《狼》",
-                        "translation": "这才明白前面那只狼假装睡觉。",
+                        "kidRef": "kid_001_06_1",
                         "targetWord": "乃",
-                        "correctMeaningIndex": 0,
+                        "definition": "竟然，却",
                         "difficulty": "basic",
-                        "distractors": ["竟然，却", "是，就是", "你"]
+                        "distractors": ["是，就是", "你"],
+                        "sentenceText": "乃悟前狼假寐，盖以诱敌。",
+                        "sentenceSource": "《狼》"
                     }
                 ]
             }
         ],
         "totalWords": 7,
-        "estimatedMinutes": 10
+        "estimatedMinutes": 10,
+        "dailyNewLimitReached": false
     }
 }
 ```
 
 ---
 
+### 获取今日学习摘要
+
+轻量接口，仅返回数字和词进度，不含题目数据。用于首页快速展示。
+
+**Endpoint:** `GET /api/study/today-summary`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 当前选中的词书 ID |
+| `dailyNew` | Integer (Optional) | 每日新学数量上限 |
+| `dailyReview` | Integer (Optional) | 每日复习数量上限 |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.newWords` | Integer | 今日新学词数 |
+| `data.reviewWords` | Integer | 今日复习词数 |
+| `data.totalWords` | Integer | 今日总词数 |
+| `data.estimatedMinutes` | Integer | 预估用时（分钟） |
+| `data.dailyNewLimitReached` | Boolean | 今日新学词数是否已达上限 |
+| `data.wordsLearned` | Integer | 累计已学词数 |
+| `data.wordsMastered` | Integer | 累计已掌握词数 |
+| `data.wordProgresses` | Object | 字词进度映射，key 为 entryId |
+
+---
+
 ### 提交答题结果
 
-记录用户对某个句子的一次答题结果，服务端据此更新该字的艾宾浩斯进度。
+记录用户对某个答题项（句子）的一次答题结果，服务端据此更新该字的艾宾浩斯进度。
 
 **Endpoint:** `POST /api/study/answer`
 
@@ -419,8 +502,8 @@ HTTP/1.1 200 OK
 | Field | Type | Description |
 |-------|------|-------------|
 | `wordBookId` | String (Required) | 当前词书 ID |
-| `wordId` | String (Required) | 考查的字词 ID |
-| `sentenceId` | String (Required) | 考题句子 ID |
+| `entryId` | String (Required) | 考查的字词 ID |
+| `quizItemId` | String (Required) | 答题项 ID |
 | `selectedOption` | Integer (Required) | 用户选择的选项序号（0-based） |
 | `correct` | Boolean (Required) | 是否答对 |
 | `correctAnswer` | String | 正确答案文本（前端传入，用于错题本记录，避免后端因 shuffle 无法还原） (Optional) |
@@ -435,37 +518,49 @@ HTTP/1.1 200 OK
 | `data.updatedProgress.correctCount` | Integer | 累计答对次数 |
 | `data.updatedProgress.wrongCount` | Integer | 累计答错次数 |
 
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "updatedProgress": {
-            "stage": 4,
-            "nextReviewDate": "2026-07-10",
-            "correctCount": 5,
-            "wrongCount": 1
-        }
-    }
-}
-```
-
 > **关于 `correctAnswer` / `wrongAnswer`**：前端 shuffle 后选项顺序不确定，后端无法通过 `selectedOption` 序号还原答案文本。因此由前端在 `submitAnswer` 时直接传入正确答案和用户答案的文本，后端直接写入错题本。两个字段均为可选，不传时后端从数据库兜底取值（可能不准确）。
 
-#### Example: Error
-用
+---
 
-```json
-HTTP/1.1 400 Bad Request
-{
-    "code": 10001,
-    "message": "sentenceId 不存在",
-    "data": null
-}
-```
+### 完成单个字词学习
+
+所有句子答完后、进入字总结页时调用。仅新学词返回 xpGained=10，复习词返回 0。
+
+**Endpoint:** `POST /api/study/word-complete`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 当前词书 ID |
+| `entryId` | String (Required) | 字词 ID |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.xpGained` | Integer | 本次获得的经验值（新学词 10，复习词 0） |
+
+---
+
+### 音频完整播放完成
+
+选篇/经典听读完成后调用，记录 XP。后端根据 contentId 查询原文汉字数计算 XP，前端不可作弊。同一内容去重，只给一次 XP。
+
+**Endpoint:** `POST /api/study/audio-complete`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `contentType` | String (Required) | 内容类型：`article` 或 `classic_chapter` |
+| `contentId` | String (Required) | 内容 ID（articleId 或 `classicId:nodeId`） |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.xpGained` | Integer | 本次获得的经验值 |
 
 ---
 
@@ -482,6 +577,7 @@ HTTP/1.1 400 Bad Request
 | `wordBookId` | String (Required) | 当前词书 ID |
 | `correctCount` | Integer (Required) | 本次答对题数 |
 | `wrongCount` | Integer (Required) | 本次答错题数 |
+| `xpGained` | Integer | 本次获得经验值（仅新学词答对才计入，由前端逐词累加后传入） (Optional) |
 
 #### Response Fields
 
@@ -502,34 +598,29 @@ HTTP/1.1 400 Bad Request
 | `condition.type` | String | 获得条件类型，如 `streak` |
 | `condition.value` | Integer | 获得条件阈值 |
 
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "newBadges": [
-            {
-                "id": "badge_streak_7",
-                "name": "日积月累",
-                "description": "累计学习 7 天",
-                "icon": "🥈",
-                "category": "streak",
-                "condition": { "type": "streak", "value": 7 }
-            }
-        ],
-        "xpGained": 50
-    }
-}
-```
-
----
-
 ---
 
 ## 错题本
+
+### 获取错题数量
+
+仅返回错题数量，供首页等只需 count 的场景。
+
+**Endpoint:** `GET /api/study/mistakes/count`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String | 词书 ID，不传则返回所有词书的错题数 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.count` | Integer | 错题数量 |
+
+---
 
 ### 获取错题列表
 
@@ -547,10 +638,11 @@ HTTP/1.1 200 OK
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `data[].wordId` | String | 字词 ID |
+| `data[].entryId` | String | 字词 ID |
 | `data[].character` | String | 汉字 |
 | `data[].pinyin` | String | 拼音 |
-| `data[].totalErrors` | Integer | 所有句子的错误次数之和（冗余字段，避免前端遍历计算） |
+| `data[].wordBookName` | String | 所属词书名称 |
+| `data[].totalErrors` | Integer | 所有句子的错误次数之和 |
 | `data[].lastErrorTime` | String | 最近一次答错时间，格式 `YYYY-MM-DD` |
 | `data[].sentences` | Array\<MistakeSentence\> | 该字的答错句子明细 |
 
@@ -558,49 +650,12 @@ HTTP/1.1 200 OK
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `sentenceId` | String | 句子 ID |
+| `quizItemId` | String | 答题项 ID |
 | `sentenceText` | String | 答错时的原句 |
 | `wrongAnswer` | String | 用户选择的错误答案 |
 | `correctAnswer` | String | 正确答案 |
 | `errorCount` | Integer | 该句子的累计错误次数 |
 | `consecutiveCorrect` | Integer | 该句子的连续答对次数 |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": [
-        {
-            "wordId": "wb_c_001",
-            "character": "安",
-            "pinyin": "ān",
-            "totalErrors": 4,
-            "lastErrorTime": "2026-07-07",
-            "sentences": [
-                {
-                    "sentenceId": "s_c_0001",
-                    "sentenceText": "燕雀安知鸿鹄之志哉？",
-                    "wrongAnswer": "安定，安稳",
-                    "correctAnswer": "怎么，哪里（表示反问）",
-                    "errorCount": 3,
-                    "consecutiveCorrect": 0
-                },
-                {
-                    "sentenceId": "s_c_0004",
-                    "sentenceText": "衣食所安，弗敢专也。",
-                    "wrongAnswer": "怎么，哪里",
-                    "correctAnswer": "养，使……安定",
-                    "errorCount": 1,
-                    "consecutiveCorrect": 0
-                }
-            ]
-        }
-    ]
-}
-```
 
 ---
 
@@ -608,28 +663,23 @@ HTTP/1.1 200 OK
 
 手动移除指定字词的全部错题记录（含所有句子明细）。
 
-**Endpoint:** `DELETE /api/study/mistakes/:wordId`
+**Endpoint:** `DELETE /api/study/mistakes/:entryId`
 
 #### Path Parameters
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `wordId` | String (Required) | 要移除的字词 ID |
+| `entryId` | String (Required) | 要移除的字词 ID |
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `wordBookId` | String (Required) | 当前词书 ID |
 
 #### Response
 
 无 data 内容。
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": null
-}
-```
 
 ---
 
@@ -655,17 +705,17 @@ HTTP/1.1 200 OK
 | `data.wordsLearned` | Integer | 已学字数 |
 | `data.wordsMastered` | Integer | 已掌握字数 |
 | `data.checkinDates` | Array\<String\> | 打卡日期列表，格式 `YYYY-MM-DD` |
+| `data.checkinDays` | Integer | 累计打卡天数 |
 | `data.currentStreak` | Integer | 当前连续学习天数 |
 | `data.longestStreak` | Integer | 历史最长连续学习天数 |
 | `data.totalXP` | Integer | 累计经验值 |
-| `data.wordProgresses` | Object | 字词进度映射，key 为 wordId |
-| `data.articleProgresses` | Object | 名篇进度映射，key 为 articleId |
+| `data.wordProgresses` | Object | 字词进度映射，key 为 entryId |
 
-**wordProgresses[wordId] 对象：**
+**wordProgresses[entryId] 对象：**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `wordId` | String | 字词 ID |
+| `entryId` | String | 字词 ID |
 | `stage` | Integer \| String | 复习阶段：0–6 或 `"done"` |
 | `nextReviewDate` | String | 下次复习日期，格式 `YYYY-MM-DD` |
 | `correctCount` | Integer | 累计答对次数 |
@@ -677,63 +727,10 @@ HTTP/1.1 200 OK
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `sentenceId` | String | 句子 ID |
+| `quizItemId` | String | 答题项 ID |
 | `selectedOption` | Integer | 选择的选项序号 |
 | `correct` | Boolean | 是否答对 |
 | `timestamp` | Long | 答题时间戳（ms） |
-
-**articleProgresses[articleId] 对象：**
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `articleId` | String | 名篇 ID |
-| `readProgress` | Integer | 已点击阅读的句子数 |
-| `mastery` | String | 掌握程度：`none` / `read` / `understood` / `memorized` |
-| `lastReadDate` | String | 最后阅读日期 (Optional) |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "wordBookId": "wb_zhongkao_001",
-        "wordsLearned": 8,
-        "wordsMastered": 3,
-        "checkinDates": ["2026-07-01", "2026-07-02", "2026-07-03"],
-        "currentStreak": 3,
-        "longestStreak": 5,
-        "totalXP": 320,
-        "wordProgresses": {
-            "wb_mid_001_01": {
-                "stage": 4,
-                "nextReviewDate": "2026-07-10",
-                "correctCount": 4,
-                "wrongCount": 1,
-                "resetCount": 0,
-                "history": [
-                    {
-                        "sentenceId": "s_001_01_1",
-                        "selectedOption": 1,
-                        "correct": true,
-                        "timestamp": 1720000000000
-                    }
-                ]
-            }
-        },
-        "articleProgresses": {
-            "art_001": {
-                "articleId": "art_001",
-                "readProgress": 3,
-                "mastery": "read",
-                "lastReadDate": "2026-07-02"
-            }
-        }
-    }
-}
-```
 
 ---
 
@@ -765,40 +762,6 @@ HTTP/1.1 200 OK
 | `progress` | Integer | 学习进度百分比 (0–100) |
 | `stage` | Integer \| String | 复习阶段：0–6 或 `"done"` |
 
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "list": [
-            {
-                "wordId": "wb_mid_001_01",
-                "character": "而",
-                "pinyin": "ér",
-                "masteryLevel": "familiar",
-                "progress": 67,
-                "stage": 4
-            },
-            {
-                "wordId": "wb_mid_001_03",
-                "character": "以",
-                "pinyin": "yǐ",
-                "masteryLevel": "difficult",
-                "progress": 17,
-                "stage": 1
-            }
-        ],
-        "total": 2,
-        "page": 1,
-        "pageSize": 20,
-        "hasMore": false
-    }
-}
-```
-
 ---
 
 ## 打卡
@@ -821,21 +784,6 @@ HTTP/1.1 200 OK
 | Field | Type | Description |
 |-------|------|-------------|
 | `data` | Array\<String\> | 打卡日期列表，格式 `YYYY-MM-DD` |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": [
-        "2026-07-01",
-        "2026-07-02",
-        "2026-07-03"
-    ]
-}
-```
 
 ---
 
@@ -866,50 +814,13 @@ HTTP/1.1 200 OK
 | `earnedDate` | String | 获得日期，格式 `YYYY-MM-DD` |
 | `notified` | Boolean | 是否已通知用户 |
 
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "badges": [
-            {
-                "id": "badge_streak_3",
-                "name": "初识文言",
-                "description": "累计学习 3 天",
-                "icon": "🥉",
-                "category": "streak",
-                "condition": { "type": "streak", "value": 3 }
-            },
-            {
-                "id": "badge_streak_7",
-                "name": "日积月累",
-                "description": "累计学习 7 天",
-                "icon": "🥈",
-                "category": "streak",
-                "condition": { "type": "streak", "value": 7 }
-            }
-        ],
-        "userBadges": [
-            {
-                "badgeId": "badge_streak_3",
-                "earnedDate": "2026-07-03",
-                "notified": true
-            }
-        ]
-    }
-}
-```
-
 ---
 
 ## 用户
 
 ### 获取用户等级信息
 
-返回用户的等级、称号、经验值和连续学习天数。
+返回用户的等级、称号、经验值和学习统计数据。
 
 **Endpoint:** `GET /api/user/profile`
 
@@ -925,22 +836,13 @@ HTTP/1.1 200 OK
 | `data.title` | String | 等级称号，如"秀才"、"举人" |
 | `data.totalXP` | Integer | 累计经验值 |
 | `data.currentStreak` | Integer | 当前连续学习天数 |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "level": 4,
-        "title": "举人",
-        "totalXP": 320,
-        "currentStreak": 3
-    }
-}
-```
+| `data.longestStreak` | Integer | 历史最长连续学习天数 |
+| `data.checkinDays` | Integer | 累计打卡天数 |
+| `data.memberLevel` | Integer | 契约会员级别：0=未签约，1=已签约 |
+| `data.nickName` | String | 昵称 |
+| `data.avatarUrl` | String | 头像 URL |
+| `data.recoveryDeadline` | String | 数据恢复截止时间（格式 `yyyy-MM-dd HH:mm:ss`），仅清除数据后 24h 内有值 (Optional) |
+| `data.codeStatus` | Integer | 学习码验证状态 (Optional) |
 
 ---
 
@@ -960,28 +862,15 @@ HTTP/1.1 200 OK
 |-------|------|-------------|
 | `data.avatarUrl` | String | 头像 URL |
 | `data.nickName` | String | 昵称 |
-| `data.grade` | String | 年级，如 `grade7a` 或空字符串 |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "avatarUrl": "https://example.com/avatars/123.png",
-        "nickName": "小明",
-        "grade": "grade8a"
-    }
-}
-```
+| `data.grade` | String | 年级，如 `grade8a` 或空字符串 |
+| `data.memberLevel` | Integer | 契约会员级别 (Optional) |
+| `data.recoveryDeadline` | String | 数据恢复截止时间 (Optional) |
 
 ---
 
 ### 保存个人信息
 
-更新用户的个人资料。
+更新用户的个人资料。**字段均为选填，传哪个改哪个。**
 
 **Endpoint:** `PUT /api/user/info`
 
@@ -989,24 +878,166 @@ HTTP/1.1 200 OK
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `avatarUrl` | String (Required) | 头像 URL |
-| `nickName` | String (Required) | 昵称 |
-| `grade` | String (Required) | 年级，如 `grade8a`，可为空字符串 |
+| `avatarUrl` | String (Optional) | 头像 URL |
+| `nickName` | String (Optional) | 昵称 |
+| `grade` | String (Optional) | 年级，如 `grade8a`，可为空字符串 |
 
 #### Response
 
 无 data 内容。
 
-#### Example: Success
+---
 
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": null
-}
-```
+### 上传头像
+
+上传用户头像图片，返回可访问的 URL。
+
+**Endpoint:** `POST /api/upload/avatar`
+
+#### Request
+
+Content-Type: `multipart/form-data`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `file` | File (Required) | 头像图片文件，支持 jpg/png/gif/webp/bmp，不超过 2MB |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.avatarUrl` | String | 头像访问 URL |
+
+---
+
+### 签订金石契约
+
+**Endpoint:** `POST /api/user/pact`
+
+#### Request Body
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.memberLevel` | Integer | 固定返回 1 |
+
+---
+
+### 验证学习码
+
+仅校验学习码有效性，不修改 memberLevel。
+
+**Endpoint:** `POST /api/user/verify-code`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | String (Required) | 学习码 |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.valid` | Boolean | 学习码是否有效 |
+| `data.memberLevel` | Integer | 当前会员级别 |
+
+---
+
+### 查询会员状态
+
+含 30 天过期判断和学习码验证状态。
+
+**Endpoint:** `GET /api/user/member-status`
+
+#### Request Parameters
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.memberLevel` | Integer | 契约会员级别：0=未签约，1=已签约 |
+| `data.codeStatus` | Integer | 学习码验证状态 |
+| `data.lastActiveAt` | String | 最后活跃时间 (Optional) |
+
+---
+
+### 清除学习数据
+
+软删除当前用户 + 克隆新用户，24 小时内可恢复。
+
+**Endpoint:** `POST /api/user/clear-data`
+
+#### Request Body
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.token` | String | 新用户的 JWT Token |
+| `data.userId` | Long | 新用户 ID |
+| `data.recoveryDeadline` | String | 数据恢复截止时间，格式 `yyyy-MM-dd HH:mm:ss` |
+
+---
+
+### 恢复学习数据
+
+恢复之前清除的学习数据（新旧数据 deleted 互换）。
+
+**Endpoint:** `POST /api/user/recover-data`
+
+#### Request Body
+
+无。
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.token` | String | 恢复后的 JWT Token |
+| `data.userId` | Long | 恢复后的用户 ID |
+
+---
+
+## 邀请
+
+### 获取邀请海报
+
+返回用户专属动态海报（含小程序码），PNG 格式图片。
+
+> ⚠️ 此接口不走 Authorization header。由于 `wx.downloadFile` 无法携带自定义 header，token 以 query param 传入。
+
+**Endpoint:** `GET /api/invite/poster?token={token}`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `token` | String (Required) | JWT Token，因 `wx.downloadFile` 无法带 Authorization header 而通过 query param 传入 |
+
+#### Response
+
+PNG 图片二进制流，`Content-Type: image/png`。
+
+---
+
+### 获取邀请统计
+
+**Endpoint:** `GET /api/invite/stats`
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.totalInvited` | Integer | 已邀请用户数 |
+| `data.memberThreshold` | Integer | 升级为契约会员所需的推广人数阈值 |
 
 ---
 
@@ -1035,9 +1066,11 @@ HTTP/1.1 200 OK
 | `data[].dynasty` | String | 朝代 |
 | `data[].category` | String | 文体分类 |
 | `data[].textbook` | String | 教材年级 (Optional) |
+| `data[].background` | String | 创作背景 (Optional) |
 | `data[].fullTextAudioUrl` | String | 全文音频 URL (Optional) |
+| `data[].keywordCount` | Integer | 关联的字词总数 |
+| `data[].listened` | Boolean | 当前用户是否已听读（来自 user_audio_listen_log） |
 | `data[].sentences` | Array\<ArticleSentence\> | 句子列表 |
-| `data[].relatedWordIds` | Array\<String\> | 关联的字词 ID |
 
 **ArticleSentence 对象：**
 
@@ -1048,6 +1081,7 @@ HTTP/1.1 200 OK
 | `keyWords` | Array\<KeyWord\> | 内联生词列表 |
 | `audioUrl` | String | 句子音频 URL (Optional) |
 | `glossary` | Array\<GlossaryItem\> | 典故注释数据 (Optional) |
+| `rareCharPinyin` | Record\<String, String\> | 生僻字拼音映射，如 `{ "愆": "qiān" }` (Optional) |
 
 **KeyWord 对象：**
 
@@ -1055,7 +1089,9 @@ HTTP/1.1 200 OK
 |-------|------|-------------|
 | `word` | String | 生词文本 |
 | `definition` | String | 释义 |
-| `wordBookId` | String | 所属词书 ID (Optional) |
+| `matchWord` | String | 消歧片段：多字上下文，用于定位句中具体出现位置 (Optional) |
+| `wordType` | String | 生词类型：`shi` / `xu` / `tongjia` / `gujinyi` / `huoyong` (Optional) |
+| `kid` | String | 全局唯一标识（词书架构 v2） (Optional) |
 | `masteryLevel` | String | 用户对该词的掌握程度 (Optional) |
 
 **GlossaryItem 对象：**
@@ -1064,40 +1100,6 @@ HTTP/1.1 200 OK
 |-------|------|-------------|
 | `word` | String | 被标注的词或短语 |
 | `definition` | String | 文化背景释义 |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": [
-        {
-            "id": "art_001",
-            "title": "岳阳楼记",
-            "author": "范仲淹",
-            "dynasty": "北宋",
-            "category": "prose",
-            "textbook": "grade9a",
-            "sentences": [
-                {
-                    "text": "庆历四年春，滕子京谪守巴陵郡。",
-                    "translation": "庆历四年的春天，滕子京被贬官到巴陵郡做太守。",
-                    "keyWords": [
-                        { "word": "谪", "definition": "贬官降职", "wordBookId": "wb_mid_001_01" }
-                    ],
-                    "glossary": [
-                        { "word": "庆历", "definition": "宋仁宗赵祯的年号（1041-1048年）" },
-                        { "word": "滕子京", "definition": "名宗谅，字子京，与范仲淹同为祥符八年进士" }
-                    ]
-                }
-            ],
-            "relatedWordIds": ["wb_mid_001_01", "wb_mid_001_03"]
-        }
-    ]
-}
-```
 
 ---
 
@@ -1115,18 +1117,7 @@ HTTP/1.1 200 OK
 
 #### Response Fields
 
-与名篇列表中单个元素一致（`IArticle` 结构），含全部句子。
-
-#### Example: Error
-
-```json
-HTTP/1.1 404 Not Found
-{
-    "code": 10003,
-    "message": "名篇不存在",
-    "data": null
-}
-```
+与名篇列表中单个元素一致，含全部句子。
 
 ---
 
@@ -1146,38 +1137,64 @@ HTTP/1.1 404 Not Found
 
 #### Response Fields
 
-返回 `Word` 对象（结构与词书详情中的 words 元素一致），`null` 表示未找到。
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "id": "wb_mid_001_01",
-        "character": "而",
-        "pinyin": "ér",
-        "characterType": "象形字",
-        "explanation": "甲骨文像面颊胡须之形，本义为胡须。后假借为连词。",
-        "examFrequency": "5年4考",
-        "meanings": [
-            {
-                "definition": "表示并列关系，可译为\"和\"\"又\"\"并且\"",
-                "example": "敏而好学，不耻下问。",
-                "source": "《论语·公冶长》"
-            }
-        ],
-        "sentences": [],
-        "similarHomophones": ["尔", "耳", "儿"],
-        "similarShapes": ["面", "耐", "耍"],
-        "mnemonic": "而字本义是胡须，后借用为连词。"
-    }
-}
-```
+返回 `IWordEntry` 对象（结构与词书详情中的 wordEntries 元素一致），`null` 表示未找到。
 
 ---
+
+### 全局搜索
+
+根据关键词搜索字词。支持按汉字搜索，返回匹配字词的基本信息和义项。
+
+**Endpoint:** `GET /api/words/search`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `keyword` | String (Required) | 搜索关键词（按汉字匹配） |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].entryId` | String | 字词 ID |
+| `data[].character` | String | 汉字 |
+| `data[].pinyin` | String | 拼音 |
+| `data[].meanings` | Array | 义项列表（含 definition、example、translation、source） |
+| `data[].wordBookName` | String | 所属词书名称 |
+| `data[].wordBookId` | String | 所属词书 ID |
+
+---
+
+### 快捷搜索（按词类分组）
+
+返回所有字词按词类（实词/虚词/通假字/古今异义/词类活用）分组，供快捷检索。
+
+**Endpoint:** `GET /api/words/types`
+
+#### Request Parameters
+
+无。
+
+#### Response Fields
+
+返回 `Record<string, IWordQuickItem[]>`，key 为词类分组标识：
+
+| Key | 含义 |
+|-----|------|
+| `shi` | 实词 |
+| `xu` | 虚词 |
+| `tongjia` | 通假字 |
+| `gujinyi` | 古今异义 |
+| `huoyong` | 词类活用 |
+
+**IWordQuickItem 对象：**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `entryId` | String | 字词 ID |
+| `character` | String | 汉字 |
+| `pinyin` | String | 拼音 |
 
 ---
 
@@ -1194,12 +1211,18 @@ HTTP/1.1 200 OK
 | Field | Type | Description |
 |-------|------|-------------|
 | `category` | String (Required) | 错误类别：`sentence_text` / `translation` / `definition` / `source` / `annotation` / `article_info` / `other` |
-| `source` | String (Required) | 反馈来源：`learning`(学习答题) / `word_summary`(字总结) / `article_reader`(名篇阅读) |
+| `source` | String (Required) | 反馈来源：`learning`(学习答题) / `word_summary`(字总结) / `article_reader`(名篇阅读) / `classic_reader`(经典阅读) |
 | `description` | String (Required) | 用户补充描述 |
 | `context.sentenceId` | String | 关联的句子 ID (Optional) |
 | `context.wordId` | String | 关联的字词 ID (Optional) |
 | `context.articleId` | String | 关联的名篇 ID (Optional) |
 | `context.readingMode` | String | 名篇阅读模式 (Optional) |
+| `context.classicId` | Integer | 关联的经典著作 ID (Optional) |
+| `context.nodeId` | String | 关联的目录树节点 ID (Optional) |
+| `context.nodeTitle` | String | 节点标题 (Optional) |
+| `context.sentenceText` | String | 句子原文（学习板块） (Optional) |
+| `context.articleTitle` | String | 文章标题（学习板块的出处 / 选篇板块的文章标题） (Optional) |
+| `context.className` | String | 经典名称 (Optional) |
 
 #### Response Fields
 
@@ -1207,18 +1230,105 @@ HTTP/1.1 200 OK
 |-------|------|-------------|
 | `data.id` | String | 反馈 ID |
 
-#### Example: Success
+---
 
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "id": "fb_1720000000001"
-    }
-}
-```
+### 获取反馈列表
+
+**Endpoint:** `GET /api/feedback`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `page` | Integer | 页码，默认 1 (Optional) |
+| `pageSize` | Integer | 每页条数，默认 20 (Optional) |
+
+#### Response Fields
+
+分页结构，`data.list` 中各元素：
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Integer | 反馈 ID |
+| `category` | String | 错误类别 |
+| `source` | String | 反馈来源 |
+| `description` | String | 用户补充说明 |
+| `nodeTitle` | String | 节点标题 (Optional) |
+| `articleTitle` | String | 文章标题 (Optional) |
+| `className` | String | 经典名称 (Optional) |
+| `resolved` | Integer | 处理状态：0=未处理，1=已处理 |
+| `reply` | String | 后台回复内容 (Optional) |
+| `readAt` | String | 用户已读时间 (Optional) |
+| `createdAt` | String | 创建时间 |
+| `updatedAt` | String | 更新时间 |
+
+---
+
+### 获取反馈详情
+
+**Endpoint:** `GET /api/feedback/:id`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Integer (Required) | 反馈 ID |
+
+#### Response Fields
+
+含完整 context 字段 + `reply` + `readAt`。
+
+---
+
+### 标记反馈为已读
+
+**Endpoint:** `PUT /api/feedback/:id/read`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Integer (Required) | 反馈 ID |
+
+#### Response
+
+`data.success` = `true`。
+
+---
+
+### 获取未读反馈数量
+
+获取已处理但用户尚未已读的反馈数量。
+
+**Endpoint:** `GET /api/feedback/unread-count`
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.count` | Integer | 未读数量 |
+
+---
+
+## 意见建议
+
+### 提交意见建议
+
+**Endpoint:** `POST /api/suggestion`
+
+#### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `content` | String (Required) | 意见或建议内容 |
+| `contact` | String | 联系方式 (Optional) |
+| `category` | String | 分类 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.id` | String | 建议 ID |
 
 ---
 
@@ -1247,39 +1357,8 @@ HTTP/1.1 200 OK
 | `data[].description` | String | 简介 |
 | `data[].category` | String | 四部分类：`经` / `史` / `子` / `集` |
 | `data[].loadMode` | String | 加载方式：`full`=全量, `chunked`=按需 |
-| `data[].navMode` | String | 导航方式：`strip` / `list` / `accordion` / `author` |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": [
-        {
-            "id": 1,
-            "name": "论语",
-            "era": "春秋",
-            "icon": "📖",
-            "description": "孔子及其弟子的言行录，儒家核心经典...",
-            "category": "经",
-            "loadMode": "chunked",
-            "navMode": "accordion"
-        },
-        {
-            "id": 22,
-            "name": "孙子兵法",
-            "era": "春秋",
-            "icon": "🗡️",
-            "description": "孙武著，兵家圣典...",
-            "category": "子",
-            "loadMode": "full",
-            "navMode": "strip"
-        }
-    ]
-}
-```
+| `data[].navMode` | String | 导航方式：`strip` / `list` / `accordion` / `author` / `search` |
+| `data[].isCompleted` | Integer | 是否已完成（人工维护）：0=未完成，1=已完成 (Optional) |
 
 ---
 
@@ -1307,79 +1386,17 @@ HTTP/1.1 200 OK
 | `data.description` | String | 简介 |
 | `data.structureType` | String | 结构类型：`chapter`=章节型, `anthology`=选集型, `volume`=卷帙型 |
 | `data.loadMode` | String | 加载方式：`full` / `chunked` |
-| `data.navMode` | String | 导航方式：`strip` / `list` / `accordion` / `author` |
+| `data.navMode` | String | 导航方式：`strip` / `list` / `accordion` / `author` / `search` |
 | `data.toc[]` | Array | 目录树节点列表 |
 | `data.toc[].id` | String | 节点唯一标识 |
 | `data.toc[].title` | String | 显示标题 |
 | `data.toc[].level` | Integer | 层级深度（0/1/2） |
 | `data.toc[].isLeaf` | Boolean | 是否叶子节点（可加载内容） |
 | `data.toc[].children[]` | Array | 子节点（非叶子节点才有） |
+| `data.toc[].author` | String | 篇章作者（选集型才填） (Optional) |
+| `data.toc[].era` | String | 篇章朝代（选集型才填） (Optional) |
 | `data.chapters[]` | Array | **[仅 loadMode=full 时返回]** 章节/段落/注释嵌套结构 |
-
-#### Example: Success (loadMode=chunked)
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "id": 1,
-        "name": "论语",
-        "author": "孔子及其弟子",
-        "era": "春秋",
-        "category": "经",
-        "description": "孔子及其弟子的言行录...",
-        "structureType": "chapter",
-        "loadMode": "chunked",
-        "navMode": "accordion",
-        "toc": [
-            { "id": "1", "title": "学而第一", "level": 0, "isLeaf": true },
-            { "id": "2", "title": "为政第二", "level": 0, "isLeaf": true }
-        ]
-    }
-}
-```
-
-#### Example: Success (loadMode=full)
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "id": 22,
-        "name": "孙子兵法",
-        "author": "孙武",
-        "era": "春秋",
-        "category": "子",
-        "description": "兵家圣典...",
-        "structureType": "chapter",
-        "loadMode": "full",
-        "navMode": "strip",
-        "toc": [
-            { "id": "1", "title": "始计篇", "level": 0, "isLeaf": true },
-            { "id": "2", "title": "作战篇", "level": 0, "isLeaf": true }
-        ],
-        "chapters": [
-            {
-                "id": 1,
-                "title": "始计篇",
-                "paragraphs": [
-                    {
-                        "text": "孙子曰：兵者，国之大事...",
-                        "translation": "孙子说：战争是国家的大事...",
-                        "glossary": [
-                            { "word": "兵", "explanation": "此处指战争、军事，非指士兵。" }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-}
-```
+| `data.listenedNodeIds[]` | Array\<String\> | 当前用户已听读的叶子节点 ID 列表 (Optional) |
 
 ---
 
@@ -1402,6 +1419,10 @@ HTTP/1.1 200 OK
 |-------|------|-------------|
 | `data.id` | String | 内容块 ID |
 | `data.title` | String | 标题 |
+| `data.author` | String | 篇章作者（选集型才填） (Optional) |
+| `data.era` | String | 篇章朝代（选集型才填） (Optional) |
+| `data.background` | String | 篇章创作背景 (Optional) |
+| `data.audioUrl` | String | 章节预录音频 URL (Optional) |
 | `data.text` | String | 完整原文（选集型/卷帙型用） |
 | `data.translation` | String | 完整译文（可选） |
 | `data.paragraphs[]` | Array | 段落列表（章节型用） |
@@ -1410,65 +1431,163 @@ HTTP/1.1 200 OK
 | `data.paragraphs[].glossary[]` | Array | 典故注释词条 |
 | `data.paragraphs[].glossary[].word` | String | 标注词 |
 | `data.paragraphs[].glossary[].explanation` | String | 文化背景说明 |
-
-#### Example: Success
-
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "id": "1",
-        "title": "始计篇",
-        "paragraphs": [
-            {
-                "text": "孙子曰：兵者，国之大事...",
-                "translation": "孙子说：战争是国家的大事...",
-                "glossary": [
-                    { "word": "兵", "explanation": "此处指战争、军事，非指士兵。" }
-                ]
-            }
-        ]
-    }
-}
-```
-
-#### Example: Error
-
-```json
-HTTP/1.1 400 Bad Request
-{
-    "code": 10002,
-    "message": "经典不存在",
-    "data": null
-}
-```
+| `data.paragraphs[].rareCharPinyin` | Record\<String, String\> | 生僻字拼音映射 (Optional) |
 
 ---
 
-#### Example: Not Found
+## 系统公告
 
-```json
-HTTP/1.1 200 OK
-{
-    "code": 10003,
-    "message": "经典不存在",
-    "data": null
-}
-```
+### 获取公告列表
+
+公告列表（不含正文），置顶优先 + 发布时间降序。
+
+**Endpoint:** `GET /api/announcements`
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data[].id` | Long | 公告 ID |
+| `data[].title` | String | 公告标题 |
+| `data[].isPinned` | Boolean | 是否置顶 |
+| `data[].publishTime` | String | 发布时间，格式 `yyyy-MM-dd HH:mm` |
+
+---
+
+### 获取公告详情
+
+含正文内容。
+
+**Endpoint:** `GET /api/announcements/:id`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | Long (Required) | 公告 ID |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.id` | Long | 公告 ID |
+| `data.title` | String | 公告标题 |
+| `data.content` | String | 公告正文 |
+| `data.publishTime` | String | 发布时间，格式 `yyyy-MM-dd HH:mm` |
+
+---
+
+### 获取未读公告状态
+
+**Endpoint:** `GET /api/announcements/unread`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `lastReadId` | Long | 客户端最后已读公告 ID，默认 0 (Optional) |
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.hasUnread` | Boolean | 是否有未读公告 |
+| `data.latestId` | Long | 最新公告 ID |
+| `data.latestTitle` | String | 最新公告标题（预留） (Optional) |
 
 ---
 
 ## 管理后台
 
-### 导入经典著作章节内容
+> ⚠️ 以下接口需要管理员权限，`/api/admin/**` 均不走登录拦截器（已全局放行）。
+
+### 连通性测试
+
+**Endpoint:** `POST /api/admin/ping`
+
+---
+
+### 全量导入
+
+从本地 JSON 文件导入勋章等基础数据。
+
+**Endpoint:** `POST /api/admin/import`
+
+---
+
+### 清除数据
+
+按 scope 清除指定模块数据。
+
+**Endpoint:** `POST /api/admin/clear-data`
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `scope` | String | 清除范围：`all`(全部) / `user` / `wordbook` / `article` / `classic`，默认 `all` (Optional) |
+
+---
+
+### 导入经典元数据
+
+经典元数据全量导入（幂等 upsert）。支持无请求体（服务器本地知识库）或 JSON 请求体。
+
+**Endpoint:** `POST /api/admin/import/classics`
+
+#### Request Body
+
+JSON 字符串（可选，不传则从服务器本地文件读取）。
+
+---
+
+### 导入选篇正文
+
+选篇正文全量导入（幂等：先清空后插入）。
+
+**Endpoint:** `POST /api/admin/import/articles`
+
+#### Request Body
+
+JSON 字符串（可选，不传则从服务器本地文件读取）。
+
+---
+
+### 导入单篇选篇
+
+按 articleId 导入单篇选篇正文（幂等：先删后插）。
+
+**Endpoint:** `POST /api/admin/import/articles/{articleId}`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `articleId` | String (Required) | 名篇 ID |
+
+---
+
+### 导入典故注释
+
+按 articleId 导入单篇典故注释（幂等：先删后插）。
+
+**Endpoint:** `POST /api/admin/import/glossary/{articleId}`
+
+---
+
+### 导入单本词书
+
+单本词书独立导入（幂等：先删后插）。
+
+**Endpoint:** `POST /api/admin/import/wordbook`
+
+---
+
+### 导入经典章节内容
 
 幂等导入一部经典著作的章节、段落及典故注释数据。该经典已有的旧内容会被先删除再插入。
 
 **Endpoint:** `POST /api/admin/import/classic/{classicId}`
-
-> ⚠️ 此接口为管理端接口，需管理员权限。
 
 #### Path Parameters
 
@@ -1491,19 +1610,79 @@ JSON 数组，格式与知识库 `chapters.json` 一致：
 | `[].paragraphs[].glossary[].word` | String | 标注词 |
 | `[].paragraphs[].glossary[].explanation` | String | 文化背景说明 |
 
-#### Example: Success
+---
 
-```json
-HTTP/1.1 200 OK
-{
-    "code": 0,
-    "message": "ok",
-    "data": {
-        "success": true,
-        "message": "经典「孙子兵法」导入完成"
-    }
-}
-```
+### 导入经典典故注释
+
+经典典故注释独立导入（幂等：先删后插，渐进式）。仅在匹配到的段落上更新注释，不修改正文/译文。
+
+**Endpoint:** `POST /api/admin/import/classic/{classicId}/glossary`
+
+---
+
+### 生成学习码
+
+管理员生成学习码（不绑定用户，用户在小程序输入后认领）。
+
+**Endpoint:** `POST /api/admin/generate-code`
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data.code` | String | 生成的学习码 |
+
+---
+
+### TTS 合成选篇音频
+
+拼接选篇全部句子，调讯飞长文本 TTS 合成全文音频。
+
+**Endpoint:** `POST /api/admin/tts/article/{articleId}`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `articleId` | String (Required) | 名篇 ID |
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `vcn` | String (Optional) | 讯飞发音人，如 `x4_yezi` |
+
+---
+
+### TTS 合成经典章节音频
+
+拼接经典章节全部段落，调讯飞长文本 TTS 合成音频。
+
+**Endpoint:** `POST /api/admin/tts/classic-chapter/{chapterId}`
+
+#### Path Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `chapterId` | Long (Required) | 章节 ID |
+
+#### Query Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `vcn` | String (Optional) | 讯飞发音人，如 `x4_mingge` |
+
+---
+
+## 微信公众号回调
+
+> ⚠️ 以下接口不走登录拦截器（微信服务器无 JWT），用于服务号消息回调。
+
+### 微信服务器 URL 验证 / 消息接收
+
+**Endpoint:** `GET|POST /api/wechat/mp/portal`
+
+微信服务号标准回调接口。GET 用于 URL 有效性验证，POST 用于接收消息/事件推送。
 
 ---
 
@@ -1522,6 +1701,14 @@ HTTP/1.1 200 OK
 | `ancient_modern` | 古今异义 |
 | `flexible_usage` | 词类活用 |
 
+#### StudyMode — 学习模式
+
+| 值 | 含义 |
+|----|------|
+| `standard` | 直接选题作答 |
+| `identify_first` | 先从句子中识别目标字，再作答 |
+| `readonly` | 纯阅读浏览（虚词用法等） |
+
 #### ExamLevel — 考试级别
 
 | 值 | 含义 |
@@ -1529,13 +1716,15 @@ HTTP/1.1 200 OK
 | `zhongkao` | 中考 |
 | `gaokao` | 高考 |
 
-#### WordType — 字词类型
+#### WordType — 字词类型（v2 拼音码）
 
 | 值 | 含义 |
 |----|------|
-| `实词` | 实词 |
-| `虚词` | 虚词 |
-| `通假字` | 通假字 |
+| `shi` | 实词 |
+| `xu` | 虚词 |
+| `tongjia` | 通假字 |
+| `gujinyi` | 古今异义 |
+| `huoyong` | 词类活用 |
 
 #### SentenceDifficulty — 句子难度
 
@@ -1605,6 +1794,15 @@ HTTP/1.1 200 OK
 | `article_info` | 文章信息有误 |
 | `other` | 其他 |
 
+#### FeedbackSource — 反馈来源
+
+| 值 | 含义 |
+|----|------|
+| `learning` | 学习答题 |
+| `word_summary` | 字总结 |
+| `article_reader` | 名篇阅读 |
+| `classic_reader` | 经典阅读 |
+
 #### ClassicCategory — 四部分类
 
 | 值 | 含义 |
@@ -1628,6 +1826,7 @@ HTTP/1.1 200 OK
 | `strip` | 顶部横向滚动条 — 适用于 ≤20 个平级条目的经典 |
 | `list` | 纵向可滚动列表 — 适用于 20–200 个平级条目的经典 |
 | `accordion` | 手风琴折叠面板 — 适用于有分组/两级层级结构的经典 |
+| `author` | 作者分组导航 — 按作者分组展示 |
 | `search` | 搜索 + 分页列表 — 适用于 >200 条目的大体量经典 |
 
 #### StructureType — 经典结构类型
@@ -1637,12 +1836,3 @@ HTTP/1.1 200 OK
 | `chapter` | 章节型 — 天然分章，每章内容可独立阅读（如论语、孙子兵法） |
 | `anthology` | 选集型 — 多篇/多首独立条目（如诗经、唐诗三百首） |
 | `volume` | 卷帙型 — 按卷/编/年份组织，体量较大（如史记、资治通鉴） |
-
-#### FeedbackSource — 反馈来源
-
-| 值 | 含义 |
-|----|------|
-| `learning` | 学习答题 |
-| `word_summary` | 字总结 |
-| `article_reader` | 名篇阅读 |
-| `classic_reader` | 经典阅读 |

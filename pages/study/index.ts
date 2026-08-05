@@ -1,5 +1,5 @@
 import { getCurrentBookId, saveSession, getMistakes, addMistake, removeMistake, getMistakeRemoveThreshold, initStudySummary, incrementStudySummary, getStudySummary } from '../../utils/storage';
-import { fetchTodayTask, fetchWordBooks, fetchWordBookQuickWords, fetchWordDetail, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
+import { fetchTodayTask, fetchWordBookQuickWords, fetchWordDetail, submitAnswer, submitFeedback, completeStudy, completeWord } from '../../api/index';
 import { shuffle } from '../../utils/util';
 import { getTTSPlayer } from '../../utils/tts';
 import { playCorrectSound, playWrongSound, playCompleteSound, destroyAudioContext } from '../../utils/audio-feedback';
@@ -99,7 +99,17 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
   _preStepDoneForCurrentWord: false,
   _bookIdentifyPrompt: '',
 
-  onLoad(): void {
+  onLoad(options: Record<string, string | undefined>): void {
+    // 从首页 URL 参数接收词书元数据，避免重复 fetchWordBooks
+    const bookName = options.bookName ? decodeURIComponent(options.bookName) : '';
+    const studyMode = options.studyMode ? decodeURIComponent(options.studyMode) : '';
+    const identifyPrompt = options.identifyPrompt ? decodeURIComponent(options.identifyPrompt) : '';
+    if (bookName) {
+      wx.setNavigationBarTitle({ title: bookName });
+    }
+    this._hasPreStep = studyMode === 'identify_first';
+    this._bookIdentifyPrompt = identifyPrompt;
+
     this.init();
   },
 
@@ -140,14 +150,8 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
         return;
       }
 
-      // 轻量拉取词书元数据（不含 wordEntries，避免和 fetchTodayTask 重复查询）
-      const books = await fetchWordBooks();
-      const bookMeta = books.find(b => b.id === bookId);
-      if (bookMeta) {
-        wx.setNavigationBarTitle({ title: bookMeta.name });
-        this._hasPreStep = bookMeta.studyMode === 'identify_first';
-        this._bookIdentifyPrompt = (bookMeta as unknown as Record<string, unknown>).identifyPrompt as string || '';
-      }
+      // 词书元数据（name / studyMode / identifyPrompt）已通过首页 URL 参数传入，
+      // 在 onLoad 中完成设置，无需再次 fetchWordBooks。
       // 根据设置决定是否乱序（复习和新学各自独立 shuffle，复习仍优先）
       if (settings.studyOrder === 1) {
         task.reviewWords = shuffle(task.reviewWords);

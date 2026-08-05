@@ -16,6 +16,8 @@ interface IBookInfo {
   category: string;
   coverColor: string;
   totalWords: number;
+  studyMode?: string;
+  identifyPrompt?: string;
 }
 
 /** 分布标签项（供 WXML 点击跳转错题本） */
@@ -313,8 +315,18 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       return;
     }
 
+    // 拼接词书元数据到 URL，学习页无需再拉取 fetchWordBooks
+    const bookInfo = this._booksCache?.find(b => b.id === getCurrentBookId());
+    const params: string[] = [];
+    if (bookInfo) {
+      if (bookInfo.name) params.push(`bookName=${encodeURIComponent(bookInfo.name)}`);
+      if (bookInfo.studyMode) params.push(`studyMode=${encodeURIComponent(bookInfo.studyMode)}`);
+      if (bookInfo.identifyPrompt) params.push(`identifyPrompt=${encodeURIComponent(bookInfo.identifyPrompt)}`);
+    }
+
     clearStudySummary();
-    wx.navigateTo({ url: '/pages/study/index' });
+    const query = params.length > 0 ? `?${params.join('&')}` : '';
+    wx.navigateTo({ url: `/pages/study/index${query}` });
   },
 
   /** 点击分布标签 → 跳转生词本对应 tab */
