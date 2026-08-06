@@ -122,7 +122,7 @@ Page<IVocabularyData, WechatMiniprogram.Page.CustomOption>({
             entryId,
             character: word.character,
             pinyin: word.pinyin,
-            firstMeaning: word.keyWordRefs[0]?.definition || '',
+            firstMeaning: word.quizItems?.[0]?.definition || '',
             wordBookName: book.name,
             wordBookId: book.id,
             classification,

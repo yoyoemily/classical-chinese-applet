@@ -281,13 +281,12 @@ python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词�
 
 ```sql
 -- 在数据库中检查（通过 .claude/memory/audit/audit_one_char.sh 或直接查 DB）
-SELECT * FROM word_entry_keyword_ref WHERE kid = 'kw_xxx';
 SELECT * FROM quiz_item WHERE kid_ref = 'kw_xxx';
 ```
 
 **第 2 步：清理词书侧引用**（如有）
 
-在知识库词书 JSON 中找到引用该 kid 的 `keyWordRefs` 条目 → 删除；对应 `quizItems` 中 `kidRef` 为该值的条目 → 删除。（通知用户重导该词书）
+在知识库词书 JSON 中找到引用该 kid 的 `quizItems` 条目（`kidRef` 为该值） → 删除。（通知用户重导该词书）
 
 > quizItem 被删除后用户答题历史失去关联——这是标注纠错的必要代价，范围可控（仅影响该词该句）。
 
@@ -333,9 +332,9 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 - 用户在选篇阅读时看到某个字标注了古今异义/实词/虚词等
 - 但去对应词书学习时，这个字的打卡题里没有该句
 
-**根因**：词书 JSON 的 quizItems 和 keyWordRefs 是手动维护的，没有自动从文章标注同步。标注阶段可以做到句子级精准，但词书 JSON 维护时可能漏收。
+**根因**：词书 JSON 的 quizItems 是手动维护的，没有自动从文章标注同步。标注阶段可以做到句子级精准，但词书 JSON 维护时可能漏收。
 
-**操作范围**：articles JSON 的 `relatedWordIds` + 词书 JSON 的 `keyWordRefs` 和 `quizItems`。
+**操作范围**：articles JSON 的 `relatedWordIds` + 词书 JSON 的 `quizItems`。
 
 ### 排查脚本
 
@@ -355,7 +354,7 @@ for a in data:
                 print(f'文章 {a[\"id\"]} {a[\"title\"]}: {kw[\"kid\"]} wordBookId={kw[\"wordBookId\"]} \"{s[\"text\"][:40]}\"')
 " 2>/dev/null
 
-# 2. 读词书，找到该字的 keyWordRefs 和 quizItems
+# 2. 读词书，找到该字的 quizItems
 echo '---'
 python3 -c "
 import json
@@ -365,12 +364,8 @@ WORD = '但'
 data = json.load(open(WB))
 for entry in data['wordEntries']:
     if entry['character'] == WORD:
-        kids_in_refs = {r['kid'] for r in entry['keyWordRefs']}
         kids_in_quiz = {qi['kidRef'] for qi in entry['quizItems']}
-        print(f'词书 {entry[\"id\"]} keyWordRefs: {sorted(kids_in_refs)}')
         print(f'词书 {entry[\"id\"]} quizItems: {sorted(kids_in_quiz)}')
-        missing_refs = kids_in_quiz - kids_in_refs
-        if missing_refs: print(f'  ❌ quizItems 引用了但 keyWordRefs 没收录: {missing_refs}')
         break
 "
 ```
@@ -390,15 +385,9 @@ for entry in data['wordEntries']:
 "wb_c_238"  // 例如：古今异义
 ```
 
-#### 第 3 步：补词书 JSON 的 keyWordRefs
+#### 第 3 步：补词书 JSON 的 quizItems
 
-词书条目的 `keyWordRefs` 应包含该字在文章中所有 keyWord 的 kid：
-
-```json
-{
-  "kid": "kw_art_028_s02_但_0"  // 追加漏掉的引用
-}
-```
+在词书条目的 `quizItems` 中追加新的 quizItem 条目（含 `kidRef` 指向该 keyWord 的 kid）。如果该句已存在只是义项不同，调整现有 quizItem 的 `definition`/`difficulty` 即可。
 
 #### 第 4 步：补词书 JSON 的 quizItems
 

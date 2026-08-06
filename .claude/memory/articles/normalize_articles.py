@@ -6,7 +6,7 @@ articles.json 数据规范化脚本。
   1. 补壳文章 art_shell_006 的 title/author/dynasty
   2. 删除脏 keyWords（word 不在句子中且无 definition）
   3. 补 keyWords 缺失的 wordType（文本规律 → 词书 word 匹配 → 字频 → 虚词白名单 → 默认实词）
-  4. 补 keyWords 缺失的 wordBookId（通过 kid → 词书 keyWordRefs 链路）
+  4. 补 keyWords 缺失的 wordBookId（通过 kid → 词书 quizItems.kidRef 链路）
   5. 数据完整性验证
 
 用法:
@@ -91,8 +91,8 @@ def build_wb_index():
                 char_to_wt[w][wt] += 1
                 if w not in word_to_wt or (wt != "shi" and word_to_wt[w] == "shi"):
                     word_to_wt[w] = wt
-            for ref in entry.get("keyWordRefs", []):
-                kid = ref.get("kid", "")
+            for qi in entry.get("quizItems", []):
+                kid = qi.get("kidRef", "")
                 if kid:
                     kid_to_wbids[kid].append(wb_id)
 
@@ -188,7 +188,7 @@ def fix_wordtype(articles, word_to_wt, char_to_wt):
 # ═══ Phase 4: 补 wordBookId ═══
 
 def fix_wordbookid(articles, kid_to_wbids):
-    """通过 article_keyword.kid → 词书 keyWordRefs.kid 链路补 wordBookId"""
+    """通过 article_keyword.kid → 词书 quizItems.kidRef 链路补 wordBookId"""
     stats = {"missing": 0, "fixed": 0, "unmatched": 0}
     unmatched_samples = []
 

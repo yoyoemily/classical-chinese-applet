@@ -48,7 +48,7 @@ metadata:
 | 类型 | 关键字段 |
 |------|---------|
 | `IWordBook` | `id, name, category, studyMode? ('standard'|'identify_first'|'readonly'), identifyPrompt?, examLevel? ('zhongkao'|'gaokao'|'all'), initialized?, totalWords, wordEntries: IWordEntry[]` |
-| `IWordEntry` | `id, character, pinyin, wordType? ('shi'|'xu'|'tongjia'|'gujinyi'|'huoyong'), characterType?, explanation?, oracleForm?, examFrequency?, mnemonic?, similarHomophones[], similarShapes[], keyWordRefs: IKeyWordRef[], quizItems?: IQuizItem[], usages?: IWordUsage[]` |
+| `IWordEntry` | `id, character, pinyin, wordType? ('shi'|'xu'|'tongjia'|'gujinyi'|'huoyong'), characterType?, explanation?, oracleForm?, examFrequency?, mnemonic?, similarHomophones[], similarShapes[], keyWordRefs?: IKeyWordRef[], quizItems?: IQuizItem[], usages?: IWordUsage[]` |
 | `IKeyWordRef` | `kid, word?, definition?, sentenceText?, sentenceTranslation?, articleId?, articleTitle?`（kid 引用选篇 keyWords，义项信息来自 article_keyword） |
 | `IQuizItem` | `id, kidRef, targetWord, definition, difficulty, distractors[], sentenceText?, sentenceTranslation?, sentenceSource?, articleId?, audioUrl?` |
 | `IWordUsage` | `usageType, definition, exampleSentence, exampleTranslation, exampleSource`（readonly 词书专用） |
@@ -93,8 +93,7 @@ metadata:
 |----|------|
 | `word_book` | 词书元数据（含 `exam_level`、`initialized`） |
 | `word_book_entry` | 词条数据，含 similar_homophones/similar_shapes JSON 列 |
-| `word_entry_keyword_ref` | 词条→article_keyword 引用 |
-| `quiz_item` | 答题项，直接存储 sentenceText/sentenceTranslation/sentenceSource |
+| `quiz_item` | 答题项，直接存储 sentenceText/sentenceTranslation/sentenceSource，kid_ref 指向 article_keyword |
 | `quiz_distractor` | 答题干扰项 |
 | `word_usage` | 虚词用法详解（readonly 词书专用） |
 | `study_task` | 今日任务 |
@@ -102,7 +101,7 @@ metadata:
 | API | 方法/路径 | 用途 |
 |-----|-----------|------|
 | fetchWordBooks | `GET /api/wordbooks` | 词书列表 |
-| fetchWordBookDetail | `GET /api/wordbooks/:id` | 词书详情（返回 wordEntries 含 keyWordRefs + quizItems） |
+| fetchWordBookDetail | `GET /api/wordbooks/:id` | 词书详情（返回 wordEntries 含 keyWordRefs(空数组已废弃) + quizItems） |
 | fetchTodayTask | `GET /api/study/today` | 今日任务（返回 ITodayWord[]，quizItems 含 sentenceText + definition + distractors） |
 | submitAnswer | `POST /api/study/answer` | 提交答案（参数：entryId + quizItemId） |
 | completeWord | `POST /api/study/word-complete` | 字词完成，即时发放 XP |

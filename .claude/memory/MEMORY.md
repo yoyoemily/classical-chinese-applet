@@ -6,3 +6,4 @@
 - [👤 我的板块](mine/mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
 - [🔧 修复总纲](fix/fix-guide.md) — 全系统修复标准，按问题症状（9 个检查点）索引到 A/B/C/D 四类操作。触发词：修复问题、答案错了、释义错误、kidRef 错误、句子有误、选项重复、fix
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
+- [📊 数据库表引用关系](database-table-relationships.md) — 词书侧 (word_book/word_book_entry/quiz_item/quiz_distractor) 与选篇侧 (article/article_sentence/article_keyword) 之间的引用关系图、汇总表、关键点

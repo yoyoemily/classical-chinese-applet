@@ -18,7 +18,7 @@ metadata:
 |------|------|
 | `articles_*.json` (知识库，11 个年级分文件 + 1 个壳文章文件) | 选篇正文唯一权威源：标题、句子文本/译文、keyWords |
 | `art_XXX.json` (知识库) | 该篇的典故注释 |
-| `wb_*.json` (词书, 8 本打卡型) | 若 keyWords 有增删，对应 wordEntry 的 keyWordRefs 需同步 |
+| `wb_*.json` (词书, 8 本打卡型) | 若 keyWords 有增删，对应 wordEntry 的 quizItems 需同步（keyWordRefs 已废弃于 2026-08-06） |
 
 ### 2. 句子增删/移位
 
@@ -27,7 +27,7 @@ metadata:
 3. **kid 圣杯原则优先于编号美观：旧 kid 永远不动，新 kid 用未被占用的编号**
    - keyWord 没有独立的 `sentenceIndex` 字段，编号嵌在 `kid` 字符串中（格式 `kw_{articleId}_s{XX}_{word}_{序号}`）
    - **插入/删除/移位句子后，旧 keyWord 的 `kid` 一个不改。** 新 keyWord 使用当前最大 `sXX` 之后未被占用的编号。`sXX` 与数组位置不对齐是允许的，仅为人类可读的元数据，后端和前端均不解析它来定位句子
-   - **反例（禁止）**：插入 4 句后，把原 S2–S7 共 26 个 kid 全部从 `s02`–`s07` 改为 `s06`–`s11`——这违反圣杯原则，且需要同步更新词书 `word_entry_keyword_ref` 和 `quiz_item.kid_ref`，风险极高
+   - **反例（禁止）**：插入 4 句后，把原 S2–S7 共 26 个 kid 全部从 `s02`–`s07` 改为 `s06`–`s11`——这违反圣杯原则，且需要同步更新 `quiz_item.kid_ref`，风险极高
    - glossary 的 `sentenceIndex` 是独立字段，**需要同步修正**（它不是 kid，修改不影响其他表）
 4. **修改译文后必须校验原文与译文的分句数一致**：逐句释义模式的 `buildClauses()` 按标点位置索引配对原文与译文分句，若某句的原文和译文 `split(/[。！？；]/)` 后非空段数不等，会导致子句释义全部错位。修改时用脚本对比每句的分句数，确保一一对应
 5. **【关键】新增句子后搜寻词书 quizItem 的 kidRef 错指**：新增的句子在选篇中本来不存在，但词书的 quizItem 可能早已引用了该句内容（sentenceText 匹配），只是 kidRef 指向了其他文章中同字同义的 keyWord。新增 keyWord 后，必须在词书中反向搜索：**用新句子的关键词（如开头几个字）在词书 JSON 中 grep，找到 sentenceText 匹配的 quizItem，将其 kidRef 修正为新的正确 kid**。详见 [[fix-guide]] 检查点 ⑧（C 类修复）
@@ -123,9 +123,11 @@ metadata:
 - 壳文章（仅在 `articles_shell.json` 中的选篇）不需要典故注释，其对应的 glossary JSON 文件应删除
 - articles_*.json 中不存在的 ID 说明该选篇已被删除，跳过即可，不深究原因
 
-### 5. 词书 keyWordRefs 同步
+### 5. 词书 quizItems 同步
 
-若 keyWords 有增删，在对应词书 JSON 中找到匹配的 `wordEntries[]` 条目，增/删其 `keyWordRefs` 数组中的 `{"kid": "kw_xxx"}` 引用。
+若 keyWords 有增删，在对应词书 JSON 中找到匹配的 `wordEntries[]` 条目，增/删其 `quizItems` 数组中对应 `kidRef` 的条目。
+
+> **2026-08-06**：`keyWordRefs` 字段已从词书 JSON 中删除，`word_entry_keyword_ref` 表已从数据库中删除。词书侧唯一指向选篇的引用链是 `quiz_item.kid_ref` → `article_keyword.kid`。
 
 ### 6. 导入数据库
 

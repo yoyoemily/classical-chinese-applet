@@ -93,10 +93,9 @@ grep -roh '"id": "s_c_[0-9]*"' ~/knowledge_library/文言文/词书/ | sed 's/"i
 - 选篇 keyWord 的 wordBookId 与词书不匹配 → 检查是否需要补 wordBookId（通常需要）
 - 句子已在词书其他 quizItem 中使用（同一 sentenceText） → 跳过，避免同一句重复出题
 
-### 第 4 步：补 articles JSON 的 relatedWordIds 和词书的 keyWordRefs
+### 第 4 步：补 articles JSON 的 relatedWordIds
 
 1. **articles JSON**：如果文章的 `relatedWordIds` 中缺少对应词书 ID，需追加
-2. **词书 JSON**：`wordEntries[].keyWordRefs` 中追加新收录的 kid 引用
 
 ### 第 5 步：校验
 
@@ -104,17 +103,6 @@ grep -roh '"id": "s_c_[0-9]*"' ~/knowledge_library/文言文/词书/ | sed 's/"i
 # JSON 合法性
 python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词书/wb_*.json'))"
 python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/选篇/正文/articles_*.json'))"
-
-# kidRef ↔ keyWordRefs 一致性（每个 quizItem.kidRef 都在 keyWordRefs 中）
-python3 -c "
-import json
-wb = json.load(open('词书/wb_xxx.json'))
-for e in wb['wordEntries']:
-    ref_kids = {r['kid'] for r in e['keyWordRefs']}
-    quiz_kids = {q['kidRef'] for q in e['quizItems']}
-    assert quiz_kids <= ref_kids, f'{e[\"character\"]}: quizItems ref {quiz_kids - ref_kids} not in keyWordRefs'
-print('OK')
-"
 
 # kidRef 指向的 keyWord 确实存在且 definition 一致
 python3 -c "

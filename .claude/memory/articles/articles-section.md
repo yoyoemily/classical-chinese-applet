@@ -88,19 +88,17 @@ metadata:
 选篇数据与用户学习数据之间有一道天然防火墙——quizItem 独立存储。词书导入时，quiz_item 表将 definition / sentenceText / sentenceTranslation / sentenceSource **拷贝了一份独立副本**，运行时直接读 quiz_item 表，不 JOIN article_keyword。
 
 ```
-article_keyword.kid  ←──  word_entry_keyword_ref.kid（词条→选篇引用）
 article_keyword.kid  ←──  quiz_item.kid_ref（quizItem→源 keyword 引用）
                                                         ↓
 用户学习时读取 quiz_item 表   ← 独立副本，不受选篇导入影响
 ```
 
-实际导入流程（`import_article.sh --all`）是**逐篇调用单篇接口**，每篇只 DELETE 自己的 4 张表数据后 INSERT，不存在全局 TRUNCATE 窗口。`quiz_item`、`word_book_entry`、`word_entry_keyword_ref` 及所有用户数据表（`user_answer_history`、`user_word_progress`、`study_mistake` 等）完全不受影响。
+实际导入流程（`import_article.sh --all`）是**逐篇调用单篇接口**，每篇只 DELETE 自己的 4 张表数据后 INSERT，不存在全局 TRUNCATE 窗口。`quiz_item`、`word_book_entry` 及所有用户数据表（`user_answer_history`、`user_word_progress`、`study_mistake` 等）完全不受影响。
 
 ### 如果 kid 变了会怎样
 
 | 后果 | 严重度 |
 |------|:--:|
-| word_entry_keyword_ref.kid 指向不存在的 keyword → 出处链接失效 | ⚠️ |
 | quiz_item.kid_ref 指向不存在的 keyword → 源引用断裂 | ⚠️ |
 | 重新导入词书时新 quizItem 找不到 keyword → 缺少 sentence 数据 | 🔴 |
 
@@ -119,7 +117,7 @@ article_keyword.kid  ←──  quiz_item.kid_ref（quizItem→源 keyword 引�
 - **修改已有 keyWord 的 definition**：需重新导入词书才能同步到 quizItem
 - **修改已有 keyWord 的 word 文本**：kid 不变，但需确认 word 仍出现在句中
 - **修改已有 sentence 的 text（原文）**：如果该句有 keyWord，需确认 word 仍匹配
-- **删除被词书引用的 keyWord**：先查 `word_entry_keyword_ref` 和 `quiz_item.kid_ref` 是否有引用
+- **删除被词书引用的 keyWord**：先查 `quiz_item.kid_ref` 是否有引用
 
 ---
 
@@ -213,7 +211,7 @@ articles_*.json 规范化：
 
 ### 当前架构
 
-选篇 keyWords 是唯一权威数据源，词书通过 kid 引用。articles_*.json 所有 keyWord 含 `kid`（全局唯一 ID，格式 `kw_{articleId}_s{sentenceIndex:02d}_{word}_{序号}`）、`wordType`、`matchWord` 字段。词书 JSON 使用 `wordEntries[].keyWordRefs[] + quizItems[]` 格式。
+选篇 keyWords 是唯一权威数据源，词书通过 kid 引用。articles_*.json 所有 keyWord 含 `kid`（全局唯一 ID，格式 `kw_{articleId}_s{sentenceIndex:02d}_{word}_{序号}`）、`wordType`、`matchWord` 字段。词书 JSON 使用 `wordEntries[].quizItems[]` 格式，通过 `kidRef` 引用选篇 keyWord。
 
 ### 待办
 
@@ -244,7 +242,7 @@ articles_*.json 规范化：
 
 1. 在知识库对应的年级 JSON 中将该篇的 `hasContent` 改为 `0`，ID 不变
 2. 执行导入：`POST /api/admin/import/articles`
-3. **ID 不要改**——改了会波及 kid，影响 `quiz_item.kid_ref` 和 `word_entry_keyword_ref.kid`，导致用户数据断裂
+3. **ID 不要改**——改了会波及 kid，影响 `quiz_item.kid_ref`，导致用户数据断裂
 
 ### `hasContent` 字段（2026-08-03 强制化）
 
