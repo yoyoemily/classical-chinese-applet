@@ -9,7 +9,7 @@ metadata:
 
 ## 选篇板块概览
 
-选篇板块覆盖 300 篇文言文/古诗词（部编版教材大纲 179 篇 + 壳文章 121 篇），支持 3 种阅读模式。关联页面（共 2 个）：
+选篇板块覆盖 313 篇文言文/古诗词（部编版教材大纲 179 篇 + 壳文章 134 篇），支持 3 种阅读模式。关联页面（共 2 个）：
 
 | 页面 | 路径 | 角色 |
 |------|------|------|
@@ -27,7 +27,7 @@ metadata:
 - **典故注释唯一权威源**：`~/knowledge_library/文言文/选篇/典故注释/`
 - **目录说明**：`~/knowledge_library/文言文/选篇/典故注释/readme.md` — 记录了文件格式、标注标准（标注什么/不标什么/判断口诀）、导入命令、维护流程。写典故注释时以此为准
 - **典故注释 JSON 文件**：179 个文件（`art_001.json` ~ `art_187.json`，含跳过/删除的 ID），共 2,125 条注释，全部已导入数据库，均 126 字/条（8 批梳理后）
-- **选篇正文唯一权威源**：`~/knowledge_library/文言文/选篇/正文/articles_*.json`（11 个年级分文件 + 1 个壳文章文件）— 300 篇（教材 179 篇 + 壳文章 121 篇），1,634 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
+- **选篇正文唯一权威源**：`~/knowledge_library/文言文/选篇/正文/articles_*.json`（11 个年级分文件 + 1 个壳文章文件）— 313 篇（教材 179 篇 + 壳文章 134 篇），1,978 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
 - **正文目录说明**：`~/knowledge_library/文言文/选篇/正文/readme.md` — 格式、字段说明、数据约束
 - **数据约束**：标注时以知识库 `articles_*.json` 正文为准，不参考 mock（mock 只有 4 篇，句子拆分可能不一致）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验
 
@@ -194,8 +194,8 @@ articles_*.json 规范化：
 ## 当前进度
 
 ### 已完成
-- ✅ 300 篇全部录入（部编版教材大纲 179 篇 + 壳文章 121 篇），含切句 + 逐句译文
-- ✅ 1,634 条 keyWords 标注完成：100% 含 kid/wordBookId/wordType，100% 词书覆盖
+- ✅ 313 篇全部录入（部编版教材大纲 179 篇 + 壳文章 134 篇），含切句 + 逐句译文
+- ✅ 1,978 条 keyWords 标注完成：100% 含 kid/wordBookId/wordType，100% 词书覆盖
 - ✅ 2,125 条典故注释全部完成（知识库 179 个 JSON 文件，全部已导入数据库）
 - ✅ 3 种阅读模式全部实现（通篇阅读 / 逐句释义 / 典故注释）
 - ✅ 通篇阅读 keyWords 按 wordType 分色高亮（5 色方案，正文顶部色标图例）
@@ -221,7 +221,7 @@ articles_*.json 规范化：
 
 ## 壳文章
 
-壳文章 (`art_shell_001` ~ `art_shell_121`) 仅作为词书 quizItem 的 kid 锚点，不是用户可读的选篇。词书导入时 quizItem 从壳文章的 sentence/keyWord 拷贝所需字段后，运行时不再读壳文章。
+壳文章（共 134 篇）仅作为词书 quizItem 的 kid 锚点，不是用户可读的选篇。词书导入时 quizItem 从壳文章的 sentence/keyWord 拷贝所需字段后，运行时不再读壳文章。
 
 > ⚠️ **`hasContent = 0` 是壳文章的唯一判定标准，切勿根据 `art_shell_` ID 前缀做任何逻辑判断。** `art_shell_` 前缀只是历史命名习惯，目前仅用于导入时推导 `sortOrder`（offset 10000 起）。**运行时、前端、任何业务逻辑都只看 `hasContent`，不看 ID 前缀。** `hasContent` 字段在导入 JSON 中**必填**，缺失直接报错阻断导入。
 
@@ -230,7 +230,7 @@ articles_*.json 规范化：
 | 文章列表 | **不可见**。后端 `ArticleService.getArticles()` 以 `has_content = 1` 过滤，`has_content = 0` 被排除 |
 | 文章详情 | API 无过滤，直接输 URL 可到，但用户正常路径下不会到达 |
 | 排序 | `sortOrder = 10000 + index`，排在大纲文章之后 |
-| 数据源 | `articles_shell.json`（知识库），121 篇、339 句、339 条 keyWords，`hasContent = 0` |
+| 数据源 | `articles_shell.json`（知识库），134 篇、398 句、475 条 keyWords，`hasContent = 0` |
 | 典故注释 | 无 |
 | 创作背景 | 无 |
 | 句子/译文 | 有 keyWord 的句子必须 100% 有译文（导入代码强制校验，无译文抛异常）。keyWord definition 基本为空，不影响——quizItem 自带 definition 副本 |
@@ -259,7 +259,7 @@ articles_*.json 规范化：
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（11 个年级分文件 + 1 个壳文章文件，共 300 篇，1,634 条 keyWords，全部含 kid/wordBookId/wordType） |
+| 知识库 | `~/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（11 个年级分文件 + 1 个壳文章文件，共 313 篇，1,978 条 keyWords，全部含 kid/wordBookId/wordType） |
 | 知识库 | `~/knowledge_library/文言文/选篇/正文/readme.md` | 选篇正文目录说明 |
 | 知识库 | `~/knowledge_library/文言文/选篇/典故注释/readme.md` | 典故注释目录说明 |
 | 知识库 | `~/knowledge_library/文言文/选篇/典故注释/art_*.json` | 典故注释唯一权威源（全部完成） |
