@@ -375,7 +375,7 @@ export async function fetchBadges(): Promise<{ badges: IBadge[]; userBadges: IUs
   return get('/api/badges');
 }
 
-export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; longestStreak: number; checkinDays: number; memberLevel: number; nickName: string; avatarUrl: string; recoveryDeadline?: string; codeStatus?: number }> {
+export async function fetchUserProfile(): Promise<{ level: number; title: string; totalXP: number; currentStreak: number; longestStreak: number; checkinDays: number; memberLevel: number; nickName: string; avatarUrl: string; recoveryDeadline?: string }> {
   if (USE_MOCK) {
     const progress = getProgress();
     const levelInfo = calcLevel(progress.totalXP);
@@ -479,26 +479,6 @@ export function fetchInvitePoster(): Promise<string> {
  */
 export async function fetchInviteStats(): Promise<{ totalInvited: number }> {
   return get('/api/invite/stats');
-}
-
-// ============================================
-// 签订契约
-// ============================================
-export async function signPact(): Promise<{ memberLevel: number }> {
-  return post('/api/user/pact');
-}
-
-// ============================================
-// 学习码门禁
-// ============================================
-/** 验证学习码（仅校验，不改 memberLevel） */
-export async function verifyCode(code: string): Promise<{ valid: boolean; memberLevel: number }> {
-  return post('/api/user/verify-code', { code });
-}
-
-/** 查询会员状态（含 30 天过期判断、学习码验证状态） */
-export async function fetchMemberStatus(): Promise<{ memberLevel: number; codeStatus: number; lastActiveAt?: string }> {
-  return get('/api/user/member-status');
 }
 
 // ============================================

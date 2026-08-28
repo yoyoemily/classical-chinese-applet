@@ -1,7 +1,7 @@
 // ============================================
 // 我的 / 个人中心页面
 // ============================================
-import { fetchUserProfile, signPact, fetchBadges, fetchInvitePoster, fetchUnreadFeedbackCount } from '../../api/index';
+import { fetchUserProfile, fetchBadges, fetchInvitePoster, fetchUnreadFeedbackCount } from '../../api/index';
 import { STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
@@ -25,14 +25,10 @@ interface IMineData {
   menuItems: IMenuItem[];
   loading: boolean;
   showSharePoster: boolean;
-  /** 是否已点击「签订契约」（显示契约内容） */
-  shareConfirmed: boolean;
   /** 会员级别（0=非会员，1=金石契） */
   memberLevel: number;
   /** 金石契约窗 */
   showNuoDialog: boolean;
-  /** 签订契约复选框 */
-  pactChecked: boolean;
   /** 下一枚勋章信息 */
   nextBadge: NextBadgeInfo | null;
   /** 数据清除恢复截止时间 */
@@ -60,10 +56,8 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
     ],
     loading: false,
     showSharePoster: false,
-    shareConfirmed: false,
     memberLevel: 0,
     showNuoDialog: false,
-    pactChecked: false,
     nextBadge: null,
     posterTempPath: '',
   },
@@ -72,7 +66,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   onShow(): void {
     // 从其他页面返回时刷新数据，并重置弹窗状态
-    this.setData({ showSharePoster: false, shareConfirmed: false, posterTempPath: '' });
+    this.setData({ showSharePoster: false, posterTempPath: '' });
     this.loadProfile();
     this.loadUnreadFeedbackCount();
   },
@@ -164,7 +158,7 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
 
   /** 打开分享海报弹窗（从后端动态生成含用户专属小程序码的海报） */
   async onTapShare(): Promise<void> {
-    this.setData({ showSharePoster: true, shareConfirmed: false, pactChecked: false, posterTempPath: '' });
+    this.setData({ showSharePoster: true, posterTempPath: '' });
 
     wx.showLoading({ title: '生成海报...' });
 
@@ -217,31 +211,6 @@ Page<IMineData, WechatMiniprogram.Page.CustomOption>({
         }
       },
     });
-  },
-
-  /** 进入签订契约阶段二 */
-  onConfirmShare(): void {
-    this.setData({ shareConfirmed: true });
-  },
-
-  /** 切换契约复选框 */
-  onTogglePactCheck(): void {
-    this.setData({ pactChecked: !this.data.pactChecked });
-  },
-
-  /** 签订契约并关闭 */
-  async onConfirmPact(): Promise<void> {
-    if (!this.data.pactChecked) return;
-    try {
-      await signPact();
-    } catch { /* 网络失败不阻塞 */ }
-    this.setData({ showSharePoster: false });
-    this.loadProfile();
-  },
-
-  /** 点击「成为契约会员」→ 直接打开海报弹窗 */
-  onTapBecomeMember(): void {
-    this.onTapShare();
   },
 
   /** 点击「金石契」标签 → 弹出弹窗 */

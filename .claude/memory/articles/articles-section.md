@@ -26,8 +26,8 @@ metadata:
 
 - **典故注释唯一权威源**：`~/knowledge_library/文言文/选篇/典故注释/`
 - **目录说明**：`~/knowledge_library/文言文/选篇/典故注释/readme.md` — 记录了文件格式、标注标准（标注什么/不标什么/判断口诀）、导入命令、维护流程。写典故注释时以此为准
-- **典故注释 JSON 文件**：179 个文件（`art_001.json` ~ `art_187.json`，含跳过/删除的 ID），共 2,125 条注释，全部已导入数据库，均 126 字/条（8 批梳理后）
-- **选篇正文唯一权威源**：`~/knowledge_library/文言文/选篇/正文/articles_*.json`（11 个年级分文件 + 1 个壳文章文件）— 313 篇（教材 179 篇 + 壳文章 134 篇），1,978 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
+- **典故注释 JSON 文件**：179 个文件（`art_001.json` ~ `art_187.json`，含跳过/删除的 ID），共 2,125 条注释，全部已导入数据库，均 126 字/条
+- **选篇正文唯一权威源**：`~/knowledge_library/文言文/选篇/正文/articles_*.json`（11 个年级分文件 + 1 个壳文章文件）— 313 篇（教材 179 篇 + 壳文章 134 篇），1,986 条 keyWords（100% wordBookId 覆盖，全部含 kid/wordType）
 - **正文目录说明**：`~/knowledge_library/文言文/选篇/正文/readme.md` — 格式、字段说明、数据约束
 - **数据约束**：标注时以知识库 `articles_*.json` 正文为准，不参考 mock（mock 只有 4 篇，句子拆分可能不一致）。写完必须 `python3 -c "import json; json.load(open('art_XXX.json'))"` 校验
 
@@ -147,16 +147,6 @@ article_keyword.kid  ←──  quiz_item.kid_ref（quizItem→源 keyword 引�
 - `importArticlesFromJson` 不会清空 `article_glossary` 表（已从 TRUNCATE 列表中移除），典故注释与正文导入解耦
 - `article_keyword.kid` 全局唯一，导入前务必确保 articles_*.json 无重复 kid
 
-### 数据整理（2026-07-17）
-
-articles_*.json 规范化：
-- art_shell_006 补 title/author/dynasty（左忠毅公逸事/方苞/清）
-- `wordType` 覆盖率 70.4% → 100%（420 条补全）
-- `wordBookId` 覆盖率 0% → 63.6%（走 kid 链路匹配）
-- 删除 1 条脏 keyWord（art_shell_010 sent6 "不"）
-- 从词书 quizItem 回填 43 个缺失句子到 16 篇文章
-- 全部 kid 去重（修复 2 条重复）
-
 ### 数据维护脚本
 
 | 脚本 | 用途 |
@@ -165,7 +155,7 @@ articles_*.json 规范化：
 | `.claude/memory/articles/add_missing_keywords.py` | 为已有句子新增缺失 keyWord 条目 |
 | `.claude/memory/articles/backfill_sentences.py` | 从词书 quizItem.sentenceText 回填缺失句子到 articles_*.json |
 
-### keyWord definition 标注规范（2026-07 建立，Phase 2 完成）
+### keyWord definition 标注规范
 
 标准义项表 `definition_standard.json`（408 字 / 1,005 义项）位于知识库词书目录，是 keyWord definition 的唯一规范源。新增或修改 keyWord 的 definition 时必须从标准表中选取已有义项，原文复制到 definition 字段，不做任何同义改写。标准表无匹配时，**先与用户确认后再扩充标准表**（新增义项），不得自行决定扩充。
 
@@ -195,7 +185,7 @@ articles_*.json 规范化：
 
 ### 已完成
 - ✅ 313 篇全部录入（部编版教材大纲 179 篇 + 壳文章 134 篇），含切句 + 逐句译文
-- ✅ 1,978 条 keyWords 标注完成：100% 含 kid/wordBookId/wordType，100% 词书覆盖
+- ✅ 1,986 条 keyWords 标注完成：100% 含 kid/wordBookId/wordType，100% 词书覆盖
 - ✅ 2,125 条典故注释全部完成（知识库 179 个 JSON 文件，全部已导入数据库）
 - ✅ 3 种阅读模式全部实现（通篇阅读 / 逐句释义 / 典故注释）
 - ✅ 通篇阅读 keyWords 按 wordType 分色高亮（5 色方案，正文顶部色标图例）
@@ -244,7 +234,7 @@ articles_*.json 规范化：
 2. 执行导入：`POST /api/admin/import/articles`
 3. **ID 不要改**——改了会波及 kid，影响 `quiz_item.kid_ref`，导致用户数据断裂
 
-### `hasContent` 字段（2026-08-03 强制化）
+### `hasContent` 字段（必填）
 
 | 位置 | 用途 |
 |------|------|
@@ -259,7 +249,7 @@ articles_*.json 规范化：
 
 | 层 | 文件 | 角色 |
 |----|------|------|
-| 知识库 | `~/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（11 个年级分文件 + 1 个壳文章文件，共 313 篇，1,978 条 keyWords，全部含 kid/wordBookId/wordType） |
+| 知识库 | `~/knowledge_library/文言文/选篇/正文/articles_*.json` | 选篇正文唯一权威源（11 个年级分文件 + 1 个壳文章文件，共 313 篇，1,986 条 keyWords，全部含 kid/wordBookId/wordType） |
 | 知识库 | `~/knowledge_library/文言文/选篇/正文/readme.md` | 选篇正文目录说明 |
 | 知识库 | `~/knowledge_library/文言文/选篇/典故注释/readme.md` | 典故注释目录说明 |
 | 知识库 | `~/knowledge_library/文言文/选篇/典故注释/art_*.json` | 典故注释唯一权威源（全部完成） |

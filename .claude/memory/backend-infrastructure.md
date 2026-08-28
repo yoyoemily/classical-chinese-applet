@@ -1,6 +1,6 @@
 ---
 name: backend-infrastructure
-description: Spring Boot 3.2 后端微服务，位于 /Users/zhutx/IdeaProjects/classical-chinese/，完整对接小程序 17 个 API
+description: Spring Boot 3.2 后端微服务，位于 /Users/zhutx/IdeaProjects/classical-chinese/，完整对接小程序 38 个 API
 metadata:
   type: project
   node_type: memory
@@ -16,7 +16,7 @@ metadata:
 |----|------|
 | 框架 | Spring Boot 3.2.1 + Java 17 |
 | ORM | MyBatis-Plus 3.5.5（BaseMapper，零 SQL） |
-| 数据库 | MySQL 8.0，库名 `classical_chinese`，27 张表 |
+| 数据库 | MySQL 8.0，库名 `classical_chinese`，28 张表 |
 | `word_book` 表新增 | `exam_level` VARCHAR(10) DEFAULT 'zhongkao'（考试级别）、`initialized` TINYINT(1) DEFAULT 0（数据是否已初始化） |
 | 端口 | `8080` |
 | 基包 | `com.bogutongjin` |
@@ -35,7 +35,7 @@ src/main/java/com/bogutongjin/
 ├── mapper/      # 25 个 Mapper（含 RedeemCodeMapper）
 ├── dto/         # SourceData + LoginRequest + SubmitAnswerRequest 等请求 DTO（11 个，含 VerifyCodeRequest）
 ├── service/     # 12 个 Service：Auth、WordBook、Study、Progress、Vocabulary、Checkin、Badge、User、Article、Classic、Content、Feedback、DataImport
-└── controller/  # 14 个 Controller：Auth + 12 业务 + Import，完整覆盖前端 18+ 个 API + 登录 + 导入
+└── controller/  # 14 个 Controller：Auth + 12 业务 + Import，完整覆盖前端 38 个 API + 登录 + 导入
 ```
 
 ### API 对照
@@ -91,7 +91,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 ### 学习码门禁（已废弃）
 
-> 学习码方案已于 2026-07-29 废弃，改为累计打卡+跳转我的页面的简化方案。`redeem_code` 表和相关 API 仍保留在代码中但不再使用。
+> 学习码方案已废弃。`redeem_code` 表和相关后端 API 仍保留在代码中但不再使用；前端相关代码（`verifyCode`/`fetchMemberStatus`/`IMemberStatus`/`REDEEM_CODE_EXPIRE_DAYS`）已清理删除。累计打卡门禁（`GATE_ACCUMULATED_DAYS`）也已整体移除。
 
 ### 数据导入
 
@@ -100,7 +100,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 - 每字含 `wordType` 字段（实词/虚词/通假字）
 - `word` 表含 `word_type` 列，DataImportService 导入时写入
 - `WordBookService.getWordBookDetail()` 和 `ContentService.getWordDetail()` 均返回 `wordType`
-- 建表：`data/schema.sql`（27 张表 + redeem_code）
+- 建表：`data/schema.sql`（28 张表）
 - **全量导入**：`POST /api/admin/import` → `DataImportService.importFromJson()` → JDBC Template 批量 INSERT 勋章，不涉及数据清空
 - **业务数据清理**：`POST /api/admin/clear-data?scope=` → `DataImportService.clearAll()/clearUserData()/clearWordBookData()/clearArticleData()/clearClassicData()`，5 种 scope，全部 TRUNCATE TABLE，配合 `clear_data.sh` 使用
 - **选篇正文导入**：`POST /api/admin/import/articles` → `DataImportService.importArticlesFromJson()`，从知识库 11 个年级分文件 + 1 个壳文章文件合并后导入，幂等（先清空文章相关表后全量重插）
@@ -116,7 +116,7 @@ JwtUtil.generate(userId) → 签发 JWT（有效期 7 天）
 
 ### 与前端的对接方式
 
-小程序前端将 `api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'` 即可对接。艾宾浩斯引擎仍保留客户端调度，服务端负责记录结果、打卡、勋章。
+小程序前端将 `api/index.ts` 中 `USE_MOCK = false`，`utils/request.ts` 中 `BASE_URL = 'http://localhost:8080'` 即可对接。艾宾浩斯调度在服务端（`getTodayTask` 返回今日任务、`submitAnswer` 更新进度），服务端同时负责记录结果、打卡、勋章。
 
 **Why:** 前端和后端职责分离，前端专注小程序 UI 和艾宾浩斯客户端调度，后端提供 REST API 和持久化。
 

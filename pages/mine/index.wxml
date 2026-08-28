@@ -62,14 +62,9 @@
     </view>
   </view>
 
-  <!-- 分享按钮：非会员 → 成为契约会员入口，会员 → 分享海报 -->
+  <!-- 分享按钮 -->
   <view class="page-mine__share">
-    <!-- 非会员：我要永久免费学习 -->
-    <view wx:if="{{memberLevel === 0}}" class="page-mine__share-btn--cta" bindtap="onTapBecomeMember">
-      <text class="page-mine__share-label--cta">成为契约会员</text>
-    </view>
-    <!-- 会员：分享给朋友 -->
-    <view wx:else class="page-mine__share-btn" bindtap="onTapShare">
+    <view class="page-mine__share-btn" bindtap="onTapShare">
       <text class="page-mine__share-icon">📤</text>
       <text class="page-mine__share-label">分享给朋友</text>
     </view>
@@ -99,51 +94,19 @@
     </block>
   </view>
 
-  <!-- 分享海报弹窗（二阶段：保存海报 → 签订契约） -->
-  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="{{shareConfirmed ? '' : 'onCloseShare'}}">
+  <!-- 分享海报弹窗 -->
+  <view class="page-mine__poster-overlay" wx:if="{{showSharePoster}}" bindtap="onCloseShare">
     <view class="page-mine__poster-modal" catchtap="noop">
-      <view class="page-mine__poster-close" wx:if="{{!shareConfirmed}}" bindtap="onCloseShare">✕</view>
-
-      <!-- 阶段一：专属海报 + 操作按钮 -->
-      <block wx:if="{{!shareConfirmed}}">
-        <image
-          class="page-mine__poster-image"
-          src="{{posterTempPath}}"
-          mode="widthFix"
-        />
-        <view class="page-mine__poster-actions">
-          <view class="page-mine__poster-btn-row">
-            <button class="page-mine__poster-save" bindtap="onSavePoster">保存海报</button>
-            <button
-              wx:if="{{memberLevel < 1}}"
-              class="page-mine__poster-btn-row-link"
-              bindtap="onConfirmShare"
-            >签订契约</button>
-          </view>
+      <view class="page-mine__poster-close" bindtap="onCloseShare">✕</view>
+      <image
+        class="page-mine__poster-image"
+        src="{{posterTempPath}}"
+        mode="widthFix"
+      />
+      <view class="page-mine__poster-actions">
+        <view class="page-mine__poster-btn-row">
+          <button class="page-mine__poster-save" bindtap="onSavePoster">保存海报</button>
         </view>
-      </block>
-
-      <!-- 阶段二：签订契约 -->
-      <view class="page-mine__poster-trust" wx:else>
-        <text class="page-mine__poster-trust-icon">📜</text>
-        <text class="page-mine__poster-trust-title">金石契</text>
-        <text class="page-mine__poster-trust-text">君以分享托付文言雀</text>
-        <text class="page-mine__poster-trust-text">文言雀亦以赤诚报君</text>
-        <text class="page-mine__poster-trust-text page-mine__poster-trust-text--pact">此约既成，金石不渝</text>
-        <!-- 签订契约复选框 -->
-        <view class="page-mine__poster-trust-check" bindtap="onTogglePactCheck">
-          <text class="page-mine__poster-trust-check-finger">👉</text>
-          <view class="page-mine__poster-trust-check-box {{pactChecked ? 'page-mine__poster-trust-check-box--checked' : ''}}">
-            <text wx:if="{{pactChecked}}" class="page-mine__poster-trust-check-mark">✓</text>
-          </view>
-          <text class="page-mine__poster-trust-check-label">余今签契，行之以诚</text>
-        </view>
-        <button
-          class="page-mine__poster-trust-btn {{pactChecked ? '' : 'page-mine__poster-trust-btn--disabled'}}"
-          bindtap="onConfirmPact"
-          disabled="{{!pactChecked}}"
-        >签订契约</button>
-        <text class="page-mine__poster-trust-footer">契约既签，永久免费学习</text>
       </view>
     </view>
   </view>

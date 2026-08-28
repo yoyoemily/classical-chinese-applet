@@ -1,6 +1,6 @@
 import { fetchWordBooks, fetchTodaySummary, fetchMistakeCount, fetchUserProfile, fetchBadges, fetchAnnouncementUnread } from '../../api/index';
 import { getCurrentBookId, setCurrentBookId, isCheckedInToday, clearStudySummary } from '../../utils/storage';
-import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS, GATE_ACCUMULATED_DAYS } from '../../constants/config';
+import { DEFAULT_DAILY_NEW_WORDS, DEFAULT_DAILY_REVIEW_WORDS, STORAGE_KEYS } from '../../constants/config';
 import { computeNextBadge } from '../../utils/badge';
 import type { NextBadgeInfo } from '../../utils/badge';
 
@@ -65,16 +65,10 @@ interface IIndexData {
   mistakeCount: number;
   /** 下一个可获得的勋章 */
   nextBadge: NextBadgeInfo | null;
-  /** 会员级别 */
-  memberLevel: number;
   /** 用户昵称 */
   nickName: string;
-  /** 累计打卡天数 */
-  checkinDays: number;
   /** 数据清除恢复截止时间 */
   recoveryDeadline?: string;
-  /** 门禁弹窗 */
-  showGate: boolean;
   /** 是否有未读公告 */
   hasUnreadAnnouncement: boolean;
 }
@@ -104,10 +98,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     loading: true,
     mistakeCount: 0,
     nextBadge: null,
-    memberLevel: 0,
     nickName: '',
-    checkinDays: 0,
-    showGate: false,
     hasUnreadAnnouncement: false,
   },
 
@@ -120,8 +111,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onShow(): void {
-    // 每次从其他页面返回时，重置门禁状态、刷新数据
-    this.setData({ showGate: false });
+    // 每次从其他页面返回时刷新数据
     this.loadData();
   },
 
@@ -211,9 +201,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
         loading: false,
         mistakeCount,
         nextBadge,
-        memberLevel: profile.memberLevel,
         nickName: profile.nickName || '',
-        checkinDays: profile.checkinDays || 0,
       });
 
       // 检测是否处于数据清除恢复期内
@@ -293,7 +281,7 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
     wx.navigateTo({ url: '/pages/book-select/index' });
   },
 
-  /** 点击"开始学习" → 清空旧汇总缓存 → 跳转学习页（或触发门禁） */
+  /** 点击"开始学习" → 清空旧汇总缓存 → 跳转学习页 */
   onTapStartLearning(): void {
     const { todayTask } = this.data;
     if (todayTask.newWords === 0 && todayTask.reviewWords === 0) {
@@ -302,16 +290,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
       } else {
         wx.showToast({ title: '今日任务已完成', icon: 'success' });
       }
-      return;
-    }
-
-    // 门禁：累计打卡满 N 天 + 非契约会员 → 弹窗引导
-    if (
-      GATE_ACCUMULATED_DAYS !== -1 &&
-      this.data.checkinDays >= GATE_ACCUMULATED_DAYS &&
-      this.data.memberLevel < 1
-    ) {
-      this.setData({ showGate: true });
       return;
     }
 
@@ -380,21 +358,6 @@ Page<IIndexData, WechatMiniprogram.Page.CustomOption>({
   /** 点击公告铃铛 → 跳转公告列表 */
   onTapAnnouncement(): void {
     wx.navigateTo({ url: '/pages/announcement-list/index' });
-  },
-
-  // ==========================================
-  // 门禁弹窗
-  // ==========================================
-
-  /** 关闭门禁弹窗 */
-  onCloseGate(): void {
-    this.setData({ showGate: false });
-  },
-
-  /** 跳转我的页面 */
-  onGoToMine(): void {
-    this.setData({ showGate: false });
-    wx.switchTab({ url: '/pages/mine/index' });
   },
 
   /** 分享（右上角菜单） */

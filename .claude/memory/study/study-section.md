@@ -18,7 +18,6 @@ metadata:
 | 字总结 | `pages/word-summary/` | 大字展示+义项+字型+记忆口诀 |
 | 学习完成 | `pages/study-complete/` | 统计+新勋章+诗词 |
 | 词书选择 | `pages/book-select/` | 9 本词书，平铺展示，右上角「打卡版」/「阅读版」标签 |
-| 词书详情 | `pages/book-detail/` | 单本词书详情 |
 | 错题本 | `pages/mistake-book/` | 自动收录+连续答对移出 |
 | 生词本 | `pages/vocabulary/` | 全部词按困难/模糊/熟悉/掌握分类 |
 | 勋章墙 | `pages/badges/` | 8 枚累计学习天数勋章 |
@@ -65,7 +64,7 @@ metadata:
 | 词书 | ID | 词数 | examLevel | studyMode | initialized |
 |------|------|:--:|------|------|:--:|
 | 中考实词虚词一本通 | `wb_zhongkao_shixu` | 168 | `zhongkao` | `standard` | ✅ |
-| 中考通假字一本通 | `wb_zhongkao_tongjia` | 35 | `zhongkao` | `identify_first` | ✅ |
+| 中考通假字一本通 | `wb_zhongkao_tongjia` | 34 | `zhongkao` | `identify_first` | ✅ |
 | 中考古今异义一本通 | `wb_zhongkao_gujinyi` | 50 | `zhongkao` | `identify_first` | ✅ |
 | 中考词类活用一本通 | `wb_zhongkao_cileihuoyong` | 26 | `zhongkao` | `identify_first` | ✅ |
 | 高考通假字一本通 | `wb_gaokao_tongjia` | 53 | `gaokao` | `identify_first` | ✅ |
@@ -127,7 +126,7 @@ metadata:
 
 - **答题逻辑**：正确答案 = `quizItem.definition`，直接从 article_keyword 取。`showMeaningQuestion()` 中 `correctAnswer = sent.definition`
 - **字总结**：义项列表由 quizItem 驱动，短例句从 quizItem.sentenceText 取
-- **艾宾浩斯**：0→+1d→+2d→+4d→+7d→+15d→+30d→done。答对 stage+1，答错/不知道 reset 到 0。客户端调度（`utils/ebbinghaus.ts`），服务端只记录答案
+- **艾宾浩斯**：0→+1d→+2d→+4d→+7d→+15d→+30d→done。答对 stage+1，答错/不知道 reset 到 0。服务端权威调度（`getTodayTask` 生成今日任务、`submitAnswer` 更新进度），前端按任务列表答题
 - **复习优先于新学**。复习和新学各自独立乱序（Fisher-Yates），复习仍优先
 - **一字多句**：每个字通过多个 quizItems 连续展示，全部答完后进入字总结
 - **干扰项设计**：同字异义、形近字释义、微殊表述
@@ -186,7 +185,7 @@ metadata:
 - ✅ 打卡日历（月视图）
 - ✅ 生词本
 - ✅ 语音播报（WechatSI 插件）
-- ✅ 词书选择页（去掉了 Tab 过滤，9 本词书平铺展示；右上角显示「打卡版」或「阅读版」标签）
+- ✅ 词书选择页（9 本词书平铺展示；右上角显示「打卡版」或「阅读版」标签）
 - ✅ 艾宾浩斯客户端引擎 + 服务端记录
 - ✅ 错误反馈（学习页 + 字总结页）
 - ✅ 学习顺序（顺序/乱序，复习和新学各自独立 shuffle）
@@ -194,10 +193,10 @@ metadata:
 - ✅ 诗句库扩充至 44 条（constants/config.ts ENCOURAGEMENT_POEMS）
 - ✅ 出处链接到选篇阅读（articleId 关联）
 - ✅ 「我的」页面勋章入口调整至右上角胶囊按钮
-- ✅ 分享跟踪与门禁（member_level + 金石契）
+- ✅ 分享跟踪（member_level + 金石契）
 - ✅ 会员级别系统
 - ✅ 首页艾宾浩斯提示
-- ✅ quizItem.kidRef 全覆盖：452 条空 kidRef → 0，8 本词书 1365 条全补齐
+- ✅ quizItem.kidRef 全覆盖（8 本词书全补齐）
 
 ### 待开发
 （无）
@@ -213,7 +212,7 @@ metadata:
 ### 词书释义标准化（全部完成）
 
 - **标准义项表**：`~/knowledge_library/文言文/词书/definition_standard.json`（408 字 / 1,005 义项），是 keyWord definition 的**唯一规范源**
-- **8 本词书 1,427 条 quizItem 100% 标准化**，所有 ID 未变更，已导入后端
+- **8 本词书全部 quizItem 释义已标准化**，所有 ID 未变更，已导入后端
 - 后续新增或修改 keyWord definition 时，必须从标准义项表中选取已有义项，原文复制不做同义改写；无匹配则先扩充标准表再引用
 - 标注规范详见知识库 `文言文/选篇/正文/readme.md` →「keyWord definition 标注规范」章节
 
@@ -231,7 +230,6 @@ metadata:
 | 前端 | `pages/word-summary/index.*` | 字总结（义项列表由 quizItem 驱动） |
 | 前端 | `pages/study-complete/index.*` | 学习完成 |
 | 前端 | `pages/book-select/index.*` | 词书选择（平铺展示） |
-| 前端 | `pages/book-detail/index.*` | 词书详情 |
 | 前端 | `pages/mistake-book/index.*` | 错题本 |
 | 前端 | `pages/vocabulary/index.*` | 生词本 |
 | 前端 | `pages/badges/index.*` | 勋章墙 |

@@ -68,4 +68,4 @@ metadata:
 2. **没有物理外键**：所有引用关系都是逻辑上的，靠值匹配而非数据库约束维护。
 3. **`kid` 是全局唯一键**：`article_keyword.kid` 有 UNIQUE 约束，是交叉引用的锚点。[[backend-infrastructure]] 的数据维护脚本中（如 `fill_kidref.py`）依赖此唯一性。
 4. **修订后重导原则**：kid 不变就不需要重导词书。修改已有 keyWord 时 kid 不变，词书自动生效；新增 keyWord 才需词书跟进。详见 [[backend-infrastructure]] 导入顺序一节。
-5. **`word_entry_keyword_ref` 表已移除**（2026-08-06）：该表在系统内无实际用途——`ContentService.getWordDetail()` 从 quizItem 驱动 keyWordRefs，`WordBookService` 返回的 keyWordRefs 只有 kid 空壳，vocabulary 页已改为用 quizItems[0].definition。
+5. **`word_entry_keyword_ref` 表已移除**：该表在系统内无实际用途——`ContentService.getWordDetail()` 从 quizItem 驱动 keyWordRefs，`WordBookService` 返回的 keyWordRefs 只有 kid 空壳，vocabulary 页已改为用 quizItems[0].definition。

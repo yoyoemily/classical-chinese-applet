@@ -200,23 +200,4 @@
 
   </block>
 
-  <!-- 门禁弹窗：累计打卡满N天 + 非契约会员 -->
-  <view class="page-index__gate-overlay" wx:if="{{showGate}}">
-    <view class="page-index__gate-modal" catchtap="noop">
-      <text class="page-index__gate-emoji">🔒</text>
-      <text class="page-index__gate-title">你已累计学习 {{checkinDays}} 天</text>
-      <text class="page-index__gate-desc">成为契约会员，才能继续学习</text>
-      <view
-        class="page-index__gate-btn"
-        hover-class="page-index__gate-btn--hover"
-        bindtap="onGoToMine"
-      >成为契约会员</view>
-      <view
-        class="page-index__gate-back"
-        hover-class="page-index__gate-back--active"
-        bindtap="onCloseGate"
-      >暂不</view>
-    </view>
-  </view>
-
 </view>

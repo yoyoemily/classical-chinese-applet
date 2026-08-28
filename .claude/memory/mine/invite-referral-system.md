@@ -1,6 +1,6 @@
 ---
 name: invite-referral-system
-description: 分享海报动态生成 + 邀请追踪体系（2026-07-29 上线，2026-07-30 重构为手动签契）—— 小程序码+合成/邀请关系绑定/前后端全链路
+description: 分享海报动态生成 + 邀请追踪体系（手动签契 + 单阶段海报，无打卡门禁）—— 小程序码+合成/邀请关系绑定/前后端全链路
 metadata:
   type: project
 ---
@@ -11,31 +11,22 @@ metadata:
 
 用户点击"分享给朋友"→ 后端调用微信 `wxacode.getUnlimited` 生成含 `i_{userId}` 场景值的专属小程序码 → Java 2D 合成到海报模板上 → 返回。有人扫码进来 → `app.ts` 捕获 scene → `reLogin()` 携带到 login body → `AuthService.login()` 中 `InviteService.bindInviter()` 写入 `invited_by` + `invited_count+1` + 回填 `invite_record`。
 
-> **2026-07-30 重构**：签订契约改为手动签契（`POST /api/user/pact`），不再依赖推广数自动升级。`InviteService.bindInviter()` 中的自动升级逻辑已删除。`member-threshold` 配置仅保留用于前端进度展示参考。
+> 签订契约为手动签契（`POST /api/user/pact`），不再依赖推广数自动升级。`InviteService.bindInviter()` 中的自动升级逻辑已删除。`member-threshold` 配置仅保留用于前端进度展示参考。
 
 ---
 
 ## 前端交互
 
-### 门禁机制
+> 首页「开始学习」打卡门禁已整体移除（`GATE_ACCUMULATED_DAYS` 常量、门禁弹窗、`showGate` 状态全部删除）；我的页海报弹窗为单阶段（仅海报 + 「保存海报」，无「签订契约」入口），非会员「成为契约会员」CTA 按钮已移除，分享区域统一显示「分享给朋友」。前端无签订契约入口（后端 `POST /api/user/pact` 保留）。
 
-- 累计打卡满 `GATE_ACCUMULATED_DAYS` 天（默认 10，-1=关闭）+ 非契约会员 → 首页点击「开始学习」弹出门禁弹窗
-- 弹窗文案："你已累计学习 N 天" + "成为契约会员，才能继续学习"
-- 点击「成为契约会员」→ `wx.switchTab` 跳转「我的」页面；弹窗底部有「暂不」可关闭
-- 累计天数来源：`user.checkin_days`（每次首次打卡 +1），使用 `checkinDays` 字段，非 `longestStreak`
-- 不再依赖微信公众号，不再需要学习码
+### mine 页分享海报（单阶段）
 
-### mine 页分享海报（二阶段签订契约流程）
-
-- **非会员（memberLevel=0）**：分享区域显示"成为契约会员"绿色实心按钮
-  - 点击 → 打开海报弹窗（阶段一：海报图 + "保存海报" + "签订契约"按钮）
-  - 阶段二（点击"签订契约"）：金石契签订 UI（📜 + 契约文案"君以分享托付文言雀，文言雀亦以赤诚报君，此约既成，金石不渝" + ☑ 复选框"余今签契，行之以诚" + "签订契约"金色按钮 + 底部"契约既签，永久免费学习"）
-  - 勾选复选框后点"签订契约" → `POST /api/user/pact` → 刷新 profile 变为契约会员 → 关闭弹窗
-- **会员（memberLevel>=1）**：分享区域显示"分享给朋友"虚线按钮，点击直接生成专属海报（单阶段，无契约入口）
+- 分享区域：所有用户统一显示「分享给朋友」虚线按钮（不再按 memberLevel 区分）
+- 点击 → 打开海报弹窗（海报图 + 「保存海报」按钮 + ✕ 关闭），无第二阶段
 - 海报含用户专属小程序码（scene=`i_{userId}`），扫码进入时自动记录邀请关系
 - 卡片转发（`onShareAppMessage`）和朋友圈分享（`onShareTimeline`）通过右上角 ··· 原生菜单触发，均携带 `inviter={userId}` 追踪推广
 - 海报不缓存：每次实时查数据库获取最新头像和昵称
-- 金石契弹窗（`showNuoDialog`）保留，供已获契约会员查看
+- 金石契弹窗（`showNuoDialog`）保留，供已获契约会员查看（点击头部「契约会员」标签触发）
 
 ### my 页面结构
 
@@ -50,8 +41,7 @@ metadata:
 │  │ ████████░░░░░  N%   │  │
 │  └──────────────────────┘  │
 ├──────────────────────────┤
-│  📜 成为契约会员（绿底白字）  │  ← memberLevel=0 时显示
-│  📤 分享给朋友（虚线按钮）  │  ← memberLevel>=1 时显示
+│  📤 分享给朋友（虚线按钮）  │
 ├──────────────────────────┤
 │  📅 打卡日历              │
 │  📝 错题本                │
@@ -86,7 +76,7 @@ UPDATE user SET invited_count = invited_count + 1 WHERE id = ?;
 
 ### 签订契约（手动）
 
-用户在我的页面完成二阶段交互（海报弹窗 → 金石契签订 UI → 勾选确认 → 点击"签订契约"），前端调用 `POST /api/user/pact` → `UserService.signPact()` 设置 `member_level=1`，无前置校验。不再依赖推广数自动升级。
+后端保留 `POST /api/user/pact` → `UserService.signPact()` 设置 `member_level=1`，无前置校验。前端入口已移除，`signPact()` 包装函数已删除。
 
 ### anti-issues 已验证
 
@@ -196,10 +186,8 @@ invite:
 | `app.ts` | `captureLaunchParams()` 解析 scene/inviter → globalData.launchScene/launchQuery；`launchSceneConsumed` 标记防 stale scene 残留 |
 | `utils/request.ts` | `reLogin()` 读取 launchScene → 携带到 login body；消费后设 `launchSceneConsumed=true` |
 | `typings/index.d.ts` | `IAppOption.globalData` 新增 `launchScene`/`launchQuery`/`launchSceneConsumed`；`IInviteStats` |
-| `api/index.ts` | `fetchInvitePoster()` wx.downloadFile 包装；`fetchInviteStats()`；`signPact()` |
-| `pages/mine/index.ts` | `onTapBecomeMember`（→`onTapShare`直接生成海报）、`onTapShare`（二阶段海报弹窗：阶段一海报+保存+签订契约按钮，阶段二金石契签订UI）、`onConfirmShare`（进入阶段二）、`onTogglePactCheck`（复选框）、`onConfirmPact`（调 `signPact` → 刷新profile → 关闭）、`onSavePoster`（保存海报到相册）、`onShareAppMessage` + `onShareTimeline` 带 inviter |
-| `pages/index/index.ts` | `onTapStartLearning()` 门禁检查（`checkinDays >= GATE_ACCUMULATED_DAYS && memberLevel < 1` → 弹窗提示「你已累计学习 N 天，成为契约会员才能继续学习」）。弹窗有「成为契约会员」按钮（`wx.switchTab` 跳转我的）和「暂不」关闭 |
-| `constants/config.ts` | `GATE_ACCUMULATED_DAYS`（默认 10，-1 关闭） |
+| `api/index.ts` | `fetchInvitePoster()` wx.downloadFile 包装；`fetchInviteStats()` |
+| `pages/mine/index.ts` | `onTapShare`（单阶段海报弹窗：海报 + 保存）、`onSavePoster`（保存海报到相册）、`onShareAppMessage` + `onShareTimeline` 带 inviter；`onTapNuoBadge`/`onCloseNuoDialog`（金石契展示弹窗） |
 | `.claude/memory/mine/generate_poster_template.py` | 生成无码模板图（720×1280） |
 
 ---
@@ -232,12 +220,6 @@ invite:
           5. UPDATE inviter SET invited_count = invited_count + 1 WHERE id=?
           6. 回填 invite_record: UPDATE 优先（海报预写），未命中则 INSERT（卡片分享）
     → 签发 JWT
-
-用户 A 签订契约（在我的页面）
-  → 打开海报弹窗 → 点击"签订契约"进入阶段二
-  → 金石契 UI：📜 + 契约文案 + ☑ 复选框 + "签订契约"按钮
-  → 勾选后点击 → POST /api/user/pact → member_level=1
-  → 刷新 profile → 关闭弹窗
 ```
 
 ---

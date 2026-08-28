@@ -21,7 +21,7 @@ quiz_item.id  ←──  quiz_distractor.quiz_item_id         (干扰项，幂�
 
 1. **已有 quizItem 的 id 永远不变**——修改 definition、sentenceText 等字段时保持 id 不变，重新导入后 FK 引用不丢失
 2. **删除 quizItem 时，其 id 永久退役**——不得在新 quizItem 中复用已删除的 id
-3. **新增 quizItem 时，生成全新的 id**——使用下一个可用序号（如当前最大 `s_c_1365`，新 ID 从 `s_c_1467` 起）
+3. **新增 quizItem 时，生成全新的 id**——使用下一个可用序号
 4. **SQL 导入逻辑不可改为 auto-increment**——历史数据依赖 ID 匹配，改为自增会断裂全部引用
 
 ## 检查清单
@@ -33,6 +33,6 @@ quiz_item.id  ←──  quiz_distractor.quiz_item_id         (干扰项，幂�
 **Why:** quiz_item.id 被 `study_mistake_sentence` 和 `user_answer_history` 两个用户数据表 FK 引用。ID 复用会导致 A 词的错题记录错误地指向 B 词的 quizItem，用户数据污染不可逆。
 
 **How to apply:**
-- Phase 3/4 只改 definition 不动 id
+- 只改 definition 不动 id
 - 后续任何词书编辑工作都必须遵守此原则
-- 当前 quizItem ID 最大值为 `s_c_1468`（wb_gaokao_tongjia.json），新增 ID 从 `s_c_1469` 起
+- 新增 ID 前用 grep 现查当前全局最大 ID（命令见 fix-guide 七、E 类第 4 步），取 +1，不依赖记忆中的数字

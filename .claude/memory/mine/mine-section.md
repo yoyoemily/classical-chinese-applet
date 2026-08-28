@@ -7,7 +7,7 @@ metadata:
 
 ## "我的"板块概览
 
-"我的"是 TabBar 第 4 个页面，涵盖个人中心（等级/徽章/契约会员）、分享海报门禁、等级体系展示、勋章墙、打卡日历。关联页面（共 5 个）：
+"我的"是 TabBar 第 4 个页面，涵盖个人中心（等级/徽章/契约会员）、分享海报、等级体系展示、勋章墙、打卡日历。关联页面（共 7 个）：
 
 | 页面 | 路径 | 角色 |
 |------|------|------|
@@ -40,7 +40,7 @@ metadata:
 ### XP 获取规则
 
 - ✅ 每完成一个新学字词（该词所有句子答完，进入字总结时） · +10 XP
-- 🎧 选篇/经典，完整听读音频 · 每 10 字 +1 XP（2026-07-17 已实现）
+- 🎧 选篇/经典，完整听读音频 · 每 10 字 +1 XP
 - 复习词答对不给 XP（防刷机制）
 - 打卡/连续打卡/获得勋章暂不给 XP
 
@@ -69,7 +69,7 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 | 后端 calcLevel | `UserService.java` | `LEVEL_THRESHOLDS` 数组 + `calcLevel()` 从高往低匹配 |
 | 后端 XP 写入 | `StudyService.java` | `completeWord()` 判新学词（`createdAt < todayStart`）+ 即时写入 `user.total_xp`；`submitAnswer()` 和 `completeStudy()` 不再写 XP |
 | 后端 API | `StudyController.java` | `POST /api/study/word-complete` |
-| 后端 API | `POST /api/study/audio-complete` | 新增音频听读 XP 发放（2026-07-17） |
+| 后端 API | `POST /api/study/audio-complete` | 音频听读 XP 发放 |
 | 前端等级常量 | `constants/config.ts` | `LEVEL_THRESHOLDS` + `RANK_TITLES` + `calcLevel()` + `calcAudioXP()` |
 | 前端 mine 页 | `pages/mine/index.*` | `loadProfile()` 取 level/title → WXML 显示等级标签 |
 | 前端等级页 | `pages/level-system/index.*` | 当前等级卡片 + 全部 9 级表 + 经验规则 |
@@ -126,11 +126,11 @@ mine 页展示 "Lv.X 称号" → 点击跳转 level-system 页
 
 ## 分享流程与金石契
 
-邀请体系的完整信息（门禁机制、二阶段签订契约流程、海报生成、绑定逻辑、数据库设计、全链路图、核心文件索引）见 [[invite-referral-system]]。
+邀请体系的完整信息（海报生成、邀请关系绑定、金石契、数据库设计、全链路图、核心文件索引）见 [[invite-referral-system]]。
 
 ---
 
-## 音频听读 XP（2026-07-17 已实现）
+## 音频听读 XP
 
 - **触发**：选篇/经典阅读器中完整听完音频 → `onEnded` 回调 → `POST /api/study/audio-complete`
 - **XP 规则**：后端根据 `contentId` 查数据库取出原文，去标点后统计纯汉字（CJK），每 10 字 = 1 XP

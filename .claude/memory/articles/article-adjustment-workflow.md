@@ -18,7 +18,7 @@ metadata:
 |------|------|
 | `articles_*.json` (知识库，11 个年级分文件 + 1 个壳文章文件) | 选篇正文唯一权威源：标题、句子文本/译文、keyWords |
 | `art_XXX.json` (知识库) | 该篇的典故注释 |
-| `wb_*.json` (词书, 8 本打卡型) | 若 keyWords 有增删，对应 wordEntry 的 quizItems 需同步（keyWordRefs 已废弃于 2026-08-06） |
+| `wb_*.json` (词书, 8 本打卡型) | 若 keyWords 有增删，对应 wordEntry 的 quizItems 需同步（keyWordRefs 已废弃） |
 
 ### 2. 句子增删/移位
 
@@ -34,7 +34,7 @@ metadata:
 
 ### 3. keyWords 标注标准
 
-> ⚠️ **【最重要的一课】2026-07-21 高一下补齐踩坑**：4 首诗词 36 个 keyWord 中仅 1 个与词书对应，其余全为地名/典故/文化隐喻（"坼""乾坤""故国""星河""门外楼头""西江""北斗""姹紫嫣红""朝飞暮卷"等）。根因是没有逐字核对词书，凭感觉把"有文化内涵"的词全标成了 keyWord。**keyWord 的唯一判定标准是：该字/词是否在 8 本打卡型词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。** 不在词书 = 不是 keyWord（有典故价值的归 glossary）。
+> ⚠️ **【最重要的一课】**：凭感觉把“有文化内涵”的词（地名/典故/文化隐喻等）全标成 keyWord 是最大踩坑——必须逐字核对词书。**keyWord 的唯一判定标准是：该字/词是否在 8 本打卡型词书的 `wordEntries[].character` 中存在，且义项匹配句中的实际用法。** 不在词书 = 不是 keyWord（有典故价值的归 glossary）。
 
 **数据关系**：选篇 keyWords 是唯一权威源，词书通过 `kid` 引用。标注新选篇时：
 
@@ -127,7 +127,7 @@ metadata:
 
 若 keyWords 有增删，在对应词书 JSON 中找到匹配的 `wordEntries[]` 条目，增/删其 `quizItems` 数组中对应 `kidRef` 的条目。
 
-> **2026-08-06**：`keyWordRefs` 字段已从词书 JSON 中删除，`word_entry_keyword_ref` 表已从数据库中删除。词书侧唯一指向选篇的引用链是 `quiz_item.kid_ref` → `article_keyword.kid`。
+> `keyWordRefs` 字段已从词书 JSON 中删除，`word_entry_keyword_ref` 表已从数据库中删除。词书侧唯一指向选篇的引用链是 `quiz_item.kid_ref` → `article_keyword.kid`。
 
 ### 6. 导入数据库
 
@@ -181,7 +181,7 @@ curl -X POST {BASE_URL}/api/admin/import/wordbook \
 - [ ] JSON 校验通过
 - [ ] 数据已导入数据库
 
-> ⚠️ 第 6-7 项是 2026-07-21 高一下补齐后的教训——36 条 keyWord 中 35 条不在词书中（地名/典故/文化隐喻误标），根源在于标注后没有交叉验证。
+> ⚠️ 第 6-7 项源于实际教训——keyWord 大量误标为地名/典故/文化隐喻，根源在于标注后没有交叉验证。
 
 ### 9. keyWords 词书关联校验脚本
 
