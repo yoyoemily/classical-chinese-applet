@@ -5,6 +5,7 @@
 - [📗 经典板块](classics/classics-section.md) — 52 部经典/4 种 navMode/5 步集成流程/25 部已上线+内容完整性审计，关联知识库 文言文/经典/readme.md
 - [👤 我的板块](mine/mine-section.md) — 等级体系/徽章系统/邀请追踪/动态海报/金石契/页面结构
 - [🔧 修复总纲](fix/fix-guide.md) — 全系统修复标准，按问题症状（9 个检查点）索引到 A/B/C/D 四类操作。触发词：修复问题、答案错了、释义错误、kidRef 错误、句子有误、选项重复、fix
+- [🎓 修复教练模式](fix/fix-coaching.md) — 用户自己动手修，Claude 只指导+审 SOP；已过 A/B/D 类问题；含已验证的后端导入事实
 - [后端基础设施](backend-infrastructure.md) — Spring Boot 3.2 + MySQL 26 表 + JWT 认证体系 + 导入顺序 + 数据维护脚本索引
 - [📊 数据库表引用关系](database-table-relationships.md) — 词书侧 (word_book/word_book_entry/quiz_item/quiz_distractor) 与选篇侧 (article/article_sentence/article_keyword) 之间的引用关系图、汇总表、关键点
 - [⏳ 生词本性能改造待办](study/vocab-performance-todo.md) — 生词本实时统计方案待改独立表（小英雀已实施可对照），未排期

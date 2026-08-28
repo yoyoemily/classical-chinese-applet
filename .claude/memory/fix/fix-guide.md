@@ -103,7 +103,15 @@ articles_*.json（唯一权威源）
 
 不视为重复：使动/意动/为动 vs 非使动。
 
-**干扰项含正确答案**：改干扰项中与正确答案一致的条目，替换为其他合理的错误义项（同字异义、形近字释义、微殊表述）。
+**干扰项含正确答案**：改干扰项中与正确答案一致的条目，替换为其他合理的错误义项。
+
+**干扰项取材优先级**（替换干扰项时按序取材）：
+
+| 优先级 | 取材来源 | 说明 |
+|:---:|------|------|
+| ① 首选 | `definition_standard.json` 中该字的其他义项 | 逐字原文复制。真实义项，义项间有边界不会与正确答案混淆，教学上顺带复习义项全貌 |
+| ② 次选 | 形近字的释义 | 标准表义项不够填满 3 个干扰位时使用 |
+| ③ 最后 | 微殊表述 | 改写正确义项文字制造相近错误，易出问题，慎用 |
 
 **修改示例**：
 
@@ -310,7 +318,16 @@ kid 永远不修改——要么保留，要么整条删除。如果同一句中�
 
 ### 纯译文/出处修改（不涉及结构变化）
 
-只改 articles JSON 中对应 sentence 的 `translation` 或 article 的 `title`/`author`/`dynasty` 字段 → 通知用户全量导入 articles → 重导词书同步 quizItem 副本字段。导入命令见[八、导入命令速查](#八导入命令速查)。
+改 articles JSON 中对应 sentence 的 `translation` 或 article 的 `title`/`author`/`dynasty` 字段，**并手动同步改词书 JSON 中对应 quizItem 的 `sentenceTranslation`/`sentenceSource`**（后端导入不交叉拷贝，只改一边会被旧值覆盖）→ 先导 articles、后导词书。
+
+注意两个结构差异：
+
+- 选篇 sentence 是**大段**（含多个小句），quizItem 的 sentenceText 只是其中**一个小句**——译文只改对应小句的那一截，且小句译文要能独立成立
+- 译文内**不要增删断句标点**（。！？；），保持与原文分句数对齐，否则选篇分句匹配错乱
+
+出处错误先诊断：按 kidRef 定位，看该文章里有没有这句话——没有 → 走 C 类改 kidRef；有但文章元数据错 → 走本类改 articles 元数据；都对只有词书 sentenceSource 手误 → 只改词书（类 A 类）。
+
+导入命令见[八、导入命令速查](#八导入命令速查)。
 
 ### 句子增删/移位/译文分句对齐
 
@@ -438,6 +455,20 @@ python3 -c "import json; json.load(open('$HOME/knowledge_library/文言文/词�
 ---
 
 ## 八、导入命令速查
+
+**推荐：用后端工程自带脚本**（位于 `~/IdeaProjects/classical-chinese/`，支持 `--all` 全量 / 单篇单本 / 加 `prd` 切正式环境）：
+
+```bash
+cd ~/IdeaProjects/classical-chinese
+./import_article.sh art_xxx        # 选篇：--all 全量 / art_xxx 单篇 / prd 正式环境
+./import_wordbook.sh wb_xxx        # 词书：--all 全量 / wb_xxx 单本 / prd 正式环境
+```
+
+**词书导入后端行为（已核实 DataImportService.java）**：先删后插（`deleteWordBookData` → 重建），quiz_item 全部字段（definition/sentenceTranslation/sentenceSource/distractors）直读词书 JSON，**不从选篇现拷**——任何 quizItem 字段修改都必须手动改词书 JSON，重导不会自动同步。`definition_standard.json` 后端不读，扩充后无需导入。
+
+**curl 原始命令（备用）：**
+
+```bash
 BASE_URL="http://localhost:8080"  # 本地
 # BASE_URL="https://wyq.yinqueai.com"  # 线上
 
