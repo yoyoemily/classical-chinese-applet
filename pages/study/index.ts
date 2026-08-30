@@ -12,7 +12,7 @@ interface IStudyData {
   showResult: boolean;
   currentWord: string;
   currentWordType: string;
-  currentSentence: { id: string; text: string; source: string; translation: string; articleId?: string; audioUrl?: string } | null;
+  currentSentence: { id: string; text: string; source: string; translation: string; articleId?: string; audioUrl?: string; ttsText?: string } | null;
   options: string[];
   selectedIndex: number;
   correctIndex: number;
@@ -233,7 +233,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
 
     this.setData({
       screen: 'preStep',
-      currentSentence: { id: sent.id, text: sent.sentenceText || '', source: sent.sentenceSource || '', translation: sent.sentenceTranslation || '', articleId: sent.articleId, audioUrl: sent.audioUrl },
+      currentSentence: { id: sent.id, text: sent.sentenceText || '', source: sent.sentenceSource || '', translation: sent.sentenceTranslation || '', articleId: sent.articleId, audioUrl: sent.audioUrl, ttsText: sent.ttsText || '' },
       preStepPrompt: this._getPreStepPrompt(),
       sentenceChars: chars,
       preStepSelectedIndices: [],
@@ -374,14 +374,14 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
     this.setData({
       screen: 'question', showResult: false, currentWord: word.character,
       currentWordType: wordTypeLabel(sent.targetWord ? this._wordsMap[word.entryId]?.wordType || '' : ''),
-      currentSentence: { id: sent.id, text: sent.sentenceText || '', source: sent.sentenceSource || '', translation: sent.sentenceTranslation || '', articleId: sent.articleId, audioUrl: sent.audioUrl },
+      currentSentence: { id: sent.id, text: sent.sentenceText || '', source: sent.sentenceSource || '', translation: sent.sentenceTranslation || '', articleId: sent.articleId, audioUrl: sent.audioUrl, ttsText: sent.ttsText || '' },
       options: opts, selectedIndex: -1, correctIndex: ci,
       sentencePrefix: prefix, sentenceTarget: target, sentenceSuffix: suffix,
       showCorrect: false, showWrong: false,
     });
 
     if (this._autoPlayAudio) {
-      this._playSentenceAudio(sent.sentenceText || '', sent.audioUrl);
+      this._playSentenceAudio(sent.ttsText || sent.sentenceText || '', sent.audioUrl);
     }
   },
 
@@ -635,7 +635,7 @@ Page<IStudyData, WechatMiniprogram.Page.CustomOption>({
       this._tts.stop();
       return;
     }
-    this._playSentenceAudio(currentSentence.text, currentSentence.audioUrl);
+    this._playSentenceAudio(currentSentence.ttsText || currentSentence.text, currentSentence.audioUrl);
   },
 
   _playSentenceAudio(text: string, audioUrl?: string): void {

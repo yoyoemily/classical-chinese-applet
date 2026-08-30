@@ -126,6 +126,8 @@ export interface IQuizItem {
   articleId?: string
   /** 句子预录音频 URL */
   audioUrl?: string
+  /** TTS 发音替换文本（同音字替换多音字，空则用原句发音） */
+  ttsText?: string
 }
 
 export interface IWordUsage {
