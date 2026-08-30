@@ -24,7 +24,7 @@ export const DEFAULT_DAILY_REVIEW_WORDS = 5;
 export const MAX_DAILY_REVIEW_LIMIT = 15;
 
 /** 学习页"任意选字"调试功能开关。true 开启，false 关闭 */
-export const ENABLE_WORD_PICKER = false;
+export const ENABLE_WORD_PICKER = true;
 
 // ============================================
 // 等级体系

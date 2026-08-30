@@ -33,17 +33,10 @@
 8. 前端验证：答题界面该题译文正确；顺带看选篇阅读器里这句话的译文也变了
 
 ### 字词打卡例句出处有误
- ▎ 词书 JSON 里 quizItem 的 sentenceSource 应当等于 kidRef 指向文章 title 的《篇名》形式。
-
-  拿本例验证：s_c_0005 的 kidRef → kw_art_001_s01_备_0 → art_001 → title「岳阳楼记」→ 应然值《岳阳楼记》，词书里写的也是《岳阳楼记》，一致 ✅。
-
-  诊断：对比「应然值」和「实际值」
-
-  1. 词书 JSON 里看 quizItem 的 sentenceSource（实际值）
-  2. 按完整 kid 搜选篇，看所在文章的 title/author/dynasty（应然值）
-  3. 对照，落进三种情形之一：
-
-  情形 1：kidRef 指错了文章（走 C 类）
+1. 知识库词书搜索例句~/knowledge_library/文言文/词书/wb_*.json
+2. 搜索到的quizItems项，留意sentenceSource（实际值），并拿kidRef搜选篇keywords项，搜到后，向上层找到title（应然值）
+3. 诊断：对比「应然值」和「实际值」
+  情形 1：kidRef 指错了文章
 
   例句真实出自 A 文，但 kidRef 指向 B 文的 keyWord。判定信号：按 kidRef 定位到的句子，根本不含这句话。
 
@@ -52,14 +45,13 @@
     - 没有 → 先在 A 文新增 keyWord（kid 按 kw_{articleId}_s{xx}_{字}_{序号} 生成、wordBookId 必填、definition 原文复制自标准表），再改词书 kidRef + sentenceSource
   - 导入：先导选篇（改了/新增了 keyWord），后导词书
 
-  情形 2：文章元数据本身错了（走 D 类）
+  情形 2：文章元数据本身错了
 
   kidRef 没指错、句子就在这篇文章里，但文章的 title/author/dynasty 在 articles JSON 里写错了（比如篇名写错字、作者朝代标错）。
 
   - 改 articles JSON 里该文章的元数据字段
-  - 改词书 JSON 里相关 quizItem 的 sentenceSource（若有该文其他例句，全查一遍：grep 篇名或按文章 id 过滤）
+  - 改词书 JSON 里相关 quizItem 的 sentenceSource
   - 导入：先导选篇（./import_article.sh art_xxx），后导词书
-  - 附带影响：选篇板块的列表标题/作者也一起变了，验证时顺带看一眼
 
   情形 3：只有词书的 sentenceSource 手误（只改词书）
 
@@ -67,3 +59,6 @@
 
   - 只改词书 JSON 那一处 → 校验 → ./import_wordbook.sh wb_xxx
   - 不用动选篇、不用导选篇
+
+### 修复
+如果字词打卡例句来自壳文章，那么quizItems项的kidRef应该是null
